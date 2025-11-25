@@ -13,10 +13,9 @@ import random
 import re
 from string import Template
 
-import secrets_fetcher as secrets
-
 import flask
 import requests
+import secrets_fetcher as secrets
 
 app = flask.Flask(__name__)
 
@@ -33,6 +32,7 @@ LECTIONARY_CSV_PATH = os.path.join(SCRIPT_DIR, "daily_lectionary.csv")
 CATECHISM_JSON_PATH = os.path.join(SCRIPT_DIR, "catechism.json")
 HTML_TEMPLATE_PATH = os.path.join(SCRIPT_DIR, "evening_devotion.html")
 WEEKLY_PRAYERS_JSON_PATH = os.path.join(SCRIPT_DIR, "weekly_prayers.json")
+INDEX_HTML_PATH = os.path.join(SCRIPT_DIR, "index.html")
 
 
 def load_weekly_prayers():
@@ -215,17 +215,35 @@ def load_lectionary(filepath):
   return lectionary
 
 
-def get_bible_text(reference):
-  """Fetches text from api.esv.org (ESV translation)."""
-  if not reference or reference == "Daily Lectionary Not Found":
-    return "<i>Reading not available.</i>"
+def fetch_passages(references):
+  """Fetches multiple passages from api.esv.org in one request."""
+  passage_results = {}
+  valid_refs_set = set()
+  for ref in references:
+    if ref and ref != "Daily Lectionary Not Found":
+      valid_refs_set.add(ref)
+      passage_results[ref] = "<i>Reading not available.</i>"
+    else:
+      passage_results[ref] = "<i>Reading not available.</i>"
+
+  valid_refs_list = sorted(
+      list(valid_refs_set)
+  )  # sorted to make query deterministic for caching/debugging
+
+  if not valid_refs_list:
+    return [passage_results[ref] for ref in references]
 
   api_key = secrets.get_esv_api_key()
   if not api_key:
-    return "<i>ESV_API_KEY environment variable not set. Cannot fetch text.</i>"
+    for ref in valid_refs_list:
+      passage_results[ref] = (
+          "<i>ESV_API_KEY environment variable not set. Cannot fetch text.</i>"
+      )
+    return [passage_results[ref] for ref in references]
 
+  query = ";".join(valid_refs_list)
   params = {
-      "q": reference,
+      "q": query,
       "include-headings": "false",
       "include-footnotes": "false",
       "include-verse-numbers": "true",
@@ -233,29 +251,41 @@ def get_bible_text(reference):
       "include-chapter-numbers": "false",
   }
   headers = {"Authorization": f"Token {api_key}"}
+
   try:
     response = requests.get(
         "https://api.esv.org/v3/passage/text/",
         params=params,
         headers=headers,
-        timeout=5,
+        timeout=10,
     )
-    response.raise_for_status()  # Raise HTTPError for bad responses (4xx or 5xx)
+    response.raise_for_status()
     data = response.json()
-    if not data.get("passages"):
-      return f"<i>(Text not found for {reference})</i>"
 
-    text_block = "".join(data["passages"]).strip()
-    # The ESV API returns verse numbers as [X]. Replace with <sup>X</sup>
-    text_block = re.sub(r"\[(\d+)\]", r"<sup>\1</sup>", text_block)
-    return text_block
+    if data.get("passages") and len(data["passages"]) == len(valid_refs_list):
+      for i, ref in enumerate(valid_refs_list):
+        text_block = data["passages"][i].strip()
+        text_block = re.sub(r"\[(\d+)\]", r"<sup>\1</sup>", text_block)
+        passage_results[ref] = text_block
+    else:
+      # If passages are missing or count mismatch, mark all as not found from API
+      for ref in valid_refs_list:
+        passage_results[ref] = f"<i>(Text not found for {ref})</i>"
+
+    return [passage_results[ref] for ref in references]
 
   except requests.exceptions.RequestException as e:
     print(f"Error fetching from ESV API: {e}")
-    return f"<i>(Could not connect to ESV API for {reference})</i>"
+    error_msg = "<i>(Could not connect to ESV API)</i>"
+    for ref in valid_refs_list:
+      passage_results[ref] = error_msg
+    return [passage_results[ref] for ref in references]
   except Exception as e:
     print(f"Error processing ESV API response: {e}")
-    return f"<i>(Error processing ESV API response for {reference})</i>"
+    error_msg = "<i>(Error processing ESV API response)</i>"
+    for ref in valid_refs_list:
+      passage_results[ref] = error_msg
+    return [passage_results[ref] for ref in references]
 
 
 def generate_devotion():
@@ -290,19 +320,20 @@ def generate_devotion():
   if readings["OT"] == "Reading not found":
     print(f"Warning: Key '{key}' not found in CSV.")
 
-  # 4. Fetch Texts
+  # 4. Psalm Ref & Fetch Texts
   print("Fetching texts...")
-  ot_text = get_bible_text(readings["OT"])
-  nt_text = get_bible_text(readings["NT"])
-
-  # 5. Psalm & Catechism
   day_of_year = now.timetuple().tm_yday
   psalm_num = (day_of_year - 1) % 150 + 1
   psalm_ref = f"Psalm {psalm_num}"
-  psalm_text = get_bible_text(psalm_ref)
 
+  refs_to_fetch = [readings["OT"], readings["NT"], psalm_ref]
+  ot_text, nt_text, psalm_text = fetch_passages(refs_to_fetch)
+  print("Texts Acquired")
+
+  # 5. Catechism
   cat_idx = day_of_year % len(CATECHISM_SECTIONS)
   catechism = CATECHISM_SECTIONS[cat_idx]
+  print("Populated Catechism Reading")
 
   # 6. Weekly Prayer
   weekday_idx = now.weekday()
@@ -310,7 +341,10 @@ def generate_devotion():
       str(weekday_idx), {"topic": "General Intercessions", "prayer": ""}
   )
   prayer_topic = prayer_data["topic"]
-  weekly_prayer_html = f'<p>{prayer_data["prayer"]}</p>' if prayer_data["prayer"] else ""
+  weekly_prayer_html = (
+      f'<p>{prayer_data["prayer"]}</p>' if prayer_data["prayer"] else ""
+  )
+  print("Populated Weekly Prayer section")
 
   # 7. Generate HTML
   catechism_meaning_html = ""
@@ -344,11 +378,17 @@ def generate_devotion():
       prayer_topic=prayer_topic,
       weekly_prayer_html=weekly_prayer_html,
   )
-
+  print("Generated HTML")
   return html
 
 
 @app.route("/")
+def index_route():
+  """Returns the homepage HTML."""
+  with open(INDEX_HTML_PATH, "r", encoding="utf-8") as f:
+    return f.read()
+
+
 @app.route("/evening_devotion")
 def evening_devotion_route():
   """Returns the generated devotion HTML."""
