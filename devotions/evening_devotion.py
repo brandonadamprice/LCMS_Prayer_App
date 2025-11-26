@@ -11,6 +11,7 @@ import json
 import os
 import random
 import re
+import pytz
 from string import Template
 
 import flask
@@ -299,7 +300,8 @@ def generate_devotion():
       The generated HTML as a string.
   """
   # 1. Setup Date & Church Year
-  now = datetime.datetime.now()
+  eastern_timezone = pytz.timezone('America/New_York')
+  now = datetime.datetime.now(eastern_timezone)
   # Debugging: Uncomment to test a specific date
   # now = datetime.datetime(2025, 2, 26) # Ash Wednesday 2025 example
 
