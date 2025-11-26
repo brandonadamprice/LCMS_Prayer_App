@@ -1,0 +1,2683 @@
+[
+  {
+    "Key": "Ash Wednesday",
+    "OT": "Gen 1:1-19",
+    "NT": "Mark 1:1-13",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Ash Thursday",
+    "OT": "Gen 1:20-2:3",
+    "NT": "Mark 1:14-28",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Ash Friday",
+    "OT": "Gen 2:4-25",
+    "NT": "Mark 1:29-45",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Ash Saturday",
+    "OT": "Gen 3:1-24",
+    "NT": "Mark 2:1-17",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Lent 1 Sunday",
+    "OT": "Gen 4:1-26",
+    "NT": "Mark 2:18-28",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Lent 1 Monday",
+    "OT": "Gen 6:1-7:5",
+    "NT": "Mark 3:1-19",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Lent 1 Tuesday",
+    "OT": "Gen 7:11-8:12",
+    "NT": "Mark 3:20-35",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Lent 1 Wednesday",
+    "OT": "Gen 8:13-9:17",
+    "NT": "Mark 4:1-20",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Lent 1 Thursday",
+    "OT": "Gen 11:27-12:20",
+    "NT": "Mark 4:21-41",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Lent 1 Friday",
+    "OT": "Gen 13:1-18",
+    "NT": "Mark 5:1-20",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Lent 1 Saturday",
+    "OT": "Gen 15:1-21",
+    "NT": "Mark 5:21-43",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Lent 2 Sunday",
+    "OT": "Gen 16:1-17:22",
+    "NT": "Mark 6:1-13",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Lent 2 Monday",
+    "OT": "Gen 18:1-15",
+    "NT": "Mark 6:14-34",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Lent 2 Tuesday",
+    "OT": "Gen 21:1-21",
+    "NT": "Mark 6:35-56",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Lent 2 Wednesday",
+    "OT": "Gen 22:1-19",
+    "NT": "Mark 7:1-23",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Lent 2 Thursday",
+    "OT": "Gen 24:1-31",
+    "NT": "Mark 7:24-37",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Lent 2 Friday",
+    "OT": "Gen 24:32-67",
+    "NT": "Mark 8:1-21",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Lent 2 Saturday",
+    "OT": "Gen 27:1-29",
+    "NT": "Mark 8:22-38",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Lent 3 Sunday",
+    "OT": "Gen 27:30-28:22",
+    "NT": "Mark 9:1-13",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Lent 3 Monday",
+    "OT": "Gen 29:1-30",
+    "NT": "Mark 9:14-32",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Lent 3 Tuesday",
+    "OT": "Gen 35:1-29",
+    "NT": "Mark 9:33-50",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Lent 3 Wednesday",
+    "OT": "Gen 37:1-36",
+    "NT": "Mark 10:1-12",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Lent 3 Thursday",
+    "OT": "Gen 39:1-23",
+    "NT": "Mark 10:13-31",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Lent 3 Friday",
+    "OT": "Gen 40:1-23",
+    "NT": "Mark 10:32-52",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Lent 3 Saturday",
+    "OT": "Gen 41:1-27",
+    "NT": "Mark 11:1-19",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Lent 4 Sunday",
+    "OT": "Gen 41:28-57",
+    "NT": "Mark 11:20-33",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Lent 4 Monday",
+    "OT": "Gen 42:1-38",
+    "NT": "Mark 12:1-12",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Lent 4 Tuesday",
+    "OT": "Gen 43:1-28",
+    "NT": "Mark 12:13-27",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Lent 4 Wednesday",
+    "OT": "Gen 44:1-34",
+    "NT": "Mark 12:28-44",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Lent 4 Thursday",
+    "OT": "Gen 45:1-28",
+    "NT": "Mark 13:1-23",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Lent 4 Friday",
+    "OT": "Gen 47:1-31",
+    "NT": "Mark 13:24-37",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Lent 4 Saturday",
+    "OT": "Gen 49:29-50:26",
+    "NT": "Mark 14:1-11",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Lent 5 Sunday",
+    "OT": "Ex 1:1-22",
+    "NT": "Mark 14:12-31",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Lent 5 Monday",
+    "OT": "Ex 2:1-22",
+    "NT": "Mark 14:32-52",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Lent 5 Tuesday",
+    "OT": "Ex 2:23-3:22",
+    "NT": "Mark 14:53-72",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Lent 5 Wednesday",
+    "OT": "Ex 4:1-18",
+    "NT": "Mark 15:1-15",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Lent 5 Thursday",
+    "OT": "Ex 4:19-31",
+    "NT": "Mark 15:16-32",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Lent 5 Friday",
+    "OT": "Ex 5:1-6:1",
+    "NT": "Mark 15:33-47",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Lent 5 Saturday",
+    "OT": "Ex 7:1-25",
+    "NT": "Mark 16:1-20",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Palm Sunday",
+    "OT": "Ex 8:1-32",
+    "NT": "Heb 1:1-14",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Holy Week Monday",
+    "OT": "Ex 9:1-28",
+    "NT": "Heb 2:1-18",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Holy Week Tuesday",
+    "OT": "Ex 9:29-10:20",
+    "NT": "Heb 3:1-19",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Holy Week Wednesday",
+    "OT": "Ex 10:21-11:10",
+    "NT": "Heb 4:1-16",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Maundy Thursday",
+    "OT": "Ex 12:1-28",
+    "NT": "Heb 5:1-14",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Good Friday",
+    "OT": "Ex 12:29-13:16",
+    "NT": "Heb 6:1-20",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Holy Saturday",
+    "OT": "Ex 13:17-14:9",
+    "NT": "Heb 7:1-22",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter Sunday",
+    "OT": "Ex 14:10-31",
+    "NT": "Heb 7:23-8:13",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter Monday",
+    "OT": "Ex 15:1-18",
+    "NT": "Heb 9:1-28",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter Tuesday",
+    "OT": "Ex 15:19-16:12",
+    "NT": "Heb 10:1-18",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter Wednesday",
+    "OT": "Ex 16:13-35",
+    "NT": "Heb 10:19-39",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter Thursday",
+    "OT": "Ex 17:1-16",
+    "NT": "Heb 11:1-29",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter Friday",
+    "OT": "Ex 18:5-27",
+    "NT": "Heb 12:1-24",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter Saturday",
+    "OT": "Ex 19:1-25",
+    "NT": "Heb 13:1-21",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter 2 Sunday",
+    "OT": "Ex 20:1-24",
+    "NT": "Luke 4:1-15",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter 2 Monday",
+    "OT": "Ex 22:20-23:13",
+    "NT": "Luke 4:16-30",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter 2 Tuesday",
+    "OT": "Ex 23:14-33",
+    "NT": "Luke 4:31-44",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter 2 Wednesday",
+    "OT": "Ex 24:1-18",
+    "NT": "Luke 5:1-16",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter 2 Thursday",
+    "OT": "Ex 25:1-22",
+    "NT": "Luke 5:17-39",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter 2 Friday",
+    "OT": "Ex 31:1-18",
+    "NT": "Luke 6:1-19",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter 2 Saturday",
+    "OT": "Ex 32:1-14",
+    "NT": "Luke 6:20-38",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter 3 Sunday",
+    "OT": "Ex 32:15-35",
+    "NT": "Luke 6:39-49",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter 3 Monday",
+    "OT": "Ex 33:1-23",
+    "NT": "Luke 7:1-17",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter 3 Tuesday",
+    "OT": "Ex 34:1-28",
+    "NT": "Luke 7:18-35",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter 3 Wednesday",
+    "OT": "Ex 34:29-35:21",
+    "NT": "Luke 7:36-50",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter 3 Thursday",
+    "OT": "Ex 38:21-39:31",
+    "NT": "Luke 8:1-21",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter 3 Friday",
+    "OT": "Ex 39:32-40:16",
+    "NT": "Luke 8:22-39",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter 3 Saturday",
+    "OT": "Ex 40:17-38",
+    "NT": "Luke 8:40-56",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter 4 Sunday",
+    "OT": "Lev 8:1-36",
+    "NT": "Luke 9:1-17",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter 4 Monday",
+    "OT": "Lev 9:1-24",
+    "NT": "Luke 9:18-36",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter 4 Tuesday",
+    "OT": "Lev 10:1-20",
+    "NT": "Luke 9:37-62",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter 4 Wednesday",
+    "OT": "Lev 16:1-24",
+    "NT": "Luke 10:1-22",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter 4 Thursday",
+    "OT": "Lev 17:1-16",
+    "NT": "Luke 10:23-42",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter 4 Friday",
+    "OT": "Lev 18:1-19:8",
+    "NT": "Luke 11:1-13",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter 4 Saturday",
+    "OT": "Lev 19:9-37",
+    "NT": "Luke 11:14-36",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter 5 Sunday",
+    "OT": "Lev 20:1-27",
+    "NT": "Luke 11:37-54",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter 5 Monday",
+    "OT": "Lev 21:1-24",
+    "NT": "Luke 12:1-12",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter 5 Tuesday",
+    "OT": "Lev 23:1-22",
+    "NT": "Luke 12:13-34",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter 5 Wednesday",
+    "OT": "Lev 23:23-44",
+    "NT": "Luke 12:35-53",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter 5 Thursday",
+    "OT": "Lev 24:1-23",
+    "NT": "Luke 12:54-13:17",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter 5 Friday",
+    "OT": "Lev 26:1-20",
+    "NT": "Luke 13:18-35",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter 5 Saturday",
+    "OT": "Lev 26:21-44",
+    "NT": "Luke 14:1-24",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter 6 Sunday",
+    "OT": "Num 3:1-48",
+    "NT": "Luke 14:25-15:10",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter 6 Monday",
+    "OT": "Num 8:5-26",
+    "NT": "Luke 15:11-32",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter 6 Tuesday",
+    "OT": "Num 9:1-23",
+    "NT": "Luke 16:1-18",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter 6 Wednesday",
+    "OT": "Num 10:11-36",
+    "NT": "Luke 16:19-31",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Ascension Day",
+    "OT": "Num 11:1-35",
+    "NT": "Luke 17:1-19",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter 6 Friday",
+    "OT": "Num 11:24-12:16",
+    "NT": "Luke 17:20-37",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter 6 Saturday",
+    "OT": "Num 13:1-33",
+    "NT": "Luke 18:1-17",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter 7 Sunday",
+    "OT": "Num 14:1-25",
+    "NT": "Luke 18:18-34",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter 7 Monday",
+    "OT": "Num 14:26-45",
+    "NT": "Luke 18:35-19:10",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter 7 Tuesday",
+    "OT": "Num 16:1-22",
+    "NT": "Luke 19:11-28",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter 7 Wednesday",
+    "OT": "Num 16:23-40",
+    "NT": "Luke 19:29-48",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter 7 Thursday",
+    "OT": "Num 16:41-17:13",
+    "NT": "Luke 20:1-18",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter 7 Friday",
+    "OT": "Num 20:22-21:9",
+    "NT": "Luke 20:45-21:19",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Easter 7 Saturday",
+    "OT": "Num 21:10-35",
+    "NT": "Luke 21:20-38",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Pentecost Sunday",
+    "OT": "Num 22:1-20",
+    "NT": "Luke 22:1-23",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Pentecost Monday",
+    "OT": "Num 22:21-23:3",
+    "NT": "Luke 22:24-46",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Pentecost Tuesday",
+    "OT": "Num 23:4-28",
+    "NT": "Luke 22:47-71",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Pentecost Wednesday",
+    "OT": "Num 24:1-25",
+    "NT": "Luke 23:1-25",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Pentecost Thursday",
+    "OT": "Num 27:12-23",
+    "NT": "Luke 23:26-56",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Pentecost Friday",
+    "OT": "Num 32:1-27",
+    "NT": "Luke 24:1-27",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Pentecost Saturday",
+    "OT": "Num 35:9-30",
+    "NT": "Luke 24:28-53",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "Holy Trinity",
+    "OT": "Song 1:1-2:7",
+    "NT": "John 5:1-18",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "04 Jun",
+    "OT": "Eccl 12:1-14",
+    "NT": "John 11:1-16",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "05 Jun",
+    "OT": "Prov 1:8-33",
+    "NT": "John 11:17-37",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "06 Jun",
+    "OT": "Prov 3:5-24",
+    "NT": "John 11:38-57",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "07 Jun",
+    "OT": "Prov 4:1-27",
+    "NT": "John 12:1-19",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "08 Jun",
+    "OT": "Prov 5:1-23",
+    "NT": "John 12:20-36a",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "09 Jun",
+    "OT": "Prov 8:1-21",
+    "NT": "John 12:36b-50",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "10 Jun",
+    "OT": "Prov 8:22-36",
+    "NT": "John 13:1-20",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "11 Jun",
+    "OT": "Prov 9:1-18",
+    "NT": "John 13:21-38",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "12 Jun",
+    "OT": "Prov 10:1-23",
+    "NT": "John 14:1-17",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "13 Jun",
+    "OT": "Prov 13:1-25",
+    "NT": "John 14:18-31",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "14 Jun",
+    "OT": "Prov 14:1-27",
+    "NT": "John 15:1-11",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "15 Jun",
+    "OT": "Prov 15:1-29",
+    "NT": "John 15:12-27",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "16 Jun",
+    "OT": "Prov 16:1-24",
+    "NT": "John 16:1-16",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "17 Jun",
+    "OT": "Prov 17:1-28",
+    "NT": "John 16:17-33",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "18 Jun",
+    "OT": "Prov 20:5-25",
+    "NT": "John 17:1-26",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "19 Jun",
+    "OT": "Prov 22:1-21",
+    "NT": "John 18:1-14",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "20 Jun",
+    "OT": "Prov 22:22-23:12",
+    "NT": "John 18:15-40",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "21 Jun",
+    "OT": "Prov 24:1-22",
+    "NT": "John 19:1-22",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "22 Jun",
+    "OT": "Prov 25:1-22",
+    "NT": "John 19:23-42",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "23 Jun",
+    "OT": "Prov 27:1-24",
+    "NT": "John 20:1-18",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "24 Jun",
+    "OT": "Prov 30:1-33",
+    "NT": "John 20:19-31",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "25 Jun",
+    "OT": "Prov 31:10-31",
+    "NT": "John 21:1-25",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "26 Jun",
+    "OT": "Josh 1:1-18",
+    "NT": "Acts 8:1-25",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "27 Jun",
+    "OT": "Josh 2:1-24",
+    "NT": "Acts 8:26-40",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "28 Jun",
+    "OT": "Josh 3:1-17",
+    "NT": "Acts 9:1-22",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "29 Jun",
+    "OT": "Josh 4:1-24",
+    "NT": "Acts 9:23-43",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "30 Jun",
+    "OT": "Josh 5:1-6:5",
+    "NT": "Acts 10:1-17",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "01 Jul",
+    "OT": "Josh 6:6-27",
+    "NT": "Acts 10:18-33",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "02 Jul",
+    "OT": "Josh 7:1-26",
+    "NT": "Acts 10:34-48",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "03 Jul",
+    "OT": "Josh 8:1-28",
+    "NT": "Acts 11:1-18",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "04 Jul",
+    "OT": "Josh 10:1-25",
+    "NT": "Acts 11:19-30",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "05 Jul",
+    "OT": "Josh 23:1-16",
+    "NT": "Acts 12:1-25",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "06 Jul",
+    "OT": "Josh 24:1-31",
+    "NT": "Acts 13:1-12",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "07 Jul",
+    "OT": "Judg 2:6-23",
+    "NT": "Acts 13:13-41",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "08 Jul",
+    "OT": "Judg 3:7-31",
+    "NT": "Acts 13:42-52",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "09 Jul",
+    "OT": "Judg 4:1-24",
+    "NT": "Acts 14:1-18",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "10 Jul",
+    "OT": "Judg 6:1-24",
+    "NT": "Acts 14:19-15:5",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "11 Jul",
+    "OT": "Judg 6:25-40",
+    "NT": "Acts 15:6-21",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "12 Jul",
+    "OT": "Judg 7:1-23",
+    "NT": "Gal 1:1-24",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "13 Jul",
+    "OT": "Judg 13:1-25",
+    "NT": "Gal 2:1-21",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "14 Jul",
+    "OT": "Judg 14:1-20",
+    "NT": "Gal 3:1-22",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "15 Jul",
+    "OT": "Judg 15:1-16:3",
+    "NT": "Gal 3:23-4:11",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "16 Jul",
+    "OT": "Judg 16:4-30",
+    "NT": "Gal 4:12-31",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "17 Jul",
+    "OT": "1 Sam 1:1-20",
+    "NT": "Gal 5:1-26",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "18 Jul",
+    "OT": "1 Sam 1:21-2:17",
+    "NT": "Gal 6:1-18",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "19 Jul",
+    "OT": "1 Sam 2:18-36",
+    "NT": "Acts 15:22-41",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "20 Jul",
+    "OT": "1 Sam 3:1-21",
+    "NT": "Acts 16:1-22",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "21 Jul",
+    "OT": "1 Sam 4:1-22",
+    "NT": "Acts 16:23-40",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "22 Jul",
+    "OT": "1 Sam 5:1-6:16",
+    "NT": "Acts 18:1-11",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "23 Jul",
+    "OT": "1 Sam 6:19-7:17",
+    "NT": "Acts 18:23-28",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "24 Jul",
+    "OT": "1 Sam 8:1-22",
+    "NT": "Acts 19:23-21:14",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "25 Jul",
+    "OT": "1 Sam 9:1-27",
+    "NT": "Acts 21:15-36",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "26 Jul",
+    "OT": "1 Sam 10:1-27",
+    "NT": "Acts 21:37-22:16",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "27 Jul",
+    "OT": "1 Sam 12:1-25",
+    "NT": "Acts 22:30-23:11",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "28 Jul",
+    "OT": "1 Sam 13:1-18",
+    "NT": "Acts 23:12-35",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "29 Jul",
+    "OT": "1 Sam 14:47-15:9",
+    "NT": "Acts 24:1-23",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "30 Jul",
+    "OT": "1 Sam 15:10-35",
+    "NT": "Acts 24:24-25:12",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "31 Jul",
+    "OT": "1 Sam 16:1-23",
+    "NT": "Acts 25:13-27",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "01 Aug",
+    "OT": "1 Sam 17:1-19",
+    "NT": "Acts 26:1-23",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "02 Aug",
+    "OT": "1 Sam 17:20-47",
+    "NT": "Acts 26:24-27:8",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "03 Aug",
+    "OT": "1 Sam 17:48-18:9",
+    "NT": "Acts 27:9-26",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "04 Aug",
+    "OT": "1 Sam 18:10-30",
+    "NT": "Acts 27:27-44",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "05 Aug",
+    "OT": "1 Sam 19:1-24",
+    "NT": "Acts 28:1-15",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "06 Aug",
+    "OT": "1 Sam 20:1-23",
+    "NT": "Acts 28:16-31",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "07 Aug",
+    "OT": "1 Sam 20:24-42",
+    "NT": "1 Cor 1:1-25",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "08 Aug",
+    "OT": "1 Sam 24:1-22",
+    "NT": "1 Cor 1:26-2:16",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "09 Aug",
+    "OT": "1 Sam 25:1-22",
+    "NT": "1 Cor 3:1-23",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "10 Aug",
+    "OT": "1 Sam 25:23-44",
+    "NT": "1 Cor 4:1-21",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "11 Aug",
+    "OT": "1 Sam 26:1-25",
+    "NT": "1 Cor 5:1-13",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "12 Aug",
+    "OT": "1 Sam 28:3-25",
+    "NT": "1 Cor 6:1-20",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "13 Aug",
+    "OT": "1 Sam 31:1-13",
+    "NT": "1 Cor 7:1-24",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "14 Aug",
+    "OT": "2 Sam 1:1-27",
+    "NT": "1 Cor 7:25-40",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "15 Aug",
+    "OT": "2 Sam 5:1-25",
+    "NT": "1 Cor 8:1-13",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "16 Aug",
+    "OT": "2 Sam 6:1-19",
+    "NT": "1 Cor 9:1-23",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "17 Aug",
+    "OT": "2 Sam 7:1-17",
+    "NT": "1 Cor 9:24-10:22",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "18 Aug",
+    "OT": "2 Sam 7:18-29",
+    "NT": "1 Cor 10:23-11:16",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "19 Aug",
+    "OT": "2 Sam 11:1-27",
+    "NT": "1 Cor 11:17-34",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "20 Aug",
+    "OT": "2 Sam 12:1-25",
+    "NT": "1 Cor 12:1-13",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "21 Aug",
+    "OT": "1 Kings 1:1-35",
+    "NT": "1 Cor 12:14-31",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "22 Aug",
+    "OT": "1 Kings 2:1-27",
+    "NT": "1 Cor 13:1-13",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "23 Aug",
+    "OT": "1 Kings 3:1-15",
+    "NT": "1 Cor 14:1-22",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "24 Aug",
+    "OT": "1 Kings 5:1-18",
+    "NT": "1 Cor 14:23-2:17",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "25 Aug",
+    "OT": "1 Kings 7:51-8:21",
+    "NT": "1 Cor 3:1-18",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "26 Aug",
+    "OT": "1 Kings 8:22-63",
+    "NT": "1 Cor 4:1-18",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "27 Aug",
+    "OT": "1 Kings 9:1-10:13",
+    "NT": "1 Cor 5:1-21",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "28 Aug",
+    "OT": "1 Kings 11:1-26",
+    "NT": "1 Cor 6:1-18",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "29 Aug",
+    "OT": "1 Kings 11:42-12:19",
+    "NT": "1 Cor 7:1-16",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "30 Aug",
+    "OT": "1 Kings 12:20-13:34",
+    "NT": "1 Cor 8:1-24",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "31 Aug",
+    "OT": "1 Kings 16:29-17:24",
+    "NT": "1 Cor 9:1-15",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "01 Sep",
+    "OT": "1 Kings 18:1-19",
+    "NT": "2 Cor 10:1-13:13",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "02 Sep",
+    "OT": "1 Kings 18:20-40",
+    "NT": "Eph 1:1-23",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "03 Sep",
+    "OT": "1 Kings 19:1-21",
+    "NT": "Eph 2:1-22",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "04 Sep",
+    "OT": "2 Kings 2:1-18",
+    "NT": "Eph 3:1-21",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "05 Sep",
+    "OT": "2 Kings 2:19-4:7",
+    "NT": "Eph 4:1-24",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "06 Sep",
+    "OT": "2 Kings 4:8-37",
+    "NT": "Eph 4:25-5:14",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "07 Sep",
+    "OT": "2 Kings 4:38-5:8",
+    "NT": "Eph 5:15-33",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "08 Sep",
+    "OT": "2 Kings 5:9-27",
+    "NT": "Eph 6:1-24",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "09 Sep",
+    "OT": "2 Kings 6:1-23",
+    "NT": "Phil 1:1-20",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "10 Sep",
+    "OT": "2 Kings 9:1-10:29",
+    "NT": "Phil 1:21-2:11",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "11 Sep",
+    "OT": "2 Chr 29:1-24",
+    "NT": "Phil 2:12-30",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "12 Sep",
+    "OT": "2 Chr 31:1-21",
+    "NT": "Phil 3:1-21",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "13 Sep",
+    "OT": "2 Chr 32:1-22",
+    "NT": "Phil 4:1-23",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "14 Sep",
+    "OT": "2 Chr 33:1-25",
+    "NT": "Col 1:1-23",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "15 Sep",
+    "OT": "2 Chr 34:1-33",
+    "NT": "Col 1:24-2:7",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "16 Sep",
+    "OT": "2 Chr 35:1-25",
+    "NT": "Col 2:8-23",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "17 Sep",
+    "OT": "2 Chr 36:1-23",
+    "NT": "Col 3:1-25",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "18 Sep",
+    "OT": "Neh 1:1-2:10",
+    "NT": "Col 4:1-18",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "19 Sep",
+    "OT": "Neh 2:11-4:6",
+    "NT": "1 Tim 1:1-20",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "20 Sep",
+    "OT": "Neh 4:7-23",
+    "NT": "1 Tim 2:1-15",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "21 Sep",
+    "OT": "Neh 5:1-6:16",
+    "NT": "1 Tim 3:1-16",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "22 Sep",
+    "OT": "Neh 7:1-8:18",
+    "NT": "1 Tim 4:1-16",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "23 Sep",
+    "OT": "Neh 9:1-21",
+    "NT": "1 Tim 5:1-20",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "24 Sep",
+    "OT": "Neh 9:22-38",
+    "NT": "1 Tim 5:17-6:2",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "25 Sep",
+    "OT": "Mal 1:1-14",
+    "NT": "1 Tim 6:3-21",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "26 Sep",
+    "OT": "Mal 2:1-3:5",
+    "NT": "Matt 3:1-17",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "27 Sep",
+    "OT": "Mal 3:6-4:6",
+    "NT": "Matt 4:1-11",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "28 Sep",
+    "OT": "Deut 1:1-18",
+    "NT": "Matt 4:12-25",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "29 Sep",
+    "OT": "Deut 1:19-36",
+    "NT": "Matt 5:1-20",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "30 Sep",
+    "OT": "Deut 1:37-2:15",
+    "NT": "Matt 5:21-48",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "01 Oct",
+    "OT": "Deut 2:16-37",
+    "NT": "Matt 6:1-15",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "02 Oct",
+    "OT": "Deut 3:1-29",
+    "NT": "Matt 6:16-34",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "03 Oct",
+    "OT": "Deut 4:1-20",
+    "NT": "Matt 7:1-12",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "04 Oct",
+    "OT": "Deut 4:21-40",
+    "NT": "Matt 7:13-29",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "05 Oct",
+    "OT": "Deut 5:1-21",
+    "NT": "Matt 8:1-17",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "06 Oct",
+    "OT": "Deut 5:22-6:9",
+    "NT": "Matt 8:18-34",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "07 Oct",
+    "OT": "Deut 6:10-25",
+    "NT": "Matt 9:1-17",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "08 Oct",
+    "OT": "Deut 7:1-19",
+    "NT": "Matt 9:18-38",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "09 Oct",
+    "OT": "Deut 8:1-20",
+    "NT": "Matt 10:1-23",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "10 Oct",
+    "OT": "Deut 9:1-22",
+    "NT": "Matt 10:24-42",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "11 Oct",
+    "OT": "Deut 9:23-10:22",
+    "NT": "Matt 11:1-19",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "12 Oct",
+    "OT": "Deut 11:1-25",
+    "NT": "Matt 11:20-30",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "13 Oct",
+    "OT": "Deut 11:26-12:12",
+    "NT": "Matt 12:1-21",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "14 Oct",
+    "OT": "Deut 12:13-32",
+    "NT": "Matt 12:22-37",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "15 Oct",
+    "OT": "Deut 13:1-18",
+    "NT": "Matt 12:38-50",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "16 Oct",
+    "OT": "Deut 14:1-15:15",
+    "NT": "Matt 13:1-23",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "17 Oct",
+    "OT": "Deut 15:19-16:22",
+    "NT": "Matt 13:24-43",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "18 Oct",
+    "OT": "Deut 17:1-20",
+    "NT": "Matt 13:44-58",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "19 Oct",
+    "OT": "Deut 18:1-22",
+    "NT": "Matt 14:1-21",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "20 Oct",
+    "OT": "Deut 19:1-20",
+    "NT": "Matt 14:22-36",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "21 Oct",
+    "OT": "Deut 20:1-20",
+    "NT": "Matt 15:1-20",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "22 Oct",
+    "OT": "Deut 21:1-23",
+    "NT": "Matt 15:21-39",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "23 Oct",
+    "OT": "Deut 24:10-25:10",
+    "NT": "Matt 16:1-12",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "24 Oct",
+    "OT": "Deut 25:17-26:19",
+    "NT": "Matt 16:13-28",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "25 Oct",
+    "OT": "Deut 27:1-26",
+    "NT": "Matt 17:1-13",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "26 Oct",
+    "OT": "Deut 28:1-22",
+    "NT": "Matt 17:14-27",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "27 Oct",
+    "OT": "Deut 29:1-29",
+    "NT": "Matt 18:1-20",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "28 Oct",
+    "OT": "Deut 30:1-20",
+    "NT": "Matt 19:1-15",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "29 Oct",
+    "OT": "Deut 31:1-29",
+    "NT": "Matt 19:16-30",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "30 Oct",
+    "OT": "Deut 31:30-32:27",
+    "NT": "Matt 20:1-16",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "31 Oct",
+    "OT": "Deut 32:28-52",
+    "NT": "Matt 20:17-34",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "01 Nov",
+    "OT": "Deut 34:1-12",
+    "NT": "Matt 21:1-22",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "02 Nov",
+    "OT": "Jer 1:1-19",
+    "NT": "Matt 21:23-46",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "03 Nov",
+    "OT": "Jer 3:6-4:2",
+    "NT": "Matt 22:1-22",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "04 Nov",
+    "OT": "Jer 5:1-19",
+    "NT": "Matt 22:23-46",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "05 Nov",
+    "OT": "Jer 7:1-29",
+    "NT": "Matt 23:1-12",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "06 Nov",
+    "OT": "Jer 8:18-9:12",
+    "NT": "Matt 23:13-39",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "07 Nov",
+    "OT": "Jer 11:1-23",
+    "NT": "Matt 24:1-28",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "08 Nov",
+    "OT": "Jer 20:1-18",
+    "NT": "Matt 24:29-51",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "09 Nov",
+    "OT": "Jer 22:1-23",
+    "NT": "Matt 25:1-13",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "10 Nov",
+    "OT": "Jer 23:1-20",
+    "NT": "Matt 25:14-30",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "11 Nov",
+    "OT": "Jer 23:21-40",
+    "NT": "Matt 25:31-46",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "12 Nov",
+    "OT": "Jer 25:1-18",
+    "NT": "Matt 26:1-19",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "13 Nov",
+    "OT": "Jer 26:1-19",
+    "NT": "Matt 26:20-35",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "14 Nov",
+    "OT": "Jer 29:1-19",
+    "NT": "Matt 26:36-56",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "15 Nov",
+    "OT": "Jer 30:1-24",
+    "NT": "Matt 26:57-75",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "16 Nov",
+    "OT": "Jer 31:1-34",
+    "NT": "Matt 27:1-10",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "17 Nov",
+    "OT": "Jer 33:1-22",
+    "NT": "Matt 27:11-32",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "18 Nov",
+    "OT": "Jer 37:1-21",
+    "NT": "Matt 27:33-56",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "19 Nov",
+    "OT": "Jer 38:1-28",
+    "NT": "Matt 27:57-66",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "20 Nov",
+    "OT": "Dan 1:1-21",
+    "NT": "Matt 28:1-20",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "21 Nov",
+    "OT": "Dan 2:1-23",
+    "NT": "Rev 18:1-24",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "22 Nov",
+    "OT": "Dan 2:24-49",
+    "NT": "Rev 19:1-21",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "23 Nov",
+    "OT": "Dan 3:1-30",
+    "NT": "Rev 20:1-15",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "24 Nov",
+    "OT": "Dan 4:1-37",
+    "NT": "Rev 21:1-8",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "25 Nov",
+    "OT": "Dan 5:1-30",
+    "NT": "Rev 21:9-27",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "26 Nov",
+    "OT": "Dan 6:1-28",
+    "NT": "Rev 22:1-21",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "27 Nov",
+    "OT": "Is 1:1-28",
+    "NT": "1 Pet 1:1-12",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "28 Nov",
+    "OT": "Is 2:1-22",
+    "NT": "1 Pet 1:13-25",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "29 Nov",
+    "OT": "Is 5:1-25",
+    "NT": "1 Pet 2:1-12",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "30 Nov",
+    "OT": "Is 6:1-9",
+    "NT": "1 Pet 2:13-25",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "01 Dec",
+    "OT": "Is 7:10-8:8",
+    "NT": "1 Pet 3:1-22",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "02 Dec",
+    "OT": "Is 8:9-9:7",
+    "NT": "1 Pet 4:1-19",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "03 Dec",
+    "OT": "Is 9:8-10:11",
+    "NT": "1 Pet 5:1-14",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "04 Dec",
+    "OT": "Is 10:12-34",
+    "NT": "2 Pet 1:1-21",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "05 Dec",
+    "OT": "Is 11:1-12:6",
+    "NT": "2 Pet 2:1-22",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "06 Dec",
+    "OT": "Is 14:1-23",
+    "NT": "2 Pet 3:1-18",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "07 Dec",
+    "OT": "Is 24:1-13",
+    "NT": "1 John 1:1-2:14",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "08 Dec",
+    "OT": "Is 24:14-25:12",
+    "NT": "1 John 2:15-29",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "09 Dec",
+    "OT": "Is 26:1-19",
+    "NT": "1 John 3:1-24",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "10 Dec",
+    "OT": "Is 26:20-27:13",
+    "NT": "1 John 4:1-21",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "11 Dec",
+    "OT": "Is 28:14-29",
+    "NT": "1 John 5:1-21",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "12 Dec",
+    "OT": "Is 29:1-14",
+    "NT": "Jude 1-25",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "13 Dec",
+    "OT": "Is 29:15-30:14",
+    "NT": "Rev 1:1-19",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "14 Dec",
+    "OT": "Is 30:15-26",
+    "NT": "Rev 2:1-29",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "15 Dec",
+    "OT": "Is 30:27-31:9",
+    "NT": "Rev 3:1-22",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "16 Dec",
+    "OT": "Is 32:1-20",
+    "NT": "Rev 4:1-11",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "17 Dec",
+    "OT": "Is 33:1-24",
+    "NT": "Rev 5:1-14",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "18 Dec",
+    "OT": "Is 34:1-35:10",
+    "NT": "Rev 6:1-17",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "19 Dec",
+    "OT": "Is 40:1-17",
+    "NT": "Rev 7:1-17",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "20 Dec",
+    "OT": "Is 40:18-41:10",
+    "NT": "Rev 8:1-13",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "21 Dec",
+    "OT": "Is 42:1-25",
+    "NT": "Rev 9:1-12",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "22 Dec",
+    "OT": "Is 43:1-24",
+    "NT": "Rev 9:13-10:11",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "23 Dec",
+    "OT": "Is 43:25-44:20",
+    "NT": "Rev 11:1-19",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "24 Dec",
+    "OT": "Is 44:21-45:25",
+    "NT": "Rev 12:1-17",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "25 Dec",
+    "OT": "Is 49:1-18",
+    "NT": "Matt 1:1-17",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "26 Dec",
+    "OT": "Is 49:22-51:16",
+    "NT": "Matt 1:18-25",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "27 Dec",
+    "OT": "Is 51:17-52:12",
+    "NT": "Matt 2:1-12",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "28 Dec",
+    "OT": "Is 52:13-54:10",
+    "NT": "Matt 2:13-23",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "29 Dec",
+    "OT": "Is 55:1-13",
+    "NT": "Luke 1:1-25",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "30 Dec",
+    "OT": "Is 58:1-59:21",
+    "NT": "Luke 1:26-38",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "31 Dec",
+    "OT": "Is 60:1-22",
+    "NT": "Luke 1:39-56",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "01 Jan",
+    "OT": "Is 61:1-11",
+    "NT": "Luke 1:57-80",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "02 Jan",
+    "OT": "Is 62:1-12",
+    "NT": "Luke 2:1-20",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "03 Jan",
+    "OT": "Is 63:1-14",
+    "NT": "Luke 2:21-40",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "04 Jan",
+    "OT": "Is 63:15-65:2",
+    "NT": "Luke 2:41-52",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "05 Jan",
+    "OT": "Is 65:8-25",
+    "NT": "Luke 3:1-20",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "06 Jan",
+    "OT": "Is 66:1-20",
+    "NT": "Luke 3:21-38",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "07 Jan",
+    "OT": "Ezek 1:1-28",
+    "NT": "Rom 1:1-17",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "08 Jan",
+    "OT": "Ezek 2:1-3:11",
+    "NT": "Rom 1:18-32",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "09 Jan",
+    "OT": "Ezek 3:12-28",
+    "NT": "Rom 2:1-16",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "10 Jan",
+    "OT": "Ezek 18:1-32",
+    "NT": "Rom 2:17-29",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "11 Jan",
+    "OT": "Ezek 33:1-20",
+    "NT": "Rom 3:1-18",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "12 Jan",
+    "OT": "Ezek 34:1-24",
+    "NT": "Rom 3:19-31",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "13 Jan",
+    "OT": "Ezek 36:13-28",
+    "NT": "Rom 4:1-25",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "14 Jan",
+    "OT": "Ezek 36:33-37:14",
+    "NT": "Rom 5:1-21",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "15 Jan",
+    "OT": "Ezek 37:15-28",
+    "NT": "Rom 6:1-23",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "16 Jan",
+    "OT": "Ezek 38:1-23",
+    "NT": "Rom 7:1-20",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "17 Jan",
+    "OT": "Ezek 39:1-29",
+    "NT": "Rom 7:21-8:17",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "18 Jan",
+    "OT": "Ezek 40:1-4",
+    "NT": "Rom 8:18-39",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "19 Jan",
+    "OT": "Ezek 44:1-29",
+    "NT": "Rom 9:1-18",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "20 Jan",
+    "OT": "Ezek 47:1-23",
+    "NT": "Rom 9:19-33",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "21 Jan",
+    "OT": "Joel 1:1-20",
+    "NT": "Rom 10:1-21",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "22 Jan",
+    "OT": "Joel 2:1-17",
+    "NT": "Rom 11:1-24",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "23 Jan",
+    "OT": "Joel 2:18-32",
+    "NT": "Rom 11:25-12:13",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "24 Jan",
+    "OT": "Joel 3:1-21",
+    "NT": "Rom 12:14-13:14",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "25 Jan",
+    "OT": "Zech 1:1-21",
+    "NT": "Rom 14:1-23",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "26 Jan",
+    "OT": "Zech 2:1-3:10",
+    "NT": "Rom 15:1-13",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "27 Jan",
+    "OT": "Zech 4:1-5:11",
+    "NT": "Rom 15:14-33",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "28 Jan",
+    "OT": "Zech 6:1-7:14",
+    "NT": "Rom 16:17-27",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "29 Jan",
+    "OT": "Zech 8:1-23",
+    "NT": "2 Tim 1:1-18",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "30 Jan",
+    "OT": "Zech 9:1-17",
+    "NT": "2 Tim 2:1-26",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "31 Jan",
+    "OT": "Zech 10:1-11:3",
+    "NT": "2 Tim 3:1-18",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "01 Feb",
+    "OT": "Zech 11:4-17",
+    "NT": "2 Tim 4:1-18",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "02 Feb",
+    "OT": "Zech 12:1-13:9",
+    "NT": "Titus 1:1-2:6",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "03 Feb",
+    "OT": "Zech 14:1-21",
+    "NT": "Titus 2:7-3:15",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "04 Feb",
+    "OT": "Job 1:1-22",
+    "NT": "John 1:1-18",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "05 Feb",
+    "OT": "Job 2:1-3:10",
+    "NT": "John 1:19-34",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "06 Feb",
+    "OT": "Job 3:11-26",
+    "NT": "John 1:35-51",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "07 Feb",
+    "OT": "Job 4:1-21",
+    "NT": "John 2:1-12",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "08 Feb",
+    "OT": "Job 5:1-27",
+    "NT": "John 2:13-25",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "09 Feb",
+    "OT": "Job 6:1-13",
+    "NT": "John 3:1-21",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "10 Feb",
+    "OT": "Job 6:14-30",
+    "NT": "John 3:22-4:6",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "11 Feb",
+    "OT": "Job 7:1-21",
+    "NT": "John 4:7-26",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "12 Feb",
+    "OT": "Job 8:1-22",
+    "NT": "John 4:27-45",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "13 Feb",
+    "OT": "Job 9:1-35",
+    "NT": "John 4:46-54",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "14 Feb",
+    "OT": "Job 10:1-22",
+    "NT": "John 5:1-18",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "15 Feb",
+    "OT": "Job 11:1-20",
+    "NT": "John 5:19-29",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "16 Feb",
+    "OT": "Job 12:1-25",
+    "NT": "John 5:30-47",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "17 Feb",
+    "OT": "Job 13:1-12",
+    "NT": "John 6:1-21",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "18 Feb",
+    "OT": "Job 13:13-28",
+    "NT": "John 6:22-40",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "19 Feb",
+    "OT": "Job 14:1-22",
+    "NT": "John 6:41-59",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "20 Feb",
+    "OT": "Job 15:1-35",
+    "NT": "John 6:60-71",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "21 Feb",
+    "OT": "Job 16:1-21",
+    "NT": "John 7:1-13",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "22 Feb",
+    "OT": "Job 17:1-16",
+    "NT": "John 7:14-31",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "23 Feb",
+    "OT": "Job 18:1-21",
+    "NT": "John 7:32-53",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "24 Feb",
+    "OT": "Job 19:1-27",
+    "NT": "John 8:1-20",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "25 Feb",
+    "OT": "Job 20:1-29",
+    "NT": "John 8:21-38",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "26 Feb",
+    "OT": "Job 21:1-21",
+    "NT": "John 8:39-59",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "27 Feb",
+    "OT": "Job 30:16-31",
+    "NT": "John 9:1-23",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "28 Feb",
+    "OT": "Job 31:1-40",
+    "NT": "John 9:24-41",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "29 Feb",
+    "OT": "Job 32:1-22",
+    "NT": "John 10:1-21",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "01 Mar",
+    "OT": "Job 33:1-18",
+    "NT": "John 10:22-42",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "02 Mar",
+    "OT": "Job 33:19-34:9",
+    "NT": "John 11:1-16",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "03 Mar",
+    "OT": "Job 34:10-33",
+    "NT": "John 11:17-37",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "04 Mar",
+    "OT": "Job 36:1-21",
+    "NT": "John 11:38-57",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "05 Mar",
+    "OT": "Job 37:1-24",
+    "NT": "John 12:1-19",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "06 Mar",
+    "OT": "Job 38:1-18",
+    "NT": "John 12:20-36a",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "07 Mar",
+    "OT": "Job 40:1-24",
+    "NT": "John 12:36b-50",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "08 Mar",
+    "OT": "Job 41:1-34",
+    "NT": "John 13:1-20",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  },
+  {
+    "Key": "09 Mar",
+    "OT": "Job 42:1-17",
+    "NT": "John 13:21-38",
+    "OT_Summary": "",
+    "NT_Summary": ""
+  }
+]
