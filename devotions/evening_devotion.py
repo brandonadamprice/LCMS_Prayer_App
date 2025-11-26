@@ -31,7 +31,8 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 # Data file paths
 LECTIONARY_CSV_PATH = os.path.join(SCRIPT_DIR, "daily_lectionary.csv")
 CATECHISM_JSON_PATH = os.path.join(SCRIPT_DIR, "catechism.json")
-HTML_TEMPLATE_PATH = os.path.join(SCRIPT_DIR, "evening_devotion.html")
+EVENING_HTML_TEMPLATE_PATH = os.path.join(SCRIPT_DIR, "evening_devotion.html")
+MORNING_HTML_TEMPLATE_PATH = os.path.join(SCRIPT_DIR, "morning_devotion.html")
 WEEKLY_PRAYERS_JSON_PATH = os.path.join(SCRIPT_DIR, "weekly_prayers.json")
 INDEX_HTML_PATH = os.path.join(SCRIPT_DIR, "index.html")
 
@@ -289,19 +290,12 @@ def fetch_passages(references):
     return [passage_results[ref] for ref in references]
 
 
-def generate_devotion():
-  """Generates HTML for the evening devotion for the current date.
-
-  This function fetches lectionary readings, a psalm, and a catechism section
+def get_devotion_data(now):
+  """Fetches lectionary readings, a psalm, and a catechism section
   based on the current date, combines them with a weekly prayer topic, and
-  renders an HTML page.
-
-  Returns:
-      The generated HTML as a string.
+  returns a dictionary of data for rendering.
   """
   # 1. Setup Date & Church Year
-  eastern_timezone = pytz.timezone('America/New_York')
-  now = datetime.datetime.now(eastern_timezone)
   # Debugging: Uncomment to test a specific date
   # now = datetime.datetime(2025, 2, 26) # Ash Wednesday 2025 example
 
@@ -360,27 +354,56 @@ def generate_devotion():
     catechism_prayer = random.choice(
         [catechism["prayer1"], catechism["prayer2"]]
     )
+  
+  return {
+      "date_str": now.strftime("%A, %B %d, %Y"),
+      "key": key,
+      "catechism_title": catechism["title"],
+      "catechism_text": catechism["text"],
+      "catechism_meaning_html": catechism_meaning_html,
+      "catechism_prayer": catechism_prayer,
+      "psalm_ref": psalm_ref,
+      "psalm_text": psalm_text,
+      "ot_reading_ref": readings["OT"],
+      "ot_text": ot_text,
+      "nt_reading_ref": readings["NT"],
+      "nt_text": nt_text,
+      "prayer_topic": prayer_topic,
+      "weekly_prayer_html": weekly_prayer_html,
+  }
 
-  with open(HTML_TEMPLATE_PATH, "r", encoding="utf-8") as f:
+def generate_evening_devotion():
+  """Generates HTML for the evening devotion for the current date.
+
+  This function fetches lectionary readings, a psalm, and a catechism section
+  based on the current date, combines them with a weekly prayer topic, and
+  renders an HTML page.
+
+  Returns:
+      The generated HTML as a string.
+  """
+  eastern_timezone = pytz.timezone('America/New_York')
+  now = datetime.datetime.now(eastern_timezone)
+  template_data = get_devotion_data(now)
+
+  with open(EVENING_HTML_TEMPLATE_PATH, "r", encoding="utf-8") as f:
     template = Template(f.read())
 
-  html = template.substitute(
-      date_str=now.strftime("%A, %B %d, %Y"),
-      key=key,
-      catechism_title=catechism["title"],
-      catechism_text=catechism["text"],
-      catechism_meaning_html=catechism_meaning_html,
-      catechism_prayer=catechism_prayer,
-      psalm_ref=psalm_ref,
-      psalm_text=psalm_text,
-      ot_reading_ref=readings["OT"],
-      ot_text=ot_text,
-      nt_reading_ref=readings["NT"],
-      nt_text=nt_text,
-      prayer_topic=prayer_topic,
-      weekly_prayer_html=weekly_prayer_html,
-  )
-  print("Generated HTML")
+  html = template.substitute(template_data)
+  print("Generated Evening HTML")
+  return html
+
+def generate_morning_devotion():
+  """Generates HTML for the morning devotion for the current date."""
+  eastern_timezone = pytz.timezone('America/New_York')
+  now = datetime.datetime.now(eastern_timezone)
+  template_data = get_devotion_data(now)
+
+  with open(MORNING_HTML_TEMPLATE_PATH, "r", encoding="utf-8") as f:
+    template = Template(f.read())
+
+  html = template.substitute(template_data)
+  print("Generated Morning HTML")
   return html
 
 
@@ -394,7 +417,12 @@ def index_route():
 @app.route("/evening_devotion")
 def evening_devotion_route():
   """Returns the generated devotion HTML."""
-  return generate_devotion()
+  return generate_evening_devotion()
+
+@app.route("/morning_devotion")
+def morning_devotion_route():
+  """Returns the generated devotion HTML."""
+  return generate_morning_devotion()
 
 
 if __name__ == "__main__":
