@@ -1,103 +1,240 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daily Devotion</title>
     <style>
-        body { font-family: 'Georgia', serif; line-height: 1.6; max-width: 800px; margin: 40px auto; padding: 20px; background-color: #f4f4f4; color: #333; }
-        .card { background: white; padding: 30px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        h1, h2 { color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px; }
-        .rubric { color: #c0392b; font-style: italic; font-size: 0.9em; }
-        .ref { font-weight: bold; color: #7f8c8d; font-size: 0.9em; display: block; margin-bottom: 10px; }
-        .prayer-topic { color: #2980b9; font-weight: bold; font-size: 1.1em; }
-        .button {
-          display: inline-block;
-          padding: 10px 20px;
-          margin: 10px 5px 10px 0;
-          background-color: #2c3e50;
-          color: white;
-          text-decoration: none;
-          border-radius: 5px;
-          text-align: center;
-          transition: background-color 0.3s ease;
+        body {
+            font-family: 'Georgia', serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+            color: #333;
         }
+
+        .card {
+            background: white;
+            padding: 30px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1,
+        h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .rubric {
+            color: #c0392b;
+            font-style: italic;
+            font-size: 0.9em;
+        }
+
+        .ref {
+            font-weight: bold;
+            color: #7f8c8d;
+            font-size: 0.9em;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .prayer-topic {
+            color: #2980b9;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 10px 5px 10px 0;
+            background-color: #2c3e50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            text-align: center;
+            transition: background-color 0.3s ease;
+        }
+
         .button:hover {
-          background-color: #34495e;
-          color: white;
+            background-color: #34495e;
+            color: white;
+        }
+
+        /* Collapsible Styles */
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .card-header h2 {
+            border-bottom: none;
+            padding-bottom: 0;
+            margin: 0;
+            flex-grow: 1;
+        }
+
+        .toggle-icon {
+            font-size: 1.5em;
+            color: #7f8c8d;
+            transition: transform 0.3s ease;
+            margin-left: 10px;
+        }
+
+        .card.collapsed .toggle-icon {
+            transform: rotate(-90deg);
+        }
+
+        .card-content {
+            display: block;
+            margin-top: 20px;
+            /* Animation for smooth height is tricky with auto height, using simple display toggle or max-height if needed. 
+               For simplicity and robustness with variable content, we'll use display toggle via JS or just rely on the class.
+            */
+        }
+
+        .card.collapsed .card-content {
+            display: none;
+        }
+
+        /* Adjust padding/margins when collapsed */
+        .card.collapsed {
+            padding-bottom: 15px;
+            /* Less padding when collapsed */
         }
     </style>
 </head>
+
 <body>
     <div style="text-align: center; margin-bottom: 40px;">
         <h1>Evening Devotion</h1>
         <p>${date_str}<br>
-        <span style="color: #7f8c8d;">Lectionary Day: ${key}</span></p>
+            <span style="color: #7f8c8d;">Lectionary Day: ${key}</span>
+        </p>
     </div>
 
     <div class="card">
-        <p><span class="rubric">Make the sign of the holy cross.</span></p>
-        <p>In the name of the Father and of the Son and of the Holy Spirit.<br>
-        <strong> Amen.</strong></p>
-        <p>The Lord Almighty grant us a quiet night and peace at the last.<br>
-        <strong>Amen.</strong></p>
-        <p>It is good to give thanks to the Lord,<br>
-        <strong>To sing praise to Your name, O Most High;</strong><br>
-        To herald Your love in the morning,<br>
-        <strong>Your truth at the close of the day.</strong></p>
+        <div class="card-header" onclick="toggleCard(this)">
+            <h2>Opening</h2>
+            <span class="toggle-icon">▼</span>
+        </div>
+        <div class="card-content">
+            <p><span class="rubric">Make the sign of the holy cross.</span></p>
+            <p>In the name of the Father and of the Son and of the Holy Spirit.<br>
+                <strong> Amen.</strong>
+            </p>
+            <p>The Lord Almighty grant us a quiet night and peace at the last.<br>
+                <strong>Amen.</strong>
+            </p>
+            <p>It is good to give thanks to the Lord,<br>
+                <strong>To sing praise to Your name, O Most High;</strong><br>
+                To herald Your love in the morning,<br>
+                <strong>Your truth at the close of the day.</strong>
+            </p>
+        </div>
     </div>
 
     <div class="card">
-        <h2>Catechism: ${catechism_title}</h2>
-        <p><strong>Text:</strong> ${catechism_text}</p>
-        ${catechism_meaning_html}
-        <p><strong>Prayer:</strong> ${catechism_prayer}</p>
+        <div class="card-header" onclick="toggleCard(this)">
+            <h2>Catechism: ${catechism_title}</h2>
+            <span class="toggle-icon">▼</span>
+        </div>
+        <div class="card-content">
+            <p><strong>Text:</strong> ${catechism_text}</p>
+            ${catechism_meaning_html}
+            <p><strong>Prayer:</strong> ${catechism_prayer}</p>
+        </div>
     </div>
 
     <div class="card">
-        <h2>Psalmody</h2>
-        <span class="ref">${psalm_ref}</span>
-        <p>${psalm_text}</p>
-        <p><strong>Glory be to the Father and to the Son and to the Holy Spirit; as it was in the beginning, is now, and will be forever. Amen.</strong></p>
+        <div class="card-header" onclick="toggleCard(this)">
+            <h2>Psalmody</h2>
+            <span class="toggle-icon">▼</span>
+        </div>
+        <div class="card-content">
+            <span class="ref">${psalm_ref}</span>
+            <p>${psalm_text}</p>
+            <p><strong>Glory be to the Father and to the Son and to the Holy Spirit; as it was in the beginning, is now,
+                    and will be forever. Amen.</strong></p>
+        </div>
     </div>
 
     <div class="card">
-        <h2>Readings</h2>
-        <span class="ref">Old Testament: ${ot_reading_ref}</span>
-        <p>${ot_text}</p>
-        <hr>
-        <span class="ref">New Testament: ${nt_reading_ref}</span>
-        <p>${nt_text}</p>
+        <div class="card-header" onclick="toggleCard(this)">
+            <h2>Readings</h2>
+            <span class="toggle-icon">▼</span>
+        </div>
+        <div class="card-content">
+            <span class="ref">Old Testament: ${ot_reading_ref}</span>
+            <p>${ot_text}</p>
+            <hr>
+            <span class="ref">New Testament: ${nt_reading_ref}</span>
+            <p>${nt_text}</p>
+        </div>
     </div>
 
     <div class="card">
-        <h2>Prayers</h2>
-        <p><strong>Topic:</strong> <span class="prayer-topic">${prayer_topic}</span></p>
-        ${weekly_prayer_html}
-        <p><em>(You may offer your own prayers at this time)</em></p>
-        <p>Lord, hear our prayer. <strong>And let our cry come to you.</strong></p>
-        <hr>
-        <p><strong>Luther's Evening Prayer</strong></p>
-        <p>I thank You, my heavenly Father, through Jesus Christ, Your dear Son, that You have graciously kept me this day; and I pray that You would forgive me all my sins where I have done wrong, and graciously keep me this night. For into Your hands I commend myself, my body and soul, and all things. Let Your holy angel be with me, that the evil foe may have no power over me. Amen.</p>
+        <div class="card-header" onclick="toggleCard(this)">
+            <h2>Prayers</h2>
+            <span class="toggle-icon">▼</span>
+        </div>
+        <div class="card-content">
+            <p><strong>Topic:</strong> <span class="prayer-topic">${prayer_topic}</span></p>
+            ${weekly_prayer_html}
+            <p><em>(You may offer your own prayers at this time)</em></p>
+            <p>Lord, hear our prayer. <strong>And let our cry come to you.</strong></p>
+            <hr>
+            <p><strong>Luther's Evening Prayer</strong></p>
+            <p>I thank You, my heavenly Father, through Jesus Christ, Your dear Son, that You have graciously kept me
+                this day; and I pray that You would forgive me all my sins where I have done wrong, and graciously keep
+                me this night. For into Your hands I commend myself, my body and soul, and all things. Let Your holy
+                angel be with me, that the evil foe may have no power over me. Amen.</p>
+        </div>
     </div>
 
     <div class="card">
-        <h2>Benediction</h2>
-        <p><strong>Lord, now You let Your servant go in peace;<br>
-        Your word has been fulfilled.<br>
-        My own eyes have seen the salvation<br>
-        which You have prepared in the sight of every people:<br>
-        a light to reveal You to the nations<br>
-        and the glory of Your people Israel.<br>
-        Glory be to the Father and to the Son and to the Holy Spirit;<br>
-        as it was in the beginning, is now, and will be forever. Amen.</strong></p>
-        <p>Let us bless the Lord.<br>
-        <strong>Thanks be to God.</strong></p>
-        <p>The grace of our Lord Jesus Christ, and the love of God, and the fellowship of the Holy Spirit, be with us all evermore.<br> 
-        <strong>Amen.</strong></p>
+        <div class="card-header" onclick="toggleCard(this)">
+            <h2>Benediction</h2>
+            <span class="toggle-icon">▼</span>
+        </div>
+        <div class="card-content">
+            <p><strong>Lord, now You let Your servant go in peace;<br>
+                    Your word has been fulfilled.<br>
+                    My own eyes have seen the salvation<br>
+                    which You have prepared in the sight of every people:<br>
+                    a light to reveal You to the nations<br>
+                    and the glory of Your people Israel.<br>
+                    Glory be to the Father and to the Son and to the Holy Spirit;<br>
+                    as it was in the beginning, is now, and will be forever. Amen.</strong></p>
+            <p>Let us bless the Lord.<br>
+                <strong>Thanks be to God.</strong>
+            </p>
+            <p>The grace of our Lord Jesus Christ, and the love of God, and the fellowship of the Holy Spirit, be with
+                us all evermore.<br>
+                <strong>Amen.</strong>
+            </p>
+        </div>
     </div>
     <div style="text-align: center;">
         <a href="/" class="button">Back to Home</a>
     </div>
+
+    <script>
+        function toggleCard(header) {
+            const card = header.parentElement;
+            card.classList.toggle('collapsed');
+        }
+    </script>
 </body>
+
 </html>
