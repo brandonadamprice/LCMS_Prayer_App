@@ -101,6 +101,13 @@ h2 {
     padding-bottom: 15px;
     /* Less padding when collapsed */
 }
+
+.card-content .subheader {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 3px;
+    margin-bottom: 10px;
+}
+
  .versicle-ref {
     font-size: 0.8em;
     color: #7f8c8d;
