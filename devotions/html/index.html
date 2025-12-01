@@ -4,29 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daily Devotions</title>
-    <style>
-        body { font-family: 'Georgia', serif; line-height: 1.6; max-width: 800px; margin: 40px auto; padding: 20px; background-color: #f4f4f4; color: #333; }
-        .card { background: white; padding: 30px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        h1, h2 { color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px; }
-        .rubric { color: #c0392b; font-style: italic; font-size: 0.9em; }
-        .ref { font-weight: bold; color: #7f8c8d; font-size: 0.9em; display: block; margin-bottom: 10px; }
-        .prayer-topic { color: #2980b9; font-weight: bold; font-size: 1.1em; }
-        .button {
-          display: inline-block;
-          padding: 10px 20px;
-          margin: 10px 5px 10px 0;
-          background-color: #2c3e50;
-          color: white;
-          text-decoration: none;
-          border-radius: 5px;
-          text-align: center;
-          transition: background-color 0.3s ease;
-        }
-        .button:hover {
-          background-color: #34495e;
-          color: white;
-        }
-    </style>
+    <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
     <div style="text-align: center; margin-bottom: 40px;">
@@ -35,10 +13,12 @@
     </div>
 
     <div class="card">
-        <h2>Available Devotions</h2>
+        <h2>Daily Prayer</h2>
         <a href="/morning_devotion" class="button">Morning Devotion</a>
+    </div>
+    <div class="card">
+        <h2>Longer Devotionals</h2>
         <a href="/evening_devotion" class="button">Extended Evening Devotion</a>
-        <!-- Future buttons can be added here -->
     </div>
 </body>
 </html>

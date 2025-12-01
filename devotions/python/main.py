@@ -18,6 +18,14 @@ def index_route():
     return f.read()
 
 
+@app.route("/styles.css")
+def styles():
+  """Returns the styles.css file."""
+  return flask.send_from_directory(
+      os.path.join(utils.SCRIPT_DIR, "..", "html"), "styles.css"
+  )
+
+
 @app.route("/evening_devotion")
 def evening_devotion_route():
   """Returns the generated devotion HTML."""
