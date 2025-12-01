@@ -5,6 +5,7 @@ import flask
 import extended_evening
 import morning
 import noon
+import early_evening
 import utils
 
 app = flask.Flask(__name__)
@@ -43,6 +44,12 @@ def morning_devotion_route():
 def noon_devotion_route():
   """Returns the generated devotion HTML."""
   return noon.generate_noon_devotion()
+
+
+@app.route("/early_evening_devotion")
+def early_evening_devotion_route():
+  """Returns the generated devotion HTML."""
+  return early_evening.generate_early_evening_devotion()
 
 
 if __name__ == "__main__":
