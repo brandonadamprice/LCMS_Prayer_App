@@ -1,9 +1,4 @@
-"""Generates and serves a daily evening devotion page.
-
-This script fetches lectionary readings, a psalm, and a catechism section
-based on the current date and the liturgical year. It then combines these
-with a weekly prayer topic into an HTML page, which is served locally.
-"""
+"""Shared utility functions and data for devotions."""
 
 import csv
 import datetime
@@ -11,30 +6,14 @@ import json
 import os
 import random
 import re
-import pytz
-from string import Template
-
-import flask
 import requests
 import secrets_fetcher as secrets
 
-app = flask.Flask(__name__)
-
-
-# ==========================================
-# CONFIGURATION
-# ==========================================
-
-# Get the directory where the script is located
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-
-# Data file paths
-LECTIONARY_CSV_PATH = os.path.join(SCRIPT_DIR, "daily_lectionary.csv")
-CATECHISM_JSON_PATH = os.path.join(SCRIPT_DIR, "catechism.json")
-EVENING_HTML_TEMPLATE_PATH = os.path.join(SCRIPT_DIR, "evening_devotion.html")
-MORNING_HTML_TEMPLATE_PATH = os.path.join(SCRIPT_DIR, "morning_devotion.html")
-WEEKLY_PRAYERS_JSON_PATH = os.path.join(SCRIPT_DIR, "weekly_prayers.json")
-INDEX_HTML_PATH = os.path.join(SCRIPT_DIR, "index.html")
+DATA_DIR = os.path.join(SCRIPT_DIR, "..", "data")
+LECTIONARY_CSV_PATH = os.path.join(DATA_DIR, "daily_lectionary.csv")
+CATECHISM_JSON_PATH = os.path.join(DATA_DIR, "catechism.json")
+WEEKLY_PRAYERS_JSON_PATH = os.path.join(DATA_DIR, "weekly_prayers.json")
 
 
 def load_weekly_prayers():
@@ -59,11 +38,6 @@ def load_catechism():
 
 CATECHISM_SECTIONS = load_catechism()
 WEEKLY_PRAYERS = load_weekly_prayers()
-MORNING_READINGS = ["Colossians 3:1-4", "Exodus 15:1-11", "Isaiah 12:1-6", "Matthew 20:1-16", "Mark 13:32-36", "Luke 24:1-9", "John 21:4-14", "Ephesians 4:17-24", "Romans 6:1-4"]
-
-# ==========================================
-# LOGIC CLASS: CHURCH YEAR
-# ==========================================
 
 
 class ChurchYear:
@@ -193,11 +167,6 @@ class ChurchYear:
     return current_date.strftime("%d %b")
 
 
-# ==========================================
-# MAIN FUNCTIONS
-# ==========================================
-
-
 def load_lectionary(filepath):
   """Loads the CSV into a dictionary."""
   lectionary = {}
@@ -216,6 +185,90 @@ def load_lectionary(filepath):
           "NT": row["NT"],
       }
   return lectionary
+
+
+def get_devotion_data(now):
+  """Fetches lectionary readings, a psalm, and a catechism section
+
+  based on the current date, combines them with a weekly prayer topic, and
+  returns a dictionary of data for rendering.
+  """
+  # 1. Setup Date & Church Year
+  # Debugging: Uncomment to test a specific date
+  # now = datetime.datetime(2025, 2, 26) # Ash Wednesday 2025 example
+
+  cy = ChurchYear(now.year)
+
+  # 2. Determine Key
+  key = cy.get_liturgical_key(now)
+  print(f"Generating devotion for: {now.strftime('%Y-%m-%d')}")
+  print(f"Liturgical Key: {key}")
+
+  # 3. Load Data
+  data = load_lectionary(LECTIONARY_CSV_PATH)
+  readings = data.get(
+      key,
+      {"OT": "Reading not found", "NT": "Reading not found"},
+  )
+
+  if readings["OT"] == "Reading not found":
+    print(f"Warning: Key '{key}' not found in CSV.")
+
+  # 4. Psalm Ref & Fetch Texts
+  print("Fetching texts...")
+  day_of_year = now.timetuple().tm_yday
+  psalm_num = (day_of_year - 1) % 150 + 1
+  psalm_ref = f"Psalm {psalm_num}"
+
+  refs_to_fetch = [readings["OT"], readings["NT"], psalm_ref]
+  ot_text, nt_text, psalm_text = fetch_passages(refs_to_fetch)
+  print("Texts Acquired")
+
+  # 5. Catechism
+  cat_idx = day_of_year % len(CATECHISM_SECTIONS)
+  catechism = CATECHISM_SECTIONS[cat_idx]
+  print("Populated Catechism Reading")
+
+  # 6. Weekly Prayer
+  weekday_idx = now.weekday()
+  prayer_data = WEEKLY_PRAYERS.get(
+      str(weekday_idx), {"topic": "General Intercessions", "prayer": ""}
+  )
+  prayer_topic = prayer_data["topic"]
+  weekly_prayer_html = (
+      f'<p>{prayer_data["prayer"]}</p>' if prayer_data["prayer"] else ""
+  )
+  print("Populated Weekly Prayer section")
+
+  # 7. Generate HTML
+  catechism_meaning_html = ""
+  if catechism["meaning"]:
+    catechism_meaning_html = (
+        f'<p><strong>Meaning:</strong> {catechism["meaning"]}</p>'
+    )
+
+  catechism_prayer = catechism["prayer1"]
+  if catechism["prayer2"]:
+    catechism_prayer = random.choice(
+        [catechism["prayer1"], catechism["prayer2"]]
+    )
+
+  return {
+      "date_str": now.strftime("%A, %B %d, %Y"),
+      "key": key,
+      "catechism_title": catechism["title"],
+      "catechism_text": catechism["text"],
+      "catechism_meaning_html": catechism_meaning_html,
+      "catechism_prayer": catechism_prayer,
+      "psalm_ref": psalm_ref,
+      "psalm_text": psalm_text,
+      "ot_reading_ref": readings["OT"],
+      "ot_text": ot_text,
+      "nt_reading_ref": readings["NT"],
+      "nt_text": nt_text,
+      "prayer_topic": prayer_topic,
+      "weekly_prayer_html": weekly_prayer_html,
+  }
 
 
 def fetch_passages(references):
@@ -289,159 +342,3 @@ def fetch_passages(references):
     for ref in valid_refs_list:
       passage_results[ref] = error_msg
     return [passage_results[ref] for ref in references]
-
-
-def get_devotion_data(now):
-  """Fetches lectionary readings, a psalm, and a catechism section
-  based on the current date, combines them with a weekly prayer topic, and
-  returns a dictionary of data for rendering.
-  """
-  # 1. Setup Date & Church Year
-  # Debugging: Uncomment to test a specific date
-  # now = datetime.datetime(2025, 2, 26) # Ash Wednesday 2025 example
-
-  cy = ChurchYear(now.year)
-
-  # 2. Determine Key
-  key = cy.get_liturgical_key(now)
-  print(f"Generating devotion for: {now.strftime('%Y-%m-%d')}")
-  print(f"Liturgical Key: {key}")
-
-  # 3. Load Data
-  data = load_lectionary(LECTIONARY_CSV_PATH)
-  readings = data.get(
-      key,
-      {"OT": "Reading not found", "NT": "Reading not found"},
-  )
-
-  if readings["OT"] == "Reading not found":
-    print(f"Warning: Key '{key}' not found in CSV.")
-
-  # 4. Psalm Ref & Fetch Texts
-  print("Fetching texts...")
-  day_of_year = now.timetuple().tm_yday
-  psalm_num = (day_of_year - 1) % 150 + 1
-  psalm_ref = f"Psalm {psalm_num}"
-
-  refs_to_fetch = [readings["OT"], readings["NT"], psalm_ref]
-  ot_text, nt_text, psalm_text = fetch_passages(refs_to_fetch)
-  print("Texts Acquired")
-
-  # 5. Catechism
-  cat_idx = day_of_year % len(CATECHISM_SECTIONS)
-  catechism = CATECHISM_SECTIONS[cat_idx]
-  print("Populated Catechism Reading")
-
-  # 6. Weekly Prayer
-  weekday_idx = now.weekday()
-  prayer_data = WEEKLY_PRAYERS.get(
-      str(weekday_idx), {"topic": "General Intercessions", "prayer": ""}
-  )
-  prayer_topic = prayer_data["topic"]
-  weekly_prayer_html = (
-      f'<p>{prayer_data["prayer"]}</p>' if prayer_data["prayer"] else ""
-  )
-  print("Populated Weekly Prayer section")
-
-  # 7. Generate HTML
-  catechism_meaning_html = ""
-  if catechism["meaning"]:
-    catechism_meaning_html = (
-        f'<p><strong>Meaning:</strong> {catechism["meaning"]}</p>'
-    )
-
-  catechism_prayer = catechism["prayer1"]
-  if catechism["prayer2"]:
-    catechism_prayer = random.choice(
-        [catechism["prayer1"], catechism["prayer2"]]
-    )
-  
-  return {
-      "date_str": now.strftime("%A, %B %d, %Y"),
-      "key": key,
-      "catechism_title": catechism["title"],
-      "catechism_text": catechism["text"],
-      "catechism_meaning_html": catechism_meaning_html,
-      "catechism_prayer": catechism_prayer,
-      "psalm_ref": psalm_ref,
-      "psalm_text": psalm_text,
-      "ot_reading_ref": readings["OT"],
-      "ot_text": ot_text,
-      "nt_reading_ref": readings["NT"],
-      "nt_text": nt_text,
-      "prayer_topic": prayer_topic,
-      "weekly_prayer_html": weekly_prayer_html,
-  }
-
-def generate_evening_devotion():
-  """Generates HTML for the evening devotion for the current date.
-
-  This function fetches lectionary readings, a psalm, and a catechism section
-  based on the current date, combines them with a weekly prayer topic, and
-  renders an HTML page.
-
-  Returns:
-      The generated HTML as a string.
-  """
-  eastern_timezone = pytz.timezone('America/New_York')
-  now = datetime.datetime.now(eastern_timezone)
-  template_data = get_devotion_data(now)
-
-  with open(EVENING_HTML_TEMPLATE_PATH, "r", encoding="utf-8") as f:
-    template = Template(f.read())
-
-  html = template.substitute(template_data)
-  print("Generated Evening HTML")
-  return html
-
-def generate_morning_devotion():
-  """Generates HTML for the morning devotion for the current date."""
-  eastern_timezone = pytz.timezone('America/New_York')
-  now = datetime.datetime.now(eastern_timezone)
-  template_data = get_devotion_data(now)
-
-  del template_data["catechism_title"]
-  del template_data["catechism_text"]
-  del template_data["catechism_meaning_html"]
-  del template_data["catechism_prayer"]
-  del template_data["prayer_topic"]
-  del template_data["weekly_prayer_html"]
-
-  morning_reading_ref = random.choice(MORNING_READINGS)
-  psalm_num = random.randint(1, 150)
-  psalm_ref = f"Psalm {psalm_num}"
-
-  reading_text, psalm_text = fetch_passages([morning_reading_ref, psalm_ref])
-  template_data["reading_ref"] = morning_reading_ref
-  template_data["reading_text"] = reading_text
-  template_data["psalm_ref"] = psalm_ref
-  template_data["psalm_text"] = psalm_text
-
-  with open(MORNING_HTML_TEMPLATE_PATH, "r", encoding="utf-8") as f:
-    template = Template(f.read())
-
-  html = template.substitute(template_data)
-  print("Generated Morning HTML")
-  return html
-
-
-@app.route("/")
-def index_route():
-  """Returns the homepage HTML."""
-  with open(INDEX_HTML_PATH, "r", encoding="utf-8") as f:
-    return f.read()
-
-
-@app.route("/evening_devotion")
-def evening_devotion_route():
-  """Returns the generated devotion HTML."""
-  return generate_evening_devotion()
-
-@app.route("/morning_devotion")
-def morning_devotion_route():
-  """Returns the generated devotion HTML."""
-  return generate_morning_devotion()
-
-
-if __name__ == "__main__":
-  app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))

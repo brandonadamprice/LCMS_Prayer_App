@@ -15,4 +15,4 @@
     EXPOSE 8080
 
     # Command to run your application (e.g., with Gunicorn)
-    CMD ["gunicorn", "--bind", "0.0.0.0:8080", "evening_devotion:app"]
+    CMD ["gunicorn", "--bind", "0.0.0.0:8080", "python.main:app"]
