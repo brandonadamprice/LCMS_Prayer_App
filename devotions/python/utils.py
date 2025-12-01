@@ -39,6 +39,21 @@ def load_catechism():
 CATECHISM_SECTIONS = load_catechism()
 WEEKLY_PRAYERS = load_weekly_prayers()
 
+LORDS_PRAYER_HTML = """<p><strong>The Lord's Prayer</strong></p>
+<p><strong>Our Father who art in heaven, hallowed be Thy name, Thy kingdom come, Thy will be done on earth as it is in heaven. Give us this day our daily bread; and forgive us our trespasses as we forgive those who trespass against us; and lead us not into temptation, but deliver us from evil. For Thine is the kingdom and the power and the glory forever and ever. Amen.</strong></p>"""
+
+NUNC_DIMITTIS_HTML = """<p><strong>Nunc Dimittis</strong></p>
+            <p><strong>
+            Lord, now You let Your servant go in peace;
+                Your word has been fulfilled.
+            My own eyes have seen the salvation
+                which You have prepared in the sight of every people:
+            a light to reveal You to the nations
+                and the glory of Your people Israel.
+            Glory be to the Father and to the Son and to the Holy Spirit;
+            as it was in the beginning, is now, and will be forever. Amen.</strong>
+            <span class="versicle-ref">Luke 2:29-32</span></p>"""
+
 
 class ChurchYear:
   """Calculates and provides key dates for the Western Christian liturgical year.
@@ -268,6 +283,8 @@ def get_devotion_data(now):
       "nt_text": nt_text,
       "prayer_topic": prayer_topic,
       "weekly_prayer_html": weekly_prayer_html,
+      "lords_prayer_html": LORDS_PRAYER_HTML,
+      "nunc_dimittis_html": NUNC_DIMITTIS_HTML,
   }
 
 
