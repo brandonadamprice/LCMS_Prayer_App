@@ -40,19 +40,39 @@ CATECHISM_SECTIONS = load_catechism()
 WEEKLY_PRAYERS = load_weekly_prayers()
 
 LORDS_PRAYER_HTML = """<p><strong>The Lord's Prayer</strong></p>
-<p><strong>Our Father who art in heaven, hallowed be Thy name, Thy kingdom come, Thy will be done on earth as it is in heaven. Give us this day our daily bread; and forgive us our trespasses as we forgive those who trespass against us; and lead us not into temptation, but deliver us from evil. For Thine is the kingdom and the power and the glory forever and ever. Amen.</strong></p>"""
+<p><strong>
+Our Father who art in heaven,<br>
+hallowed be Thy name,<br>
+Thy kingdom come,<br>
+Thy will be done<br>
+on earth as it is in heaven.<br>
+Give us this day our daily bread;<br>
+and forgive us our trespasses<br>
+as we forgive those who trespass against us;<br>
+and lead us not into temptation,<br>
+but deliver us from evil.<br>
+For Thine is the kingdom<br>
+and the power and the glory<br>
+forever and ever. Amen.</strong>
+<span class="versicle-ref">Matthew 6:9-13</span></p>"""
 
 NUNC_DIMITTIS_HTML = """<p><strong>Nunc Dimittis</strong></p>
-            <p><strong>
-            Lord, now You let Your servant go in peace;
-                Your word has been fulfilled.
-            My own eyes have seen the salvation
-                which You have prepared in the sight of every people:
-            a light to reveal You to the nations
-                and the glory of Your people Israel.
-            Glory be to the Father and to the Son and to the Holy Spirit;
-            as it was in the beginning, is now, and will be forever. Amen.</strong>
-            <span class="versicle-ref">Luke 2:29-32</span></p>"""
+<p><strong>
+Lord, now You let Your servant go in peace;<br>
+    Your word has been fulfilled.<br>
+My own eyes have seen the salvation<br>
+    which You have prepared in the sight of every people:<br>
+a light to reveal You to the nations<br>
+    and the glory of Your people Israel.<br>
+Glory be to the Father and to the Son and to the Holy Spirit;<br>
+as it was in the beginning, is now, and will be forever. Amen.<br></strong>
+<span class="versicle-ref">Luke 2:29-32</span></p>"""
+
+APOSTLES_CREED_HTML = """<p><strong>The Apostles' Creed</strong></p>
+<p><strong>
+I believe in God, the Father Almighty, maker of heaven and earth.<br><br>
+And in Jesus Christ, His only Son, our Lord, who was conceived by the Holy Spirit, born of the virgin Mary, suffered under Pontius Pilate, was crucified, died and was buried. He descended into hell. The third day He rose again from the dead. He ascended into heaven and sits at the right hand of God the Father Almighty. From thence He will come to judge the living and the dead.<br><br>
+I believe in the Holy Spirit, the holy Christian Church, the communion of saints, the forgiveness of sins, the resurrection of the body, and the life everlasting. Amen.</strong></p>"""
 
 
 class ChurchYear:
@@ -280,6 +300,7 @@ def get_devotion_data(now):
       "ot_reading_ref": readings["OT"],
       "ot_text": ot_text,
       "nt_reading_ref": readings["NT"],
+      "apostles_creed_html": APOSTLES_CREED_HTML,
       "nt_text": nt_text,
       "prayer_topic": prayer_topic,
       "weekly_prayer_html": weekly_prayer_html,
