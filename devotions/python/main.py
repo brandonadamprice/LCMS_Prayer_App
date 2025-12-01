@@ -12,12 +12,20 @@ import utils
 app = flask.Flask(__name__)
 
 INDEX_HTML_PATH = os.path.join(utils.SCRIPT_DIR, "..", "html", "index.html")
+FEEDBACK_HTML_PATH = os.path.join(utils.SCRIPT_DIR, "..", "html", "feedback.html")
 
 
 @app.route("/")
 def index_route():
   """Returns the homepage HTML."""
   with open(INDEX_HTML_PATH, "r", encoding="utf-8") as f:
+    return f.read()
+
+
+@app.route("/feedback")
+def feedback_route():
+  """Returns the feedback page HTML."""
+  with open(FEEDBACK_HTML_PATH, "r", encoding="utf-8") as f:
     return f.read()
 
 
