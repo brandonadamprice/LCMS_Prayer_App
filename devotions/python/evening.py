@@ -4,7 +4,7 @@ import datetime
 import os
 import string
 import pytz
-import utils
+from . import utils
 
 
 EVENING_HTML_TEMPLATE_PATH = os.path.join(

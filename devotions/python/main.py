@@ -1,10 +1,10 @@
 """Main Flask application for serving devotions."""
 
 import os
-import evening
 import flask
-import morning
-import utils
+from . import evening
+from . import morning
+from . import utils
 
 app = flask.Flask(__name__)
 
