@@ -4,6 +4,7 @@ import os
 import flask
 import extended_evening
 import morning
+import noon
 import utils
 
 app = flask.Flask(__name__)
@@ -27,15 +28,21 @@ def styles():
 
 
 @app.route("/extended_evening_devotion")
-def evening_devotion_route():
+def extended_evening_devotion_route():
   """Returns the generated devotion HTML."""
-  return extended_evening.generate_evening_devotion()
+  return extended_evening.generate_extended_evening_devotion()
 
 
 @app.route("/morning_devotion")
 def morning_devotion_route():
   """Returns the generated devotion HTML."""
   return morning.generate_morning_devotion()
+
+
+@app.route("/noon_devotion")
+def noon_devotion_route():
+  """Returns the generated devotion HTML."""
+  return noon.generate_noon_devotion()
 
 
 if __name__ == "__main__":

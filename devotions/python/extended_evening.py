@@ -8,11 +8,11 @@ import utils
 
 
 EVENING_HTML_TEMPLATE_PATH = os.path.join(
-    utils.SCRIPT_DIR, "..", "html", "evening_devotion.html"
+    utils.SCRIPT_DIR, "..", "html", "extended_evening_devotion.html"
 )
 
 
-def generate_evening_devotion():
+def generate_extended_evening_devotion():
   """Generates HTML for the evening devotion for the current date.
 
   This function fetches lectionary readings, a psalm, and a catechism section
