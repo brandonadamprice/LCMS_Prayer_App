@@ -7,7 +7,11 @@ import morning
 import noon
 import early_evening
 import close_of_day
+import advent
 import utils
+import datetime
+import pytz
+import string
 
 app = flask.Flask(__name__)
 
@@ -18,8 +22,19 @@ FEEDBACK_HTML_PATH = os.path.join(utils.SCRIPT_DIR, "..", "html", "feedback.html
 @app.route("/")
 def index_route():
   """Returns the homepage HTML."""
+  eastern_timezone = pytz.timezone("America/New_York")
+  now = datetime.datetime.now(eastern_timezone)
+  advent_button_html = ""
+  if now.month == 12 and 1 <= now.day <= 25:
+    advent_button_html = """<div class="card">
+        <h2>Advent Devotion</h2>
+        <a href="/advent_devotion" class="button">Advent Family Devotional</a>
+    </div>"""
+
   with open(INDEX_HTML_PATH, "r", encoding="utf-8") as f:
-    return f.read()
+    template = string.Template(f.read())
+
+  return template.substitute(advent_button_html=advent_button_html)
 
 
 @app.route("/feedback")
@@ -65,6 +80,12 @@ def early_evening_devotion_route():
 def close_of_day_devotion_route():
   """Returns the generated devotion HTML."""
   return close_of_day.generate_close_of_day_devotion()
+
+
+@app.route("/advent_devotion")
+def advent_devotion_route():
+  """Returns the generated devotion HTML."""
+  return advent.generate_advent_devotion()
 
 
 if __name__ == "__main__":
