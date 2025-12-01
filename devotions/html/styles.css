@@ -136,3 +136,9 @@ label {
     margin-bottom: 5px;
     display: block;
 }
+
+#github-link img {
+    width: 24px;
+    height: 24px;
+    vertical-align: middle;
+}
