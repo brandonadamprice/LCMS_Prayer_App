@@ -5,7 +5,7 @@ import os
 import random
 import string
 import pytz
-from . import utils
+import utils
 
 MORNING_HTML_TEMPLATE_PATH = os.path.join(
     utils.SCRIPT_DIR, "..", "html", "morning_devotion.html"

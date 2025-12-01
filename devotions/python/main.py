@@ -2,9 +2,9 @@
 
 import os
 import flask
-from . import evening
-from . import morning
-from . import utils
+import evening
+import morning
+import utils
 
 app = flask.Flask(__name__)
 

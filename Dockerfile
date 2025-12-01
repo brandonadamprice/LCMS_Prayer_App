@@ -14,5 +14,7 @@
     # Expose the port your application listens on (adjust if needed)
     EXPOSE 8080
 
+    WORKDIR /app/python
+
     # Command to run your application (e.g., with Gunicorn)
-    CMD ["gunicorn", "--bind", "0.0.0.0:8080", "python.main:app"]
+    CMD ["gunicorn", "--bind", "0.0.0.0:8080", "main:app"]
