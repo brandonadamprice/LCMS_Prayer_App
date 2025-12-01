@@ -321,7 +321,9 @@ def fetch_passages(references):
     if data.get("passages") and len(data["passages"]) == len(valid_refs_list):
       for i, ref in enumerate(valid_refs_list):
         text_block = data["passages"][i].strip()
-        text_block = re.sub(r"\[(\d+)\]", r"<sup>\1</sup>", text_block)
+        text_block = re.sub(r"\[(\d+)\]", r"<br><sup>\1</sup>", text_block)
+        if text_block.startswith("<br>"):
+          text_block = text_block[4:]
         passage_results[ref] = text_block
     else:
       # If passages are missing or count mismatch, mark all as not found from API
