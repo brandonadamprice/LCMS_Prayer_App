@@ -31,7 +31,10 @@ def generate_psalms_by_category_page():
 
   card_html_parts = []
   for i, cat in enumerate(categories):
-    psalm_list_json = json.dumps(cat["Psalms"])
+    picker_buttons_html = "".join([
+        f"""<button class="button psalm-picker-button" onclick="selectPsalm('{p}', {i})">{p}</button>"""
+        for p in cat["Psalms"]
+    ])
     card_html = f"""<div class="card collapsed">
             <div class="card-header" onclick="toggleCard(this)">
                 <h2>{cat['title']}</h2>
@@ -42,7 +45,10 @@ def generate_psalms_by_category_page():
                 <hr>
                 <span class="ref" id="psalm-ref-{i}">{psalm_refs[i]}</span>
                 <p id="psalm-text-{i}">{psalm_texts[i]}</p>
-                <button class="button psalm-button" data-psalms='{psalm_list_json}' onclick="loadAnotherPsalm(this, {i})">Load Another Psalm</button>
+                <button class="button psalm-button" onclick="togglePsalmPicker(this, {i})">Select Psalm</button>
+                <div id="picker-{i}" class="psalm-picker">
+                    {picker_buttons_html}
+                </div>
                 <hr>
                 <p class="subheader"><strong>Prayer</strong></p>
                 <p>{cat['prayer']}</p>

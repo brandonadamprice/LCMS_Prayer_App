@@ -185,3 +185,28 @@ li.post-it:hover {
   padding: 8px 15px;
   font-size: 0.9em;
 }
+
+.psalm-picker {
+  display: none; /* Hidden by default */
+  flex-wrap: wrap;
+  padding: 10px 0;
+  gap: 5px;
+  border-top: 1px dashed #eee;
+  margin-top: 15px;
+}
+.psalm-picker.visible {
+  display: flex;
+}
+.psalm-picker-button {
+  padding: 5px 10px;
+  min-width: 40px;
+  font-size: 0.85em;
+  background-color: #eee;
+  color: #333;
+  border: 1px solid #ccc;
+  margin: 2px;
+}
+.psalm-picker-button:hover {
+  background-color: #34495e;
+  color: white;
+}
