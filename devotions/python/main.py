@@ -12,6 +12,7 @@ import flask
 import morning
 import noon
 import prayer_requests
+import psalms_by_category
 import pytz
 import utils
 
@@ -109,6 +110,12 @@ def prayer_requests_route():
   """Returns prayer request submission page."""
   with open(PRAYER_REQUESTS_HTML_PATH, "r", encoding="utf-8") as f:
     return f.read()
+
+
+@app.route("/psalms_by_category")
+def psalms_by_category_route():
+  """Returns Psalms by Category page."""
+  return psalms_by_category.generate_psalms_by_category_page()
 
 
 @app.route("/prayer_wall")
