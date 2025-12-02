@@ -135,7 +135,13 @@ h2 {
   list-style: none;
   margin: 20px 0 0 0;
   padding: 30px 15px; /* Padding around notes */
-  background: #525252; /* Dark grey background */
+  background:
+    radial-gradient(#a0522d 15%, transparent 16%) 0 0,
+    radial-gradient(#a0522d 15%, transparent 16%) 8px 8px,
+    radial-gradient(rgba(255,255,255,.15) 15%, transparent 20%) 0 1px,
+    radial-gradient(rgba(255,255,255,.15) 15%, transparent 20%) 8px 9px;
+  background-color:#d2b48c;
+  background-size:16px 16px;
   border-radius: 8px;
   min-height: 300px;
   border-top: 1px solid #eee;
