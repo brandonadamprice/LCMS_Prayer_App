@@ -1,6 +1,7 @@
 """Functions for interacting with Firestore prayer requests."""
 
 import datetime
+import random
 from google.cloud import firestore
 from google.cloud.firestore_v1.base_query import FieldFilter
 from google.cloud.firestore_v1.query import Query
@@ -71,6 +72,18 @@ def get_active_prayer_requests():
   ).order_by("created_at", direction=Query.DESCENDING)
   docs = query.stream()
   return [doc.to_dict() for doc in docs]
+
+
+def get_prayer_wall_requests(limit=10):
+  """Returns a random sample of active prayer requests."""
+  active_requests = get_active_prayer_requests()
+  if not active_requests:
+    return []
+  if len(active_requests) <= limit:
+    random.shuffle(active_requests)
+    return active_requests
+  else:
+    return random.sample(active_requests, limit)
 
 
 def remove_expired_requests():

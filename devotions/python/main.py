@@ -1,6 +1,7 @@
 """Main Flask application for serving devotions."""
 
 import datetime
+import html
 import os
 import string
 import advent
@@ -28,6 +29,9 @@ PRAYER_SUBMITTED_HTML_PATH = os.path.join(
 )
 PRAYER_FAILED_HTML_PATH = os.path.join(
     utils.SCRIPT_DIR, "..", "html", "prayer_request_failed.html"
+)
+PRAYER_WALL_HTML_PATH = os.path.join(
+    utils.SCRIPT_DIR, "..", "html", "prayer_wall.html"
 )
 
 
@@ -105,6 +109,30 @@ def prayer_requests_route():
   """Returns prayer request submission page."""
   with open(PRAYER_REQUESTS_HTML_PATH, "r", encoding="utf-8") as f:
     return f.read()
+
+
+@app.route("/prayer_wall")
+def prayer_wall_route():
+  """Returns prayer wall page."""
+  requests = prayer_requests.get_prayer_wall_requests(limit=10)
+  prayer_requests_html = ""
+  if not requests:
+    prayer_requests_html = (
+        "<p><em>No active prayer requests at this time.</em></p>"
+    )
+  else:
+    html_parts = []
+    for i, req in enumerate(requests):
+      name = html.escape(req.get("name", "Anonymous"))
+      prayer = html.escape(req.get("request", ""))
+      html_parts.append(f"<p><strong>{name}:</strong> {prayer}</p>")
+      if i < len(requests) - 1:
+        html_parts.append("<hr>")  # separator
+    prayer_requests_html = "\n".join(html_parts)
+
+  with open(PRAYER_WALL_HTML_PATH, "r", encoding="utf-8") as f:
+    template = string.Template(f.read())
+  return template.substitute(prayer_requests_html=prayer_requests_html)
 
 
 @app.route("/add_prayer_request", methods=["POST"])
