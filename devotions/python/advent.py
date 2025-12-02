@@ -32,7 +32,7 @@ def generate_advent_devotion():
   reading_text = reading_texts[0]
 
   reading_html = (
-    f'<p>{reading_text}</p><hr>'
+    f'<p>{reading_text}</p>'
   )
 
   meditation_html = f'<p>{devotion_data["brief_devotional"]}</p>'
