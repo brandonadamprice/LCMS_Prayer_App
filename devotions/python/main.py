@@ -129,10 +129,13 @@ def prayer_wall_route():
     for i, req in enumerate(requests):
       name = html.escape(req.get("name", "Anonymous"))
       prayer = html.escape(req.get("request", ""))
-      html_parts.append(f"<p><strong>{name}:</strong> {prayer}</p>")
-      if i < len(requests) - 1:
-        html_parts.append("<hr>")  # separator
-    prayer_requests_html = "\n".join(html_parts)
+      html_parts.append(
+          f'<li class="post-it"><p class="post-it-text">{prayer}</p><p'
+          f' class="post-it-name">~ {name}</p></li>'
+      )
+    prayer_requests_html = (
+        '<ul class="prayer-wall-container">\n' + "\n".join(html_parts) + '\n</ul>'
+    )
 
   with open(PRAYER_WALL_HTML_PATH, "r", encoding="utf-8") as f:
     template = string.Template(f.read())

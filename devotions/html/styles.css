@@ -126,3 +126,50 @@ h2 {
     height: 24px;
     vertical-align: middle;
 }
+
+/* Prayer Wall */
+.prayer-wall-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  list-style: none;
+  margin: 20px 0 0 0;
+  padding: 30px 15px; /* Padding around notes */
+  background: #525252; /* Dark grey background */
+  border-radius: 8px;
+  min-height: 300px;
+  border-top: 1px solid #eee;
+}
+
+li.post-it {
+  width: 210px;
+  height: 210px;
+  padding: 20px;
+  margin: 15px;
+  box-shadow: 3px 3px 6px rgba(0,0,0,.4);
+  transition: all .2s ease-in-out;
+  font-family: cursive, sans-serif;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow-wrap: break-word;
+  line-height: 1.5;
+  font-size: 1.1em;
+  color: #333;
+}
+li.post-it p { margin: 0; }
+.post-it-text { flex-grow: 1; }
+.post-it-name { font-weight: bold; text-align: right; margin-top: 10px; font-size: 0.9em; }
+
+li.post-it:hover {
+  box-shadow:7px 7px 10px rgba(0,0,0,.5);
+  transform: scale(1.1) rotate(0deg) !important;
+  z-index: 5;
+}
+
+/* Colors and rotations */
+.post-it:nth-child(5n+1) { transform: rotate(-5deg); background: #FFF9B1; } /* yellow */
+.post-it:nth-child(5n+2) { transform: rotate(3deg); background: #C1FFC1; } /* green */
+.post-it:nth-child(5n+3) { transform: rotate(-2deg); background: #AEC6CF; } /* blue */
+.post-it:nth-child(5n+4) { transform: rotate(4deg); background: #FFD1DC; } /* pink */
+.post-it:nth-child(5n)   { transform: rotate(1deg); background: #FFF9B1; } /* yellow */
