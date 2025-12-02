@@ -26,7 +26,7 @@
 
         async function loadAnotherPsalm(button, cardIndex) {
             const psalmList = JSON.parse(button.dataset.psalms);
-            const currentRefEl = document.getElementById(`psalm-ref-${cardIndex}`);
+            const currentRefEl = document.getElementById('psalm-ref-' + cardIndex);
             const currentPsalmNum = currentRefEl.innerText.replace('Psalm ', '');
 
             let potentialPsalms = psalmList.filter(p => p !== currentPsalmNum);
@@ -37,9 +37,9 @@
             }
             
             const newPsalmNum = potentialPsalms[Math.floor(Math.random() * potentialPsalms.length)];
-            const newRef = `Psalm ${newPsalmNum}`;
+            const newRef = 'Psalm ' + newPsalmNum;
 
-            const textEl = document.getElementById(`psalm-text-${cardIndex}`);
+            const textEl = document.getElementById('psalm-text-' + cardIndex);
 
             button.disabled = true;
             button.innerText = 'Loading...';
@@ -47,14 +47,14 @@
             textEl.innerHTML = '<em>Loading...</em>';
 
             try {
-                const response = await fetch(`/get_passage_text?ref=${encodeURIComponent(newRef)}`);
+                const response = await fetch('/get_passage_text?ref=' + encodeURIComponent(newRef));
                 if (!response.ok) throw new Error('Network response was not ok');
                 const data = await response.json();
                 textEl.innerHTML = data.text;
             } catch (error) {
                 console.error('Error fetching new psalm:', error);
                 textEl.innerHTML = '<em>Error loading Psalm. Please try again.</em>';
-                currentRefEl.innerText = `Psalm ${currentPsalmNum}`; // Revert ref on error
+                currentRefEl.innerText = 'Psalm ' + currentPsalmNum; // Revert ref on error
             } finally {
                 button.disabled = false;
                 button.innerText = 'Load Another Psalm';
