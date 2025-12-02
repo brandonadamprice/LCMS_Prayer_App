@@ -114,6 +114,10 @@ def prayer_requests_route():
 @app.route("/prayer_wall")
 def prayer_wall_route():
   """Returns prayer wall page."""
+  try:
+    prayer_requests.remove_expired_requests()
+  except Exception as e:
+    print(f"Error removing expired prayer requests: {e}")
   requests = prayer_requests.get_prayer_wall_requests(limit=10)
   prayer_requests_html = ""
   if not requests:

@@ -74,8 +74,6 @@ def get_active_prayer_requests():
   now = datetime.datetime.now(datetime.timezone.utc)
   collection_ref = db.collection("prayer-requests")
   # Note: Firestore may require a composite index for this query.
-  # If you see an error in logs asking to create an index, follow the link
-  # provided in the error message to create it in the Cloud Console.
   query = collection_ref.where(
       filter=FieldFilter("expires_at", ">", now)
   ).order_by("created_at", direction=Query.DESCENDING)
