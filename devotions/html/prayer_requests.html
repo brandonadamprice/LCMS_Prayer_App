@@ -26,6 +26,7 @@
             id="name"
             name="name"
             required
+            maxlength="100"
             style="
               width: 100%;
               padding: 8px;
@@ -42,6 +43,7 @@
             name="request"
             rows="4"
             required
+            maxlength="1000"
             style="
               width: 100%;
               padding: 8px;
@@ -50,6 +52,25 @@
               box-sizing: border-box;
             "
           ></textarea>
+        </div>
+        <div style="margin-bottom: 10px">
+          <label for="days_ttl">Days to keep request live (1-90):</label><br />
+          <input
+            type="number"
+            id="days_ttl"
+            name="days_ttl"
+            min="1"
+            max="90"
+            value="30"
+            required
+            style="
+              width: 100%;
+              padding: 8px;
+              border-radius: 4px;
+              border: 1px solid #ccc;
+              box-sizing: border-box;
+            "
+          />
         </div>
         <button type="submit" class="button">Submit Request</button>
       </form>

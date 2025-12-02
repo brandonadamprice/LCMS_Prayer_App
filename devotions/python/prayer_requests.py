@@ -6,6 +6,9 @@ from google.cloud.firestore_v1.base_query import FieldFilter
 from google.cloud.firestore_v1.query import Query
 import utils
 
+NAME_MAX_LENGTH = 100
+REQUEST_MAX_LENGTH = 1000
+
 
 def get_db_client():
   """Initializes and returns a Firestore client."""
@@ -22,8 +25,23 @@ def add_prayer_request(name, request, days_ttl=30):
   """Adds a prayer request to the Firestore database if content is appropriate.
 
   Returns:
-      bool: True if added successfully, False if content was inappropriate.
+      bool: True if added successfully, False if content was inappropriate,
+      exceeded length limits, or TTL is invalid.
   """
+  try:
+    days_ttl = int(days_ttl)
+    if not 1 <= days_ttl <= 90:
+      print(f"Invalid days_ttl: {days_ttl}. Must be between 1 and 90.")
+      return False
+  except (ValueError, TypeError):
+    print(f"Invalid days_ttl: {days_ttl}. Must be an integer.")
+    return False
+  if not name or not name.strip() or not request or not request.strip():
+    print("Prayer request name or request cannot be empty.")
+    return False
+  if len(name) > NAME_MAX_LENGTH or len(request) > REQUEST_MAX_LENGTH:
+    print("Prayer request content is too long.")
+    return False
   if utils.is_inappropriate(name) or utils.is_inappropriate(request):
     print("Inappropriate content detected in prayer request.")
     return False

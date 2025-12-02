@@ -112,10 +112,11 @@ def add_prayer_request_route():
   """Adds a prayer request and returns confirmation or failure page."""
   name = flask.request.form.get("name")
   request = flask.request.form.get("request")
+  days_ttl = flask.request.form.get("days_ttl", "30")
   if not name or not request:
     return flask.redirect("/prayer_requests")
 
-  if prayer_requests.add_prayer_request(name, request):
+  if prayer_requests.add_prayer_request(name, request, days_ttl):
     with open(PRAYER_SUBMITTED_HTML_PATH, "r", encoding="utf-8") as f:
       return f.read()
   else:
