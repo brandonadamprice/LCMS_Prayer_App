@@ -14,6 +14,54 @@ DATA_DIR = os.path.join(SCRIPT_DIR, "..", "data")
 LECTIONARY_CSV_PATH = os.path.join(DATA_DIR, "daily_lectionary.csv")
 CATECHISM_JSON_PATH = os.path.join(DATA_DIR, "catechism.json")
 WEEKLY_PRAYERS_JSON_PATH = os.path.join(DATA_DIR, "weekly_prayers.json")
+INAPPROPRIATE_WORDS_CSV_PATH = os.path.join(
+    DATA_DIR, "inappropriate_words.csv"
+)
+
+
+def load_inappropriate_words():
+  """Loads inappropriate words from a CSV file into a set."""
+  words = set()
+  try:
+    with open(INAPPROPRIATE_WORDS_CSV_PATH, "r", encoding="utf-8") as f:
+      reader = csv.DictReader(f)
+      for row in reader:
+        if "word" in row and row["word"]:
+          words.add(row["word"].strip().lower())
+  except FileNotFoundError:
+    print(f"Warning: {INAPPROPRIATE_WORDS_CSV_PATH} not found.")
+  return words
+
+INAPPROPRIATE_WORDS = load_inappropriate_words()
+
+
+def is_inappropriate(text):
+  """Checks if text contains inappropriate words, handling some obfuscation."""
+  if not text:
+    return False
+
+  # Normalize: lowercase, leetspeak, symbols
+  cleaned = text.lower()
+  subs = {
+      "@": "a", "4": "a",
+      "8": "b",
+      "(": "c", "[": "c", "{": "c", "<": "c",
+      "3": "e",
+      "6": "g", "9": "g",
+      "!": "i", "1": "i", "|": "i",
+      "0": "o",
+      "$": "s", "5": "s",
+      "+": "t", "7": "t",
+      "2": "z"
+  }
+  for key, value in subs.items():
+    cleaned = cleaned.replace(key, value)
+
+  # Remove any character that is not a letter or space, then split
+  cleaned = re.sub(r"[^a-z\s]", "", cleaned)
+  words = set(cleaned.split())
+  # Return True if any word in the text is in our inappropriate list
+  return not INAPPROPRIATE_WORDS.isdisjoint(words)
 
 
 def load_weekly_prayers():

@@ -26,6 +26,9 @@ PRAYER_REQUESTS_HTML_PATH = os.path.join(
 PRAYER_SUBMITTED_HTML_PATH = os.path.join(
     utils.SCRIPT_DIR, "..", "html", "prayer_request_submitted.html"
 )
+PRAYER_FAILED_HTML_PATH = os.path.join(
+    utils.SCRIPT_DIR, "..", "html", "prayer_request_failed.html"
+)
 
 
 @app.route("/")
@@ -106,13 +109,19 @@ def prayer_requests_route():
 
 @app.route("/add_prayer_request", methods=["POST"])
 def add_prayer_request_route():
-  """Adds a prayer request and returns confirmation page."""
+  """Adds a prayer request and returns confirmation or failure page."""
   name = flask.request.form.get("name")
   request = flask.request.form.get("request")
-  if name and request:
-    prayer_requests.add_prayer_request(name, request)
-  with open(PRAYER_SUBMITTED_HTML_PATH, "r", encoding="utf-8") as f:
-    return f.read()
+  if not name or not request:
+    return flask.redirect("/prayer_requests")
+
+  if prayer_requests.add_prayer_request(name, request):
+    with open(PRAYER_SUBMITTED_HTML_PATH, "r", encoding="utf-8") as f:
+      return f.read()
+  else:
+    # If add_prayer_request returns False, it's due to inappropriate content
+    with open(PRAYER_FAILED_HTML_PATH, "r", encoding="utf-8") as f:
+      return f.read()
 
 
 if __name__ == "__main__":

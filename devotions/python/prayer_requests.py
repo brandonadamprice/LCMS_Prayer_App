@@ -4,6 +4,7 @@ import datetime
 from google.cloud import firestore
 from google.cloud.firestore_v1.base_query import FieldFilter
 from google.cloud.firestore_v1.query import Query
+import utils
 
 
 def get_db_client():
@@ -18,7 +19,14 @@ def get_db_client():
 
 
 def add_prayer_request(name, request, days_ttl=30):
-  """Adds a prayer request to the Firestore database."""
+  """Adds a prayer request to the Firestore database if content is appropriate.
+
+  Returns:
+      bool: True if added successfully, False if content was inappropriate.
+  """
+  if utils.is_inappropriate(name) or utils.is_inappropriate(request):
+    print("Inappropriate content detected in prayer request.")
+    return False
   db = get_db_client()
   collection_ref = db.collection("prayer-requests")
   created_at = datetime.datetime.now(datetime.timezone.utc)
@@ -29,6 +37,7 @@ def add_prayer_request(name, request, days_ttl=30):
       "created_at": created_at,
       "expires_at": expires_at,
   })
+  return True
 
 
 def get_active_prayer_requests():
