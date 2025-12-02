@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Prayer Requests</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div style="text-align: center; margin-bottom: 40px">
+      <h1>Prayer Requests</h1>
+    </div>
+
+    <div class="card">
+      <h2>Submit a Prayer Request</h2>
+      <p>
+        Please fill out the form below to submit a prayer request. Please note that prayer requests
+        are not private, anyone can see the prayer requests. Do not include sensitive information in
+        your prayer request.
+      </p>
+      <form action="/add_prayer_request" method="post">
+        <div style="margin-bottom: 10px">
+          <label for="name">Name:</label><br />
+          <input
+            type="text"
+            id="name"
+            name="name"
+            required
+            style="
+              width: 100%;
+              padding: 8px;
+              border-radius: 4px;
+              border: 1px solid #ccc;
+              box-sizing: border-box;
+            "
+          />
+        </div>
+        <div style="margin-bottom: 10px">
+          <label for="request">Prayer Request:</label><br />
+          <textarea
+            id="request"
+            name="request"
+            rows="4"
+            required
+            style="
+              width: 100%;
+              padding: 8px;
+              border-radius: 4px;
+              border: 1px solid #ccc;
+              box-sizing: border-box;
+            "
+          ></textarea>
+        </div>
+        <button type="submit" class="button">Submit Request</button>
+      </form>
+    </div>
+
+    <div style="text-align: center">
+      <a href="/" class="button">Back to Home</a>
+    </div>
+  </body>
+</html>
+<!doctype html>
+<meta charset="utf-8" />
+<title>Page Title</title>

@@ -10,6 +10,7 @@ import extended_evening
 import flask
 import morning
 import noon
+import prayer_requests
 import pytz
 import utils
 
@@ -18,6 +19,9 @@ app = flask.Flask(__name__)
 INDEX_HTML_PATH = os.path.join(utils.SCRIPT_DIR, "..", "html", "index.html")
 FEEDBACK_HTML_PATH = os.path.join(
     utils.SCRIPT_DIR, "..", "html", "feedback.html"
+)
+PRAYER_REQUESTS_HTML_PATH = os.path.join(
+    utils.SCRIPT_DIR, "..", "html", "prayer_requests.html"
 )
 
 
@@ -88,6 +92,23 @@ def close_of_day_devotion_route():
 def advent_devotion_route():
   """Returns the generated devotion HTML."""
   return advent.generate_advent_devotion()
+
+
+@app.route("/prayer_requests")
+def prayer_requests_route():
+  """Returns prayer request submission page."""
+  with open(PRAYER_REQUESTS_HTML_PATH, "r", encoding="utf-8") as f:
+    return f.read()
+
+
+@app.route("/add_prayer_request", methods=["POST"])
+def add_prayer_request_route():
+  """Adds a prayer request and redirects to prayer requests page."""
+  name = flask.request.form.get("name")
+  request = flask.request.form.get("request")
+  if name and request:
+    prayer_requests.add_prayer_request(name, request)
+  return flask.redirect("/prayer_requests")
 
 
 if __name__ == "__main__":
