@@ -64,6 +64,13 @@ h2 {
     color: white;
 }
 
+.button:disabled,
+.button:disabled:hover {
+  background-color: #cccccc;
+  color: #666666;
+  cursor: not-allowed;
+}
+
 /* Collapsible Styles */
 .card-header {
     display: flex;
