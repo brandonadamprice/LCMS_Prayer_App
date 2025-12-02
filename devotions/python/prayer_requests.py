@@ -12,7 +12,9 @@ def get_db_client():
   # authenticates using the service account or application default credentials.
   # For local development, ensure you have authenticated via gcloud:
   # `gcloud auth application-default login`
-  return firestore.Client()
+  return firestore.Client(
+      project="lcms-prayer-app", database="prayer-app-datastore"
+  )
 
 
 def add_prayer_request(name, request, days_ttl=30):
