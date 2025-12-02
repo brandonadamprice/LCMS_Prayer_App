@@ -1,22 +1,24 @@
 """Main Flask application for serving devotions."""
 
+import datetime
 import os
-import flask
+import string
+import advent
+import close_of_day
+import early_evening
 import extended_evening
+import flask
 import morning
 import noon
-import early_evening
-import close_of_day
-import advent
-import utils
-import datetime
 import pytz
-import string
+import utils
 
 app = flask.Flask(__name__)
 
 INDEX_HTML_PATH = os.path.join(utils.SCRIPT_DIR, "..", "html", "index.html")
-FEEDBACK_HTML_PATH = os.path.join(utils.SCRIPT_DIR, "..", "html", "feedback.html")
+FEEDBACK_HTML_PATH = os.path.join(
+    utils.SCRIPT_DIR, "..", "html", "feedback.html"
+)
 
 
 @app.route("/")

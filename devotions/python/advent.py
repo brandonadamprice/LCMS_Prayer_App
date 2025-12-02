@@ -1,16 +1,17 @@
 """Functions for generating the Advent devotion."""
 
 import datetime
+import json
 import os
 import string
 import pytz
 import utils
-import json
 
 ADVENT_HTML_TEMPLATE_PATH = os.path.join(
     utils.SCRIPT_DIR, "..", "html", "advent_devotion.html"
 )
 ADVENT_JSON_PATH = os.path.join(utils.SCRIPT_DIR, "..", "data", "advent.json")
+
 
 def load_advent_devotions():
   with open(ADVENT_JSON_PATH, "r", encoding="utf-8") as f:
@@ -31,9 +32,7 @@ def generate_advent_devotion():
   reading_texts = utils.fetch_passages([scripture_verses])
   reading_text = reading_texts[0]
 
-  reading_html = (
-    f'<p>{reading_text}</p>'
-  )
+  reading_html = f"<p>{reading_text}</p>"
 
   meditation_html = f'<p>{devotion_data["brief_devotional"]}</p>'
   daily_prayer_html = f'<p>{devotion_data["short_prayer"]}</p>'

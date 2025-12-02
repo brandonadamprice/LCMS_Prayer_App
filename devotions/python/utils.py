@@ -364,7 +364,7 @@ def fetch_passages(references):
           text_block = text_block[4:]
         passage_results[ref] = text_block
     else:
-      # If passages are missing or count mismatch, mark all as not found from API
+      # If passages are missing or count mismatch, mark all as not found
       for ref in valid_refs_list:
         passage_results[ref] = f"<i>(Text not found for {ref})</i>"
 
