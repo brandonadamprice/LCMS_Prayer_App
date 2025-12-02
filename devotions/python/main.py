@@ -112,6 +112,20 @@ def prayer_requests_route():
     return f.read()
 
 
+@app.route("/get_passage_text")
+def get_passage_text_route():
+  """Fetches text for a given scripture reference."""
+  ref = flask.request.args.get("ref")
+  if not ref:
+    return flask.jsonify({"error": "Missing reference"}), 400
+  try:
+    text = utils.fetch_passages([ref])[0]
+    return flask.jsonify({"ref": ref, "text": text})
+  except Exception as e:
+    print(f"Error in get_passage_text: {e}")
+    return flask.jsonify({"error": "Failed to fetch passage"}), 500
+
+
 @app.route("/psalms_by_category")
 def psalms_by_category_route():
   """Returns Psalms by Category page."""

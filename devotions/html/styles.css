@@ -179,3 +179,9 @@ li.post-it:hover {
 .post-it:nth-child(5n+3) { transform: rotate(-2deg); background: #AEC6CF; } /* blue */
 .post-it:nth-child(5n+4) { transform: rotate(4deg); background: #FFD1DC; } /* pink */
 .post-it:nth-child(5n)   { transform: rotate(1deg); background: #FFF9B1; } /* yellow */
+
+.psalm-button {
+  margin: 15px 0 5px 0;
+  padding: 8px 15px;
+  font-size: 0.9em;
+}
