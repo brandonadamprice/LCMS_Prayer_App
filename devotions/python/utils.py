@@ -64,6 +64,24 @@ def is_inappropriate(text):
   return not INAPPROPRIATE_WORDS.isdisjoint(words)
 
 
+def contains_phone_number(text):
+  """Checks if a string contains a common phone number pattern.
+
+  This pattern looks for 7-10 digits, optionally separated by hyphens, spaces,
+  or enclosed in parentheses. It also accounts for optional country codes (e.g.,
+  +1).
+  """
+  # This regex attempts to capture various phone number formats.
+  # It's a simplified example and might need adjustment for specific regional
+  # formats.
+  phone_pattern = r"(\+\d{1,3}\s?)?(\(\d{3}\)|\d{3})[\s.-]?\d{3}[\s.-]?\d{4}"
+
+  if re.search(phone_pattern, text):
+    return True
+  else:
+    return False
+
+
 def load_weekly_prayers():
   with open(WEEKLY_PRAYERS_JSON_PATH, "r", encoding="utf-8") as f:
     return json.load(f)

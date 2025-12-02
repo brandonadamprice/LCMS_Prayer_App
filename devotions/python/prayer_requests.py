@@ -26,26 +26,35 @@ def add_prayer_request(name, request, days_ttl=30):
   """Adds a prayer request to the Firestore database if content is appropriate.
 
   Returns:
-      bool: True if added successfully, False if content was inappropriate,
-      exceeded length limits, or TTL is invalid.
+      tuple[bool, str | None]: (True, None) if successful, or (False,
+      error_message) on failure.
   """
   try:
     days_ttl = int(days_ttl)
     if not 1 <= days_ttl <= 90:
-      print(f"Invalid days_ttl: {days_ttl}. Must be between 1 and 90.")
-      return False
+      return (
+          False,
+          f"Invalid duration: {days_ttl}. Must be between 1 and 90 days.",
+      )
   except (ValueError, TypeError):
-    print(f"Invalid days_ttl: {days_ttl}. Must be an integer.")
-    return False
+    return False, f"Invalid duration: {days_ttl}. Must be an integer."
   if not name or not name.strip() or not request or not request.strip():
-    print("Prayer request name or request cannot be empty.")
-    return False
+    return False, "Prayer request name or request cannot be empty."
   if len(name) > NAME_MAX_LENGTH or len(request) > REQUEST_MAX_LENGTH:
-    print("Prayer request content is too long.")
-    return False
+    return (
+        False,
+        (
+            "Prayer request content exceeds length limits (100 characters for"
+            " name, 1000 for request)."
+        ),
+    )
+  if utils.contains_phone_number(name) or utils.contains_phone_number(request):
+    return (
+        False,
+        "Prayer requests cannot contain phone numbers or similar patterns.",
+    )
   if utils.is_inappropriate(name) or utils.is_inappropriate(request):
-    print("Inappropriate content detected in prayer request.")
-    return False
+    return False, "Inappropriate content detected in prayer request."
   db = get_db_client()
   collection_ref = db.collection("prayer-requests")
   created_at = datetime.datetime.now(datetime.timezone.utc)
@@ -56,7 +65,7 @@ def add_prayer_request(name, request, days_ttl=30):
       "created_at": created_at,
       "expires_at": expires_at,
   })
-  return True
+  return True, None
 
 
 def get_active_prayer_requests():

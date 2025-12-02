@@ -144,13 +144,16 @@ def add_prayer_request_route():
   if not name or not request:
     return flask.redirect("/prayer_requests")
 
-  if prayer_requests.add_prayer_request(name, request, days_ttl):
+  success, error_message = prayer_requests.add_prayer_request(
+      name, request, days_ttl
+  )
+  if success:
     with open(PRAYER_SUBMITTED_HTML_PATH, "r", encoding="utf-8") as f:
       return f.read()
   else:
-    # If add_prayer_request returns False, it's due to inappropriate content
     with open(PRAYER_FAILED_HTML_PATH, "r", encoding="utf-8") as f:
-      return f.read()
+      template = string.Template(f.read())
+      return template.substitute(error_message=error_message)
 
 
 if __name__ == "__main__":
