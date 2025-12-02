@@ -33,17 +33,7 @@
 
     <div class="card">
         <div class="card-header" onclick="toggleCard(this)">
-            <h2>Creed</h2>
-            <span class="toggle-icon">▼</span>
-        </div>
-        <div class="card-content">
-            ${apostles_creed_html}
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="card-header" onclick="toggleCard(this)">
-            <h2>Lord's Prayer</h2>
+            <h2>Prayer</h2>
             <span class="toggle-icon">▼</span>
         </div>
         <div class="card-content">
@@ -53,12 +43,12 @@
 
     <div class="card">
         <div class="card-header" onclick="toggleCard(this)">
-            <h2>Readings</h2>
+            <h2>Reading</h2>
             <span class="toggle-icon">▼</span>
         </div>
         <div class="card-content">
-             <span class="ref">${reading_refs}</span>
-            ${readings_html}
+            <span class="ref">${reading_ref}</span>
+            ${reading_html}
         </div>
     </div>
 
@@ -74,11 +64,24 @@
 
     <div class="card">
         <div class="card-header" onclick="toggleCard(this)">
-            <h2>Closing Prayer</h2>
+            <h2>Prayers</h2>
             <span class="toggle-icon">▼</span>
         </div>
         <div class="card-content">
-            ${closing_prayer_html}
+            <p class="subheader"><strong>Prayer of the Day</strong></p>
+            ${daily_prayer_html}
+            <p class="subheader"><strong>Closing Prayer</strong></p>
+            <p>
+                O Lord, our heavenly Father, almighty and everlasting God, who hast safely brought us to the beginning
+                of this day,
+                defend us in the same with Thy mighty power and grant that this day we fall into no sin, neither run
+                into any kind of
+                danger, but that all our doings, being ordered by Thy governance, may be righteous in Thy sight; through
+                Jesus Christ,
+                Thy Son, our Lord, who liveth and reigneth with Thee and the Holy Ghost, ever one God, world without
+                end.
+                <strong>Amen</strong>.
+            </p>
         </div>
     </div>
 

@@ -28,7 +28,7 @@ def index_route():
   if now.month == 12 and 1 <= now.day <= 25:
     advent_button_html = """<div class="card">
         <h2>Advent Devotion</h2>
-        <a href="/advent_devotion" class="button">Advent Family Devotional (Work In Progress)</a>
+        <a href="/advent_devotion" class="button">Advent Family Devotional</a>
     </div>"""
 
   with open(INDEX_HTML_PATH, "r", encoding="utf-8") as f:
