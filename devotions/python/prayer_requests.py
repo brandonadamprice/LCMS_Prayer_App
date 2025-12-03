@@ -9,6 +9,9 @@ import utils
 
 NAME_MAX_LENGTH = 100
 REQUEST_MAX_LENGTH = 1000
+PROJECT_ID = "lcms-prayer-app"
+DATABASE_ID = "prayer-app-datastore"
+COLLECTION_NAME = "prayer-requests"
 
 
 def get_db_client():
@@ -17,12 +20,10 @@ def get_db_client():
   # authenticates using the service account or application default credentials.
   # For local development, ensure you have authenticated via gcloud:
   # `gcloud auth application-default login`
-  return firestore.Client(
-      project="lcms-prayer-app", database="prayer-app-datastore"
-  )
+  return firestore.Client(project=PROJECT_ID, database=DATABASE_ID)
 
 
-def add_prayer_request(name, request, days_ttl=30):
+def add_prayer_request(name: str, request: str, days_ttl: int = 30):
   """Adds a prayer request to the Firestore database if content is appropriate.
 
   Returns:
@@ -56,7 +57,7 @@ def add_prayer_request(name, request, days_ttl=30):
   if utils.is_inappropriate(name) or utils.is_inappropriate(request):
     return False, "Inappropriate content detected in prayer request."
   db = get_db_client()
-  collection_ref = db.collection("prayer-requests")
+  collection_ref = db.collection(COLLECTION_NAME)
   created_at = datetime.datetime.now(datetime.timezone.utc)
   expires_at = created_at + datetime.timedelta(days=days_ttl)
   collection_ref.add({
@@ -72,7 +73,7 @@ def get_active_prayer_requests():
   """Returns a list of active prayer requests from Firestore."""
   db = get_db_client()
   now = datetime.datetime.now(datetime.timezone.utc)
-  collection_ref = db.collection("prayer-requests")
+  collection_ref = db.collection(COLLECTION_NAME)
   # Note: Firestore may require a composite index for this query.
   query = collection_ref.where(
       filter=base_query.FieldFilter("expires_at", ">", now)
@@ -81,7 +82,7 @@ def get_active_prayer_requests():
   return [doc.to_dict() for doc in docs]
 
 
-def get_prayer_wall_requests(limit=10):
+def get_prayer_wall_requests(limit: int = 10) -> list[dict]:
   """Returns a random sample of active prayer requests."""
   active_requests = get_active_prayer_requests()
   if not active_requests:
@@ -97,7 +98,7 @@ def remove_expired_requests():
   """Removes expired prayer requests from the Firestore database."""
   db = get_db_client()
   now = datetime.datetime.now(datetime.timezone.utc)
-  collection_ref = db.collection("prayer-requests")
+  collection_ref = db.collection(COLLECTION_NAME)
   # Queries for expired docs
   query = collection_ref.where(
       filter=base_query.FieldFilter("expires_at", "<=", now)

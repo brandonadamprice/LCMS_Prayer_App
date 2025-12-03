@@ -127,6 +127,39 @@ WEEKLY_PRAYERS = load_weekly_prayers()
 OFFICE_READINGS = load_office_readings()
 
 
+def get_catechism_for_day(now: datetime.datetime) -> dict:
+    """Returns the catechism section for a given day."""
+    day_of_year = now.timetuple().tm_yday
+    cat_idx = day_of_year % len(CATECHISM_SECTIONS)
+    catechism = CATECHISM_SECTIONS[cat_idx]
+    meaning_html = (
+        f'<p><strong>Meaning:</strong> {catechism["meaning"]}</p>'
+        if catechism["meaning"]
+        else ""
+    )
+    prayer = catechism["prayer1"]
+    if catechism["prayer2"]:
+        prayer = random.choice([catechism["prayer1"], catechism["prayer2"]])
+    return {
+        "catechism_title": catechism["title"],
+        "catechism_text": catechism["text"],
+        "catechism_meaning_html": meaning_html,
+        "catechism_prayer": prayer,
+    }
+
+def get_weekly_prayer_for_day(now: datetime.datetime) -> dict:
+    """Returns the weekly prayer topic and text for a given day."""
+    weekday_idx = now.weekday()
+    prayer_data = WEEKLY_PRAYERS.get(
+        str(weekday_idx), {"topic": "General Intercessions", "prayer": ""}
+    )
+    return {
+        "prayer_topic": prayer_data["topic"],
+        "weekly_prayer_html": (
+            f'<p>{prayer_data["prayer"]}</p>' if prayer_data["prayer"] else ""
+        ),
+    }
+
 class ChurchYear:
   """Calculates and provides key dates for the Western Christian liturgical year.
 
@@ -135,14 +168,14 @@ class ChurchYear:
   for looking up lectionary readings.
   """
 
-  def __init__(self, year):
+  def __init__(self, year: int):
     self.year = year
     self.easter_date = self.calculate_easter(year)
     self.ash_wednesday = self.easter_date - datetime.timedelta(days=46)
     self.pentecost = self.easter_date + datetime.timedelta(days=49)
     self.holy_trinity = self.pentecost + datetime.timedelta(days=7)
 
-  def calculate_easter(self, year):
+  def calculate_easter(self, year: int) -> datetime.date:
     """Calculates the date of Western Easter for a given year."""
     a = year % 19
     b = year // 100
@@ -160,7 +193,7 @@ class ChurchYear:
     day = ((h + l - 7 * m + 114) % 31) + 1
     return datetime.date(year, month, day)
 
-  def get_liturgical_key(self, current_date):
+  def get_liturgical_key(self, current_date: datetime.date) -> str:
     """Determines the correct CSV key for the current date.
 
     Prioritizes the Movable Season (Ash Wed -> Trinity Sunday). If not in that
@@ -254,7 +287,7 @@ class ChurchYear:
     return current_date.strftime("%d %b")
 
 
-def load_lectionary(filepath):
+def load_lectionary(filepath: str) -> dict:
   """Loads the CSV into a dictionary."""
   lectionary = {}
   if not os.path.exists(filepath):
@@ -274,7 +307,7 @@ def load_lectionary(filepath):
   return lectionary
 
 
-def get_devotion_data(now):
+def get_devotion_data(now: datetime.datetime) -> dict:
   """Fetches lectionary readings, a psalm, and a catechism section.
   
   Args:
@@ -316,54 +349,31 @@ def get_devotion_data(now):
   ot_text, nt_text, psalm_text = fetch_passages(refs_to_fetch)
   print("Texts Acquired")
 
-  # 5. Catechism
-  cat_idx = day_of_year % len(CATECHISM_SECTIONS)
-  catechism = CATECHISM_SECTIONS[cat_idx]
+  # 5. Catechism - USE HELPER
+  catechism_data = get_catechism_for_day(now)
   print("Populated Catechism Reading")
 
-  # 6. Weekly Prayer
-  weekday_idx = now.weekday()
-  prayer_data = WEEKLY_PRAYERS.get(
-      str(weekday_idx), {"topic": "General Intercessions", "prayer": ""}
-  )
-  prayer_topic = prayer_data["topic"]
-  weekly_prayer_html = (
-      f'<p>{prayer_data["prayer"]}</p>' if prayer_data["prayer"] else ""
-  )
+  # 6. Weekly Prayer - USE HELPER
+  weekly_prayer_data = get_weekly_prayer_for_day(now)
   print("Populated Weekly Prayer section")
 
-  # 7. Generate HTML
-  catechism_meaning_html = ""
-  if catechism["meaning"]:
-    catechism_meaning_html = (
-        f'<p><strong>Meaning:</strong> {catechism["meaning"]}</p>'
-    )
-
-  catechism_prayer = catechism["prayer1"]
-  if catechism["prayer2"]:
-    catechism_prayer = random.choice(
-        [catechism["prayer1"], catechism["prayer2"]]
-    )
-
-  return {
+  # 7. Combine data
+  data = {
       "date_str": now.strftime("%A, %B %d, %Y"),
       "key": key,
-      "catechism_title": catechism["title"],
-      "catechism_text": catechism["text"],
-      "catechism_meaning_html": catechism_meaning_html,
-      "catechism_prayer": catechism_prayer,
       "psalm_ref": psalm_ref,
       "psalm_text": psalm_text,
       "ot_reading_ref": readings["OT"],
       "ot_text": ot_text,
       "nt_reading_ref": readings["NT"],
       "nt_text": nt_text,
-      "prayer_topic": prayer_topic,
-      "weekly_prayer_html": weekly_prayer_html,
   }
+  data.update(catechism_data)
+  data.update(weekly_prayer_data)
+  return data
 
 
-def fetch_passages(references):
+def fetch_passages(references: list[str]) -> list[str]:
   """Fetches multiple passages from api.esv.org in one request."""
   passage_results = {}
   valid_refs_set = set()

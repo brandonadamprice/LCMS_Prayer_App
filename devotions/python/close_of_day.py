@@ -17,22 +17,14 @@ def generate_close_of_day_devotion():
   reading_ref = random.choice(utils.OFFICE_READINGS["close_of_day_readings"])
   reading_text = utils.fetch_passages([reading_ref])[0]
 
-  weekday_idx = now.weekday()
-  prayer_data = utils.WEEKLY_PRAYERS.get(
-      str(weekday_idx), {"topic": "General Intercessions", "prayer": ""}
-  )
-  prayer_topic = prayer_data["topic"]
-  weekly_prayer_html = (
-      f'<p>{prayer_data["prayer"]}</p>' if prayer_data["prayer"] else ""
-  )
+  weekly_prayer_data = utils.get_weekly_prayer_for_day(now)
 
   template_data = {
       "date_str": now.strftime("%A, %B %d, %Y"),
       "key": key,
       "reading_ref": reading_ref,
       "reading_text": reading_text,
-      "prayer_topic": prayer_topic,
-      "weekly_prayer_html": weekly_prayer_html,
   }
+  template_data.update(weekly_prayer_data)
   print("Generated Close of Day HTML")
   return flask.render_template("close_of_day_devotion.html", **template_data)
