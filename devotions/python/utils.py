@@ -110,15 +110,6 @@ def load_catechism():
   """Loads catechism data from JSON file."""
   with open(CATECHISM_JSON_PATH, "r", encoding="utf-8") as f:
     catechism_data = json.load(f)
-  for entry in catechism_data:
-    if "<br><br><strong>OR:</strong><br><br>" in entry["prayer"]:
-      prayers = entry["prayer"].split("<br><br><strong>OR:</strong><br><br>")
-      entry["prayer1"] = prayers[0]
-      entry["prayer2"] = prayers[1]
-    else:
-      entry["prayer1"] = entry["prayer"]
-      entry["prayer2"] = None
-    del entry["prayer"]
   return catechism_data
 
 
@@ -137,9 +128,7 @@ def get_catechism_for_day(now: datetime.datetime) -> dict:
         if catechism["meaning"]
         else ""
     )
-    prayer = catechism["prayer1"]
-    if catechism["prayer2"]:
-        prayer = random.choice([catechism["prayer1"], catechism["prayer2"]])
+    prayer = random.choice(catechism["prayers"])
     return {
         "catechism_title": catechism["title"],
         "catechism_text": catechism["text"],
