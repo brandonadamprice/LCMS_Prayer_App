@@ -14,6 +14,7 @@ ADVENT_JSON_PATH = os.path.join(utils.SCRIPT_DIR, "..", "data", "advent.json")
 
 
 def load_advent_devotions():
+  """Loads advent devotions from JSON file."""
   with open(ADVENT_JSON_PATH, "r", encoding="utf-8") as f:
     return json.load(f)
 

@@ -1,3 +1,5 @@
+"""Fetches secrets from environment variables or Google Cloud Secret Manager."""
+
 import os
 from google.cloud import secretmanager
 

@@ -140,14 +140,13 @@ def prayer_wall_route():
   except Exception as e:
     print(f"Error removing expired prayer requests: {e}")
   requests = prayer_requests.get_prayer_wall_requests(limit=10)
-  prayer_requests_html = ""
   if not requests:
     prayer_requests_html = (
         "<p><em>No active prayer requests at this time.</em></p>"
     )
   else:
     html_parts = []
-    for i, req in enumerate(requests):
+    for req in requests:
       name = html.escape(req.get("name", "Anonymous"))
       prayer = html.escape(req.get("request", ""))
       html_parts.append(

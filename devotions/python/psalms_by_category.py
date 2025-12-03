@@ -15,6 +15,7 @@ PSALMS_BY_CATEGORY_JSON_PATH = os.path.join(
 
 
 def load_psalms_by_category():
+  """Loads Psalms by category from JSON file."""
   with open(PSALMS_BY_CATEGORY_JSON_PATH, "r", encoding="utf-8") as f:
     return json.load(f)
 

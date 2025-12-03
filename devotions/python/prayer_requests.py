@@ -3,8 +3,8 @@
 import datetime
 import random
 from google.cloud import firestore
-from google.cloud.firestore_v1.base_query import FieldFilter
-from google.cloud.firestore_v1.query import Query
+from google.cloud.firestore_v1 import base_query
+from google.cloud.firestore_v1 import query as firestore_query_module
 import utils
 
 NAME_MAX_LENGTH = 100
@@ -75,8 +75,8 @@ def get_active_prayer_requests():
   collection_ref = db.collection("prayer-requests")
   # Note: Firestore may require a composite index for this query.
   query = collection_ref.where(
-      filter=FieldFilter("expires_at", ">", now)
-  ).order_by("created_at", direction=Query.DESCENDING)
+      filter=base_query.FieldFilter("expires_at", ">", now)
+  ).order_by("created_at", direction=firestore_query_module.Query.DESCENDING)
   docs = query.stream()
   return [doc.to_dict() for doc in docs]
 
@@ -99,7 +99,9 @@ def remove_expired_requests():
   now = datetime.datetime.now(datetime.timezone.utc)
   collection_ref = db.collection("prayer-requests")
   # Queries for expired docs
-  query = collection_ref.where(filter=FieldFilter("expires_at", "<=", now))
+  query = collection_ref.where(
+      filter=base_query.FieldFilter("expires_at", "<=", now)
+  )
   docs_to_delete = list(query.stream())
 
   if not docs_to_delete:
