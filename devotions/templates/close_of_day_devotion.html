@@ -10,12 +10,7 @@
       </p>
     </div>
 
-    <div class="card">
-      <div class="card-header" onclick="toggleCard(this)">
-        <h2>Opening</h2>
-        <span class="toggle-icon">▼</span>
-      </div>
-      <div class="card-content">
+    {% call macros.card('Opening') %}
         <p>
           <span class="rubric"
             >The sign of the cross may be made by all in remembrance of their Baptism.</span
@@ -38,23 +33,12 @@
         </p>
     {% endcall %}
 
-    <div class="card">
-      <div class="card-header" onclick="toggleCard(this)">
-        <h2>Reading</h2>
-        <span class="toggle-icon">▼</span>
-      </div>
-      <div class="card-content">
+    {% call macros.card('Reading') %}
         <span class="ref">{{ reading_ref }}</span>
         <p>{{ reading_text|safe }}</p>
-      </div>
-    </div>
+    {% endcall %}
 
-    <div class="card">
-      <div class="card-header" onclick="toggleCard(this)">
-        <h2>Prayers</h2>
-        <span class="toggle-icon">▼</span>
-      </div>
-      <div class="card-content">
+    {% call macros.card('Prayers') %}
         {% include '_apostles_creed.html' %}
         <hr />
         {% include '_nunc_dimittis.html' %}
