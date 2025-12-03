@@ -18,6 +18,49 @@
         const card = header.parentElement;
         card.classList.toggle("collapsed");
       }
+
+      function togglePicker(button, cardIndex) {
+        const picker = document.getElementById("picker-" + cardIndex);
+        picker.classList.toggle("visible");
+        if (picker.classList.contains("visible")) {
+          button.dataset.originalText = button.innerText;
+          button.innerText = "Hide List";
+        } else {
+          button.innerText = button.dataset.originalText || button.innerText;
+        }
+      }
+
+      async function selectRef(newRef, cardIndex) {
+        const picker = document.getElementById("picker-" + cardIndex);
+        picker.classList.remove("visible"); // Hide picker
+        const mainButton = picker.previousElementSibling; // The toggle button
+        if(mainButton && mainButton.dataset.originalText) {
+           mainButton.innerText = mainButton.dataset.originalText;
+        }
+
+        const currentRefEl = document.getElementById("ref-" + cardIndex);
+        const textEl = document.getElementById("text-" + cardIndex);
+
+        if (currentRefEl.innerText === newRef) {
+          return; // Already showing this ref
+        }
+
+        currentRefEl.innerText = newRef;
+        textEl.innerHTML = "<em>Loading...</em>";
+        if(mainButton) mainButton.disabled = true;
+
+        try {
+          const response = await fetch("/get_passage_text?ref=" + encodeURIComponent(newRef));
+          if (!response.ok) throw new Error("Network response was not ok");
+          const data = await response.json();
+          textEl.innerHTML = data.text;
+        } catch (error) {
+          console.error("Error fetching new ref:", error);
+          textEl.innerHTML = "<em>Error loading " + newRef + ". Please try again.</em>";
+        } finally {
+          if(mainButton) mainButton.disabled = false;
+        }
+      }
       {% block extra_js %}{% endblock %}
     </script>
   </body>

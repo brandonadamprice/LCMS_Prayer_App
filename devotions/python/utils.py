@@ -149,6 +149,27 @@ def get_weekly_prayer_for_day(now: datetime.datetime) -> dict:
         ),
     }
 
+
+def generate_category_page_data(json_path: str) -> list[dict]:
+  """Loads category data from JSON, selects a random verse, and fetches text."""
+  categories = []
+  with open(json_path, "r", encoding="utf-8") as f:
+    categories = json.load(f)
+  refs = [random.choice(cat["verses"]) for cat in categories]
+  texts = fetch_passages(refs)
+  category_data = []
+  for i, cat in enumerate(categories):
+    category_data.append({
+        "title": cat["title"],
+        "description": cat["description"],
+        "verses": cat["verses"],
+        "prayer": cat["prayer"],
+        "initial_ref": refs[i],
+        "initial_text": texts[i],
+    })
+  return category_data
+
+
 class ChurchYear:
   """Calculates and provides key dates for the Western Christian liturgical year.
 

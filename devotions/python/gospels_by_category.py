@@ -19,25 +19,7 @@ def load_gospels_by_category():
 
 def generate_gospels_by_category_page():
   """Generates HTML for the Gospels by Category page."""
-  categories = load_gospels_by_category()
-  verse_refs = []
-  for cat in categories:
-    verse_ref = random.choice(cat["verses"])
-    verse_refs.append(verse_ref)
-
-  verse_texts = utils.fetch_passages(verse_refs)
-
-  # Combine data for easier looping in Jinja2
-  category_data = []
-  for i, cat in enumerate(categories):
-    category_data.append({
-        "title": cat["title"],
-        "description": cat["description"],
-        "verses": cat["verses"],
-        "prayer": cat["prayer"],
-        "initial_verse_ref": verse_refs[i],
-        "initial_verse_text": verse_texts[i],
-    })
+  category_data = utils.generate_category_page_data(GOSPELS_BY_CATEGORY_JSON_PATH)
 
   print("Generated Gospels by Category HTML")
   return flask.render_template(

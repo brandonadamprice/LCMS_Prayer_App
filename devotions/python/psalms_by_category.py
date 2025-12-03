@@ -19,25 +19,7 @@ def load_psalms_by_category():
 
 def generate_psalms_by_category_page():
   """Generates HTML for the Psalms by Category page."""
-  categories = load_psalms_by_category()
-  psalm_refs = []
-  for cat in categories:
-    psalm_ref = random.choice(cat["verses"])
-    psalm_refs.append(psalm_ref)
-
-  psalm_texts = utils.fetch_passages(psalm_refs)
-
-  # Combine data for easier looping in Jinja2
-  category_data = []
-  for i, cat in enumerate(categories):
-    category_data.append({
-        "title": cat["title"],
-        "description": cat["description"],
-        "verses": cat["verses"],
-        "prayer": cat["prayer"],
-        "initial_psalm_ref": psalm_refs[i],
-        "initial_psalm_text": psalm_texts[i],
-    })
+  category_data = utils.generate_category_page_data(PSALMS_BY_CATEGORY_JSON_PATH)
 
   print("Generated Psalms by Category HTML")
   return flask.render_template(
