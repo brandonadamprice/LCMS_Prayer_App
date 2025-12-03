@@ -14,7 +14,14 @@ DATA_DIR = os.path.join(SCRIPT_DIR, "..", "data")
 LECTIONARY_CSV_PATH = os.path.join(DATA_DIR, "daily_lectionary.csv")
 CATECHISM_JSON_PATH = os.path.join(DATA_DIR, "catechism.json")
 WEEKLY_PRAYERS_JSON_PATH = os.path.join(DATA_DIR, "weekly_prayers.json")
+OFFICE_READINGS_JSON_PATH = os.path.join(DATA_DIR, "office_readings.json")
 INAPPROPRIATE_WORDS_CSV_PATH = os.path.join(DATA_DIR, "inappropriate_words.csv")
+
+
+def load_office_readings():
+  """Loads office readings from JSON file."""
+  with open(OFFICE_READINGS_JSON_PATH, "r", encoding="utf-8") as f:
+    return json.load(f)
 
 
 def load_inappropriate_words():
@@ -117,6 +124,7 @@ def load_catechism():
 
 CATECHISM_SECTIONS = load_catechism()
 WEEKLY_PRAYERS = load_weekly_prayers()
+OFFICE_READINGS = load_office_readings()
 
 
 class ChurchYear:
@@ -267,7 +275,12 @@ def load_lectionary(filepath):
 
 
 def get_devotion_data(now):
-  """Fetches lectionary readings, a psalm, and a catechism section
+  """Fetches lectionary readings, a psalm, and a catechism section.
+  
+  Args:
+    now: The current datetime.datetime object.
+  Returns:
+    A dictionary of data for rendering the devotion.
 
   based on the current date, combines them with a weekly prayer topic, and
   returns a dictionary of data for rendering.

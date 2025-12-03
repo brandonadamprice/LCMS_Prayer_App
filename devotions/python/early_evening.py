@@ -6,45 +6,44 @@ import flask
 import pytz
 import utils
 
-EARLY_EVENING_READINGS = [
-    "Luke 24:28-31",
-    "Exodus 16:11-21,31",
-    "Isaiah 25:6-9",
-    "Matthew 14:15-21",
-    "Matthew 27:57-60",
-    "Luke 14:15-24",
-    "John 6:25-35",
-    "John 10:7-18",
-    "Ephesians 6:10-18",
-]
-
 
 def generate_early_evening_devotion():
   """Generates HTML for the early evening devotion for the current date."""
   eastern_timezone = pytz.timezone("America/New_York")
   now = datetime.datetime.now(eastern_timezone)
-  template_data = utils.get_devotion_data(now)
+  cy = utils.ChurchYear(now.year)
+  key = cy.get_liturgical_key(now)
+  day_of_year = now.timetuple().tm_yday
+  cat_idx = day_of_year % len(utils.CATECHISM_SECTIONS)
+  catechism = utils.CATECHISM_SECTIONS[cat_idx]
+  catechism_meaning_html = ""
+  if catechism["meaning"]:
+    catechism_meaning_html = (
+        f'<p><strong>Meaning:</strong> {catechism["meaning"]}</p>'
+    )
+  catechism_prayer = catechism["prayer1"]
+  if catechism["prayer2"]:
+    catechism_prayer = random.choice(
+        [catechism["prayer1"], catechism["prayer2"]]
+    )
 
-  # We only need catechism and date from get_devotion_data
-  # Reading and Psalm are specific to this office
-  del template_data["psalm_ref"]
-  del template_data["psalm_text"]
-  del template_data["ot_reading_ref"]
-  del template_data["ot_text"]
-  del template_data["nt_reading_ref"]
-  del template_data["nt_text"]
-  del template_data["prayer_topic"]
-  del template_data["weekly_prayer_html"]
-
-  reading_ref = random.choice(EARLY_EVENING_READINGS)
+  reading_ref = random.choice(utils.OFFICE_READINGS["early_evening_readings"])
   psalm_num = random.randint(1, 150)
   psalm_ref = f"Psalm {psalm_num}"
 
   reading_text, psalm_text = utils.fetch_passages([reading_ref, psalm_ref])
-  template_data["reading_ref"] = reading_ref
-  template_data["reading_text"] = reading_text
-  template_data["psalm_ref"] = psalm_ref
-  template_data["psalm_text"] = psalm_text
+  template_data = {
+      "date_str": now.strftime("%A, %B %d, %Y"),
+      "key": key,
+      "reading_ref": reading_ref,
+      "reading_text": reading_text,
+      "psalm_ref": psalm_ref,
+      "psalm_text": psalm_text,
+      "catechism_title": catechism["title"],
+      "catechism_text": catechism["text"],
+      "catechism_meaning_html": catechism_meaning_html,
+      "catechism_prayer": catechism_prayer,
+  }
 
   print("Generated Early Evening HTML")
   return flask.render_template("early_evening_devotion.html", **template_data)

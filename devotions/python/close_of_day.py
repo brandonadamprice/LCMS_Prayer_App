@@ -6,42 +6,33 @@ import flask
 import pytz
 import utils
 
-CLOSE_OF_DAY_READINGS = [
-    "Matthew 11:28-30",
-    "Micah 7:18-20",
-    "Matthew 18:15-35",
-    "Matthew 25:1-13",
-    "Luke 11:1-13",
-    "Luke 12:13-34",
-    "Romans 8:31-39",
-    "2 Corinthians 4:16-18",
-    "Revelation 21:22-22:5",
-]
-
 
 def generate_close_of_day_devotion():
   """Generates HTML for the close of day devotion for the current date."""
   eastern_timezone = pytz.timezone("America/New_York")
   now = datetime.datetime.now(eastern_timezone)
-  template_data = utils.get_devotion_data(now)
+  cy = utils.ChurchYear(now.year)
+  key = cy.get_liturgical_key(now)
 
-  # We only need weekly prayer and date from get_devotion_data
-  # Reading is specific to this office, no psalm or catechism
-  del template_data["psalm_ref"]
-  del template_data["psalm_text"]
-  del template_data["ot_reading_ref"]
-  del template_data["ot_text"]
-  del template_data["nt_reading_ref"]
-  del template_data["nt_text"]
-  del template_data["catechism_title"]
-  del template_data["catechism_text"]
-  del template_data["catechism_meaning_html"]
-  del template_data["catechism_prayer"]
-
-  reading_ref = random.choice(CLOSE_OF_DAY_READINGS)
+  reading_ref = random.choice(utils.OFFICE_READINGS["close_of_day_readings"])
   reading_text = utils.fetch_passages([reading_ref])[0]
-  template_data["reading_ref"] = reading_ref
-  template_data["reading_text"] = reading_text
 
+  weekday_idx = now.weekday()
+  prayer_data = utils.WEEKLY_PRAYERS.get(
+      str(weekday_idx), {"topic": "General Intercessions", "prayer": ""}
+  )
+  prayer_topic = prayer_data["topic"]
+  weekly_prayer_html = (
+      f'<p>{prayer_data["prayer"]}</p>' if prayer_data["prayer"] else ""
+  )
+
+  template_data = {
+      "date_str": now.strftime("%A, %B %d, %Y"),
+      "key": key,
+      "reading_ref": reading_ref,
+      "reading_text": reading_text,
+      "prayer_topic": prayer_topic,
+      "weekly_prayer_html": weekly_prayer_html,
+  }
   print("Generated Close of Day HTML")
   return flask.render_template("close_of_day_devotion.html", **template_data)
