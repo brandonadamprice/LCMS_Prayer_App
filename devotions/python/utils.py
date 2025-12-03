@@ -384,6 +384,7 @@ def fetch_passages(references):
       "include-verse-numbers": "true",
       "include-passage-references": "false",
       "include-chapter-numbers": "false",
+      "include-copyright": "false",
   }
   headers = {"Authorization": f"Token {api_key}"}
 

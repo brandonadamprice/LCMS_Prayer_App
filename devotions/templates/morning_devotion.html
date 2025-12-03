@@ -53,7 +53,7 @@
       </div>
       <div class="card-content">
         <span class="ref">{{ psalm_ref }}</span>
-        <p>{{ psalm_text }}</p>
+        <p>{{ psalm_text|safe }}</p>
         <p>
           <strong
             >Glory be to the Father and to the Son and to the Holy Spirit; as it was in the
@@ -70,7 +70,7 @@
       </div>
       <div class="card-content">
         <span class="ref">{{ reading_ref }}</span>
-        <p>{{ reading_text }}</p>
+        <p>{{ reading_text|safe }}</p>
       </div>
     </div>
 

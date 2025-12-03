@@ -50,7 +50,7 @@
       </div>
       <div class="card-content">
         <span class="ref">{{ psalm_ref }}</span>
-        <p>{{ psalm_text }}</p>
+        <p>{{ psalm_text|safe }}</p>
         <p>
           <strong
             >Glory be to the Father and to the Son and to the Holy Spirit; as it was in the
@@ -67,10 +67,10 @@
       </div>
       <div class="card-content">
         <span class="ref">Old Testament: {{ ot_reading_ref }}</span>
-        <p>{{ ot_text }}</p>
+        <p>{{ ot_text|safe }}</p>
         <hr />
         <span class="ref">New Testament: {{ nt_reading_ref }}</span>
-        <p>{{ nt_text }}</p>
+        <p>{{ nt_text|safe }}</p>
       </div>
     </div>
 
