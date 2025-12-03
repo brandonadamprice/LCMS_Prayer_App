@@ -5,8 +5,9 @@
     </div>
 
     {{ category_cards_html|safe }}
-{% endblock %} {% block extra_js %}
-    <script>
+{% endblock %}
+
+{% block extra_js %}
       function togglePsalmPicker(button, cardIndex) {
         const picker = document.getElementById("picker-" + cardIndex);
         picker.classList.toggle("visible");
@@ -47,5 +48,4 @@
           mainButton.disabled = false;
         }
       }
-    </script>
 {% endblock %}
