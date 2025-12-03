@@ -373,36 +373,60 @@ def get_devotion_data(now: datetime.datetime) -> dict:
 
 
 def _preprocess_ref(ref: str) -> str:
-    """Expands shorthand Bible references with semicolons.
+  """Expands shorthand Bible references with semicolons and commas.
+
     Example: '1 Cor 7:17;23-24' becomes '1 Cor 7:17;1 Cor 7:23-24'.
     'Gen 27:30-45; 28:10-22' becomes 'Gen 27:30-45;Gen 28:10-22'.
-    Handles only verses or chapter:verses after semicolon, relative to first part.
+    '2 John 1-13; 3 John 1-15' remains '2 John 1-13;3 John 1-15'.
+    Handles verses only, or chapter:verses after semicolon.
     """
-    if ";" not in ref:
-        return ref
-    parts = ref.split(";")
-    first_part = parts[0].strip()
+  splitting_delimiters = [";", ","]
+  delim = ""
+  for splitting_delimiter in splitting_delimiters:
+    if splitting_delimiter in ref:
+      delim = splitting_delimiter
+      break
+  if not delim:
+    return ref
 
-    try:
-        book_chapter, _ = first_part.rsplit(":", 1)
-        book_chapter = book_chapter.strip()
-        book_match = re.match(r"(.*\D)\s*(\d+)$", book_chapter)
-        if not book_match:
-            return ref
-        book = book_match.group(1).strip()
-    except ValueError:
-        return ref
+  parts = ref.split(delim)
+  first_part = parts[0].strip()
+  book_chapter_if_present = ""
 
-    processed_parts = [first_part]
-    for part in parts[1:]:
-        part = part.strip()
-        if re.fullmatch(r"\d+(-\d+)?", part):  # verses only
-            processed_parts.append(f"{book_chapter}:{part}")
-        elif re.fullmatch(r"\d+:\d+(-\d+)?", part):  # chapter:verses
-            processed_parts.append(f"{book} {part}")
-        else:
-            processed_parts.append(part)
-    return ";".join(processed_parts)
+  colon_idx = first_part.rfind(":")
+  if colon_idx > -1:
+    # multi-chapter book reference format, e.g. "Genesis 1:1"
+    book_chapter_if_present = first_part[:colon_idx].strip()
+    # regex to capture book name and chapter number
+    book_match = re.match(r"(.*\D)\s*(\d+)$", book_chapter_if_present)
+    if book_match:
+      book = book_match.group(1).strip()
+    else:
+      book = ""
+  else:
+    # single-chapter book reference format, like "Jude 1-4" or "2 John 10"
+    first_digit_match = re.search(r"\d", first_part)
+    if first_digit_match:
+      book = first_part[: first_digit_match.start()].strip()
+    else:
+      book = ""
+
+  if not book:
+    return ref
+
+  processed_parts = [first_part]
+  for part in parts[1:]:
+    part = part.strip()
+    if re.fullmatch(r"\d+(-\d+)?", part):  # verses only
+      if book_chapter_if_present:
+        processed_parts.append(f"{book_chapter_if_present}:{part}")
+      else:  # single chapter book
+        processed_parts.append(f"{book} {part}")
+    elif re.fullmatch(r"\d+:\d+(-\d+)?", part):  # chapter:verses
+      processed_parts.append(f"{book} {part}")
+    else:  # Likely a full reference like '3 John 1-15', keep as is.
+      processed_parts.append(part)
+  return ";".join(processed_parts)
 
 
 def fetch_passages(references: list[str]) -> list[str]:
