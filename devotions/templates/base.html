@@ -8,9 +8,11 @@
   </head>
   <body>
     {% block content %}{% endblock %}
+    {% if request.endpoint != 'index_route' %}
     <div style="text-align: center">
       <a href="/" class="button">Back to Home</a>
     </div>
+    {% endif %}
     <script>
       function toggleCard(header) {
         const card = header.parentElement;
