@@ -372,33 +372,68 @@ def get_devotion_data(now: datetime.datetime) -> dict:
   return data
 
 
+def _preprocess_ref(ref: str) -> str:
+    """Expands shorthand Bible references with semicolons.
+    Example: '1 Cor 7:17;23-24' becomes '1 Cor 7:17;1 Cor 7:23-24'.
+    'Gen 27:30-45; 28:10-22' becomes 'Gen 27:30-45;Gen 28:10-22'.
+    Handles only verses or chapter:verses after semicolon, relative to first part.
+    """
+    if ";" not in ref:
+        return ref
+    parts = ref.split(";")
+    first_part = parts[0].strip()
+
+    try:
+        book_chapter, _ = first_part.rsplit(":", 1)
+        book_chapter = book_chapter.strip()
+        book_match = re.match(r"(.*\D)\s*(\d+)$", book_chapter)
+        if not book_match:
+            return ref
+        book = book_match.group(1).strip()
+    except ValueError:
+        return ref
+
+    processed_parts = [first_part]
+    for part in parts[1:]:
+        part = part.strip()
+        if re.fullmatch(r"\d+(-\d+)?", part):  # verses only
+            processed_parts.append(f"{book_chapter}:{part}")
+        elif re.fullmatch(r"\d+:\d+(-\d+)?", part):  # chapter:verses
+            processed_parts.append(f"{book} {part}")
+        else:
+            processed_parts.append(part)
+    return ";".join(processed_parts)
+
+
 def fetch_passages(references: list[str]) -> list[str]:
   """Fetches multiple passages from api.esv.org in one request."""
   passage_results = {}
-  valid_refs_set = set()
+
+  # original_ref -> list of preprocessed refs for ESV
+  ref_map = {}
+  esv_query_parts = []
+
   for ref in references:
     if ref and ref != "Daily Lectionary Not Found":
-      valid_refs_set.add(ref)
+      preref = _preprocess_ref(ref)
+      ref_map[ref] = preref.split(";")
+      esv_query_parts.append(preref)
       passage_results[ref] = "<i>Reading not available.</i>"
     else:
       passage_results[ref] = "<i>Reading not available.</i>"
 
-  valid_refs_list = sorted(
-      list(valid_refs_set)
-  )  # sorted to make query deterministic for caching/debugging
-
-  if not valid_refs_list:
+  if not esv_query_parts:
     return [passage_results[ref] for ref in references]
 
   api_key = secrets.get_esv_api_key()
   if not api_key:
-    for ref in valid_refs_list:
+    for ref in ref_map:
       passage_results[ref] = (
           "<i>ESV_API_KEY environment variable not set. Cannot fetch text.</i>"
       )
     return [passage_results[ref] for ref in references]
 
-  query = ";".join(valid_refs_list)
+  query = ";".join(esv_query_parts)
   params = {
       "q": query,
       "include-headings": "false",
@@ -420,16 +455,24 @@ def fetch_passages(references: list[str]) -> list[str]:
     response.raise_for_status()
     data = response.json()
 
-    if data.get("passages") and len(data["passages"]) == len(valid_refs_list):
-      for i, ref in enumerate(valid_refs_list):
-        text_block = data["passages"][i].strip()
-        text_block = re.sub(r"\[(\d+)\]", r"<br><sup>\1</sup>", text_block)
-        if text_block.startswith("<br>"):
-          text_block = text_block[4:]
-        passage_results[ref] = text_block
+    if data.get("passages"):
+      passage_idx = 0
+      for ref in references:
+        if ref in ref_map:
+          num_passages = len(ref_map[ref])
+          if passage_idx + num_passages <= len(data["passages"]):
+            passages = data["passages"][passage_idx : passage_idx + num_passages]
+            text_block = " ".join(p.strip() for p in passages)
+            text_block = re.sub(r"\[(\d+)\]", r"<br><sup>\1</sup>", text_block)
+            if text_block.startswith("<br>"):
+              text_block = text_block[4:]
+            passage_results[ref] = text_block
+            passage_idx += num_passages
+          else:
+            passage_results[ref] = f"<i>(Text not found for {ref})</i>"
+        # If ref not in ref_map, it's already "Reading not available"
     else:
-      # If passages are missing or count mismatch, mark all as not found
-      for ref in valid_refs_list:
+      for ref in ref_map:
         passage_results[ref] = f"<i>(Text not found for {ref})</i>"
 
     return [passage_results[ref] for ref in references]
@@ -437,12 +480,12 @@ def fetch_passages(references: list[str]) -> list[str]:
   except requests.exceptions.RequestException as e:
     print(f"Error fetching from ESV API: {e}")
     error_msg = "<i>(Could not connect to ESV API)</i>"
-    for ref in valid_refs_list:
+    for ref in ref_map:
       passage_results[ref] = error_msg
     return [passage_results[ref] for ref in references]
   except Exception as e:
     print(f"Error processing ESV API response: {e}")
     error_msg = "<i>(Error processing ESV API response)</i>"
-    for ref in valid_refs_list:
+    for ref in ref_map:
       passage_results[ref] = error_msg
     return [passage_results[ref] for ref in references]
