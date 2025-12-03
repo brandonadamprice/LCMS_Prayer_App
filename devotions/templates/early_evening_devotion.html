@@ -1,18 +1,9 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Early Evening Devotion</title>
-    <link rel="stylesheet" href="/styles.css" />
-  </head>
-
-  <body>
+{% extends "base.html" %} {% block title %}Early Evening Devotion{% endblock %} {% block content %}
     <div style="text-align: center; margin-bottom: 40px">
       <h1>Early Evening Devotion</h1>
       <p>
-        ${date_str}<br />
-        <span style="color: #7f8c8d">Lectionary Day: ${key}</span>
+        {{ date_str }}<br />
+        <span style="color: #7f8c8d">Lectionary Day: {{ key }}</span>
       </p>
     </div>
 
@@ -58,8 +49,8 @@
         <span class="toggle-icon">▼</span>
       </div>
       <div class="card-content">
-        <span class="ref">${psalm_ref}</span>
-        <p>${psalm_text}</p>
+        <span class="ref">{{ psalm_ref }}</span>
+        <p>{{ psalm_text }}</p>
         <p>
           <strong
             >Glory be to the Father and to the Son and to the Holy Spirit; as it was in the
@@ -75,20 +66,20 @@
         <span class="toggle-icon">▼</span>
       </div>
       <div class="card-content">
-        <span class="ref">${reading_ref}</span>
-        <p>${reading_text}</p>
+        <span class="ref">{{ reading_ref }}</span>
+        <p>{{ reading_text }}</p>
       </div>
     </div>
 
     <div class="card">
       <div class="card-header" onclick="toggleCard(this)">
-        <h2>Catechism: ${catechism_title}</h2>
+        <h2>Catechism: {{ catechism_title }}</h2>
         <span class="toggle-icon">▼</span>
       </div>
       <div class="card-content">
-        <p><strong>Text:</strong> ${catechism_text}</p>
-        ${catechism_meaning_html}
-        <p><strong>Prayer:</strong> ${catechism_prayer}</p>
+        <p><strong>Text:</strong> {{ catechism_text }}</p>
+        {{ catechism_meaning_html|safe }}
+        <p><strong>Prayer:</strong> {{ catechism_prayer }}</p>
       </div>
     </div>
 
@@ -98,7 +89,7 @@
         <span class="toggle-icon">▼</span>
       </div>
       <div class="card-content">
-        ${lords_prayer_html}
+        {% include '_lords_prayer.html' %}
         <hr />
         <p><em>(You may offer your own prayers at this time)</em></p>
         <hr />
@@ -125,15 +116,4 @@
         </p>
       </div>
     </div>
-    <div style="text-align: center">
-      <a href="/" class="button">Back to Home</a>
-    </div>
-
-    <script>
-      function toggleCard(header) {
-        const card = header.parentElement;
-        card.classList.toggle("collapsed");
-      }
-    </script>
-  </body>
-</html>
+{% endblock %}

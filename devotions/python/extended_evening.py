@@ -1,15 +1,9 @@
 """Functions for generating the evening devotion."""
 
 import datetime
-import os
-import string
+import flask
 import pytz
 import utils
-
-
-EVENING_HTML_TEMPLATE_PATH = os.path.join(
-    utils.SCRIPT_DIR, "..", "html", "extended_evening_devotion.html"
-)
 
 
 def generate_extended_evening_devotion():
@@ -26,9 +20,7 @@ def generate_extended_evening_devotion():
   now = datetime.datetime.now(eastern_timezone)
   template_data = utils.get_devotion_data(now)
 
-  with open(EVENING_HTML_TEMPLATE_PATH, "r", encoding="utf-8") as f:
-    template = string.Template(f.read())
-
-  html = template.substitute(template_data)
   print("Generated Evening HTML")
-  return html
+  return flask.render_template(
+      "extended_evening_devotion.html", **template_data
+  )

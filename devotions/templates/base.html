@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Daily Devotion{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+  </head>
+  <body>
+    {% block content %}{% endblock %}
+    <div style="text-align: center">
+      <a href="/" class="button">Back to Home</a>
+    </div>
+    <script>
+      function toggleCard(header) {
+        const card = header.parentElement;
+        card.classList.toggle("collapsed");
+      }
+      {% block extra_js %}{% endblock %}
+    </script>
+  </body>
+</html>

@@ -1,15 +1,11 @@
 """Functions for generating the morning devotion."""
 
 import datetime
-import os
 import random
-import string
+import flask
 import pytz
 import utils
 
-MORNING_HTML_TEMPLATE_PATH = os.path.join(
-    utils.SCRIPT_DIR, "..", "html", "morning_devotion.html"
-)
 MORNING_READINGS = [
     "Colossians 3:1-4",
     "Exodus 15:1-11",
@@ -48,9 +44,5 @@ def generate_morning_devotion():
   template_data["psalm_ref"] = psalm_ref
   template_data["psalm_text"] = psalm_text
 
-  with open(MORNING_HTML_TEMPLATE_PATH, "r", encoding="utf-8") as f:
-    template = string.Template(f.read())
-
-  html = template.substitute(template_data)
   print("Generated Morning HTML")
-  return html
+  return flask.render_template("morning_devotion.html", **template_data)

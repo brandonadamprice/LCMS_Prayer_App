@@ -1,17 +1,8 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Advent Devotion</title>
-    <link rel="stylesheet" href="/styles.css" />
-  </head>
-
-  <body>
+{% extends "base.html" %} {% block title %}Advent Devotion{% endblock %} {% block content %}
     <div style="text-align: center; margin-bottom: 40px">
       <h1>The Advent of Our Lord</h1>
-      <h2>${devotion_title}</h2>
-      <p>${date_str}</p>
+      <h2>{{ devotion_title }}</h2>
+      <p>{{ date_str }}</p>
     </div>
 
     <div class="card">
@@ -41,7 +32,7 @@
         <h2>Prayer</h2>
         <span class="toggle-icon">▼</span>
       </div>
-      <div class="card-content">${lords_prayer_html}</div>
+      <div class="card-content">{% include '_lords_prayer.html' %}</div>
     </div>
 
     <div class="card">
@@ -50,8 +41,8 @@
         <span class="toggle-icon">▼</span>
       </div>
       <div class="card-content">
-        <span class="ref">${reading_ref}</span>
-        ${reading_html}
+        <span class="ref">{{ reading_ref }}</span>
+        {{ reading_html|safe }}
       </div>
     </div>
 
@@ -60,7 +51,7 @@
         <h2>Meditation</h2>
         <span class="toggle-icon">▼</span>
       </div>
-      <div class="card-content">${meditation_html}</div>
+      <div class="card-content">{{ meditation_html|safe }}</div>
     </div>
 
     <div class="card">
@@ -70,7 +61,7 @@
       </div>
       <div class="card-content">
         <p class="subheader"><strong>Prayer of the Day</strong></p>
-        ${daily_prayer_html}
+        {{ daily_prayer_html|safe }}
         <p class="subheader"><strong>Closing Prayer</strong></p>
         <p>
           O almighty and most merciful God, of Thy bountiful goodness keep us, we beseech Thee, from
@@ -83,16 +74,4 @@
         </p>
       </div>
     </div>
-
-    <div style="text-align: center">
-      <a href="/" class="button">Back to Home</a>
-    </div>
-
-    <script>
-      function toggleCard(header) {
-        const card = header.parentElement;
-        card.classList.toggle("collapsed");
-      }
-    </script>
-  </body>
-</html>
+{% endblock %}

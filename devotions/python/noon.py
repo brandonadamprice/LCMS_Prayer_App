@@ -1,15 +1,11 @@
 """Functions for generating the noon devotion."""
 
 import datetime
-import os
 import random
-import string
+import flask
 import pytz
 import utils
 
-NOON_HTML_TEMPLATE_PATH = os.path.join(
-    utils.SCRIPT_DIR, "..", "html", "noon_devotion.html"
-)
 NOON_READINGS = [
     "1 Corinthians 7:17,23-24",
     "Luke 23:44-46",
@@ -63,9 +59,5 @@ def generate_noon_devotion():
   template_data["psalm_text"] = psalm_text
   template_data["concluding_prayer"] = random.choice(CONCLUDING_PRAYERS)
 
-  with open(NOON_HTML_TEMPLATE_PATH, "r", encoding="utf-8") as f:
-    template = string.Template(f.read())
-
-  html = template.substitute(template_data)
   print("Generated Noon HTML")
-  return html
+  return flask.render_template("noon_devotion.html", **template_data)

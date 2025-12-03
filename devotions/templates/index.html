@@ -1,12 +1,4 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Daily Devotions</title>
-    <link rel="stylesheet" href="/styles.css" />
-  </head>
-  <body>
+{% extends "base.html" %} {% block title %}Daily Devotions{% endblock %} {% block content %}
     <div style="text-align: center; margin-bottom: 40px">
       <h1>Daily Devotions</h1>
       <p>Select a devotion to begin.</p>
@@ -19,7 +11,12 @@
       <a href="/early_evening_devotion" class="button">Early Evening</a>
       <a href="/close_of_day_devotion" class="button">Close of Day</a>
     </div>
-    ${advent_button_html}
+    {% if is_advent %}
+    <div class="card">
+        <h2>Advent Devotion</h2>
+        <a href="/advent_devotion" class="button">Advent Family Devotional</a>
+    </div>
+    {% endif %}
     <div class="card">
       <h2>Longer Devotionals</h2>
       <a href="/extended_evening_devotion" class="button">Extended Evening Devotion</a>
@@ -51,5 +48,4 @@
         />
       </a>
     </div>
-  </body>
-</html>
+{% endblock %}

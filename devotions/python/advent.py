@@ -3,13 +3,10 @@
 import datetime
 import json
 import os
-import string
+import flask
 import pytz
 import utils
 
-ADVENT_HTML_TEMPLATE_PATH = os.path.join(
-    utils.SCRIPT_DIR, "..", "html", "advent_devotion.html"
-)
 ADVENT_JSON_PATH = os.path.join(utils.SCRIPT_DIR, "..", "data", "advent.json")
 
 
@@ -41,16 +38,11 @@ def generate_advent_devotion():
   template_data = {
       "date_str": now.strftime("%A, %B %d, %Y"),
       "devotion_title": devotion_data["devotional_title"],
-      "lords_prayer_html": utils.LORDS_PRAYER_HTML,
       "reading_ref": scripture_verses,
       "reading_html": reading_html,
       "meditation_html": meditation_html,
       "daily_prayer_html": daily_prayer_html,
   }
 
-  with open(ADVENT_HTML_TEMPLATE_PATH, "r", encoding="utf-8") as f:
-    template = string.Template(f.read())
-
-  html = template.substitute(template_data)
   print("Generated Advent HTML")
-  return html
+  return flask.render_template("advent_devotion.html", **template_data)

@@ -1,18 +1,9 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Noon Devotion</title>
-    <link rel="stylesheet" href="/styles.css" />
-  </head>
-
-  <body>
+{% extends "base.html" %} {% block title %}Noon Devotion{% endblock %} {% block content %}
     <div style="text-align: center; margin-bottom: 40px">
       <h1>Noon Devotion</h1>
       <p>
-        ${date_str}<br />
-        <span style="color: #7f8c8d">Lectionary Day: ${key}</span>
+        {{ date_str }}<br />
+        <span style="color: #7f8c8d">Lectionary Day: {{ key }}</span>
       </p>
     </div>
 
@@ -59,8 +50,8 @@
         <span class="toggle-icon">▼</span>
       </div>
       <div class="card-content">
-        <span class="ref">${psalm_ref}</span>
-        <p>${psalm_text}</p>
+        <span class="ref">{{ psalm_ref }}</span>
+        <p>{{ psalm_text }}</p>
         <p>
           <strong
             >Glory be to the Father and to the Son and to the Holy Spirit; as it was in the
@@ -76,8 +67,8 @@
         <span class="toggle-icon">▼</span>
       </div>
       <div class="card-content">
-        <span class="ref">${reading_ref}</span>
-        <p>${reading_text}</p>
+        <span class="ref">{{ reading_ref }}</span>
+        <p>{{ reading_text }}</p>
       </div>
     </div>
 
@@ -96,12 +87,12 @@
           <strong>have mercy upon us.</strong>
         </p>
         <hr />
-        ${lords_prayer_html}
+        {% include '_lords_prayer.html' %}
         <hr />
         <p><em>(You may offer your own prayers at this time)</em></p>
         <hr />
         <p class="subheader"><strong>Concluding Prayer</strong></p>
-        <p>${concluding_prayer}</p>
+        <p>{{ concluding_prayer }}</p>
       </div>
     </div>
 
@@ -117,14 +108,4 @@
         </p>
       </div>
     </div>
-    <div style="text-align: center">
-      <a href="/" class="button">Back to Home</a>
-    </div>
-    <script>
-      function toggleCard(header) {
-        const card = header.parentElement;
-        card.classList.toggle("collapsed");
-      }
-    </script>
-  </body>
-</html>
+{% endblock %}

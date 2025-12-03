@@ -1,29 +1,12 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Psalms by Category</title>
-    <link rel="stylesheet" href="/styles.css" />
-  </head>
-  <body>
+{% extends "base.html" %} {% block title %}Psalms by Category{% endblock %} {% block content %}
     <div style="text-align: center; margin-bottom: 40px">
       <h1>Psalms by Category</h1>
       <p>Select a category to view a Psalm and prayer for reflection.</p>
     </div>
 
-    ${category_cards_html}
-
-    <div style="text-align: center">
-      <a href="/" class="button">Back to Home</a>
-    </div>
-
+    {{ category_cards_html|safe }}
+{% endblock %} {% block extra_js %}
     <script>
-      function toggleCard(header) {
-        const card = header.parentElement;
-        card.classList.toggle("collapsed");
-      }
-
       function togglePsalmPicker(button, cardIndex) {
         const picker = document.getElementById("picker-" + cardIndex);
         picker.classList.toggle("visible");
@@ -65,5 +48,4 @@
         }
       }
     </script>
-  </body>
-</html>
+{% endblock %}

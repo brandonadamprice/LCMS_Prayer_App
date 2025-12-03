@@ -3,12 +3,9 @@
 import json
 import os
 import random
-import string
+import flask
 import utils
 
-PSALMS_BY_CATEGORY_HTML_TEMPLATE_PATH = os.path.join(
-    utils.SCRIPT_DIR, "..", "html", "psalms_by_category.html"
-)
 PSALMS_BY_CATEGORY_JSON_PATH = os.path.join(
     utils.SCRIPT_DIR, "..", "data", "psalms_by_category.json"
 )
@@ -59,9 +56,7 @@ def generate_psalms_by_category_page():
 
   all_cards_html = "\n".join(card_html_parts)
 
-  with open(PSALMS_BY_CATEGORY_HTML_TEMPLATE_PATH, "r", encoding="utf-8") as f:
-    template = string.Template(f.read())
-
-  html_content = template.substitute(category_cards_html=all_cards_html)
   print("Generated Psalms by Category HTML")
-  return html_content
+  return flask.render_template(
+      "psalms_by_category.html", category_cards_html=all_cards_html
+  )

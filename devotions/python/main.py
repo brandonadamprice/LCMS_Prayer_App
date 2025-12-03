@@ -16,7 +16,13 @@ import psalms_by_category
 import pytz
 import utils
 
-app = flask.Flask(__name__)
+TEMPLATE_DIR = os.path.abspath(os.path.join(utils.SCRIPT_DIR, "..", "templates"))
+STATIC_DIR = os.path.abspath(os.path.join(utils.SCRIPT_DIR, "..", "static"))
+app = flask.Flask(
+    __name__,
+    template_folder=TEMPLATE_DIR,
+    static_folder=STATIC_DIR,
+)
 
 INDEX_HTML_PATH = os.path.join(utils.SCRIPT_DIR, "..", "html", "index.html")
 FEEDBACK_HTML_PATH = os.path.join(
@@ -41,32 +47,14 @@ def index_route():
   """Returns the homepage HTML."""
   eastern_timezone = pytz.timezone("America/New_York")
   now = datetime.datetime.now(eastern_timezone)
-  advent_button_html = ""
-  if now.month == 12 and 1 <= now.day <= 25:
-    advent_button_html = """<div class="card">
-        <h2>Advent Devotion</h2>
-        <a href="/advent_devotion" class="button">Advent Family Devotional</a>
-    </div>"""
-
-  with open(INDEX_HTML_PATH, "r", encoding="utf-8") as f:
-    template = string.Template(f.read())
-
-  return template.substitute(advent_button_html=advent_button_html)
+  is_advent = now.month == 12 and 1 <= now.day <= 25
+  return flask.render_template("index.html", is_advent=is_advent)
 
 
 @app.route("/feedback")
 def feedback_route():
   """Returns the feedback page HTML."""
-  with open(FEEDBACK_HTML_PATH, "r", encoding="utf-8") as f:
-    return f.read()
-
-
-@app.route("/styles.css")
-def styles():
-  """Returns the styles.css file."""
-  return flask.send_from_directory(
-      os.path.join(utils.SCRIPT_DIR, "..", "html"), "styles.css"
-  )
+  return flask.render_template("feedback.html")
 
 
 @app.route("/extended_evening_devotion")
@@ -108,8 +96,7 @@ def advent_devotion_route():
 @app.route("/prayer_requests")
 def prayer_requests_route():
   """Returns prayer request submission page."""
-  with open(PRAYER_REQUESTS_HTML_PATH, "r", encoding="utf-8") as f:
-    return f.read()
+  return flask.render_template("prayer_requests.html")
 
 
 @app.route("/get_passage_text")
@@ -158,10 +145,9 @@ def prayer_wall_route():
         + "\n".join(html_parts)
         + "\n</ul>"
     )
-
-  with open(PRAYER_WALL_HTML_PATH, "r", encoding="utf-8") as f:
-    template = string.Template(f.read())
-  return template.substitute(prayer_requests_html=prayer_requests_html)
+  return flask.render_template(
+      "prayer_wall.html", prayer_requests_html=prayer_requests_html
+  )
 
 
 @app.route("/add_prayer_request", methods=["POST"])
@@ -177,12 +163,11 @@ def add_prayer_request_route():
       name, request, days_ttl
   )
   if success:
-    with open(PRAYER_SUBMITTED_HTML_PATH, "r", encoding="utf-8") as f:
-      return f.read()
+    return flask.render_template("prayer_request_submitted.html")
   else:
-    with open(PRAYER_FAILED_HTML_PATH, "r", encoding="utf-8") as f:
-      template = string.Template(f.read())
-      return template.substitute(error_message=error_message)
+    return flask.render_template(
+        "prayer_request_failed.html", error_message=error_message
+    )
 
 
 if __name__ == "__main__":

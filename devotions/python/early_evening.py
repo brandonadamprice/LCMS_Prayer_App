@@ -1,15 +1,11 @@
 """Functions for generating the early evening devotion."""
 
 import datetime
-import os
 import random
-import string
+import flask
 import pytz
 import utils
 
-EARLY_EVENING_HTML_TEMPLATE_PATH = os.path.join(
-    utils.SCRIPT_DIR, "..", "html", "early_evening_devotion.html"
-)
 EARLY_EVENING_READINGS = [
     "Luke 24:28-31",
     "Exodus 16:11-21,31",
@@ -50,9 +46,5 @@ def generate_early_evening_devotion():
   template_data["psalm_ref"] = psalm_ref
   template_data["psalm_text"] = psalm_text
 
-  with open(EARLY_EVENING_HTML_TEMPLATE_PATH, "r", encoding="utf-8") as f:
-    template = string.Template(f.read())
-
-  html = template.substitute(template_data)
   print("Generated Early Evening HTML")
-  return html
+  return flask.render_template("early_evening_devotion.html", **template_data)

@@ -1,15 +1,11 @@
 """Functions for generating the close of day devotion."""
 
 import datetime
-import os
 import random
-import string
+import flask
 import pytz
 import utils
 
-CLOSE_OF_DAY_HTML_TEMPLATE_PATH = os.path.join(
-    utils.SCRIPT_DIR, "..", "html", "close_of_day_devotion.html"
-)
 CLOSE_OF_DAY_READINGS = [
     "Matthew 11:28-30",
     "Micah 7:18-20",
@@ -47,9 +43,5 @@ def generate_close_of_day_devotion():
   template_data["reading_ref"] = reading_ref
   template_data["reading_text"] = reading_text
 
-  with open(CLOSE_OF_DAY_HTML_TEMPLATE_PATH, "r", encoding="utf-8") as f:
-    template = string.Template(f.read())
-
-  html = template.substitute(template_data)
   print("Generated Close of Day HTML")
-  return html
+  return flask.render_template("close_of_day_devotion.html", **template_data)
