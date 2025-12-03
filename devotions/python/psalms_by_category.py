@@ -22,8 +22,8 @@ def generate_psalms_by_category_page():
   categories = load_psalms_by_category()
   psalm_refs = []
   for cat in categories:
-    psalm_num = random.choice(cat["Psalms"])
-    psalm_refs.append(f"Psalm {psalm_num}")
+    psalm_ref = random.choice(cat["verses"])
+    psalm_refs.append(psalm_ref)
 
   psalm_texts = utils.fetch_passages(psalm_refs)
 
@@ -33,7 +33,7 @@ def generate_psalms_by_category_page():
     category_data.append({
         "title": cat["title"],
         "description": cat["description"],
-        "psalms": cat["Psalms"],
+        "verses": cat["verses"],
         "prayer": cat["prayer"],
         "initial_psalm_ref": psalm_refs[i],
         "initial_psalm_text": psalm_texts[i],

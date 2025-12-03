@@ -18,7 +18,7 @@
         <p id="psalm-text-{{ i }}">{{ cat.initial_psalm_text|safe }}</p>
         <button class="button psalm-button" onclick="togglePsalmPicker(this, {{ i }})">Select Psalm</button>
         <div id="picker-{{ i }}" class="psalm-picker">
-            {% for p in cat.psalms %}
+            {% for p in cat.verses %}
             <button class="button psalm-picker-button" onclick="selectPsalm('{{ p }}', {{ i }})">{{ p }}</button>
             {% endfor %}
         </div>
@@ -40,13 +40,12 @@
         }
       }
 
-      async function selectPsalm(psalmNum, cardIndex) {
+      async function selectPsalm(newRef, cardIndex) {
         const picker = document.getElementById("picker-" + cardIndex);
         picker.classList.remove("visible"); // Hide picker
         const mainButton = picker.previousElementSibling;
         mainButton.innerText = "Select Psalm"; // Reset button text
 
-        const newRef = "Psalm " + psalmNum;
         const currentRefEl = document.getElementById("psalm-ref-" + cardIndex);
         const textEl = document.getElementById("psalm-text-" + cardIndex);
 
@@ -65,7 +64,7 @@
           textEl.innerHTML = data.text;
         } catch (error) {
           console.error("Error fetching new psalm:", error);
-          textEl.innerHTML = "<em>Error loading Psalm " + psalmNum + ". Please try again.</em>";
+          textEl.innerHTML = "<em>Error loading " + newRef + ". Please try again.</em>";
         } finally {
           mainButton.disabled = false;
         }
