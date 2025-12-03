@@ -11,7 +11,7 @@ import secrets_fetcher as secrets
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(SCRIPT_DIR, "..", "data")
-LECTIONARY_CSV_PATH = os.path.join(DATA_DIR, "daily_lectionary.csv")
+LECTIONARY_JSON_PATH = os.path.join(DATA_DIR, "daily_lectionary.json")
 CATECHISM_JSON_PATH = os.path.join(DATA_DIR, "catechism.json")
 WEEKLY_PRAYERS_JSON_PATH = os.path.join(DATA_DIR, "weekly_prayers.json")
 OFFICE_READINGS_JSON_PATH = os.path.join(DATA_DIR, "office_readings.json")
@@ -277,23 +277,12 @@ class ChurchYear:
 
 
 def load_lectionary(filepath: str) -> dict:
-  """Loads the CSV into a dictionary."""
-  lectionary = {}
+  """Loads the lectionary data from a JSON file."""
   if not os.path.exists(filepath):
-    print(
-        "CSV file not found. Please ensure lectionary.csv is in the same"
-        " folder."
-    )
+    print(f"JSON file not found: {filepath}")
     return {}
-
   with open(filepath, mode="r", encoding="utf-8") as f:
-    reader = csv.DictReader(f)
-    for row in reader:
-      lectionary[row["Key"]] = {
-          "OT": row["OT"],
-          "NT": row["NT"],
-      }
-  return lectionary
+    return json.load(f)
 
 
 def get_devotion_data(now: datetime.datetime) -> dict:
@@ -319,7 +308,7 @@ def get_devotion_data(now: datetime.datetime) -> dict:
   print(f"Liturgical Key: {key}")
 
   # 3. Load Data
-  data = load_lectionary(LECTIONARY_CSV_PATH)
+  data = load_lectionary(LECTIONARY_JSON_PATH)
   readings = data.get(
       key,
       {"OT": "Reading not found", "NT": "Reading not found"},
