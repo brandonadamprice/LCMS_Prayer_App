@@ -33,13 +33,13 @@
 
     <div class="card">
       <div class="card-header" onclick="toggleCard(this)">
-        <h2>Catechism: {{ catechism_title }}</h2>
+        <h2>Catechism: {{ catechism_title|safe }}</h2>
         <span class="toggle-icon">▼</span>
       </div>
       <div class="card-content">
-        <p><strong>Text:</strong> {{ catechism_text }}</p>
+        <p><strong>Text:</strong> {{ catechism_text|safe }}</p>
         {{ catechism_meaning_html|safe }}
-        <p><strong>Prayer:</strong> {{ catechism_prayer }}</p>
+        <p><strong>Prayer:</strong> {{ catechism_prayer|safe }}</p>
       </div>
     </div>
 
