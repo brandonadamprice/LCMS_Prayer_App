@@ -485,8 +485,20 @@ def fetch_passages(references: list[str]) -> list[str]:
         if ref in ref_map:
           num_passages = len(ref_map[ref])
           if passage_idx + num_passages <= len(data["passages"]):
-            passages = data["passages"][passage_idx : passage_idx + num_passages]
-            text_block = " ".join(p.strip() for p in passages)
+            passages_list = data["passages"][
+                passage_idx : passage_idx + num_passages
+            ]
+            if passages_list:
+              if len(passages_list) > 1:
+                processed_passages = [
+                    p.strip().removesuffix(" (ESV)") for p in passages_list[:-1]
+                ]
+                processed_passages.append(passages_list[-1].strip())
+                text_block = " ".join(processed_passages)
+              else:
+                text_block = passages_list[0].strip()
+            else:
+              text_block = ""
             text_block = re.sub(r"\[(\d+)\]", r"<br><sup>\1</sup>", text_block)
             if text_block.startswith("<br>"):
               text_block = text_block[4:]
