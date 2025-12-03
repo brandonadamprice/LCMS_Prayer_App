@@ -156,7 +156,7 @@ h2 {
 
 li.post-it {
   width: 210px;
-  height: 210px;
+  min-height: 210px;
   padding: 20px;
   margin: 15px;
   box-shadow: 3px 3px 6px rgba(0,0,0,.4);
