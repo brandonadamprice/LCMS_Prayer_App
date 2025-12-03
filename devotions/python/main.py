@@ -13,6 +13,7 @@ import morning
 import noon
 import prayer_requests
 import psalms_by_category
+import gospels_by_category
 import pytz
 import utils
 
@@ -117,6 +118,12 @@ def get_passage_text_route():
 def psalms_by_category_route():
   """Returns Psalms by Category page."""
   return psalms_by_category.generate_psalms_by_category_page()
+
+
+@app.route("/gospels_by_category")
+def gospels_by_category_route():
+  """Returns Gospels by Category page."""
+  return gospels_by_category.generate_gospels_by_category_page()
 
 
 @app.route("/prayer_wall")
