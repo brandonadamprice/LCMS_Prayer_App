@@ -344,12 +344,9 @@ def get_devotion_data(now):
       "ot_reading_ref": readings["OT"],
       "ot_text": ot_text,
       "nt_reading_ref": readings["NT"],
-      "apostles_creed_html": APOSTLES_CREED_HTML,
       "nt_text": nt_text,
       "prayer_topic": prayer_topic,
       "weekly_prayer_html": weekly_prayer_html,
-      "lords_prayer_html": LORDS_PRAYER_HTML,
-      "nunc_dimittis_html": NUNC_DIMITTIS_HTML,
   }
 
 
