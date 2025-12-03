@@ -1,10 +1,32 @@
-{% extends "base.html" %} {% block title %}Psalms by Category{% endblock %} {% block content %}
+{% extends "base.html" %}
+{% import "_macros.html" as macros %}
+
+{% block title %}Psalms by Category{% endblock %}
+
+{% block content %}
     <div style="text-align: center; margin-bottom: 40px">
       <h1>Psalms by Category</h1>
       <p>Select a category to view a Psalm and prayer for reflection.</p>
     </div>
 
-    {{ category_cards_html|safe }}
+    {% for cat in category_data %}
+      {% set i = loop.index0 %}
+      {% call macros.card(cat.title, collapsed=True) %}
+        <p><em>{{ cat.description }}</em></p>
+        <hr>
+        <span class="ref" id="psalm-ref-{{ i }}">{{ cat.initial_psalm_ref }}</span>
+        <p id="psalm-text-{{ i }}">{{ cat.initial_psalm_text|safe }}</p>
+        <button class="button psalm-button" onclick="togglePsalmPicker(this, {{ i }})">Select Psalm</button>
+        <div id="picker-{{ i }}" class="psalm-picker">
+            {% for p in cat.psalms %}
+            <button class="button psalm-picker-button" onclick="selectPsalm('{{ p }}', {{ i }})">{{ p }}</button>
+            {% endfor %}
+        </div>
+        <hr>
+        <p class="subheader"><strong>Prayer</strong></p>
+        <p>{{ cat.prayer }}</p>
+      {% endcall %}
+    {% endfor %}
 {% endblock %}
 
 {% block extra_js %}

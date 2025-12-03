@@ -1,0 +1,11 @@
+{% macro card(title, collapsed=False) %}
+<div class="card{% if collapsed %} collapsed{% endif %}">
+  <div class="card-header" onclick="toggleCard(this)">
+    <h2>{{ title|safe }}</h2>
+    <span class="toggle-icon">▼</span>
+  </div>
+  <div class="card-content">
+    {{ caller() }}
+  </div>
+</div>
+{% endmacro %}

@@ -27,36 +27,19 @@ def generate_psalms_by_category_page():
 
   psalm_texts = utils.fetch_passages(psalm_refs)
 
-  card_html_parts = []
+  # Combine data for easier looping in Jinja2
+  category_data = []
   for i, cat in enumerate(categories):
-    picker_buttons_html = "".join([
-        f"""<button class="button psalm-picker-button" onclick="selectPsalm('{p}', {i})">{p}</button>"""
-        for p in cat["Psalms"]
-    ])
-    card_html = f"""<div class="card collapsed">
-            <div class="card-header" onclick="toggleCard(this)">
-                <h2>{cat['title']}</h2>
-                <span class="toggle-icon">▼</span>
-            </div>
-            <div class="card-content">
-                <p><em>{cat['description']}</em></p>
-                <hr>
-                <span class="ref" id="psalm-ref-{i}">{psalm_refs[i]}</span>
-                <p id="psalm-text-{i}">{psalm_texts[i]}</p>
-                <button class="button psalm-button" onclick="togglePsalmPicker(this, {i})">Select Psalm</button>
-                <div id="picker-{i}" class="psalm-picker">
-                    {picker_buttons_html}
-                </div>
-                <hr>
-                <p class="subheader"><strong>Prayer</strong></p>
-                <p>{cat['prayer']}</p>
-            </div>
-        </div>"""
-    card_html_parts.append(card_html)
-
-  all_cards_html = "\n".join(card_html_parts)
+    category_data.append({
+        "title": cat["title"],
+        "description": cat["description"],
+        "psalms": cat["Psalms"],
+        "prayer": cat["prayer"],
+        "initial_psalm_ref": psalm_refs[i],
+        "initial_psalm_text": psalm_texts[i],
+    })
 
   print("Generated Psalms by Category HTML")
   return flask.render_template(
-      "psalms_by_category.html", category_cards_html=all_cards_html
+      "psalms_by_category.html", category_data=category_data
   )

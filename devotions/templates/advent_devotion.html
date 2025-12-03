@@ -1,16 +1,14 @@
-{% extends "base.html" %} {% block title %}Advent Devotion{% endblock %} {% block content %}
+{% extends "base.html" %}
+{% import "_macros.html" as macros %}
+{% block title %}Advent Devotion{% endblock %}
+{% block content %}
     <div style="text-align: center; margin-bottom: 40px">
       <h1>The Advent of Our Lord</h1>
       <h2>{{ devotion_title }}</h2>
       <p>{{ date_str }}</p>
     </div>
 
-    <div class="card">
-      <div class="card-header" onclick="toggleCard(this)">
-        <h2>Invocation</h2>
-        <span class="toggle-icon">▼</span>
-      </div>
-      <div class="card-content">
+    {% call macros.card('Invocation') %}
         <p>
           <span class="rubric"
             >The sign of the cross may be made by all in remembrance of their Baptism.</span
@@ -24,42 +22,22 @@
           Behold, the King cometh:<br />
           <strong>Oh, come, let us worship Him.</strong>
         </p>
-      </div>
-    </div>
+    {% endcall %}
 
-    <div class="card">
-      <div class="card-header" onclick="toggleCard(this)">
-        <h2>Prayer</h2>
-        <span class="toggle-icon">▼</span>
-      </div>
-      <div class="card-content">{% include '_lords_prayer.html' %}</div>
-    </div>
+    {% call macros.card('Prayer') %}
+        {% include '_lords_prayer.html' %}
+    {% endcall %}
 
-    <div class="card">
-      <div class="card-header" onclick="toggleCard(this)">
-        <h2>Reading</h2>
-        <span class="toggle-icon">▼</span>
-      </div>
-      <div class="card-content">
+    {% call macros.card('Reading') %}
         <span class="ref">{{ reading_ref }}</span>
         {{ reading_html|safe }}
-      </div>
-    </div>
+    {% endcall %}
 
-    <div class="card">
-      <div class="card-header" onclick="toggleCard(this)">
-        <h2>Meditation</h2>
-        <span class="toggle-icon">▼</span>
-      </div>
-      <div class="card-content">{{ meditation_html|safe }}</div>
-    </div>
+    {% call macros.card('Meditation') %}
+        {{ meditation_html|safe }}
+    {% endcall %}
 
-    <div class="card">
-      <div class="card-header" onclick="toggleCard(this)">
-        <h2>Prayers</h2>
-        <span class="toggle-icon">▼</span>
-      </div>
-      <div class="card-content">
+    {% call macros.card('Prayers') %}
         <p class="subheader"><strong>Prayer of the Day</strong></p>
         {{ daily_prayer_html|safe }}
         <p class="subheader"><strong>Closing Prayer</strong></p>
@@ -72,6 +50,5 @@
 
           <strong>Amen</strong>.
         </p>
-      </div>
-    </div>
+    {% endcall %}
 {% endblock %}

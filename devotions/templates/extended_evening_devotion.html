@@ -1,4 +1,7 @@
-{% extends "base.html" %} {% block title %}Extended Evening Devotion{% endblock %} {% block content %}
+{% extends "base.html" %}
+{% import "_macros.html" as macros %}
+{% block title %}Extended Evening Devotion{% endblock %}
+{% block content %}
     <div style="text-align: center; margin-bottom: 40px">
       <h1>Extended Evening Devotion</h1>
       <p>
@@ -28,58 +31,29 @@
           To herald Your love in the morning,<br />
           <strong>Your truth at the close of the day.</strong>
         </p>
-      </div>
-    </div>
+    {% endcall %}
 
-    <div class="card">
-      <div class="card-header" onclick="toggleCard(this)">
-        <h2>Catechism: {{ catechism_title|safe }}</h2>
-        <span class="toggle-icon">▼</span>
-      </div>
-      <div class="card-content">
+    {% call macros.card('Catechism: ' ~ catechism_title) %}
         <p><strong>Text:</strong> {{ catechism_text|safe }}</p>
         {{ catechism_meaning_html|safe }}
         <p><strong>Prayer:</strong> {{ catechism_prayer|safe }}</p>
-      </div>
-    </div>
+    {% endcall %}
 
-    <div class="card">
-      <div class="card-header" onclick="toggleCard(this)">
-        <h2>Psalmody</h2>
-        <span class="toggle-icon">▼</span>
-      </div>
-      <div class="card-content">
+    {% call macros.card('Psalmody') %}
         <span class="ref">{{ psalm_ref }}</span>
         <p>{{ psalm_text|safe }}</p>
-        <p>
-          <strong
-            >Glory be to the Father and to the Son and to the Holy Spirit; as it was in the
-            beginning, is now, and will be forever. Amen.</strong
-          >
-        </p>
-      </div>
-    </div>
+        {% include '_gloria_patri.html' %}
+    {% endcall %}
 
-    <div class="card">
-      <div class="card-header" onclick="toggleCard(this)">
-        <h2>Readings</h2>
-        <span class="toggle-icon">▼</span>
-      </div>
-      <div class="card-content">
+    {% call macros.card('Readings') %}
         <span class="ref">Old Testament: {{ ot_reading_ref }}</span>
         <p>{{ ot_text|safe }}</p>
         <hr />
         <span class="ref">New Testament: {{ nt_reading_ref }}</span>
         <p>{{ nt_text|safe }}</p>
-      </div>
-    </div>
+    {% endcall %}
 
-    <div class="card">
-      <div class="card-header" onclick="toggleCard(this)">
-        <h2>Prayers</h2>
-        <span class="toggle-icon">▼</span>
-      </div>
-      <div class="card-content">
+    {% call macros.card('Prayers') %}
         {% include '_apostles_creed.html' %}
         <hr />
         {% include '_lords_prayer.html' %}
@@ -108,15 +82,9 @@
             foe may have no power over me. Amen.</strong
           >
         </p>
-      </div>
-    </div>
+    {% endcall %}
 
-    <div class="card">
-      <div class="card-header" onclick="toggleCard(this)">
-        <h2>Benediction</h2>
-        <span class="toggle-icon">▼</span>
-      </div>
-      <div class="card-content">
+    {% call macros.card('Benediction') %}
         {% include '_nunc_dimittis.html' %}
         <p>
           Let us bless the Lord.<br />
@@ -127,6 +95,5 @@
           Spirit, be with us all evermore.<br />
           <strong>Amen.</strong>
         </p>
-      </div>
-    </div>
+    {% endcall %}
 {% endblock %}
