@@ -1,69 +1,69 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Psalms by Category</title>
-    <link rel="stylesheet" href="/styles.css">
-</head>
-<body>
-    <div style="text-align: center; margin-bottom: 40px;">
-        <h1>Psalms by Category</h1>
-        <p>Select a category to view a Psalm and prayer for reflection.</p>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div style="text-align: center; margin-bottom: 40px">
+      <h1>Psalms by Category</h1>
+      <p>Select a category to view a Psalm and prayer for reflection.</p>
     </div>
 
     ${category_cards_html}
 
-    <div style="text-align: center;">
-        <a href="/" class="button">Back to Home</a>
+    <div style="text-align: center">
+      <a href="/" class="button">Back to Home</a>
     </div>
 
     <script>
-        function toggleCard(header) {
-            const card = header.parentElement;
-            card.classList.toggle('collapsed');
+      function toggleCard(header) {
+        const card = header.parentElement;
+        card.classList.toggle("collapsed");
+      }
+
+      function togglePsalmPicker(button, cardIndex) {
+        const picker = document.getElementById("picker-" + cardIndex);
+        picker.classList.toggle("visible");
+        if (picker.classList.contains("visible")) {
+          button.innerText = "Hide Psalm List";
+        } else {
+          button.innerText = "Select Psalm";
+        }
+      }
+
+      async function selectPsalm(psalmNum, cardIndex) {
+        const picker = document.getElementById("picker-" + cardIndex);
+        picker.classList.remove("visible"); // Hide picker
+        const mainButton = picker.previousElementSibling;
+        mainButton.innerText = "Select Psalm"; // Reset button text
+
+        const newRef = "Psalm " + psalmNum;
+        const currentRefEl = document.getElementById("psalm-ref-" + cardIndex);
+        const textEl = document.getElementById("psalm-text-" + cardIndex);
+
+        if (currentRefEl.innerText === newRef) {
+          return; // Already showing this psalm
         }
 
-        function togglePsalmPicker(button, cardIndex) {
-            const picker = document.getElementById('picker-' + cardIndex);
-            picker.classList.toggle('visible');
-            if (picker.classList.contains('visible')) {
-                button.innerText = 'Hide Psalm List';
-            } else {
-                button.innerText = 'Select Psalm';
-            }
+        currentRefEl.innerText = newRef;
+        textEl.innerHTML = "<em>Loading...</em>";
+        mainButton.disabled = true; // Disable main button during fetch
+
+        try {
+          const response = await fetch("/get_passage_text?ref=" + encodeURIComponent(newRef));
+          if (!response.ok) throw new Error("Network response was not ok");
+          const data = await response.json();
+          textEl.innerHTML = data.text;
+        } catch (error) {
+          console.error("Error fetching new psalm:", error);
+          textEl.innerHTML = "<em>Error loading Psalm " + psalmNum + ". Please try again.</em>";
+        } finally {
+          mainButton.disabled = false;
         }
-
-        async function selectPsalm(psalmNum, cardIndex) {
-            const picker = document.getElementById('picker-' + cardIndex);
-            picker.classList.remove('visible'); // Hide picker
-            const mainButton = picker.previousElementSibling;
-            mainButton.innerText = 'Select Psalm'; // Reset button text
-
-            const newRef = 'Psalm ' + psalmNum;
-            const currentRefEl = document.getElementById('psalm-ref-' + cardIndex);
-            const textEl = document.getElementById('psalm-text-' + cardIndex);
-
-            if (currentRefEl.innerText === newRef) {
-                return; // Already showing this psalm
-            }
-
-            currentRefEl.innerText = newRef;
-            textEl.innerHTML = '<em>Loading...</em>';
-            mainButton.disabled = true; // Disable main button during fetch
-
-            try {
-                const response = await fetch('/get_passage_text?ref=' + encodeURIComponent(newRef));
-                if (!response.ok) throw new Error('Network response was not ok');
-                const data = await response.json();
-                textEl.innerHTML = data.text;
-            } catch (error) {
-                console.error('Error fetching new psalm:', error);
-                textEl.innerHTML = '<em>Error loading Psalm ' + psalmNum + '. Please try again.</em>';
-            } finally {
-                mainButton.disabled = false;
-            }
-        }
+      }
     </script>
-</body>
+  </body>
 </html>

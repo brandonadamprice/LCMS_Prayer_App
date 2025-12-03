@@ -1,100 +1,98 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Advent Devotion</title>
-    <link rel="stylesheet" href="/styles.css">
-</head>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
 
-<body>
-    <div style="text-align: center; margin-bottom: 40px;">
-        <h1>The Advent of Our Lord</h1>
-        <h2>${devotion_title}</h2>
-        <p>${date_str}</p>
+  <body>
+    <div style="text-align: center; margin-bottom: 40px">
+      <h1>The Advent of Our Lord</h1>
+      <h2>${devotion_title}</h2>
+      <p>${date_str}</p>
     </div>
 
     <div class="card">
-        <div class="card-header" onclick="toggleCard(this)">
-            <h2>Invocation</h2>
-            <span class="toggle-icon">▼</span>
-        </div>
-        <div class="card-content">
-            <p><span class="rubric">The sign of the cross may be made by all in remembrance of their Baptism.</span></p>
-            <p>In the name of the Father and of the † Son and of the Holy Ghost.<br>
-                <strong>Amen.</strong>
-            </p>
-            <p>Behold, the King cometh:<br>
-                <strong>Oh, come, let us worship Him.</strong>
-            </p>
-        </div>
+      <div class="card-header" onclick="toggleCard(this)">
+        <h2>Invocation</h2>
+        <span class="toggle-icon">▼</span>
+      </div>
+      <div class="card-content">
+        <p>
+          <span class="rubric"
+            >The sign of the cross may be made by all in remembrance of their Baptism.</span
+          >
+        </p>
+        <p>
+          In the name of the Father and of the † Son and of the Holy Ghost.<br />
+          <strong>Amen.</strong>
+        </p>
+        <p>
+          Behold, the King cometh:<br />
+          <strong>Oh, come, let us worship Him.</strong>
+        </p>
+      </div>
     </div>
 
     <div class="card">
-        <div class="card-header" onclick="toggleCard(this)">
-            <h2>Prayer</h2>
-            <span class="toggle-icon">▼</span>
-        </div>
-        <div class="card-content">
-            ${lords_prayer_html}
-        </div>
+      <div class="card-header" onclick="toggleCard(this)">
+        <h2>Prayer</h2>
+        <span class="toggle-icon">▼</span>
+      </div>
+      <div class="card-content">${lords_prayer_html}</div>
     </div>
 
     <div class="card">
-        <div class="card-header" onclick="toggleCard(this)">
-            <h2>Reading</h2>
-            <span class="toggle-icon">▼</span>
-        </div>
-        <div class="card-content">
-            <span class="ref">${reading_ref}</span>
-            ${reading_html}
-        </div>
+      <div class="card-header" onclick="toggleCard(this)">
+        <h2>Reading</h2>
+        <span class="toggle-icon">▼</span>
+      </div>
+      <div class="card-content">
+        <span class="ref">${reading_ref}</span>
+        ${reading_html}
+      </div>
     </div>
 
     <div class="card">
-        <div class="card-header" onclick="toggleCard(this)">
-            <h2>Meditation</h2>
-            <span class="toggle-icon">▼</span>
-        </div>
-        <div class="card-content">
-            ${meditation_html}
-        </div>
+      <div class="card-header" onclick="toggleCard(this)">
+        <h2>Meditation</h2>
+        <span class="toggle-icon">▼</span>
+      </div>
+      <div class="card-content">${meditation_html}</div>
     </div>
 
     <div class="card">
-        <div class="card-header" onclick="toggleCard(this)">
-            <h2>Prayers</h2>
-            <span class="toggle-icon">▼</span>
-        </div>
-        <div class="card-content">
-            <p class="subheader"><strong>Prayer of the Day</strong></p>
-            ${daily_prayer_html}
-            <p class="subheader"><strong>Closing Prayer</strong></p>
-            <p>
-                O Lord, our heavenly Father, almighty and everlasting God, who hast safely brought us to the beginning
-                of this day,
-                defend us in the same with Thy mighty power and grant that this day we fall into no sin, neither run
-                into any kind of
-                danger, but that all our doings, being ordered by Thy governance, may be righteous in Thy sight; through
-                Jesus Christ,
-                Thy Son, our Lord, who liveth and reigneth with Thee and the Holy Ghost, ever one God, world without
-                end.
-                <strong>Amen</strong>.
-            </p>
-        </div>
+      <div class="card-header" onclick="toggleCard(this)">
+        <h2>Prayers</h2>
+        <span class="toggle-icon">▼</span>
+      </div>
+      <div class="card-content">
+        <p class="subheader"><strong>Prayer of the Day</strong></p>
+        ${daily_prayer_html}
+        <p class="subheader"><strong>Closing Prayer</strong></p>
+        <p>
+          O almighty and most merciful God, of Thy bountiful goodness keep us, we beseech Thee, from
+          all things that may hurt us, that we, being ready, both in body and soul, may cheerfully
+          accomplish those things that Thou wouldst have done; through Jesus Christ, Thy Son, our
+          Lord, who liveth and reigneth with Thee and the Holy Ghost, ever one God, world without
+          end. Amen.
+
+          <strong>Amen</strong>.
+        </p>
+      </div>
     </div>
 
-    <div style="text-align: center;">
-        <a href="/" class="button">Back to Home</a>
+    <div style="text-align: center">
+      <a href="/" class="button">Back to Home</a>
     </div>
 
     <script>
-        function toggleCard(header) {
-            const card = header.parentElement;
-            card.classList.toggle('collapsed');
-        }
+      function toggleCard(header) {
+        const card = header.parentElement;
+        card.classList.toggle("collapsed");
+      }
     </script>
-</body>
-
+  </body>
 </html>

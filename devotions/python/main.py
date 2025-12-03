@@ -155,7 +155,9 @@ def prayer_wall_route():
           f' class="post-it-name">~ {name}</p></li>'
       )
     prayer_requests_html = (
-        '<ul class="prayer-wall-container">\n' + "\n".join(html_parts) + '\n</ul>'
+        '<ul class="prayer-wall-container">\n'
+        + "\n".join(html_parts)
+        + "\n</ul>"
     )
 
   with open(PRAYER_WALL_HTML_PATH, "r", encoding="utf-8") as f:

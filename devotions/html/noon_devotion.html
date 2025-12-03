@@ -1,112 +1,130 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Noon Devotion</title>
-    <link rel="stylesheet" href="/styles.css">
-</head>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
 
-<body>
-    <div style="text-align: center; margin-bottom: 40px;">
-        <h1>Noon Devotion</h1>
-        <p>${date_str}<br>
-            <span style="color: #7f8c8d;">Lectionary Day: ${key}</span>
+  <body>
+    <div style="text-align: center; margin-bottom: 40px">
+      <h1>Noon Devotion</h1>
+      <p>
+        ${date_str}<br />
+        <span style="color: #7f8c8d">Lectionary Day: ${key}</span>
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-header" onclick="toggleCard(this)">
+        <h2>Opening</h2>
+        <span class="toggle-icon">▼</span>
+      </div>
+      <div class="card-content">
+        <p>
+          <span class="rubric"
+            >The sign of the cross may be made by all in remembrance of their Baptism.</span
+          >
         </p>
+        <p>
+          In the name of the Father and of the † Son and of the Holy Spirit.<br />
+          <strong> Amen.</strong>
+        </p>
+        <p>
+          Listen to my prayer, O God, do not ignore my plea;<br />
+          <strong>hear me and answer me.</strong>
+        </p>
+        <p>
+          Evening, morning, and noon<br />
+          <strong>I cry out in distress, and He hears my voice.</strong>
+        </p>
+        <p>
+          Cast your cares on the Lord and He will sustain you;<br />
+          <strong>He will never let the righteous fall.</strong>
+          <span class="versicle-ref">Psalm 55:1-2a, 17, 22</span>
+        </p>
+        <p>
+          <strong
+            >Glory be to the Father and to the Son and to the Holy Spirit;<br />
+            as it was in the beginning, is now, and will be forever. Amen.</strong
+          >
+        </p>
+      </div>
     </div>
 
     <div class="card">
-        <div class="card-header" onclick="toggleCard(this)">
-            <h2>Opening</h2>
-            <span class="toggle-icon">▼</span>
-        </div>
-        <div class="card-content">
-            <p><span class="rubric">The sign of the cross may be made by all in remembrance of their Baptism.</span></p>
-            <p>In the name of the Father and of the † Son and of the Holy Spirit.<br>
-                <strong> Amen.</strong>
-            </p>
-            <p>Listen to my prayer, O God, do not ignore my plea;<br>
-                <strong>hear me and answer me.</strong>
-            </p>
-            <p>Evening, morning, and noon<br>
-               <strong>I cry out in distress, and He hears my voice.</strong>
-            </p>
-            <p>Cast your cares on the Lord and He will sustain you;<br>
-               <strong>He will never let the righteous fall.</strong>
-               <span class="versicle-ref">Psalm 55:1-2a, 17, 22</span>
-            </p>
-            <p><strong>Glory be to the Father and to the Son and to the Holy Spirit;<br>
-                    as it was in the beginning, is now, and will be forever. Amen.</strong></p>
-        </div>
+      <div class="card-header" onclick="toggleCard(this)">
+        <h2>Psalmody</h2>
+        <span class="toggle-icon">▼</span>
+      </div>
+      <div class="card-content">
+        <span class="ref">${psalm_ref}</span>
+        <p>${psalm_text}</p>
+        <p>
+          <strong
+            >Glory be to the Father and to the Son and to the Holy Spirit; as it was in the
+            beginning, is now, and will be forever. Amen.</strong
+          >
+        </p>
+      </div>
     </div>
 
     <div class="card">
-        <div class="card-header" onclick="toggleCard(this)">
-            <h2>Psalmody</h2>
-            <span class="toggle-icon">▼</span>
-        </div>
-        <div class="card-content">
-            <span class="ref">${psalm_ref}</span>
-            <p>${psalm_text}</p>
-            <p><strong>Glory be to the Father and to the Son and to the Holy Spirit; as it was in the beginning, is now,
-                    and will be forever. Amen.</strong></p>
-        </div>
+      <div class="card-header" onclick="toggleCard(this)">
+        <h2>Reading</h2>
+        <span class="toggle-icon">▼</span>
+      </div>
+      <div class="card-content">
+        <span class="ref">${reading_ref}</span>
+        <p>${reading_text}</p>
+      </div>
     </div>
 
     <div class="card">
-        <div class="card-header" onclick="toggleCard(this)">
-            <h2>Reading</h2>
-            <span class="toggle-icon">▼</span>
-        </div>
-        <div class="card-content">
-            <span class="ref">${reading_ref}</span>
-            <p>${reading_text}</p>
-        </div>
+      <div class="card-header" onclick="toggleCard(this)">
+        <h2>Prayers</h2>
+        <span class="toggle-icon">▼</span>
+      </div>
+      <div class="card-content">
+        <p>
+          O Lord,<br />
+          <strong>have mercy upon us.</strong><br />
+          O Christ,<br />
+          <strong>have mercy upon us.</strong><br />
+          O Lord,<br />
+          <strong>have mercy upon us.</strong>
+        </p>
+        <hr />
+        ${lords_prayer_html}
+        <hr />
+        <p><em>(You may offer your own prayers at this time)</em></p>
+        <hr />
+        <p class="subheader"><strong>Concluding Prayer</strong></p>
+        <p>${concluding_prayer}</p>
+      </div>
     </div>
 
     <div class="card">
-        <div class="card-header" onclick="toggleCard(this)">
-            <h2>Prayers</h2>
-            <span class="toggle-icon">▼</span>
-        </div>
-        <div class="card-content">
-            <p>O Lord,<br>
-              <strong>have mercy upon us.</strong><br>
-            O Christ,<br>
-              <strong>have mercy upon us.</strong><br>
-            O Lord,<br>
-              <strong>have mercy upon us.</strong></p>
-            <hr>
-            ${lords_prayer_html}
-            <hr>
-            <p><em>(You may offer your own prayers at this time)</em></p>
-            <hr>
-            <p class="subheader"><strong>Concluding Prayer</strong></p>
-            <p>${concluding_prayer}</p>
-        </div>
+      <div class="card-header" onclick="toggleCard(this)">
+        <h2>Conclusion</h2>
+        <span class="toggle-icon">▼</span>
+      </div>
+      <div class="card-content">
+        <p>
+          Let us bless the Lord.<br />
+          <strong>Thanks be to God.</strong>
+        </p>
+      </div>
     </div>
-
-    <div class="card">
-        <div class="card-header" onclick="toggleCard(this)">
-            <h2>Conclusion</h2>
-            <span class="toggle-icon">▼</span>
-        </div>
-        <div class="card-content">
-            <p>Let us bless the Lord.<br>
-                <strong>Thanks be to God.</strong>
-            </p>
-        </div>
-    </div>
-    <div style="text-align: center;">
-        <a href="/" class="button">Back to Home</a>
+    <div style="text-align: center">
+      <a href="/" class="button">Back to Home</a>
     </div>
     <script>
-        function toggleCard(header) {
-            const card = header.parentElement;
-            card.classList.toggle('collapsed');
-        }
+      function toggleCard(header) {
+        const card = header.parentElement;
+        card.classList.toggle("collapsed");
+      }
     </script>
-</body>
-
+  </body>
 </html>

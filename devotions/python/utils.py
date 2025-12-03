@@ -14,9 +14,7 @@ DATA_DIR = os.path.join(SCRIPT_DIR, "..", "data")
 LECTIONARY_CSV_PATH = os.path.join(DATA_DIR, "daily_lectionary.csv")
 CATECHISM_JSON_PATH = os.path.join(DATA_DIR, "catechism.json")
 WEEKLY_PRAYERS_JSON_PATH = os.path.join(DATA_DIR, "weekly_prayers.json")
-INAPPROPRIATE_WORDS_CSV_PATH = os.path.join(
-    DATA_DIR, "inappropriate_words.csv"
-)
+INAPPROPRIATE_WORDS_CSV_PATH = os.path.join(DATA_DIR, "inappropriate_words.csv")
 
 
 def load_inappropriate_words():
@@ -32,6 +30,7 @@ def load_inappropriate_words():
     print(f"Warning: {INAPPROPRIATE_WORDS_CSV_PATH} not found.")
   return words
 
+
 INAPPROPRIATE_WORDS = load_inappropriate_words()
 
 
@@ -43,16 +42,25 @@ def is_inappropriate(text):
   # Normalize: lowercase, leetspeak, symbols
   cleaned = text.lower()
   subs = {
-      "@": "a", "4": "a",
+      "@": "a",
+      "4": "a",
       "8": "b",
-      "(": "c", "[": "c", "{": "c", "<": "c",
+      "(": "c",
+      "[": "c",
+      "{": "c",
+      "<": "c",
       "3": "e",
-      "6": "g", "9": "g",
-      "!": "i", "1": "i", "|": "i",
+      "6": "g",
+      "9": "g",
+      "!": "i",
+      "1": "i",
+      "|": "i",
       "0": "o",
-      "$": "s", "5": "s",
-      "+": "t", "7": "t",
-      "2": "z"
+      "$": "s",
+      "5": "s",
+      "+": "t",
+      "7": "t",
+      "2": "z",
   }
   for key, value in subs.items():
     cleaned = cleaned.replace(key, value)
