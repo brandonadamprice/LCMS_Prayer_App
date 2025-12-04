@@ -30,12 +30,21 @@ def generate_advent_devotion():
   reading_texts = utils.fetch_passages([scripture_verses])
   reading_text = reading_texts[0]
 
-  # This logic is based on 2025
-  candle_1_lit = day_of_month >= 1
-  candle_2_lit = day_of_month >= 7
-  candle_3_lit = day_of_month >= 14
-  candle_4_lit = day_of_month >= 21
-  candle_5_lit = day_of_month == 25
+  # Advent candle lighting is based on the four Sundays preceding Christmas.
+  # Candle 1 is lit on Advent 1, 2 on Advent 2, etc.
+  year = now.year
+  advent4_sunday = datetime.date(year, 12, 24)
+  advent4_sunday -= datetime.timedelta(days=(advent4_sunday.weekday() + 1) % 7)
+  advent3_sunday = advent4_sunday - datetime.timedelta(days=7)
+  advent2_sunday = advent4_sunday - datetime.timedelta(days=14)
+  advent1_sunday = advent4_sunday - datetime.timedelta(days=21)
+
+  today = now.date()
+  candle_1_lit = today >= advent1_sunday
+  candle_2_lit = today >= advent2_sunday
+  candle_3_lit = today >= advent3_sunday  # Pink candle
+  candle_4_lit = today >= advent4_sunday
+  candle_5_lit = today == datetime.date(year, 12, 25)  # Christ candle
 
   reading_html = f"<p>{reading_text}</p>"
 
