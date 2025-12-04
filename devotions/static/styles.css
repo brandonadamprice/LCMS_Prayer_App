@@ -4,7 +4,7 @@ body {
     max-width: 800px;
     margin: 40px auto;
     padding: 20px;
-    background-color: #fefdfb;
+    background-color: #f7f4ed;
     color: #5d5d5d;
     transition: background-color 0.3s ease, color 0.3s ease;
 }
