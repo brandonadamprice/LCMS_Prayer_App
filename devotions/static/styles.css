@@ -1,11 +1,12 @@
 body {
     font-family: 'Georgia', serif;
-    line-height: 1.6;
+    line-height: 1.7;
     max-width: 800px;
     margin: 40px auto;
     padding: 20px;
-    background-color: #f4f4f4;
-    color: #333;
+    background-color: #fefdfb;
+    color: #5d5d5d;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .card {
@@ -13,18 +14,20 @@ body {
     padding: 30px;
     margin-bottom: 20px;
     border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.07);
+    transition: background-color 0.3s ease;
 }
 
 h1,
 h2 {
-    color: #2c3e50;
-    border-bottom: 2px solid #eee;
+    color: #4a4a4a;
+    border-bottom: 1px solid #f0f0f0;
     padding-bottom: 10px;
+    font-weight: normal;
 }
 
 .rubric {
-    color: #c0392b;
+    color: #a52a2a; /* Brown */
     font-style: italic;
     font-size: 0.9em;
 }
@@ -47,12 +50,12 @@ h2 {
     display: inline-block;
     padding: 10px 20px;
     margin: 10px 5px 10px 0;
-    background-color: #2c3e50;
+    background-color: #8a9a9a;
     color: white;
     text-decoration: none;
     border-radius: 5px;
     text-align: center;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.2s ease;
     border: none;
     cursor: pointer;
     font-size: 1em;
@@ -60,7 +63,7 @@ h2 {
 }
 
 .button:hover {
-    background-color: #34495e;
+    background-color: #798989;
     color: white;
 }
 
@@ -323,23 +326,23 @@ input:checked + .slider:before {
 
 /* Dark Mode */
 body.dark-mode {
-    background-color: #1a1a1a;
-    color: #e0e0e0;
+    background-color: #333333;
+    color: #cccccc;
 }
 
 body.dark-mode .card {
-    background: #2a2a2a;
-    box-shadow: 0 4px 6px rgba(255, 255, 255, 0.05);
+    background: #444444;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
 }
 
 body.dark-mode h1,
 body.dark-mode h2 {
-    color: #e8e8e8;
-    border-bottom-color: #444;
+    color: #eeeeee;
+    border-bottom-color: #555555;
 }
 
 body.dark-mode .rubric {
-    color: #e57373; /* Lighter red */
+    color: #ffb6c1; /* LightPink */
 }
 
 body.dark-mode .ref,
@@ -353,12 +356,12 @@ body.dark-mode .prayer-topic {
 }
 
 body.dark-mode .button {
-    background-color: #444;
-    color: #e0e0e0;
+    background-color: #666666;
+    color: #eeeeee;
 }
 
 body.dark-mode .button:hover {
-    background-color: #555;
+    background-color: #777777;
 }
 
 body.dark-mode .button:disabled,
