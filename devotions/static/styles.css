@@ -26,6 +26,12 @@ h2 {
     font-weight: normal;
 }
 
+.page-header h1, .page-header h2 {
+    color: white;
+    border-bottom-color: rgba(255,255,255,0.3);
+    text-shadow: 1px 1px 3px rgb(0 0 0 / 40%);
+}
+
 .rubric {
     color: #a52a2a; /* Brown */
     font-style: italic;
@@ -381,6 +387,11 @@ body.dark-mode h2 {
     border-bottom-color: #555555;
 }
 
+body.dark-mode .page-header h1, body.dark-mode .page-header h2 {
+    color: white;
+    border-bottom-color: rgba(255,255,255,0.3);
+}
+
 body.dark-mode .rubric {
     color: #ffb6c1; /* LightPink */
 }
@@ -568,13 +579,15 @@ body.dark-mode #advent-popup {
     position: relative;
     overflow: hidden;
     z-index: 0;
-    background-image: url("banner.jpg");
+    background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url("banner.jpg");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+    color: white; /* for text readability */
 }
 
 body.dark-mode .page-header {
     background-color: #33333380; /* Match dark body transparent */
     border: 1px solid #555555;
+    background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url("banner.jpg");
 }
