@@ -403,6 +403,7 @@ body.dark-mode li.post-it:hover {
   height: 60px;
   margin: 0;
   padding: 0;
+  cursor: pointer;
 }
 .wreath-base {
   position: absolute;
@@ -487,4 +488,24 @@ body.dark-mode .wreath-base {
 .candle.white.lit::after {
    background-color: #ffd700;
    box-shadow: 0 0 4px 1px #ffd700;
+}
+
+/* Advent popup */
+#advent-popup {
+  display: none;
+  position: fixed;
+  top: 90px;
+  left: 20px;
+  background-color: #fff;
+  padding: 10px 15px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  z-index: 12;
+  max-width: 250px;
+  font-size: 0.9em;
+}
+body.dark-mode #advent-popup {
+  background-color: #2a2a2a;
+  color: #e0e0e0;
+  box-shadow: 0 2px 4px rgba(255,255,255,0.1);
 }
