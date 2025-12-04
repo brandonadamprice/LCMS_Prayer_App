@@ -30,6 +30,13 @@ def generate_advent_devotion():
   reading_texts = utils.fetch_passages([scripture_verses])
   reading_text = reading_texts[0]
 
+  # Candle lighting logic: Candle 1 from Dec 1, 2 from Dec 8, 3 (Pink) from Dec 15, 4 from Dec 22, 5 (White) on Dec 25.
+  candle_1_lit = day_of_month >= 1
+  candle_2_lit = day_of_month >= 8
+  candle_3_lit = day_of_month >= 15
+  candle_4_lit = day_of_month >= 22
+  candle_5_lit = day_of_month == 25
+
   reading_html = f"<p>{reading_text}</p>"
 
   meditation_html = f'<p>{devotion_data["brief_devotional"]}</p>'
@@ -42,6 +49,11 @@ def generate_advent_devotion():
       "reading_html": reading_html,
       "meditation_html": meditation_html,
       "daily_prayer_html": daily_prayer_html,
+      "candle_1_lit": candle_1_lit,
+      "candle_2_lit": candle_2_lit,
+      "candle_3_lit": candle_3_lit,
+      "candle_4_lit": candle_4_lit,
+      "candle_5_lit": candle_5_lit,
   }
 
   print("Generated Advent HTML")
