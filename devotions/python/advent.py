@@ -30,11 +30,11 @@ def generate_advent_devotion():
   reading_texts = utils.fetch_passages([scripture_verses])
   reading_text = reading_texts[0]
 
-  # Candle lighting logic: Candle 1 from Dec 1, 2 from Dec 8, 3 (Pink) from Dec 15, 4 from Dec 22, 5 (White) on Dec 25.
+  # This logic is based on 2025
   candle_1_lit = day_of_month >= 1
-  candle_2_lit = day_of_month >= 8
-  candle_3_lit = day_of_month >= 15
-  candle_4_lit = day_of_month >= 22
+  candle_2_lit = day_of_month >= 7
+  candle_3_lit = day_of_month >= 14
+  candle_4_lit = day_of_month >= 21
   candle_5_lit = day_of_month == 25
 
   reading_html = f"<p>{reading_text}</p>"

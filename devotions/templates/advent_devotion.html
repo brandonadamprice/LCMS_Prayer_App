@@ -2,8 +2,7 @@
 {% import "_macros.html" as macros %}
 {% block title %}Advent Devotion{% endblock %}
 {% block content %}
-    <div style="position: relative; text-align: center; margin-bottom: 40px; padding-top:50px; min-height: 260px;">
-      <div style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); z-index: 1; opacity: 0.85;">
+    <div style="position: absolute; top: 80px; left: 40px; z-index: 1;">
         <div class="advent-wreath">
           <div class="wreath-base"></div>
           <div class="candle purple-1{% if candle_1_lit %} lit{% endif %}"></div>
@@ -12,12 +11,11 @@
           <div class="candle purple-3{% if candle_4_lit %} lit{% endif %}"></div>
           <div class="candle white{% if candle_5_lit %} lit{% endif %}"></div>
         </div>
-      </div>
-      <div style="position: relative; z-index: 2;">
+    </div>
+    <div style="text-align: center; margin-bottom: 40px;">
           <h1>The Advent of Our Lord</h1>
           <h2>{{ devotion_title|safe }}</h2>
           <p>{{ date_str }}</p>
-      </div>
     </div>
 
     {% call macros.card('Invocation') %}
