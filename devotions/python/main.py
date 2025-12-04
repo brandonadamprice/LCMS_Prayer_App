@@ -5,6 +5,7 @@ import html
 import os
 import string
 import advent
+import bible_in_a_year
 import close_of_day
 import early_evening
 import extended_evening
@@ -124,6 +125,12 @@ def psalms_by_category_route():
 def gospels_by_category_route():
   """Returns Gospels by Category page."""
   return gospels_by_category.generate_gospels_by_category_page()
+
+
+@app.route("/bible_in_a_year")
+def bible_in_a_year_route():
+  """Returns Bible in a Year page."""
+  return bible_in_a_year.generate_bible_in_a_year_page()
 
 
 @app.route("/prayer_wall")

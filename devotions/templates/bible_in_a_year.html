@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% import "_macros.html" as macros %}
+
+{% block title %}Bible in a Year{% endblock %}
+
+{% block content %}
+    <div style="text-align: center; margin-bottom: 40px">
+      <h1>Bible in a Year</h1>
+      <p>Readings for Day <span id="day-display">1</span> of 365</p>
+      <div>
+        <button class="button" onclick="changeDay(-1)">Prev Day</button>
+        <label for="day-select">Jump to Day:</label>
+        <select id="day-select" onchange="jumpToDay(this.value)" style="padding: 5px; border-radius: 4px; border: 1px solid #ccc; margin: 0 5px;">
+          {% for i in range(1, 366) %}
+            <option value="{{ i }}">{{ i }}</option>
+          {% endfor %}
+        </select>
+        <button class="button" onclick="changeDay(1)">Next Day</button>
+      </div>
+    </div>
+
+    {% call macros.card('Old Testament') %}
+        <span class="ref" id="ot-ref"></span>
+        <p id="ot-text"><em>Loading...</em></p>
+    {% endcall %}
+
+    {% call macros.card('New Testament') %}
+        <span class="ref" id="nt-ref"></span>
+        <p id="nt-text"><em>Loading...</em></p>
+    {% endcall %}
+
+    {% call macros.card('Psalms & Proverbs') %}
+        <span class="ref" id="psp-ref"></span>
+        <p id="psp-text"><em>Loading...</em></p>
+    {% endcall %}
+
+{% endblock %}
+
+{% block extra_js %}
+const schedule = JSON.parse('{{ schedule|safe }}');
+const dayDisplay = document.getElementById('day-display');
+const daySelect = document.getElementById('day-select');
+const otRef = document.getElementById('ot-ref');
+const otText = document.getElementById('ot-text');
+const ntRef = document.getElementById('nt-ref');
+const ntText = document.getElementById('nt-text');
+const pspRef = document.getElementById('psp-ref');
+const pspText = document.getElementById('psp-text');
+
+let currentDay = 1;
+
+function getTodayDateString() {
+    const now = new Date();
+    return now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate();
+}
+
+async function fetchPassage(ref, textElement) {
+    textElement.innerHTML = '<em>Loading...</em>';
+    try {
+        const response = await fetch('/get_passage_text?ref=' + encodeURIComponent(ref));
+        if (!response.ok) throw new Error('Network response was not ok for ' + ref);
+        const data = await response.json();
+        textElement.innerHTML = data.text;
+    } catch (error) {
+        console.error('Error fetching passage:', error);
+        textElement.innerHTML = '<em>Error loading passage for ' + ref + '.</em>';
+    }
+}
+
+function loadReadingsForDay(day) {
+    const dayData = schedule[day - 1];
+    if (!dayData) return;
+
+    currentDay = day;
+    dayDisplay.textContent = day;
+    daySelect.value = day;
+
+    otRef.textContent = dayData["Old Testament"];
+    ntRef.textContent = dayData["New Testament"];
+    pspRef.textContent = dayData["Psalms & Proverbs"];
+
+    fetchPassage(dayData["Old Testament"], otText);
+    fetchPassage(dayData["New Testament"], ntText);
+    fetchPassage(dayData["Psalms & Proverbs"], pspText);
+
+    saveProgress(day);
+}
+
+function saveProgress(day) {
+    localStorage.setItem('bibleInYearDay', day);
+    localStorage.setItem('bibleInYearLastVisit', getTodayDateString());
+}
+
+function loadProgress() {
+    const savedDay = localStorage.getItem('bibleInYearDay');
+    const lastVisitStr = localStorage.getItem('bibleInYearLastVisit');
+    const today = new Date();
+    today.setHours(0,0,0,0);
+
+    let dayToLoad = 1;
+
+    if (savedDay && lastVisitStr) {
+        dayToLoad = parseInt(savedDay, 10);
+        try {
+            const parts = lastVisitStr.split('-').map(p => parseInt(p, 10));
+            const lastVisitDate = new Date(parts[0], parts[1]-1, parts[2]);
+            lastVisitDate.setHours(0,0,0,0);
+
+            if (today > lastVisitDate) {
+                dayToLoad = (dayToLoad % 365) + 1;
+            }
+        } catch(e) {
+            console.error('Could not parse last visit date:', lastVisitStr, e);
+        }
+    }
+    loadReadingsForDay(dayToLoad);
+}
+
+function changeDay(delta) {
+    let newDay = currentDay + delta;
+    if (newDay < 1) newDay = 365;
+    if (newDay > 365) newDay = 1;
+    loadReadingsForDay(newDay);
+}
+
+function jumpToDay(dayStr) {
+    const day = parseInt(dayStr, 10);
+    if (day >= 1 && day <= 365) {
+        loadReadingsForDay(day);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', loadProgress);
+
+{% endblock %}
