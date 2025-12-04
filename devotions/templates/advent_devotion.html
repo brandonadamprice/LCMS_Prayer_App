@@ -2,7 +2,7 @@
 {% import "_macros.html" as macros %}
 {% block title %}Advent Devotion{% endblock %}
 {% block content %}
-    <div style="position: absolute; top: 80px; left: 40px; z-index: 1;">
+    <div style="position: fixed; top: 20px; left: 20px; z-index: 10;">
         <div class="advent-wreath">
           <div class="wreath-base"></div>
           <div class="candle purple-1{% if candle_1_lit %} lit{% endif %}"></div>
