@@ -223,7 +223,7 @@ li.post-it:hover {
 
 /* Settings Button */
 #settings-button {
-    position: fixed;
+    position: absolute;
     top: 20px;
     right: 20px;
     background: none;
@@ -242,7 +242,7 @@ body.dark-mode #settings-button {
 /* Settings Modal */
 #settings-modal {
     display: none;
-    position: fixed;
+    position: absolute;
     top: 70px;
     right: 20px;
     width: 200px;
@@ -496,7 +496,7 @@ body.dark-mode .wreath-base {
 /* Advent popup */
 #advent-popup {
   display: none;
-  position: fixed;
+  position: absolute;
   top: 90px;
   left: 20px;
   background-color: #fff;
