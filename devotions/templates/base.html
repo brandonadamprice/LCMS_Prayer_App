@@ -7,6 +7,17 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
   </head>
   <body>
+    <button id="settings-button" aria-label="Settings">⚙️</button>
+    <div id="settings-modal">
+        <h3>Settings</h3>
+        <div class="settings-item">
+            <label for="dark-mode-toggle">Dark Mode</label>
+            <label class="switch">
+                <input type="checkbox" id="dark-mode-toggle">
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
     {% block content %}{% endblock %}
     {% if request.endpoint != 'index_route' %}
     <div style="text-align: center">
@@ -61,6 +72,49 @@
           if(mainButton) mainButton.disabled = false;
         }
       }
+
+      // Settings and Dark Mode
+      const settingsButton = document.getElementById('settings-button');
+      const settingsModal = document.getElementById('settings-modal');
+      const darkModeToggle = document.getElementById('dark-mode-toggle');
+
+      function applyDarkMode(isDark) {
+        if (isDark) {
+          document.body.classList.add('dark-mode');
+          darkModeToggle.checked = true;
+          localStorage.setItem('darkMode', 'enabled');
+        } else {
+          document.body.classList.remove('dark-mode');
+          darkModeToggle.checked = false;
+          localStorage.setItem('darkMode', 'disabled');
+        }
+      }
+
+      // Check for saved preference on load
+      const darkModePreference = localStorage.getItem('darkMode');
+      if (darkModePreference === 'enabled') {
+        applyDarkMode(true);
+      } else {
+        applyDarkMode(false);
+      }
+
+      // Toggle dark mode
+      darkModeToggle.addEventListener('change', function() {
+        applyDarkMode(this.checked);
+      });
+
+      // Toggle settings modal
+      settingsButton.addEventListener('click', function(event) {
+        settingsModal.style.display = settingsModal.style.display === 'block' ? 'none' : 'block';
+        event.stopPropagation();
+      });
+
+      // Close modal if clicking outside
+      document.addEventListener('click', function(event) {
+        if (settingsModal.style.display === 'block' && !settingsModal.contains(event.target) && event.target !== settingsButton) {
+          settingsModal.style.display = 'none';
+        }
+      });
       {% block extra_js %}{% endblock %}
     </script>
   </body>
