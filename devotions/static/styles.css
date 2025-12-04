@@ -175,7 +175,47 @@ li.post-it {
 }
 li.post-it p { margin: 0; }
 .post-it-text { flex-grow: 1; }
-.post-it-name { font-weight: bold; text-align: right; margin-top: 10px; font-size: 0.9em; }
+.post-it-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: 10px;
+}
+.post-it-name { font-weight: bold; text-align: right; font-size: 0.9em; }
+
+.pray-container {
+  display: flex;
+  align-items: center;
+}
+.pray-button {
+  background: none;
+  border: none;
+  font-size: 1.8em; /* make emoji larger */
+  cursor: pointer;
+  padding: 0 5px 0 0;
+  line-height: 1;
+  filter: grayscale(100%);
+  opacity: 0.6;
+  transition: all 0.2s ease;
+  vertical-align: middle;
+}
+.pray-button:hover {
+  filter: grayscale(50%);
+  opacity: 1;
+}
+.pray-button.prayed,
+.pray-button.prayed:hover {
+  filter: grayscale(0%);
+  opacity: 1;
+  transform: scale(1.1);
+}
+.pray-count {
+  font-size: 0.9em;
+  color: #333;
+  min-width: 1em;
+  text-align: left;
+  font-family: 'Georgia', serif; /* match body */
+}
 
 li.post-it:hover {
   box-shadow:7px 7px 10px rgba(0,0,0,.5);

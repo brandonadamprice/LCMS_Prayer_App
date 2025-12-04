@@ -12,3 +12,56 @@
       <a href="/prayer_requests" class="button">Submit a Prayer Request</a>
     </div>
 {% endblock %}
+
+{% block extra_js %}
+document.addEventListener('DOMContentLoaded', () => {
+    const prayerButtons = document.querySelectorAll('.pray-button');
+    const storagePrefix = 'prayed_';
+
+    prayerButtons.forEach(button => {
+        const postIt = button.closest('.post-it');
+        const requestId = postIt.dataset.id;
+        const countSpan = postIt.querySelector('.pray-count');
+        let prayCount = parseInt(countSpan.textContent);
+
+        // Check local storage on load
+        if (localStorage.getItem(storagePrefix + requestId)) {
+            button.classList.add('prayed');
+        }
+
+        button.addEventListener('click', async () => {
+            const isPrayed = button.classList.toggle('prayed');
+            let operation = '';
+
+            if (isPrayed) {
+                prayCount++;
+                localStorage.setItem(storagePrefix + requestId, 'true');
+                operation = 'increment';
+            } else {
+                prayCount--;
+                localStorage.removeItem(storagePrefix + requestId);
+                operation = 'decrement';
+            }
+            
+            countSpan.textContent = prayCount;
+
+            // Send update to server
+            try {
+                const response = await fetch('/update_pray_count', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ id: requestId, operation: operation }),
+                });
+                if (!response.ok) {
+                    console.error('Failed to update pray count on server');
+                    // Optionally revert UI change or notify user
+                }
+            } catch (error) {
+                console.error('Error sending pray count update:', error);
+            }
+        });
+    });
+});
+{% endblock %}

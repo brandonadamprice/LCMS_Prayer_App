@@ -65,6 +65,7 @@ def add_prayer_request(name: str, request: str, days_ttl: int = 30):
       "request": request,
       "created_at": created_at,
       "expires_at": expires_at,
+      "pray_count": 0,
   })
   return True, None
 
@@ -79,7 +80,12 @@ def get_active_prayer_requests():
       filter=base_query.FieldFilter("expires_at", ">", now)
   ).order_by("created_at", direction=firestore_query_module.Query.DESCENDING)
   docs = query.stream()
-  return [doc.to_dict() for doc in docs]
+  requests = []
+  for doc in docs:
+    data = doc.to_dict()
+    data["id"] = doc.id
+    requests.append(data)
+  return requests
 
 
 def get_prayer_wall_requests(limit: int = 10) -> list[dict]:
@@ -92,6 +98,23 @@ def get_prayer_wall_requests(limit: int = 10) -> list[dict]:
     return active_requests
   else:
     return random.sample(active_requests, limit)
+
+
+def update_pray_count(request_id: str, operation: str) -> bool:
+  """Increments or decrements the pray count for a given request."""
+  db = get_db_client()
+  doc_ref = db.collection(COLLECTION_NAME).document(request_id)
+  try:
+    if operation == "increment":
+      doc_ref.update({"pray_count": firestore.Increment(1)})
+    elif operation == "decrement":
+      doc_ref.update({"pray_count": firestore.Increment(-1)})
+    else:
+      return False
+    return True
+  except Exception as e:
+    print(f"Error updating pray count for {request_id}: {e}")
+    return False
 
 
 def remove_expired_requests():

@@ -143,10 +143,18 @@ def prayer_wall_route():
     for req in requests:
       name = html.escape(req.get("name", "Anonymous"))
       prayer = html.escape(req.get("request", ""))
-      html_parts.append(
-          f'<li class="post-it"><p class="post-it-text">{prayer}</p><p'
-          f' class="post-it-name">~ {name}</p></li>'
-      )
+      req_id = req.get("id", "")
+      pray_count = req.get("pray_count", 0)
+      html_parts.append(f"""<li class="post-it" data-id="{req_id}">
+              <p class="post-it-text">{prayer}</p>
+              <div class="post-it-footer">
+                  <div class="pray-container">
+                      <button class="pray-button">🙏</button>
+                      <span class="pray-count">{pray_count}</span>
+                  </div>
+                  <p class="post-it-name">~ {name}</p>
+              </div>
+          </li>""")
     prayer_requests_html = (
         '<ul class="prayer-wall-container">\n'
         + "\n".join(html_parts)
@@ -155,6 +163,21 @@ def prayer_wall_route():
   return flask.render_template(
       "prayer_wall.html", prayer_requests_html=prayer_requests_html
   )
+
+
+@app.route("/update_pray_count", methods=["POST"])
+def update_pray_count_route():
+  """Updates prayer count for a request."""
+  data = flask.request.json
+  request_id = data.get("id")
+  operation = data.get("operation")
+  if not request_id or operation not in ("increment", "decrement"):
+    return flask.jsonify({"success": False, "error": "Invalid request"}), 400
+  success = prayer_requests.update_pray_count(request_id, operation)
+  if success:
+    return flask.jsonify({"success": True})
+  else:
+    return flask.jsonify({"success": False, "error": "Database update failed"}), 500
 
 
 @app.route("/add_prayer_request", methods=["POST"])
