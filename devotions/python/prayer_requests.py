@@ -9,18 +9,7 @@ import utils
 
 NAME_MAX_LENGTH = 100
 REQUEST_MAX_LENGTH = 1000
-PROJECT_ID = "lcms-prayer-app"
-DATABASE_ID = "prayer-app-datastore"
 COLLECTION_NAME = "prayer-requests"
-
-
-def get_db_client():
-  """Initializes and returns a Firestore client."""
-  # In a GCP environment (Cloud Run, GAE), the client automatically
-  # authenticates using the service account or application default credentials.
-  # For local development, ensure you have authenticated via gcloud:
-  # `gcloud auth application-default login`
-  return firestore.Client(project=PROJECT_ID, database=DATABASE_ID)
 
 
 def add_prayer_request(name: str, request: str, days_ttl: int = 30):
@@ -56,7 +45,7 @@ def add_prayer_request(name: str, request: str, days_ttl: int = 30):
     )
   if utils.is_inappropriate(name) or utils.is_inappropriate(request):
     return False, "Inappropriate content detected in prayer request."
-  db = get_db_client()
+  db = utils.get_db_client()
   collection_ref = db.collection(COLLECTION_NAME)
   created_at = datetime.datetime.now(datetime.timezone.utc)
   expires_at = created_at + datetime.timedelta(days=days_ttl)
@@ -72,7 +61,7 @@ def add_prayer_request(name: str, request: str, days_ttl: int = 30):
 
 def get_active_prayer_requests():
   """Returns a list of active prayer requests from Firestore."""
-  db = get_db_client()
+  db = utils.get_db_client()
   now = datetime.datetime.now(datetime.timezone.utc)
   collection_ref = db.collection(COLLECTION_NAME)
   # Note: Firestore may require a composite index for this query.
@@ -102,7 +91,7 @@ def get_prayer_wall_requests(limit: int = 10) -> list[dict]:
 
 def update_pray_count(request_id: str, operation: str) -> bool:
   """Increments or decrements the pray count for a given request."""
-  db = get_db_client()
+  db = utils.get_db_client()
   doc_ref = db.collection(COLLECTION_NAME).document(request_id)
   try:
     if operation == "increment":
@@ -119,7 +108,7 @@ def update_pray_count(request_id: str, operation: str) -> bool:
 
 def remove_expired_requests():
   """Removes expired prayer requests from the Firestore database."""
-  db = get_db_client()
+  db = utils.get_db_client()
   now = datetime.datetime.now(datetime.timezone.utc)
   collection_ref = db.collection(COLLECTION_NAME)
   # Queries for expired docs

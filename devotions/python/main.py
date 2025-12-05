@@ -236,7 +236,30 @@ def gospels_by_category_route():
 @app.route("/bible_in_a_year")
 def bible_in_a_year_route():
   """Returns Bible in a Year page."""
-  return bible_in_a_year.generate_bible_in_a_year_page()
+  bia_progress = None
+  if current_user.is_authenticated:
+    db = prayer_requests.get_db_client()
+    doc = db.collection("users").document(current_user.id).get()
+    if doc.exists:
+      bia_progress = doc.to_dict().get("bia_progress")
+  return bible_in_a_year.generate_bible_in_a_year_page(bia_progress)
+
+
+@app.route("/save_bia_progress", methods=["POST"])
+@login_required
+def save_bia_progress_route():
+  """Saves Bible in a Year progress for the current user."""
+  data = flask.request.json
+  day = data.get("day")
+  last_visit = data.get("last_visit")
+  if isinstance(day, int) and last_visit:
+    try:
+      bible_in_a_year.save_bia_progress(current_user.id, day, last_visit)
+      return flask.jsonify({"success": True})
+    except Exception as e:
+      app.logger.error("Failed to save BIA progress: %s", e)
+      return flask.jsonify({"success": False, "error": "Database save failed"}), 500
+  return flask.jsonify({"success": False, "error": "Invalid progress data"}), 400
 
 
 @app.route("/prayer_wall")

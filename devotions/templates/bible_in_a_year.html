@@ -48,6 +48,9 @@ const ntText = document.getElementById('nt-text');
 const pspRef = document.getElementById('psp-ref');
 const pspText = document.getElementById('psp-text');
 
+const isAuthenticated = {{ current_user.is_authenticated|tojson }};
+const serverProgress = JSON.parse('{{ bia_progress|safe }}');
+
 let currentDay = 1;
 
 function getTodayDateString() {
@@ -88,17 +91,35 @@ function loadReadingsForDay(day) {
 }
 
 function saveProgress(day) {
-    localStorage.setItem('bibleInYearDay', day);
-    localStorage.setItem('bibleInYearLastVisit', getTodayDateString());
+    const todayStr = getTodayDateString();
+    if (isAuthenticated) {
+        fetch('/save_bia_progress', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({day: day, last_visit: todayStr})
+        }).catch(err => console.error("Failed to save progress to server:", err));
+    } else {
+        localStorage.setItem('bibleInYearDay', day);
+        localStorage.setItem('bibleInYearLastVisit', todayStr);
+    }
 }
 
 function loadProgress() {
-    const savedDay = localStorage.getItem('bibleInYearDay');
-    const lastVisitStr = localStorage.getItem('bibleInYearLastVisit');
     const today = new Date();
     today.setHours(0,0,0,0);
-
     let dayToLoad = 1;
+    let savedDay = null;
+    let lastVisitStr = null;
+
+    if (isAuthenticated && serverProgress && serverProgress.current_day && serverProgress.last_visit_str) {
+        savedDay = serverProgress.current_day;
+        lastVisitStr = serverProgress.last_visit_str;
+        console.log("Loading progress from server:", savedDay, lastVisitStr);
+    } else if (!isAuthenticated) {
+        savedDay = localStorage.getItem('bibleInYearDay');
+        lastVisitStr = localStorage.getItem('bibleInYearLastVisit');
+        console.log("Loading progress from localStorage:", savedDay, lastVisitStr);
+    }
 
     if (savedDay && lastVisitStr) {
         dayToLoad = parseInt(savedDay, 10);

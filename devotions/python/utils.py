@@ -9,6 +9,7 @@ import random
 import re
 import requests
 import secrets_fetcher as secrets
+from google.cloud import firestore
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(SCRIPT_DIR, "..", "data")
@@ -17,6 +18,15 @@ CATECHISM_JSON_PATH = os.path.join(DATA_DIR, "catechism.json")
 WEEKLY_PRAYERS_JSON_PATH = os.path.join(DATA_DIR, "weekly_prayers.json")
 OFFICE_READINGS_JSON_PATH = os.path.join(DATA_DIR, "office_readings.json")
 INAPPROPRIATE_WORDS_CSV_PATH = os.path.join(DATA_DIR, "inappropriate_words.csv")
+
+
+def get_db_client():
+  """Initializes and returns a Firestore client."""
+  # In a GCP environment (Cloud Run, GAE), the client automatically
+  # authenticates using the service account or application default credentials.
+  # For local development, ensure you have authenticated via gcloud:
+  # `gcloud auth application-default login`
+  return firestore.Client(project="lcms-prayer-app", database="prayer-app-datastore")
 
 
 def load_office_readings():
