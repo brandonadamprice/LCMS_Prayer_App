@@ -69,7 +69,7 @@ class User(UserMixin):
   @staticmethod
   def get(user_id):
     """Gets a user from Firestore by user_id (which is Google's sub)."""
-    db = prayer_requests.get_db_client()
+    db = utils.get_db_client()
     user_ref = db.collection("users").document(user_id)
     user_doc = user_ref.get()
     if user_doc.exists:
@@ -91,7 +91,7 @@ def load_user(user_id):
 
 def create_or_update_google_user(user_info):
   """Creates or updates a user in Firestore based on Google profile info."""
-  db = prayer_requests.get_db_client()
+  db = utils.get_db_client()
   user_id = user_info["sub"]
   user_ref = db.collection("users").document(user_id)
   user_ref.set(
