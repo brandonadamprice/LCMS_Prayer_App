@@ -14,12 +14,12 @@ def generate_midday_devotion():
   cy = utils.ChurchYear(now.year)
   key = cy.get_liturgical_key(now)
 
-  reading_ref = random.choice(utils.OFFICE_READINGS["noon_readings"])
+  reading_ref = random.choice(utils.OFFICE_READINGS["midday_readings"])
   psalm_num = random.randint(1, 150)
   psalm_ref = f"Psalm {psalm_num}"
 
   reading_text, psalm_text = utils.fetch_passages([reading_ref, psalm_ref])
-  concluding_prayer = random.choice(utils.OFFICE_READINGS["noon_prayers"])
+  concluding_prayer = random.choice(utils.OFFICE_READINGS["midday_prayers"])
 
   template_data = {
       "date_str": now.strftime("%A, %B %d, %Y"),

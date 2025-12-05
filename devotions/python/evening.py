@@ -15,12 +15,12 @@ def generate_evening_devotion():
   key = cy.get_liturgical_key(now)
   catechism_data = utils.get_catechism_for_day(now)
 
-  reading_ref = random.choice(utils.OFFICE_READINGS["early_evening_readings"])
+  reading_ref = random.choice(utils.OFFICE_READINGS["evening_readings"])
   psalm_num = random.randint(1, 150)
   psalm_ref = f"Psalm {psalm_num}"
   reading_text, psalm_text = utils.fetch_passages([reading_ref, psalm_ref])
   concluding_prayer = random.choice(
-      utils.OFFICE_READINGS["early_evening_prayers"]
+      utils.OFFICE_READINGS["evening_prayers"]
   )
 
   template_data = {
