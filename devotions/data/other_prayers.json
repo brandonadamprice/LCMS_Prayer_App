@@ -6,8 +6,8 @@
   },
   "morning_prayer_old_translation": {
     "prayer_title": "Luther's Morning Prayer",
-    "prayer": "I thank Thee, my Heavenly Father, through Jesus Christ, Thy dear Son, that Thou hast kept me this night from all harm and danger; and I pray Thee to keep me this day also from sin and all evil, that all my doings and life may please Thee. For into Thy hands I commend myself, my body and soul, and all things. Let Thy holy angel be with me, that the Wicked Foe may have no power over me. Amen.",
-    "reference": "Luther's Small Catechism (1917)",
+    "prayer": "I thank Thee, my heavenly Father, through Jesus Christ, Thy dear Son, that Thou hast kept me this night from all harm and danger. And I pray Thee that Thou wouldst keep me this day also from sin and every evil, that all my doings and life may please Thee. For into Thy hands I commend myself, my body and soul, and all things. Let Thy holy angel be with me, that the wicked Foe may have no power over me. Amen.",
+    "reference": "Luther's Morning Prayer, translated with AI.",
     "display_title": true
   },
   "luthers_evening_prayer": {
@@ -17,8 +17,8 @@
   },
   "evening_prayer_old_translation": {
     "prayer_title": "Luther's Evening Prayer",
-    "prayer": "I thank Thee, my Heavenly Father, through Jesus Christ, Thy dear Son, that Thou hast graciously kept me this day, and I pray Thee to forgive me all my sins, where I have done wrong, and graciously keep me this night. For into Thy hands I commend myself, my body and soul, and all things. Let Thy holy angel be with me, that the Wicked Foe may have no power over me. Amen.",
-    "reference": "Luther's Small Catechism (1917)",
+    "prayer": "I thank Thee, my heavenly Father, through Jesus Christ, Thy dear Son, that Thou hast graciously kept me this day; and I pray Thee that Thou wouldst graciously forgive me all my sins where I have done wrong, and graciously keep me this night. For into Thy hands I commend myself, my body and soul, and all things. Let Thy holy angel be with me that the wicked Foe may have no power over me. Amen.",
+    "reference": "Luther's Evening Prayer, translated with AI.",
     "display_title": true
   },
   "lords_prayer": {
