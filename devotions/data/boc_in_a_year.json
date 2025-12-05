@@ -1,0 +1,38 @@
+[
+  {
+    "day": 1,
+    "doc": "Ecumenical Creeds",
+    "section": "The Apostles' Creed",
+    "link": "https://bookofconcord.org/creeds.php#apostles"
+  },
+  {
+    "day": 2,
+    "doc": "Ecumenical Creeds",
+    "section": "The Nicene Creed",
+    "link": "https://bookofconcord.org/creeds.php#nicene"
+  },
+  {
+    "day": 3,
+    "doc": "Ecumenical Creeds",
+    "section": "The Athanasian Creed",
+    "link": "https://bookofconcord.org/creeds.php#athanasian"
+  },
+  {
+    "day": 4,
+    "doc": "Augsburg Confession",
+    "section": "Preface",
+    "link": "https://bookofconcord.org/augsburg-confession.php#preface"
+  },
+  {
+    "day": 5,
+    "doc": "Augsburg Confession",
+    "section": "Article I: Of God",
+    "link": "https://bookofconcord.org/augsburg-confession.php#article-i"
+  },
+  {
+    "day": 6,
+    "doc": "Augsburg Confession",
+    "section": "Article II: Of Original Sin",
+    "link": "https://bookofconcord.org/augsburg-confession.php#article-ii"
+  }
+]

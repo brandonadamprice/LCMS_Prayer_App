@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Book of Concord in a Year{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Book of Concord in a Year</h1>
+</div>
+<div class="card">
+  <div class="card-header" onclick="toggleCard(this)">
+    <h2>Reading Plan</h2>
+  </div>
+  <div class="card-content">
+    <p>Track your progress through the Book of Concord. Readings link to the public domain Bente/Dau translation on bookofconcord.org.</p>
+    <ul class="reading-list">
+      {% for reading in readings %}
+      <li class="{% if loop.index0 == today_reading_index %}today{% endif %}">
+        <input type="checkbox" id="day{{ loop.index }}" data-day="{{ loop.index }}">
+        <label for="day{{ loop.index }}">
+          Day {{ loop.index }}: <a href="{{ reading.link }}" target="_blank" rel="noopener noreferrer">{{ reading.section }}</a> ({{ reading.doc }})
+        </label>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+const checkboxes = document.querySelectorAll('.reading-list input[type="checkbox"]');
+const isLoggedIn = {{ current_user.is_authenticated|tojson }};
+const lsKey = 'boc_progress';
+
+function getTodayString() {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+}
+
+function saveProgress(day) {
+    const data = { day: day, last_visit: getTodayString() };
+    if (isLoggedIn) {
+        fetch('/save_boc_progress', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+        }).catch(err => console.error("Failed to save progress to DB:", err));
+    } else {
+        localStorage.setItem(lsKey, JSON.stringify(data));
+    }
+}
+
+function loadProgress() {
+    let progressDay = 0;
+    if (isLoggedIn && {{ progress|tojson }} && {{ progress.day|tojson }}) {
+        progressDay = {{ progress.day }};
+    } else if (!isLoggedIn) {
+        try {
+            const data = JSON.parse(localStorage.getItem(lsKey));
+            if (data && data.day) {
+                progressDay = data.day;
+            }
+        } catch (e) { console.error("Failed to load progress from LocalStorage:", e); }
+    }
+    return progressDay;
+}
+
+function applyProgress(day) {
+    checkboxes.forEach(cb => {
+        cb.checked = parseInt(cb.dataset.day) <= day;
+    });
+}
+
+function handleClick(e) {
+    const clickedDay = parseInt(e.target.dataset.day);
+    const isChecked = e.target.checked;
+    let newProgressDay;
+
+    if (isChecked) {
+        newProgressDay = clickedDay;
+    } else {
+        newProgressDay = clickedDay - 1;
+    }
+    
+    applyProgress(newProgressDay);
+    saveProgress(newProgressDay);
+}
+
+checkboxes.forEach(cb => cb.addEventListener('click', handleClick));
+
+// Initial load
+const initialProgress = loadProgress();
+applyProgress(initialProgress);
+
+{% endblock %}
