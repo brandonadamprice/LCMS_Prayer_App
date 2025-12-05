@@ -16,6 +16,7 @@ from google.cloud import firestore
 import gospels_by_category
 import morning
 import midday
+import night_watch
 import prayer_requests
 import psalms_by_category
 import pytz
@@ -210,6 +211,12 @@ def close_of_day_devotion_route():
 def advent_devotion_route():
   """Returns the generated devotion HTML."""
   return advent.generate_advent_devotion()
+
+
+@app.route("/night_watch_devotion")
+def night_watch_devotion_route():
+  """Returns the generated devotion HTML."""
+  return night_watch.generate_night_watch_devotion()
 
 
 @app.route("/prayer_requests")

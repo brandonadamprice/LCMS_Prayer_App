@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% import "_macros.html" as macros %}
+{% block title %}Night Watch Devotion{% endblock %}
+{% block content %}
+    <div class="page-header">
+      <h1>Night Watch Devotion</h1>
+      <p>{{ date_str }}</p>
+    </div>
+
+    {% call macros.card('Opening') %}
+        <p><span class="rubric">Upon waking, make the sign of the cross and say:</span></p>
+        <p>In the Name of the Father and of the † Son and of the Holy Spirit.<br /><strong>Amen.</strong></p>
+        <p>O God, make speed to save me.<br /><strong>O Lord, make haste to help me.</strong></p>
+        <p><span class="rubric">Or:</span></p>
+        <p>At midnight I will rise to give thanks unto Thee:<br /><strong>because of Thy righteous judgments.</strong> <span class="versicle-ref">Psalm 119:62</span></p>
+    {% endcall %}
+
+    {% call macros.card('Psalmody') %}
+        <span class="ref">{{ psalm_ref }}</span>
+        <p>{{ psalm_text|safe }}</p>
+        {{ macros.format_prayer(config['OTHER_PRAYERS']['gloria_patri']) }}
+    {% endcall %}
+
+    {% call macros.card('Reading') %}
+        <span class="ref">{{ reading_ref }}</span>
+        <p>{{ reading_text|safe }}</p>
+    {% endcall %}
+
+    {% call macros.card('Prayers') %}
+        <p class="subheader"><strong>Kyrie</strong></p>
+        <p>O Lord, <strong>have mercy upon us.</strong><br />
+           O Christ, <strong>have mercy upon us.</strong><br />
+           O Lord, <strong>have mercy upon us.</strong></p>
+        <hr />
+        {{ macros.format_prayer(config['OTHER_PRAYERS']['lords_prayer']) }}
+        <hr />
+        <p class="subheader"><strong>Prayer for Protection and Rest</strong></p>
+        <p><strong>{{ protection_prayer }}</strong></p>
+        <hr />
+        <p class="subheader"><strong>Concluding Prayer</strong></p>
+        <p><strong>{{ concluding_prayer }}</strong></p>
+    {% endcall %}
+
+    {% call macros.card('Closing') %}
+        {{ macros.format_prayer(config['OTHER_PRAYERS']['nunc_dimittis']) }}
+        <p>Bless we the Lord.<br /><strong>Thanks be to God.</strong></p>
+        <p><span class="rubric">Then go to sleep at once and in good cheer.</span></p>
+    {% endcall %}
+{% endblock %}
