@@ -533,9 +533,11 @@ def _fetch_passages_cached(references: tuple[str, ...]) -> tuple[str, ...]:
                 text_block = passages_list[0].strip()
 
               if text_block.endswith(" (ESV)"):
-                text_block = text_block.removesuffix(
-                    " (ESV)"
-                ) + ' <a href="http://www.esv.org">(ESV)</a>'
+                text_block = (
+                    text_block.removesuffix(" (ESV)")
+                    + ' (<a href="http://www.esv.org"'
+                    ' class="copyright">ESV</a>)'
+                )
             else:
               text_block = ""
             text_block = re.sub(r"\[(\d+)\]", r"<br><sup>\1</sup>", text_block)
