@@ -9,21 +9,12 @@ import utils
 
 NAME_MAX_LENGTH = 100
 REQUEST_MAX_LENGTH = 1000
-PROJECT_ID = "lcms-prayer-app"
-DATABASE_ID = "prayer-app-datastore"
 COLLECTION_NAME = "prayer-requests"
 
 
-def get_db_client():
-  """Initializes and returns a Firestore client."""
-  # In a GCP environment (Cloud Run, GAE), the client automatically
-  # authenticates using the service account or application default credentials.
-  # For local development, ensure you have authenticated via gcloud:
-  # `gcloud auth application-default login`
-  return firestore.Client(project=PROJECT_ID, database=DATABASE_ID)
-
-
-def add_prayer_request(name: str, request: str, days_ttl: int = 30):
+def add_prayer_request(
+    name: str, request: str, days_ttl: int = 30, user_id: str = None
+):
   """Adds a prayer request to the Firestore database if content is appropriate.
 
   Returns:
@@ -56,23 +47,26 @@ def add_prayer_request(name: str, request: str, days_ttl: int = 30):
     )
   if utils.is_inappropriate(name) or utils.is_inappropriate(request):
     return False, "Inappropriate content detected in prayer request."
-  db = get_db_client()
+  db = utils.get_db_client()
   collection_ref = db.collection(COLLECTION_NAME)
   created_at = datetime.datetime.now(datetime.timezone.utc)
   expires_at = created_at + datetime.timedelta(days=days_ttl)
-  collection_ref.add({
+  data = {
       "name": name,
       "request": request,
       "created_at": created_at,
       "expires_at": expires_at,
       "pray_count": 0,
-  })
+  }
+  if user_id:
+    data["user_id"] = user_id
+  collection_ref.add(data)
   return True, None
 
 
 def get_active_prayer_requests():
   """Returns a list of active prayer requests from Firestore."""
-  db = get_db_client()
+  db = utils.get_db_client()
   now = datetime.datetime.now(datetime.timezone.utc)
   collection_ref = db.collection(COLLECTION_NAME)
   # Note: Firestore may require a composite index for this query.
@@ -102,7 +96,7 @@ def get_prayer_wall_requests(limit: int = 10) -> list[dict]:
 
 def update_pray_count(request_id: str, operation: str) -> bool:
   """Increments or decrements the pray count for a given request."""
-  db = get_db_client()
+  db = utils.get_db_client()
   doc_ref = db.collection(COLLECTION_NAME).document(request_id)
   try:
     if operation == "increment":
@@ -119,7 +113,7 @@ def update_pray_count(request_id: str, operation: str) -> bool:
 
 def remove_expired_requests():
   """Removes expired prayer requests from the Firestore database."""
-  db = get_db_client()
+  db = utils.get_db_client()
   now = datetime.datetime.now(datetime.timezone.utc)
   collection_ref = db.collection(COLLECTION_NAME)
   # Queries for expired docs
@@ -146,3 +140,40 @@ def remove_expired_requests():
     batch.commit()
 
   print(f"Removed {deleted_count} expired prayer requests.")
+
+
+def edit_prayer_request(request_id: str, new_request_text: str, user_id: str):
+  """Edits a prayer request if the user is the owner."""
+  if not new_request_text or not new_request_text.strip():
+    return False, "Prayer request cannot be empty."
+  if len(new_request_text) > REQUEST_MAX_LENGTH:
+    return (
+        False,
+        (
+            "Prayer request exceeds length limit of"
+            f" {REQUEST_MAX_LENGTH} characters."
+        ),
+    )
+  if utils.contains_phone_number(new_request_text):
+    return (
+        False,
+        "Prayer requests cannot contain phone numbers or similar patterns.",
+    )
+  if utils.is_inappropriate(new_request_text):
+    return False, "Inappropriate content detected in prayer request."
+
+  db = utils.get_db_client()
+  doc_ref = db.collection(COLLECTION_NAME).document(request_id)
+  doc = doc_ref.get()
+  if not doc.exists:
+    return False, "Prayer request not found."
+
+  if doc.to_dict().get("user_id") != user_id:
+    return False, "Permission denied."
+
+  try:
+    doc_ref.update({"request": new_request_text})
+    return True, None
+  except Exception as e:
+    print(f"Error updating prayer request {request_id}: {e}")
+    return False, "Database update failed."

@@ -8,16 +8,33 @@
     <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml" />
   </head>
   <body>
-    <button id="settings-button" aria-label="Settings">⚙️</button>
-    <div id="settings-modal">
-        <h3>Settings</h3>
-        <div class="settings-item">
+    <button id="menu-button" aria-label="Menu">&#9776;</button>
+    <div id="app-menu">
+      <div class="app-menu-section">
+        <strong>Account</strong>
+        {% if current_user.is_authenticated %}
+          <div class="menu-profile">
+            <img src="{{ current_user.profile_pic }}" alt="{{ current_user.name }}" title="{{ current_user.name }}">
+            <div class="menu-profile-info">
+              <strong>{{ current_user.name }}</strong>
+              <span>{{ current_user.email }}</span>
+            </div>
+          </div>
+          <a href="/logout" class="button menu-button-full">Logout</a>
+        {% else %}
+          <a href="/login" class="button menu-button-full">Login</a>
+        {% endif %}
+      </div>
+      <div class="app-menu-section">
+        <strong>Settings</strong>
+        <div class="menu-item">
             <label for="dark-mode-toggle">Dark Mode</label>
             <label class="switch">
                 <input type="checkbox" id="dark-mode-toggle">
                 <span class="slider"></span>
             </label>
         </div>
+      </div>
     </div>
     {% block content %}{% endblock %}
     {% if request.endpoint != 'index_route' %}
@@ -75,8 +92,8 @@
       }
 
       // Settings and Dark Mode
-      const settingsButton = document.getElementById('settings-button');
-      const settingsModal = document.getElementById('settings-modal');
+      const menuButton = document.getElementById('menu-button');
+      const appMenu = document.getElementById('app-menu');
       const darkModeToggle = document.getElementById('dark-mode-toggle');
 
       function applyDarkMode(isDark) {
@@ -104,16 +121,16 @@
         applyDarkMode(this.checked);
       });
 
-      // Toggle settings modal
-      settingsButton.addEventListener('click', function(event) {
-        settingsModal.style.display = settingsModal.style.display === 'block' ? 'none' : 'block';
+      // Toggle app menu
+      menuButton.addEventListener('click', function(event) {
+        appMenu.style.display = appMenu.style.display === 'block' ? 'none' : 'block';
         event.stopPropagation();
       });
 
-      // Close modal if clicking outside
+      // Close menu if clicking outside
       document.addEventListener('click', function(event) {
-        if (settingsModal.style.display === 'block' && !settingsModal.contains(event.target) && event.target !== settingsButton) {
-          settingsModal.style.display = 'none';
+        if (appMenu.style.display === 'block' && !appMenu.contains(event.target) && event.target !== menuButton) {
+          appMenu.style.display = 'none';
         }
       });
       {% block extra_js %}{% endblock %}

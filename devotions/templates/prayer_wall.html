@@ -14,6 +14,108 @@
 {% endblock %}
 
 {% block extra_js %}
+async function deletePrayerRequest(requestId) {
+    if (!confirm('Are you sure you want to delete this prayer request?')) {
+        return;
+    }
+    try {
+        const response = await fetch(`/delete_prayer_request/${requestId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        if (response.ok) {
+            // Remove the prayer request element from the page
+            const postIt = document.querySelector(`.post-it[data-id="${requestId}"]`);
+            if (postIt) {
+                postIt.remove();
+            }
+        } else {
+            const error = await response.json();
+            alert(`Failed to delete prayer request: ${error.error || 'Unknown error'}`);
+        }
+    } catch (error) {
+        console.error('Error deleting prayer request:', error);
+        alert('An error occurred while deleting the prayer request.');
+    }
+}
+
+function editPrayerRequest(requestId) {
+    const postIt = document.querySelector(`.post-it[data-id="${requestId}"]`);
+    if (!postIt) return;
+
+    const textP = postIt.querySelector('.post-it-text');
+    const currentText = textP.textContent;
+    const currentTextB64 = btoa(encodeURIComponent(currentText));
+
+    const textArea = document.createElement('textarea');
+    textArea.value = currentText;
+    textArea.className = 'post-it-text-edit';
+    textArea.style.width = '100%';
+    textArea.style.height = '80px';
+    textP.replaceWith(textArea);
+
+    const controlsDiv = postIt.querySelector('.owner-controls');
+    controlsDiv.innerHTML = `
+        <button onclick="savePrayerRequest('${requestId}')">Save</button>
+        <button onclick="cancelEdit('${requestId}', '${currentTextB64}')">Cancel</button>
+    `;
+}
+
+function cancelEdit(requestId, originalTextB64) {
+    const postIt = document.querySelector(`.post-it[data-id="${requestId}"]`);
+    if (!postIt) return;
+    const originalText = decodeURIComponent(atob(originalTextB64));
+
+    const textArea = postIt.querySelector('.post-it-text-edit');
+    const textP = document.createElement('p');
+    textP.className = 'post-it-text';
+    textP.textContent = originalText;
+    textArea.replaceWith(textP);
+
+    const controlsDiv = postIt.querySelector('.owner-controls');
+    controlsDiv.innerHTML = `
+        <button onclick="editPrayerRequest('${requestId}')">Edit</button>
+        <button onclick="deletePrayerRequest('${requestId}')">Delete</button>
+    `;
+}
+
+async function savePrayerRequest(requestId) {
+    const postIt = document.querySelector(`.post-it[data-id="${requestId}"]`);
+    if (!postIt) return;
+    const textArea = postIt.querySelector('.post-it-text-edit');
+    const newText = textArea.value;
+
+    try {
+        const response = await fetch(`/edit_prayer_request/${requestId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ request: newText }),
+        });
+        if (response.ok) {
+            const textP = document.createElement('p');
+            textP.className = 'post-it-text';
+            textP.textContent = newText;
+            textArea.replaceWith(textP);
+
+            const controlsDiv = postIt.querySelector('.owner-controls');
+            controlsDiv.innerHTML = `
+                <button onclick="editPrayerRequest('${requestId}')">Edit</button>
+                <button onclick="deletePrayerRequest('${requestId}')">Delete</button>
+            `;
+        } else {
+            const error = await response.json();
+            alert(`Failed to save prayer request: ${error.error || 'Unknown error'}`);
+        }
+    } catch (error) {
+        console.error('Error saving prayer request:', error);
+        alert('An error occurred while saving the prayer request.');
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const prayerButtons = document.querySelectorAll('.pray-button');
     const storagePrefix = 'prayed_';

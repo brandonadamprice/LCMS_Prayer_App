@@ -19,7 +19,9 @@ def load_gospels_by_category():
 
 def generate_gospels_by_category_page():
   """Generates HTML for the Gospels by Category page."""
-  category_data = utils.generate_category_page_data(GOSPELS_BY_CATEGORY_JSON_PATH)
+  category_data = utils.generate_category_page_data(
+      GOSPELS_BY_CATEGORY_JSON_PATH
+  )
 
   print("Generated Gospels by Category HTML")
   return flask.render_template(
