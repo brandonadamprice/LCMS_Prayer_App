@@ -273,8 +273,16 @@ li.post-it:hover {
   top: 20px;
   right: 20px;
   z-index: 10;
-  text-align: right;
-  font-size: 0.9em;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  min-height: 34px; /* button padding etc */
+}
+#user-status .profile-pic {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid #ccc;
 }
 body.dark-mode #user-status span {
   color: #e0e0e0;
@@ -283,7 +291,7 @@ body.dark-mode #user-status span {
 /* Settings Button */
 #settings-button {
     position: absolute;
-    top: 55px;
+    top: 60px;
     right: 20px;
     background: none;
     border: none;

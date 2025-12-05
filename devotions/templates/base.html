@@ -8,15 +8,14 @@
     <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml" />
   </head>
   <body>
-    <button id="settings-button" aria-label="Settings">⚙️</button>
     <div id="user-status">
       {% if current_user.is_authenticated %}
-          <span style="margin-right: 5px;">Hi, {{ current_user.name }}</span>
-          <a href="/logout" class="button" style="padding: 5px 10px; font-size: 0.8em; margin: 0;">Logout</a>
+          <img src="{{ current_user.profile_pic }}" alt="Profile" class="profile-pic" title="{{ current_user.name }}">
       {% else %}
           <a href="/login" class="button" style="padding: 5px 10px; font-size: 0.8em; margin: 0;">Login</a>
       {% endif %}
     </div>
+    <button id="settings-button" aria-label="Settings">⚙️</button>
     <div id="settings-modal">
         <h3>Settings</h3>
         <div class="settings-item">
@@ -26,6 +25,11 @@
                 <span class="slider"></span>
             </label>
         </div>
+        {% if current_user.is_authenticated %}
+        <div class="settings-item" style="justify-content: center; margin-top: 20px;">
+             <a href="/logout" class="button" style="padding: 8px 15px; font-size: 0.9em; margin: 0; width: 100%;">Logout</a>
+        </div>
+        {% endif %}
     </div>
     {% block content %}{% endblock %}
     {% if request.endpoint != 'index_route' %}
