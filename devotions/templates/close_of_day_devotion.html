@@ -38,11 +38,6 @@
         <p>{{ reading_text|safe }}</p>
     {% endcall %}
 
-    {% call macros.card('Reading') %}
-        <span class="ref">{{ reading_ref }}</span>
-        <p>{{ reading_text|safe }}</p>
-    {% endcall %}
-
     {% call macros.card('Creed') %}
         {{ macros.format_prayer(config['OTHER_PRAYERS']['apostles_creed']) }}
     {% endcall %}
