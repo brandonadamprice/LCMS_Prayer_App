@@ -149,7 +149,7 @@ def authorize():
     login_user(user)
     return flask.redirect("/")
   except Exception as e:
-    print(f"OAuth Error: {e}")
+    app.logger.warning("OAuth Error: %s", e)
     return "Authentication failed.", 400
 
 
