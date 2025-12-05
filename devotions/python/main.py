@@ -7,7 +7,6 @@ import secrets
 import advent
 from authlib.integrations.flask_client import OAuth
 import bible_in_a_year
-import book_of_concord
 import close_of_day
 import early_evening
 import extended_evening
@@ -248,40 +247,6 @@ def bible_in_a_year_route():
     if doc.exists:
       bia_progress = doc.to_dict().get("bia_progress")
   return bible_in_a_year.generate_bible_in_a_year_page(bia_progress)
-
-
-@app.route("/boc_in_a_year")
-def boc_in_a_year_route():
-  """Returns Book of Concord in a Year page."""
-  boc_progress = None
-  if flask_login.current_user.is_authenticated:
-    db = utils.get_db_client()
-    doc = db.collection("users").document(flask_login.current_user.id).get()
-    if doc.exists:
-      boc_progress = doc.to_dict().get("boc_progress")
-  return book_of_concord.generate_boc_page(boc_progress)
-
-
-@app.route("/save_boc_progress", methods=["POST"])
-@flask_login.login_required
-def save_boc_progress_route():
-  """Saves Book of Concord in a Year progress for the current user."""
-  data = flask.request.json
-  day = data.get("day")
-  last_visit = data.get("last_visit")
-  if isinstance(day, int) and last_visit:
-    try:
-      book_of_concord.save_boc_progress(
-          flask_login.current_user.id, day, last_visit
-      )
-      return flask.jsonify({"success": True})
-    except Exception as e:
-      app.logger.error("Failed to save BOC progress: %s", e)
-      return (
-          flask.jsonify({"success": False, "error": "Database save failed"}),
-          500,
-      )
-  return flask.jsonify({"success": False, "error": "Invalid progress data"}), 400
 
 
 @app.route("/save_bia_progress", methods=["POST"])
