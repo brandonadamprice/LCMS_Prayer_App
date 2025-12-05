@@ -513,10 +513,6 @@ def _fetch_passages_cached(references: tuple[str, ...]) -> tuple[str, ...]:
     response.raise_for_status()
     data = response.json()
 
-    copyright_html = ""
-    if data.get("copyright"):
-      copyright_html = f'<p class="esv-copyright">{data["copyright"]}</p>'
-
     if data.get("passages"):
       passage_idx = 0
       for ref in references_list:
@@ -535,23 +531,24 @@ def _fetch_passages_cached(references: tuple[str, ...]) -> tuple[str, ...]:
                 text_block = " ".join(processed_passages)
               else:
                 text_block = passages_list[0].strip()
+
+              if text_block.endswith(" (ESV)"):
+                text_block = text_block.removesuffix(
+                    " (ESV)"
+                ) + ' <a href="http://www.esv.org">(ESV)</a>'
             else:
               text_block = ""
             text_block = re.sub(r"\[(\d+)\]", r"<br><sup>\1</sup>", text_block)
             if text_block.startswith("<br>"):
               text_block = text_block[4:]
-            passage_results[ref] = text_block + copyright_html
+            passage_results[ref] = text_block
             passage_idx += num_passages
           else:
-            passage_results[ref] = (
-                f"<i>(Text not found for {ref})</i>" + copyright_html
-            )
+            passage_results[ref] = f"<i>(Text not found for {ref})</i>"
         # If ref not in ref_map, it's already "Reading not available"
     else:
       for ref in ref_map:
-        passage_results[ref] = (
-            f"<i>(Text not found for {ref})</i>" + copyright_html
-        )
+        passage_results[ref] = f"<i>(Text not found for {ref})</i>"
 
     return tuple(passage_results[ref] for ref in references_list)
 

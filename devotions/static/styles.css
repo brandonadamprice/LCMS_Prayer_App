@@ -641,13 +641,6 @@ body.dark-mode .page-header {
     background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url("banner.jpg");
 }
 
-.esv-copyright {
-  font-size: 0.8em;
-  color: #888;
-  margin-top: 15px;
-  font-style: italic;
-}
-
 .footer {
   text-align: center;
   margin-top: 40px;
@@ -661,8 +654,5 @@ body.dark-mode .page-header {
   text-decoration: underline;
 }
 body.dark-mode .footer a {
-    color: #aaa;
-}
-body.dark-mode .esv-copyright {
     color: #aaa;
 }
