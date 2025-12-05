@@ -53,11 +53,14 @@ google = oauth.register(
 class User(flask_login.UserMixin):
   """User class for Flask-Login."""
 
-  def __init__(self, user_id, email=None, name=None, profile_pic=None):
+  def __init__(
+      self, user_id, email=None, name=None, profile_pic=None, dark_mode=None
+  ):
     self.id = user_id
     self.email = email
     self.name = name
     self.profile_pic = profile_pic
+    self.dark_mode = dark_mode
 
   @staticmethod
   def get(user_id):
@@ -72,6 +75,7 @@ class User(flask_login.UserMixin):
           email=data.get("email"),
           name=data.get("name"),
           profile_pic=data.get("profile_pic"),
+          dark_mode=data.get("dark_mode"),
       )
     return None
 
@@ -421,6 +425,27 @@ def delete_prayer_request_route(request_id):
     )
   doc_ref.delete()
   return flask.jsonify({"success": True})
+
+
+@app.route("/save_dark_mode", methods=["POST"])
+@flask_login.login_required
+def save_dark_mode_route():
+  """Saves dark mode preference for the current user."""
+  data = flask.request.json
+  dark_mode_enabled = data.get("dark_mode")
+  if isinstance(dark_mode_enabled, bool):
+    try:
+      db = utils.get_db_client()
+      user_ref = db.collection("users").document(flask_login.current_user.id)
+      user_ref.set({"dark_mode": dark_mode_enabled}, merge=True)
+      return flask.jsonify({"success": True})
+    except Exception as e:
+      app.logger.error("Failed to save dark mode setting: %s", e)
+      return (
+          flask.jsonify({"success": False, "error": "Database save failed"}),
+          500,
+      )
+  return flask.jsonify({"success": False, "error": "Invalid data"}), 400
 
 
 @app.route("/edit_prayer_request/<request_id>", methods=["POST"])
