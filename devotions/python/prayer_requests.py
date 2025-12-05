@@ -12,7 +12,9 @@ REQUEST_MAX_LENGTH = 1000
 COLLECTION_NAME = "prayer-requests"
 
 
-def add_prayer_request(name: str, request: str, days_ttl: int = 30):
+def add_prayer_request(
+    name: str, request: str, days_ttl: int = 30, user_id: str = None
+):
   """Adds a prayer request to the Firestore database if content is appropriate.
 
   Returns:
@@ -49,13 +51,16 @@ def add_prayer_request(name: str, request: str, days_ttl: int = 30):
   collection_ref = db.collection(COLLECTION_NAME)
   created_at = datetime.datetime.now(datetime.timezone.utc)
   expires_at = created_at + datetime.timedelta(days=days_ttl)
-  collection_ref.add({
+  data = {
       "name": name,
       "request": request,
       "created_at": created_at,
       "expires_at": expires_at,
       "pray_count": 0,
-  })
+  }
+  if user_id:
+    data["user_id"] = user_id
+  collection_ref.add(data)
   return True, None
 
 

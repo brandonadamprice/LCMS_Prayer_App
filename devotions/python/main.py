@@ -316,7 +316,19 @@ def prayer_wall_route():
       req_id = req.get("id", "")
       pray_count = req.get("pray_count", 0)
       prayed_class = "prayed" if req_id in prayed_request_ids else ""
+      is_owner = (
+          current_user.is_authenticated and req.get("user_id") == current_user.id
+      )
+      owner_controls = ""
+      if is_owner:
+        owner_controls = f"""
+        <div class="owner-controls">
+            <button onclick="editPrayerRequest('{req_id}')">Edit</button>
+            <button onclick="deletePrayerRequest('{req_id}')">Delete</button>
+        </div>
+        """
       html_parts.append(f"""<li class="post-it" data-id="{req_id}">
+              {owner_controls}
               <p class="post-it-text">{prayer}</p>
               <div class="post-it-footer">
                   <div class="pray-container">
@@ -382,9 +394,9 @@ def add_prayer_request_route():
   days_ttl = flask.request.form.get("days_ttl", "30")
   if not name or not request:
     return flask.redirect("/prayer_requests")
-
+  user_id = current_user.id if current_user.is_authenticated else None
   success, error_message = prayer_requests.add_prayer_request(
-      name, request, days_ttl
+      name, request, days_ttl, user_id
   )
   if success:
     return flask.render_template("prayer_request_submitted.html")
@@ -392,6 +404,24 @@ def add_prayer_request_route():
     return flask.render_template(
         "prayer_request_failed.html", error_message=error_message
     )
+
+
+@app.route("/delete_prayer_request/<request_id>", methods=["DELETE"])
+@login_required
+def delete_prayer_request_route(request_id):
+  """Deletes a prayer request if the current user is the owner."""
+  db = utils.get_db_client()
+  doc_ref = db.collection("prayer-requests").document(request_id)
+  doc = doc_ref.get()
+  if not doc.exists:
+    return flask.jsonify({"success": False, "error": "Request not found"}), 404
+  if doc.to_dict().get("user_id") != current_user.id:
+    return (
+        flask.jsonify({"success": False, "error": "Permission denied"}),
+        403,
+    )
+  doc_ref.delete()
+  return flask.jsonify({"success": True})
 
 
 if __name__ == "__main__":
