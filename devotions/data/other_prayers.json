@@ -36,11 +36,6 @@
   "midday_prayers": [
     {
       "prayer_title": "Midday Prayer",
-      "prayer": "O Blessed Lord Jesus Christ, King of Glory, who, fulfilling Thy Father’s will, didst humble Thyself to suffer death upon the cross for the sins of the whole world. As the Lamb of God who taketh away the sin of the world, Thou hast made atonement and reconciliation for all mankind. We pray Thee to help Thy servants and grant that every soul on earth may, through steadfast faith in Thy precious blood, be delivered from the power of the adversary and receive Thy promised redemption from everlasting death. For Thy mercy's sake, Who livest and reignest with the Father and the Holy Ghost, ever one God, world without end. Amen.",
-      "display_title": false
-    },
-    {
-      "prayer_title": "Midday Prayer",
       "prayer": "Almighty God, Heavenly Father, who through Thy Holy Spirit dost govern and sanctify the whole Christian Church, and hast given us the Comforter to be our Advocate and Guide. Vouchsafe, we beseech Thee, to direct, sanctify, and govern both our hearts and bodies in the ways of Thy laws. Enlighten and lead us into all truth and evermore defend us from all adversities, that, being made Thy children by grace, we may daily be renewed by Thy Spirit, and live in the continual comfort and peace of the Gospel. Through Jesus Christ, Thy Son, our Lord. Amen.",
       "display_title": false
     }
