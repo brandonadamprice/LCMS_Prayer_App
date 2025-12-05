@@ -33,6 +33,7 @@ app = flask.Flask(
     static_folder=STATIC_DIR,
 )
 app.secret_key = secrets_fetcher.get_flask_secret_key()
+app.config["OTHER_PRAYERS"] = utils.get_other_prayers()
 
 # OAuth and Flask-Login Setup
 oauth = OAuth(app)

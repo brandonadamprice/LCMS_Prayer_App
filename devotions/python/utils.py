@@ -142,6 +142,9 @@ WEEKLY_PRAYERS = load_weekly_prayers()
 OFFICE_READINGS = load_office_readings()
 OTHER_PRAYERS = load_other_prayers()
 
+def get_other_prayers():
+  """Returns the OTHER_PRAYERS dictionary."""
+  return OTHER_PRAYERS
 
 def get_catechism_for_day(now: datetime.datetime) -> dict:
   """Returns the catechism section for a given day."""

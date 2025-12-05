@@ -41,7 +41,7 @@
     {% call macros.card('Psalmody') %}
         <span class="ref">{{ psalm_ref }}</span>
         <p>{{ psalm_text|safe }}</p>
-        {% include '_gloria_patri.html' %}
+        {{ gloria_patri_html|safe }}
     {% endcall %}
 
     {% call macros.card('Reading') %}
@@ -50,11 +50,11 @@
     {% endcall %}
 
     {% call macros.card('Creed') %}
-        {% include '_apostles_creed.html' %}
+        {{ apostles_creed_html|safe }}
     {% endcall %}
 
     {% call macros.card('Prayers') %}
-        {% include '_lords_prayer.html' %}
+        {{ lords_prayer_html|safe }}
         <hr />
         <p><em>(You may offer your own prayers at this time)</em></p>
         <hr />
@@ -63,10 +63,7 @@
           {{ concluding_prayer }}
         </p>
         <hr />
-        <p class="subheader"><strong>Luther's Morning Prayer</strong></p>
-        <p>
-          <strong>{{ luthers_morning_prayer }}</strong>
-        </p>
+        {{ luthers_morning_prayer|safe }}
     {% endcall %}
 
     {% call macros.card('Conclusion') %}

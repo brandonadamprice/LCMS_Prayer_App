@@ -39,7 +39,7 @@
     {% call macros.card('Psalmody') %}
         <span class="ref">{{ psalm_ref }}</span>
         <p>{{ psalm_text|safe }}</p>
-        {% include '_gloria_patri.html' %}
+        {{ gloria_patri_html|safe }}
     {% endcall %}
 
     {% call macros.card('Readings') %}
@@ -51,11 +51,11 @@
     {% endcall %}
 
     {% call macros.card('Creed') %}
-        {% include '_apostles_creed.html' %}
+        {{ apostles_creed_html|safe }}
     {% endcall %}
 
     {% call macros.card('Prayers') %}
-        {% include '_lords_prayer.html' %}
+        {{ lords_prayer_html|safe }}
         <hr />
         <p class="subheader">
           <strong>Topic:</strong> <span class="prayer-topic">{{ prayer_topic }}</span>
@@ -69,14 +69,11 @@
           {{ concluding_prayer }}
         </p>
         <hr />
-        <p class="subheader"><strong>Luther's Evening Prayer</strong></p>
-        <p>
-          <strong>{{ luthers_evening_prayer }}</strong>
-        </p>
+        {{ luthers_evening_prayer|safe }}
     {% endcall %}
 
     {% call macros.card('Benediction') %}
-        {% include '_nunc_dimittis.html' %}
+        {{ nunc_dimittis_html|safe }}
         <p>
           Let us bless the Lord.<br />
           <strong>Thanks be to God.</strong>

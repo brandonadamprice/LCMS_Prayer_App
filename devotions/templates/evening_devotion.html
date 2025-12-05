@@ -42,7 +42,7 @@
     {% call macros.card('Psalmody') %}
         <span class="ref">{{ psalm_ref }}</span>
         <p>{{ psalm_text|safe }}</p>
-        {% include '_gloria_patri.html' %}
+        {{ gloria_patri_html|safe }}
     {% endcall %}
 
     {% call macros.card('Reading') %}
@@ -59,7 +59,7 @@
     {% endif %}
 
     {% call macros.card('Prayers') %}
-        {% include '_lords_prayer.html' %}
+        {{ lords_prayer_html|safe }}
         <hr />
         <p><em>(You may offer your own prayers at this time)</em></p>
         <hr />

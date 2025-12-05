@@ -44,13 +44,13 @@
     {% endcall %}
 
     {% call macros.card('Creed') %}
-        {% include '_apostles_creed.html' %}
+        {{ apostles_creed_html|safe }}
     {% endcall %}
 
     {% call macros.card('Prayers') %}
-        {% include '_nunc_dimittis.html' %}
+        {{ nunc_dimittis_html|safe }}
         <hr />
-        {% include '_lords_prayer.html' %}
+        {{ lords_prayer_html|safe }}
         <hr />
         <p class="subheader">
           <strong>Topic:</strong> <span class="prayer-topic">{{ prayer_topic }}</span>
@@ -64,10 +64,7 @@
           {{ concluding_prayer }}
         </p>
         <hr />
-        <p class="subheader"><strong>Luther's Evening Prayer</strong></p>
-        <p>
-          <strong>{{ luthers_evening_prayer }}</strong>
-        </p>
+        {{ luthers_evening_prayer|safe }}
     {% endcall %}
 
     {% call macros.card('Conclusion') %}

@@ -6,6 +6,10 @@
     <title>{% block title %}Daily Devotion{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
     <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml" />
+    {% set lords_prayer_html = config['OTHER_PRAYERS']['lords_prayer_html'] %}
+    {% set apostles_creed_html = config['OTHER_PRAYERS']['apostles_creed_html'] %}
+    {% set gloria_patri_html = config['OTHER_PRAYERS']['gloria_patri_html'] %}
+    {% set nunc_dimittis_html = config['OTHER_PRAYERS']['nunc_dimittis_html'] %}
   </head>
   <body>
     <button id="menu-button" aria-label="Menu">&#9776;</button>
