@@ -19,6 +19,7 @@ def generate_morning_devotion():
   psalm_ref = f"Psalm {psalm_num}"
 
   reading_text, psalm_text = utils.fetch_passages([reading_ref, psalm_ref])
+  concluding_prayer = random.choice(utils.OFFICE_READINGS["morning_prayers"])
 
   template_data = {
       "date_str": now.strftime("%A, %B %d, %Y"),
@@ -27,6 +28,7 @@ def generate_morning_devotion():
       "reading_text": reading_text,
       "psalm_ref": psalm_ref,
       "psalm_text": psalm_text,
+      "concluding_prayer": concluding_prayer,
   }
   print("Generated Morning HTML")
   return flask.render_template("morning_devotion.html", **template_data)

@@ -8,14 +8,14 @@ import advent
 from authlib.integrations.flask_client import OAuth
 import bible_in_a_year
 import close_of_day
-import early_evening
+import evening
 import extended_evening
 import flask
 import flask_login
 from google.cloud import firestore
 import gospels_by_category
 import morning
-import noon
+import midday
 import prayer_requests
 import psalms_by_category
 import pytz
@@ -181,16 +181,16 @@ def morning_devotion_route():
   return morning.generate_morning_devotion()
 
 
-@app.route("/noon_devotion")
-def noon_devotion_route():
+@app.route("/midday_devotion")
+def midday_devotion_route():
   """Returns the generated devotion HTML."""
-  return noon.generate_noon_devotion()
+  return midday.generate_midday_devotion()
 
 
-@app.route("/early_evening_devotion")
-def early_evening_devotion_route():
+@app.route("/evening_devotion")
+def evening_devotion_route():
   """Returns the generated devotion HTML."""
-  return early_evening.generate_early_evening_devotion()
+  return evening.generate_evening_devotion()
 
 
 @app.route("/close_of_day_devotion")

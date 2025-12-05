@@ -28,11 +28,13 @@
         </p>
     {% endcall %}
 
+    {% if catechism_enabled %}
     {% call macros.card('Catechism: ' ~ catechism_title) %}
         <p><strong>Text:</strong> {{ catechism_text|safe }}</p>
         {{ catechism_meaning_html|safe }}
         <p><strong>Prayer:</strong> {{ catechism_prayer|safe }}</p>
     {% endcall %}
+    {% endif %}
 
     {% call macros.card('Psalmody') %}
         <span class="ref">{{ psalm_ref }}</span>
@@ -62,10 +64,8 @@
         <p><em>(You may offer your own prayers at this time)</em></p>
         <hr />
         <p>
-          Visit our dwellings, O Lord, and in Your great mercy defend us from all perils and dangers
-          of this night; for the love of Your only Son, our Savior Jesus Christ.<br /><strong
-            >Amen.</strong
-          >
+          <span class="subheader"><strong>Concluding Prayer</strong></span>
+          {{ concluding_prayer }}
         </p>
         <p class="subheader"><strong>Luther's Evening Prayer</strong></p>
         <p>

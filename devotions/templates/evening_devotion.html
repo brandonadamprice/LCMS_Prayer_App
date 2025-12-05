@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 {% import "_macros.html" as macros %}
-{% block title %}Early Evening Devotion{% endblock %}
+{% block title %}Evening Devotion{% endblock %}
 {% block content %}
     <div class="page-header">
-      <h1>Early Evening Devotion</h1>
+      <h1>Evening Devotion</h1>
       <p>
         {{ date_str }}<br />
         <span style="color: #7f8c8d">Lectionary Day: {{ key }}</span>
@@ -51,11 +51,13 @@
         <p>{{ reading_text|safe }}</p>
     {% endcall %}
 
+    {% if catechism_enabled %}
     {% call macros.card('Catechism: ' ~ catechism_title) %}
         <p><strong>Text:</strong> {{ catechism_text|safe }}</p>
         {{ catechism_meaning_html|safe }}
         <p><strong>Prayer:</strong> {{ catechism_prayer|safe }}</p>
     {% endcall %}
+    {% endif %}
 
     {% call macros.card('Prayers') %}
         {% include '_lords_prayer.html' %}
@@ -64,11 +66,7 @@
         <hr />
         <p class="subheader"><strong>Concluding Prayer</strong></p>
         <p>
-          Lord Jesus, stay with us, for the evening is at hand and the day is past. Be our constant
-          companion on the way, kindle our hearts, and awaken hope among us, that we may recognize
-          You as You are revealed in the Scriptures and in the breaking of the bread. Grant this for
-          Your name's sake.<br />
-          <strong>Amen.</strong>
+          {{ concluding_prayer }}
         </p>
     {% endcall %}
 

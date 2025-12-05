@@ -11,6 +11,10 @@ from google.cloud import firestore
 import requests
 import secrets_fetcher as secrets
 
+# Flag to enable/disable Catechism section in devotions
+# TODO(baprice): Enable catechism once we have permission from CPH to use it.
+ENABLE_CATECHISM = False
+
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(SCRIPT_DIR, "..", "data")
 LECTIONARY_JSON_PATH = os.path.join(DATA_DIR, "daily_lectionary.json")
@@ -133,6 +137,8 @@ OFFICE_READINGS = load_office_readings()
 
 def get_catechism_for_day(now: datetime.datetime) -> dict:
   """Returns the catechism section for a given day."""
+  if not ENABLE_CATECHISM:
+    return {"catechism_enabled": False}
   day_of_year = now.timetuple().tm_yday
   cat_idx = day_of_year % len(CATECHISM_SECTIONS)
   catechism = CATECHISM_SECTIONS[cat_idx]
@@ -143,6 +149,7 @@ def get_catechism_for_day(now: datetime.datetime) -> dict:
   )
   prayer = random.choice(catechism["prayers"])
   return {
+      "catechism_enabled": True,
       "catechism_title": catechism["title"],
       "catechism_text": catechism["text"],
       "catechism_meaning_html": meaning_html,
