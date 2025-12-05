@@ -33,13 +33,13 @@
           <strong>He will never let the righteous fall.</strong>
           <span class="versicle-ref">Psalm 55:1-2a, 17, 22</span>
         </p>
-        {{ gloria_patri_html|safe }}
+        {{ macros.format_prayer(config['OTHER_PRAYERS']['gloria_patri']) }}
     {% endcall %}
 
     {% call macros.card('Psalmody') %}
         <span class="ref">{{ psalm_ref }}</span>
         <p>{{ psalm_text|safe }}</p>
-        {{ gloria_patri_html|safe }}
+        {{ macros.format_prayer(config['OTHER_PRAYERS']['gloria_patri']) }}
     {% endcall %}
 
     {% call macros.card('Reading') %}
@@ -54,7 +54,7 @@
           O Lord, <strong>have mercy upon us.</strong>
         </p>
         <hr />
-        {{ lords_prayer_html|safe }}
+        {{ macros.format_prayer(config['OTHER_PRAYERS']['lords_prayer']) }}
         <hr />
         <p><em>(You may offer your own prayers at this time)</em></p>
         <hr />

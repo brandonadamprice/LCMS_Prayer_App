@@ -1,8 +1,28 @@
 {
-  "luthers_morning_prayer": "<p class=\"subheader\"><strong>Luther's Morning Prayer</strong></p>\n<p>\n  <strong>I thank You, my heavenly Father, through Jesus Christ, Your dear Son, that You have kept me this night from all harm and danger; and I pray that You would keep me this day also from sin and every evil, that all my doings and life may please You. For into Your hands I commend myself, my body and soul, and all things. Let Your holy angel be with me, that the evil foe may have no power over me. Amen.</strong>\n</p>",
-  "luthers_evening_prayer": "<p class=\"subheader\"><strong>Luther's Evening Prayer</strong></p>\n<p>\n  <strong>I thank You, my heavenly Father, through Jesus Christ, Your dear Son, that You have graciously kept me this day; and I pray that You would forgive me all my sins where I have done wrong, and graciously keep me this night. For into Your hands I commend myself, my body and soul, and all things. Let Your holy angel be with me, that the evil foe may have no power over me. Amen.</strong>\n</p>",
-  "lords_prayer_html": "<p class=\"subheader\"><strong>The Lord's Prayer</strong></p>\n<p>\n  <strong\n    >Our Father who art in heaven,<br />\n    hallowed be Thy name,<br />\n    Thy kingdom come,<br />\n    Thy will be done<br />\n    on earth as it is in heaven.<br />\n    Give us this day our daily bread;<br />\n    and forgive us our trespasses<br />\n    as we forgive those who trespass against us;<br />\n    and lead us not into temptation,<br />\n    but deliver us from evil.<br />\n    For Thine is the kingdom<br />\n    and the power and the glory<br />\n    forever and ever. Amen.</strong\n  >\n  <span class=\"versicle-ref\">Matthew 6:9-13</span>\n</p>",
-  "apostles_creed_html": "<p class=\"subheader\"><strong>The Apostles' Creed</strong></p>\n<p>\n  <strong\n    >I believe in God, the Father Almighty, maker of heaven and earth.<br /><br />\n    And in Jesus Christ, His only Son, our Lord, who was conceived by the Holy Spirit, born of the\n    virgin Mary, suffered under Pontius Pilate, was crucified, died and was buried. He descended\n    into hell. The third day He rose again from the dead. He ascended into heaven and sits at the\n    right hand of God the Father Almighty. From thence He will come to judge the living and the\n    dead.<br /><br />\n    I believe in the Holy Spirit, the holy Christian Church, the communion of saints, the\n    forgiveness of sins, the resurrection of the body, and the life everlasting. Amen.</strong\n  >\n</p>",
-  "gloria_patri_html": "<p>\n  <strong\n    >Glory be to the Father and to the Son and to the Holy Spirit;<br />\n    as it was in the beginning, is now, and will be forever. Amen.</strong\n  >\n</p>",
-  "nunc_dimittis_html": "<p class=\"subheader\"><strong>Nunc Dimittis</strong></p>\n<p>\n  <strong\n    >Lord, now You let Your servant go in peace;<br />\n    Your word has been fulfilled.<br />\n    My own eyes have seen the salvation<br />\n    which You have prepared in the sight of every people:<br />\n    a light to reveal You to the nations<br />\n    and the glory of Your people Israel.<br />\n    Glory be to the Father and to the Son and to the Holy Spirit;<br />\n    as it was in the beginning, is now, and will be forever. Amen.<br /></strong\n  ><span class=\"versicle-ref\">Luke 2:29-32</span>\n</p>"
+  "luthers_morning_prayer": {
+    "prayer_title": "Luther's Morning Prayer",
+    "prayer": "I thank You, my heavenly Father, through Jesus Christ, Your dear Son, that You have kept me this night from all harm and danger; and I pray that You would keep me this day also from sin and every evil, that all my doings and life may please You. For into Your hands I commend myself, my body and soul, and all things. Let Your holy angel be with me, that the evil foe may have no power over me. Amen."
+  },
+  "luthers_evening_prayer": {
+    "prayer_title": "Luther's Evening Prayer",
+    "prayer": "I thank You, my heavenly Father, through Jesus Christ, Your dear Son, that You have graciously kept me this day; and I pray that You would forgive me all my sins where I have done wrong, and graciously keep me this night. For into Your hands I commend myself, my body and soul, and all things. Let Your holy angel be with me, anthat the evil foe may have no power over me. Amen."
+  },
+  "lords_prayer": {
+    "prayer_title": "The Lord's Prayer",
+    "prayer": "Our Father who art in heaven,\nhallowed be Thy name,\nThy kingdom come,\nThy will be done\non earth as it is in heaven.\nGive us this day our daily bread;\nand forgive us our trespasses\nas we forgive those who trespass against us;\nand lead us not into temptation,\nbut deliver us from evil.\nFor Thine is the kingdom\nand the power and the glory\nforever and ever. Amen.",
+    "reference": "Matthew 6:9-13"
+  },
+  "apostles_creed": {
+    "prayer_title": "The Apostles' Creed",
+    "prayer": "I believe in God, the Father Almighty, maker of heaven and earth.\n\nAnd in Jesus Christ, His only Son, our Lord, who was conceived by the Holy Spirit, born of the virgin Mary, suffered under Pontius Pilate, was crucified, died and was buried. He descended into hell. The third day He rose again from the dead. He ascended into heaven and sits at the right hand of God the Father Almighty. From thence He will come to judge the living and the dead.\n\nI believe in the Holy Spirit, the holy Christian Church, the communion of saints, the forgiveness of sins, the resurrection of the body, and the life everlasting. Amen."
+  },
+  "gloria_patri": {
+    "prayer_title": "Gloria Patri",
+    "prayer": "Glory be to the Father and to the Son and to the Holy Spirit;\nas it was in the beginning, is now, and will be forever. Amen."
+  },
+  "nunc_dimittis": {
+    "prayer_title": "Nunc Dimittis",
+    "prayer": "Lord, now You let Your servant go in peace;\nYour word has been fulfilled.\nMy own eyes have seen the salvation\nwhich You have prepared in the sight of every people:\na light to reveal You to the nations\nand the glory of Your people Israel.\nGlory be to the Father and to the Son and to the Holy Spirit;\nas it was in the beginning, is now, and will be forever. Amen.",
+    "reference": "Luke 2:29-32"
+  }
 }

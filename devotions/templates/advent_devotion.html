@@ -38,7 +38,7 @@
     {% endcall %}
 
     {% call macros.card('Prayer') %}
-        {% include '_lords_prayer.html' %}
+        {{ macros.format_prayer(config['OTHER_PRAYERS']['lords_prayer']) }}
     {% endcall %}
 
     {% call macros.card('Reading') %}

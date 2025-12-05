@@ -35,13 +35,13 @@
           <strong>and my mouth will declare Your praise.</strong>
           <span class="versicle-ref">Psalm 51:15</span>
         </p>
-        {{ gloria_patri_html|safe }}
+        {{ macros.format_prayer(config['OTHER_PRAYERS']['gloria_patri']) }}
     {% endcall %}
 
     {% call macros.card('Psalmody') %}
         <span class="ref">{{ psalm_ref }}</span>
         <p>{{ psalm_text|safe }}</p>
-        {{ gloria_patri_html|safe }}
+        {{ macros.format_prayer(config['OTHER_PRAYERS']['gloria_patri']) }}
     {% endcall %}
 
     {% call macros.card('Reading') %}
@@ -50,11 +50,11 @@
     {% endcall %}
 
     {% call macros.card('Creed') %}
-        {{ apostles_creed_html|safe }}
+        {{ macros.format_prayer(config['OTHER_PRAYERS']['apostles_creed']) }}
     {% endcall %}
 
     {% call macros.card('Prayers') %}
-        {{ lords_prayer_html|safe }}
+        {{ macros.format_prayer(config['OTHER_PRAYERS']['lords_prayer']) }}
         <hr />
         <p><em>(You may offer your own prayers at this time)</em></p>
         <hr />
@@ -63,7 +63,7 @@
           {{ concluding_prayer }}
         </p>
         <hr />
-        {{ luthers_morning_prayer|safe }}
+        {{ macros.format_prayer(luthers_morning_prayer) }}
     {% endcall %}
 
     {% call macros.card('Conclusion') %}

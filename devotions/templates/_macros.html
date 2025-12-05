@@ -9,3 +9,13 @@
   </div>
 </div>
 {% endmacro %}
+
+{% macro format_prayer(prayer_obj) %}
+<p class="subheader"><strong>{{ prayer_obj.prayer_title }}</strong></p>
+<p>
+  <strong>{{ prayer_obj.prayer | replace('\n', '<br />') | safe }}</strong>
+  {% if prayer_obj.reference %}
+    <span class="versicle-ref">{{ prayer_obj.reference }}</span>
+  {% endif %}
+</p>
+{% endmacro %}
