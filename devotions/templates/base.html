@@ -96,7 +96,7 @@
       const appMenu = document.getElementById('app-menu');
       const darkModeToggle = document.getElementById('dark-mode-toggle');
       const isLoggedIn = {{ current_user.is_authenticated|tojson }};
-      const userDarkMode = {{ current_user.dark_mode|tojson }};
+      const userDarkMode = {% if current_user.is_authenticated %}{{ current_user.dark_mode|tojson }}{% else %}null{% endif %};
 
       function applyDarkMode(isDark) {
         if (isDark) {
