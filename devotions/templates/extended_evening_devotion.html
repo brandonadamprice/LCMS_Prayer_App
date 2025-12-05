@@ -28,11 +28,13 @@
         </p>
     {% endcall %}
 
+    {% if catechism_enabled %}
     {% call macros.card('Catechism: ' ~ catechism_title) %}
         <p><strong>Text:</strong> {{ catechism_text|safe }}</p>
         {{ catechism_meaning_html|safe }}
         <p><strong>Prayer:</strong> {{ catechism_prayer|safe }}</p>
     {% endcall %}
+    {% endif %}
 
     {% call macros.card('Psalmody') %}
         <span class="ref">{{ psalm_ref }}</span>
