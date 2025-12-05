@@ -49,9 +49,11 @@
         <p>{{ reading_text|safe }}</p>
     {% endcall %}
 
-    {% call macros.card('Prayers') %}
+    {% call macros.card('Creed') %}
         {% include '_apostles_creed.html' %}
-        <hr />
+    {% endcall %}
+
+    {% call macros.card('Prayers') %}
         {% include '_lords_prayer.html' %}
         <hr />
         <p><em>(You may offer your own prayers at this time)</em></p>
@@ -60,6 +62,7 @@
         <p>
           {{ concluding_prayer }}
         </p>
+        <hr />
         <p class="subheader"><strong>Luther's Morning Prayer</strong></p>
         <p>
           I thank You, my heavenly Father, through Jesus Christ, Your dear Son, that You have kept

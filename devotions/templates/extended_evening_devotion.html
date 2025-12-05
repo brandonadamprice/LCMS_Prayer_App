@@ -50,9 +50,11 @@
         <p>{{ nt_text|safe }}</p>
     {% endcall %}
 
-    {% call macros.card('Prayers') %}
+    {% call macros.card('Creed') %}
         {% include '_apostles_creed.html' %}
-        <hr />
+    {% endcall %}
+
+    {% call macros.card('Prayers') %}
         {% include '_lords_prayer.html' %}
 
         <p class="subheader">
@@ -67,6 +69,7 @@
           <span class="subheader"><strong>Concluding Prayer</strong></span>
           {{ concluding_prayer }}
         </p>
+        <hr />
         <p class="subheader"><strong>Luther's Evening Prayer</strong></p>
         <p>
           <strong
