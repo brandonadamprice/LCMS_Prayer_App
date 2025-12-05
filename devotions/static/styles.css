@@ -653,6 +653,19 @@ body.dark-mode .page-header {
 .footer a:hover {
   text-decoration: underline;
 }
+.esv-attribution {
+  font-size: 0.8em;
+}
+.esv-attribution a {
+  text-decoration: none;
+  color: #888;
+}
+.esv-attribution a:hover {
+  text-decoration: underline;
+}
+body.dark-mode .esv-attribution a {
+  color: #aaa;
+}
 body.dark-mode .footer a {
     color: #aaa;
 }
