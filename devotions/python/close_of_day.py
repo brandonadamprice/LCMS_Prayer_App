@@ -26,6 +26,7 @@ def generate_close_of_day_devotion():
       "reading_ref": reading_ref,
       "reading_text": reading_text,
       "concluding_prayer": concluding_prayer,
+      "luthers_evening_prayer": utils.OTHER_PRAYERS["luthers_evening_prayer"],
   }
   template_data.update(weekly_prayer_data)
   print("Generated Close of Day HTML")

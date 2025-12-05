@@ -23,6 +23,9 @@ def generate_extended_evening_devotion():
   template_data["concluding_prayer"] = random.choice(
       utils.OFFICE_READINGS["close_of_day_prayers"]
   )
+  template_data["luthers_evening_prayer"] = utils.OTHER_PRAYERS[
+      "luthers_evening_prayer"
+  ]
 
   print("Generated Evening HTML")
   return flask.render_template(

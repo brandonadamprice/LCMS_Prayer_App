@@ -29,6 +29,7 @@ def generate_morning_devotion():
       "psalm_ref": psalm_ref,
       "psalm_text": psalm_text,
       "concluding_prayer": concluding_prayer,
+      "luthers_morning_prayer": utils.OTHER_PRAYERS["luthers_morning_prayer"],
   }
   print("Generated Morning HTML")
   return flask.render_template("morning_devotion.html", **template_data)

@@ -21,6 +21,7 @@ LECTIONARY_JSON_PATH = os.path.join(DATA_DIR, "daily_lectionary.json")
 CATECHISM_JSON_PATH = os.path.join(DATA_DIR, "catechism.json")
 WEEKLY_PRAYERS_JSON_PATH = os.path.join(DATA_DIR, "weekly_prayers.json")
 OFFICE_READINGS_JSON_PATH = os.path.join(DATA_DIR, "office_readings.json")
+OTHER_PRAYERS_JSON_PATH = os.path.join(DATA_DIR, "other_prayers.json")
 INAPPROPRIATE_WORDS_CSV_PATH = os.path.join(DATA_DIR, "inappropriate_words.csv")
 
 
@@ -130,9 +131,16 @@ def load_catechism():
   return catechism_data
 
 
+def load_other_prayers():
+  """Loads other prayers from JSON file."""
+  with open(OTHER_PRAYERS_JSON_PATH, "r", encoding="utf-8") as f:
+    return json.load(f)
+
+
 CATECHISM_SECTIONS = load_catechism()
 WEEKLY_PRAYERS = load_weekly_prayers()
 OFFICE_READINGS = load_office_readings()
+OTHER_PRAYERS = load_other_prayers()
 
 
 def get_catechism_for_day(now: datetime.datetime) -> dict:
