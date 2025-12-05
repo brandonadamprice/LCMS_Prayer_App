@@ -19,7 +19,7 @@ def generate_morning_devotion():
   psalm_ref = f"Psalm {psalm_num}"
 
   reading_text, psalm_text = utils.fetch_passages([reading_ref, psalm_ref])
-  concluding_prayer = random.choice(utils.OTHER_PRAYERS["morning_prayers"])
+  concluding_prayer = utils.OTHER_PRAYERS["morning_prayers"]
 
   template_data = {
       "date_str": now.strftime("%A, %B %d, %Y"),
