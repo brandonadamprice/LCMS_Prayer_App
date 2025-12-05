@@ -15,7 +15,7 @@
       <li class="{% if loop.index0 == today_reading_index %}today{% endif %}">
         <input type="checkbox" id="day{{ loop.index }}" data-day="{{ loop.index }}">
         <label for="day{{ loop.index }}">
-          Day {{ loop.index }}: <a href="{{ reading.link }}" target="_blank" rel="noopener noreferrer">{{ reading.section }}</a> ({{ reading.doc }})
+          Day {{ loop.index }}: <a href="{{ reading.link }}" target="_blank" rel="noopener noreferrer" onclick="ensureChecked({{loop.index}}, event)">{{ reading.section }}</a> ({{ reading.doc }})
         </label>
       </li>
       {% endfor %}
@@ -82,6 +82,14 @@ function handleClick(e) {
     
     applyProgress(newProgressDay);
     saveProgress(newProgressDay);
+}
+
+function ensureChecked(day, event) {
+    const cb = document.getElementById('day' + day);
+    if (cb && !cb.checked) {
+        cb.click();
+    }
+    event.stopPropagation();
 }
 
 checkboxes.forEach(cb => cb.addEventListener('click', handleClick));
