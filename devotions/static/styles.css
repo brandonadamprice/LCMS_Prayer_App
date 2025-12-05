@@ -270,7 +270,7 @@ li.post-it:hover {
 /* User Status */
 #user-status {
   position: absolute;
-  top: 55px;
+  top: 20px;
   right: 20px;
   z-index: 10;
   text-align: right;
@@ -283,7 +283,7 @@ body.dark-mode #user-status span {
 /* Settings Button */
 #settings-button {
     position: absolute;
-    top: 20px;
+    top: 55px;
     right: 20px;
     background: none;
     border: none;

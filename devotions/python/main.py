@@ -3,6 +3,7 @@
 import datetime
 import html
 import os
+import secrets
 import string
 from authlib.integrations.flask_client import OAuth
 from flask_login import (
@@ -136,7 +137,9 @@ def feedback_route():
 def login():
   """Redirects to Google OAuth login."""
   redirect_uri = flask.url_for("authorize", _external=True)
-  return google.authorize_redirect(redirect_uri)
+  nonce = secrets.token_urlsafe()
+  flask.session["nonce"] = nonce
+  return google.authorize_redirect(redirect_uri, nonce=nonce)
 
 
 @app.route("/authorize")
@@ -144,7 +147,8 @@ def authorize():
   """Callback route for Google OAuth."""
   try:
     token = google.authorize_access_token()
-    user_info = google.parse_id_token(token)
+    nonce = flask.session.pop("nonce", None)
+    user_info = google.parse_id_token(token, nonce=nonce)
     user = create_or_update_google_user(user_info)
     login_user(user)
     return flask.redirect("/")
