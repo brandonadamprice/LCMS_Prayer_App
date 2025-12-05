@@ -166,7 +166,6 @@ def get_weekly_prayer_for_day(now: datetime.datetime) -> dict:
 
 def generate_category_page_data(json_path: str) -> list[dict]:
   """Loads category data from JSON, selects a random verse, and fetches text."""
-  categories = []
   with open(json_path, "r", encoding="utf-8") as f:
     categories = json.load(f)
   refs = [random.choice(cat["verses"]) for cat in categories]
