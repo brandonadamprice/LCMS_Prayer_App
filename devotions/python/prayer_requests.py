@@ -140,3 +140,40 @@ def remove_expired_requests():
     batch.commit()
 
   print(f"Removed {deleted_count} expired prayer requests.")
+
+
+def edit_prayer_request(request_id: str, new_request_text: str, user_id: str):
+  """Edits a prayer request if the user is the owner."""
+  if not new_request_text or not new_request_text.strip():
+    return False, "Prayer request cannot be empty."
+  if len(new_request_text) > REQUEST_MAX_LENGTH:
+    return (
+        False,
+        (
+            "Prayer request exceeds length limit of"
+            f" {REQUEST_MAX_LENGTH} characters."
+        ),
+    )
+  if utils.contains_phone_number(new_request_text):
+    return (
+        False,
+        "Prayer requests cannot contain phone numbers or similar patterns.",
+    )
+  if utils.is_inappropriate(new_request_text):
+    return False, "Inappropriate content detected in prayer request."
+
+  db = utils.get_db_client()
+  doc_ref = db.collection(COLLECTION_NAME).document(request_id)
+  doc = doc_ref.get()
+  if not doc.exists:
+    return False, "Prayer request not found."
+
+  if doc.to_dict().get("user_id") != user_id:
+    return False, "Permission denied."
+
+  try:
+    doc_ref.update({"request": new_request_text})
+    return True, None
+  except Exception as e:
+    print(f"Error updating prayer request {request_id}: {e}")
+    return False, "Database update failed."

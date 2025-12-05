@@ -424,5 +424,21 @@ def delete_prayer_request_route(request_id):
   return flask.jsonify({"success": True})
 
 
+@app.route("/edit_prayer_request/<request_id>", methods=["POST"])
+@login_required
+def edit_prayer_request_route(request_id):
+  """Edits a prayer request if the current user is the owner."""
+  data = flask.request.json
+  new_request_text = data.get("request")
+
+  success, error_message = prayer_requests.edit_prayer_request(
+      request_id, new_request_text, current_user.id
+  )
+  if success:
+    return flask.jsonify({"success": True})
+  else:
+    return flask.jsonify({"success": False, "error": error_message}), 400
+
+
 if __name__ == "__main__":
   app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
