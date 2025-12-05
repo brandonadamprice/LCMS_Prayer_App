@@ -20,6 +20,7 @@ from flask_login import (
     login_user,
     logout_user,
 )
+from google.cloud import firestore
 import gospels_by_category
 import morning
 import noon
@@ -288,17 +289,38 @@ def prayer_wall_route():
         "<p><em>No active prayer requests at this time.</em></p>"
     )
   else:
+    prayed_request_ids = []
+    if current_user.is_authenticated:
+      db = utils.get_db_client()
+      user_doc_ref = db.collection("users").document(current_user.id)
+      user_doc = user_doc_ref.get()
+      if user_doc.exists:
+        prayed_request_ids = user_doc.to_dict().get("prayed_request_ids", [])
+        if prayed_request_ids:
+          active_prayed_request_ids = []
+          prayer_requests_ref = db.collection("prayer-requests")
+          for request_id in prayed_request_ids:
+            prayer_request_doc = prayer_requests_ref.document(request_id).get()
+            if prayer_request_doc.exists:
+              active_prayed_request_ids.append(request_id)
+
+          if len(active_prayed_request_ids) < len(prayed_request_ids):
+            user_doc_ref.update(
+                {"prayed_request_ids": active_prayed_request_ids}
+            )
+            prayed_request_ids = active_prayed_request_ids
     html_parts = []
     for req in requests:
       name = html.escape(req.get("name", "Anonymous"))
       prayer = html.escape(req.get("request", ""))
       req_id = req.get("id", "")
       pray_count = req.get("pray_count", 0)
+      prayed_class = "prayed" if req_id in prayed_request_ids else ""
       html_parts.append(f"""<li class="post-it" data-id="{req_id}">
               <p class="post-it-text">{prayer}</p>
               <div class="post-it-footer">
                   <div class="pray-container">
-                      <button class="pray-button">🙏</button>
+                      <button class="pray-button {prayed_class}">🙏</button>
                       <span class="pray-count">{pray_count}</span>
                   </div>
                   <p class="post-it-name">~ {name}</p>
@@ -324,6 +346,26 @@ def update_pray_count_route():
     return flask.jsonify({"success": False, "error": "Invalid request"}), 400
   success = prayer_requests.update_pray_count(request_id, operation)
   if success:
+    if current_user.is_authenticated:
+      try:
+        db = utils.get_db_client()
+        user_ref = db.collection("users").document(current_user.id)
+        if operation == "increment":
+          user_ref.update(
+              {"prayed_request_ids": firestore.ArrayUnion([request_id])}
+          )
+        elif operation == "decrement":
+          user_ref.update(
+              {"prayed_request_ids": firestore.ArrayRemove([request_id])}
+          )
+      except Exception as e:
+        app.logger.error(
+            "Failed to update prayed_request_ids for user %s: %s",
+            current_user.id,
+            e,
+        )
+        # We don't fail the whole request if this fails,
+        # just log error. The pray count was updated.
     return flask.jsonify({"success": True})
   else:
     return (
