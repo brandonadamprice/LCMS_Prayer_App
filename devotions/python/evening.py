@@ -13,12 +13,15 @@ def generate_evening_devotion():
   now = datetime.datetime.now(eastern_timezone)
   cy = utils.ChurchYear(now.year)
   key = cy.get_liturgical_key(now)
+  catechism_data = utils.get_catechism_for_day(now)
 
   reading_ref = random.choice(utils.OFFICE_READINGS["evening_readings"])
   psalm_num = random.randint(1, 150)
   psalm_ref = f"Psalm {psalm_num}"
   reading_text, psalm_text = utils.fetch_passages([reading_ref, psalm_ref])
-  concluding_prayer = utils.OTHER_PRAYERS["office_evening_prayer"]
+  concluding_prayer = random.choice(
+      utils.OFFICE_READINGS["evening_prayers"]
+  )
 
   template_data = {
       "date_str": now.strftime("%A, %B %d, %Y"),
@@ -29,6 +32,7 @@ def generate_evening_devotion():
       "psalm_text": psalm_text,
       "concluding_prayer": concluding_prayer,
   }
+  template_data.update(catechism_data)
 
   print("Generated Evening HTML")
   return flask.render_template("evening_devotion.html", **template_data)

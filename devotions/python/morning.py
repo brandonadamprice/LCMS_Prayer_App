@@ -3,7 +3,6 @@
 import datetime
 import random
 import flask
-import flask_login
 import pytz
 import utils
 
@@ -20,14 +19,7 @@ def generate_morning_devotion():
   psalm_ref = f"Psalm {psalm_num}"
 
   reading_text, psalm_text = utils.fetch_passages([reading_ref, psalm_ref])
-  concluding_prayer = utils.OTHER_PRAYERS["office_morning_prayer"]
-
-  if flask_login.current_user.is_authenticated:
-    luthers_morning_prayer = utils.OTHER_PRAYERS["luthers_morning_prayer"]
-  else:
-    luthers_morning_prayer = utils.OTHER_PRAYERS[
-        "morning_prayer_old_translation"
-    ]
+  concluding_prayer = random.choice(utils.OFFICE_READINGS["morning_prayers"])
 
   template_data = {
       "date_str": now.strftime("%A, %B %d, %Y"),
@@ -37,7 +29,7 @@ def generate_morning_devotion():
       "psalm_ref": psalm_ref,
       "psalm_text": psalm_text,
       "concluding_prayer": concluding_prayer,
-      "luthers_morning_prayer": luthers_morning_prayer,
+      "luthers_morning_prayer": utils.OTHER_PRAYERS["luthers_morning_prayer"],
   }
   print("Generated Morning HTML")
   return flask.render_template("morning_devotion.html", **template_data)

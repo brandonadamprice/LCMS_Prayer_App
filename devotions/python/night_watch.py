@@ -14,8 +14,12 @@ def generate_night_watch_devotion():
   psalm_ref = random.choice(utils.OFFICE_READINGS["night_watch_psalms"])
   reading_ref = random.choice(utils.OFFICE_READINGS["night_watch_readings"])
   psalm_text, reading_text = utils.fetch_passages([psalm_ref, reading_ref])
-  protection_prayer = utils.OTHER_PRAYERS["night_watch_protection_prayer"]
-  concluding_prayer = utils.OTHER_PRAYERS["night_watch_concluding_prayer"]
+  protection_prayer = random.choice(
+      utils.OFFICE_READINGS["night_watch_protection_prayers"]
+  )
+  concluding_prayer = random.choice(
+      utils.OFFICE_READINGS["night_watch_concluding_prayers"]
+  )
 
   template_data = {
       "date_str": now.strftime("%A, %B %d, %Y"),

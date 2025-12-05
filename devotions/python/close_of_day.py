@@ -3,7 +3,6 @@
 import datetime
 import random
 import flask
-import flask_login
 import pytz
 import utils
 
@@ -19,14 +18,7 @@ def generate_close_of_day_devotion():
   reading_text = utils.fetch_passages([reading_ref])[0]
 
   weekly_prayer_data = utils.get_weekly_prayer_for_day(now)
-  concluding_prayer = utils.OTHER_PRAYERS["office_close_of_day_prayer"]
-
-  if flask_login.current_user.is_authenticated:
-    luthers_evening_prayer = utils.OTHER_PRAYERS["luthers_evening_prayer"]
-  else:
-    luthers_evening_prayer = utils.OTHER_PRAYERS[
-        "evening_prayer_old_translation"
-    ]
+  concluding_prayer = random.choice(utils.OFFICE_READINGS["close_of_day_prayers"])
 
   template_data = {
       "date_str": now.strftime("%A, %B %d, %Y"),
@@ -34,7 +26,7 @@ def generate_close_of_day_devotion():
       "reading_ref": reading_ref,
       "reading_text": reading_text,
       "concluding_prayer": concluding_prayer,
-      "luthers_evening_prayer": luthers_evening_prayer,
+      "luthers_evening_prayer": utils.OTHER_PRAYERS["luthers_evening_prayer"],
   }
   template_data.update(weekly_prayer_data)
   print("Generated Close of Day HTML")

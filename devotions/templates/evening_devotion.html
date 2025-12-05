@@ -50,13 +50,23 @@
         <p>{{ reading_text|safe }}</p>
     {% endcall %}
 
+    {% if catechism_enabled %}
+    {% call macros.card('Catechism: ' ~ catechism_title) %}
+        <p><strong>Text:</strong> {{ catechism_text|safe }}</p>
+        {{ catechism_meaning_html|safe }}
+        <p><strong>Prayer:</strong> {{ catechism_prayer|safe }}</p>
+    {% endcall %}
+    {% endif %}
+
     {% call macros.card('Prayers') %}
         {{ macros.format_prayer(config['OTHER_PRAYERS']['lords_prayer']) }}
         <hr />
         <p><em>(You may offer your own prayers at this time)</em></p>
         <hr />
         <p class="subheader"><strong>Concluding Prayer</strong></p>
-        {{ macros.format_prayer(concluding_prayer) }}
+        <p>
+          {{ concluding_prayer }}
+        </p>
     {% endcall %}
 
     {% call macros.card('Conclusion') %}

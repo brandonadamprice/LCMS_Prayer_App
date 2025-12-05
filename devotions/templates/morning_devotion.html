@@ -59,7 +59,9 @@
         <p><em>(You may offer your own prayers at this time)</em></p>
         <hr />
         <p class="subheader"><strong>Concluding Prayer</strong></p>
-        {{ macros.format_prayer(concluding_prayer) }}
+        <p>
+          {{ concluding_prayer }}
+        </p>
         <hr />
         {{ macros.format_prayer(luthers_morning_prayer) }}
     {% endcall %}
