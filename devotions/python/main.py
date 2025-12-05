@@ -138,6 +138,12 @@ def feedback_route():
   return flask.render_template("feedback.html")
 
 
+@app.route("/copyright")
+def copyright_route():
+  """Returns the copyright page HTML."""
+  return flask.render_template("copyright.html")
+
+
 @app.route("/login")
 def login():
   """Redirects to Google OAuth login."""

@@ -499,7 +499,7 @@ def _fetch_passages_cached(references: tuple[str, ...]) -> tuple[str, ...]:
       "include-verse-numbers": "true",
       "include-passage-references": "false",
       "include-chapter-numbers": "false",
-      "include-copyright": "false",
+      "include-copyright": "true",
   }
   headers = {"Authorization": f"Token {api_key}"}
 
@@ -512,6 +512,10 @@ def _fetch_passages_cached(references: tuple[str, ...]) -> tuple[str, ...]:
     )
     response.raise_for_status()
     data = response.json()
+
+    copyright_html = ""
+    if data.get("copyright"):
+      copyright_html = f'<p class="esv-copyright">{data["copyright"]}</p>'
 
     if data.get("passages"):
       passage_idx = 0
@@ -536,14 +540,18 @@ def _fetch_passages_cached(references: tuple[str, ...]) -> tuple[str, ...]:
             text_block = re.sub(r"\[(\d+)\]", r"<br><sup>\1</sup>", text_block)
             if text_block.startswith("<br>"):
               text_block = text_block[4:]
-            passage_results[ref] = text_block
+            passage_results[ref] = text_block + copyright_html
             passage_idx += num_passages
           else:
-            passage_results[ref] = f"<i>(Text not found for {ref})</i>"
+            passage_results[ref] = (
+                f"<i>(Text not found for {ref})</i>" + copyright_html
+            )
         # If ref not in ref_map, it's already "Reading not available"
     else:
       for ref in ref_map:
-        passage_results[ref] = f"<i>(Text not found for {ref})</i>"
+        passage_results[ref] = (
+            f"<i>(Text not found for {ref})</i>" + copyright_html
+        )
 
     return tuple(passage_results[ref] for ref in references_list)
 
