@@ -5,7 +5,13 @@ import html
 import os
 import secrets
 import string
+import advent
 from authlib.integrations.flask_client import OAuth
+import bible_in_a_year
+import close_of_day
+import early_evening
+import extended_evening
+import flask
 from flask_login import (
     LoginManager,
     UserMixin,
@@ -14,23 +20,19 @@ from flask_login import (
     login_user,
     logout_user,
 )
-import advent
-import bible_in_a_year
-import close_of_day
-import early_evening
-import extended_evening
-import flask
+import gospels_by_category
 import morning
 import noon
 import prayer_requests
 import psalms_by_category
-import gospels_by_category
 import pytz
 import secrets_fetcher
 import utils
 
 
-TEMPLATE_DIR = os.path.abspath(os.path.join(utils.SCRIPT_DIR, "..", "templates"))
+TEMPLATE_DIR = os.path.abspath(
+    os.path.join(utils.SCRIPT_DIR, "..", "templates")
+)
 STATIC_DIR = os.path.abspath(os.path.join(utils.SCRIPT_DIR, "..", "static"))
 app = flask.Flask(
     __name__,
@@ -48,7 +50,9 @@ google = oauth.register(
     name="google",
     client_id=secrets_fetcher.get_google_client_id(),
     client_secret=secrets_fetcher.get_google_client_secret(),
-    server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
+    server_metadata_url=(
+        "https://accounts.google.com/.well-known/openid-configuration"
+    ),
     client_kwargs={"scope": "openid email profile"},
 )
 
@@ -90,13 +94,16 @@ def create_or_update_google_user(user_info):
   db = prayer_requests.get_db_client()
   user_id = user_info["sub"]
   user_ref = db.collection("users").document(user_id)
-  user_ref.set({
-      "google_id": user_id,
-      "email": user_info.get("email"),
-      "name": user_info.get("name"),
-      "profile_pic": user_info.get("picture"),
-      "last_login": datetime.datetime.now(datetime.timezone.utc),
-  }, merge=True)
+  user_ref.set(
+      {
+          "google_id": user_id,
+          "email": user_info.get("email"),
+          "name": user_info.get("name"),
+          "profile_pic": user_info.get("picture"),
+          "last_login": datetime.datetime.now(datetime.timezone.utc),
+      },
+      merge=True,
+  )
   return User.get(user_id)
 
 
@@ -238,7 +245,7 @@ def bible_in_a_year_route():
   """Returns Bible in a Year page."""
   bia_progress = None
   if current_user.is_authenticated:
-    db = prayer_requests.get_db_client()
+    db = utils.get_db_client()
     doc = db.collection("users").document(current_user.id).get()
     if doc.exists:
       bia_progress = doc.to_dict().get("bia_progress")
@@ -258,8 +265,14 @@ def save_bia_progress_route():
       return flask.jsonify({"success": True})
     except Exception as e:
       app.logger.error("Failed to save BIA progress: %s", e)
-      return flask.jsonify({"success": False, "error": "Database save failed"}), 500
-  return flask.jsonify({"success": False, "error": "Invalid progress data"}), 400
+      return (
+          flask.jsonify({"success": False, "error": "Database save failed"}),
+          500,
+      )
+  return (
+      flask.jsonify({"success": False, "error": "Invalid progress data"}),
+      400,
+  )
 
 
 @app.route("/prayer_wall")
@@ -313,7 +326,10 @@ def update_pray_count_route():
   if success:
     return flask.jsonify({"success": True})
   else:
-    return flask.jsonify({"success": False, "error": "Database update failed"}), 500
+    return (
+        flask.jsonify({"success": False, "error": "Database update failed"}),
+        500,
+    )
 
 
 @app.route("/add_prayer_request", methods=["POST"])

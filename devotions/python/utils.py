@@ -7,9 +7,9 @@ import json
 import os
 import random
 import re
+from google.cloud import firestore
 import requests
 import secrets_fetcher as secrets
-from google.cloud import firestore
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(SCRIPT_DIR, "..", "data")
@@ -26,7 +26,9 @@ def get_db_client():
   # authenticates using the service account or application default credentials.
   # For local development, ensure you have authenticated via gcloud:
   # `gcloud auth application-default login`
-  return firestore.Client(project="lcms-prayer-app", database="prayer-app-datastore")
+  return firestore.Client(
+      project="lcms-prayer-app", database="prayer-app-datastore"
+  )
 
 
 def load_office_readings():
@@ -130,35 +132,36 @@ OFFICE_READINGS = load_office_readings()
 
 
 def get_catechism_for_day(now: datetime.datetime) -> dict:
-    """Returns the catechism section for a given day."""
-    day_of_year = now.timetuple().tm_yday
-    cat_idx = day_of_year % len(CATECHISM_SECTIONS)
-    catechism = CATECHISM_SECTIONS[cat_idx]
-    meaning_html = (
-        f'<p><strong>Meaning:</strong> {catechism["meaning"]}</p>'
-        if catechism["meaning"]
-        else ""
-    )
-    prayer = random.choice(catechism["prayers"])
-    return {
-        "catechism_title": catechism["title"],
-        "catechism_text": catechism["text"],
-        "catechism_meaning_html": meaning_html,
-        "catechism_prayer": prayer,
-    }
+  """Returns the catechism section for a given day."""
+  day_of_year = now.timetuple().tm_yday
+  cat_idx = day_of_year % len(CATECHISM_SECTIONS)
+  catechism = CATECHISM_SECTIONS[cat_idx]
+  meaning_html = (
+      f'<p><strong>Meaning:</strong> {catechism["meaning"]}</p>'
+      if catechism["meaning"]
+      else ""
+  )
+  prayer = random.choice(catechism["prayers"])
+  return {
+      "catechism_title": catechism["title"],
+      "catechism_text": catechism["text"],
+      "catechism_meaning_html": meaning_html,
+      "catechism_prayer": prayer,
+  }
+
 
 def get_weekly_prayer_for_day(now: datetime.datetime) -> dict:
-    """Returns the weekly prayer topic and text for a given day."""
-    weekday_idx = now.weekday()
-    prayer_data = WEEKLY_PRAYERS.get(
-        str(weekday_idx), {"topic": "General Intercessions", "prayer": ""}
-    )
-    return {
-        "prayer_topic": prayer_data["topic"],
-        "weekly_prayer_html": (
-            f'<p>{prayer_data["prayer"]}</p>' if prayer_data["prayer"] else ""
-        ),
-    }
+  """Returns the weekly prayer topic and text for a given day."""
+  weekday_idx = now.weekday()
+  prayer_data = WEEKLY_PRAYERS.get(
+      str(weekday_idx), {"topic": "General Intercessions", "prayer": ""}
+  )
+  return {
+      "prayer_topic": prayer_data["topic"],
+      "weekly_prayer_html": (
+          f'<p>{prayer_data["prayer"]}</p>' if prayer_data["prayer"] else ""
+      ),
+  }
 
 
 def generate_category_page_data(json_path: str) -> list[dict]:
@@ -319,9 +322,10 @@ def load_lectionary(filepath: str) -> dict:
 
 def get_devotion_data(now: datetime.datetime) -> dict:
   """Fetches lectionary readings, a psalm, and a catechism section.
-  
+
   Args:
     now: The current datetime.datetime object.
+
   Returns:
     A dictionary of data for rendering the devotion.
 
@@ -386,11 +390,11 @@ def get_devotion_data(now: datetime.datetime) -> dict:
 def _preprocess_ref(ref: str) -> str:
   """Expands shorthand Bible references with semicolons and commas.
 
-    Example: '1 Cor 7:17;23-24' becomes '1 Cor 7:17;1 Cor 7:23-24'.
-    'Gen 27:30-45; 28:10-22' becomes 'Gen 27:30-45;Gen 28:10-22'.
-    '2 John 1-13; 3 John 1-15' remains '2 John 1-13;3 John 1-15'.
-    Handles verses only, or chapter:verses after semicolon.
-    """
+  Example: '1 Cor 7:17;23-24' becomes '1 Cor 7:17;1 Cor 7:23-24'.
+  'Gen 27:30-45; 28:10-22' becomes 'Gen 27:30-45;Gen 28:10-22'.
+  '2 John 1-13; 3 John 1-15' remains '2 John 1-13;3 John 1-15'.
+  Handles verses only, or chapter:verses after semicolon.
+  """
   splitting_delimiters = [";", ","]
   delim = ""
   for splitting_delimiter in splitting_delimiters:
