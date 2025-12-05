@@ -49,8 +49,9 @@ function saveProgress(day) {
 
 function loadProgress() {
     let progressDay = 0;
-    if (isLoggedIn && {{ progress|tojson }} && {{ progress.day|tojson }}) {
-        progressDay = {{ progress.day }};
+    const progressData = {{ progress|tojson }};
+    if (isLoggedIn && progressData && progressData.day) {
+        progressDay = progressData.day;
     } else if (!isLoggedIn) {
         try {
             const data = JSON.parse(localStorage.getItem(lsKey));
