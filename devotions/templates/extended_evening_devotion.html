@@ -56,17 +56,16 @@
 
     {% call macros.card('Prayers') %}
         {% include '_lords_prayer.html' %}
-
+        <hr />
         <p class="subheader">
           <strong>Topic:</strong> <span class="prayer-topic">{{ prayer_topic }}</span>
         </p>
         <p>Lord, hear our prayer. <strong>And let our cry come to you.</strong></p>
         {{ weekly_prayer_html|safe }}
-        <hr />
         <p><em>(You may offer your own prayers at this time)</em></p>
         <hr />
+        <p class="subheader"><strong>Concluding Prayer</strong></p>
         <p>
-          <span class="subheader"><strong>Concluding Prayer</strong></span>
           {{ concluding_prayer }}
         </p>
         <hr />
