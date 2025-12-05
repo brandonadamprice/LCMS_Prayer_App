@@ -59,7 +59,7 @@
         <p><em>(You may offer your own prayers at this time)</em></p>
         <hr />
         <p class="subheader"><strong>Concluding Prayer</strong></p>
-        <p>{{ concluding_prayer }}</p>
+        {{ macros.format_prayer(concluding_prayer) }}
     {% endcall %}
 
     {% call macros.card('Conclusion') %}

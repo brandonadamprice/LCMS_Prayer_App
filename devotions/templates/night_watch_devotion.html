@@ -35,10 +35,10 @@
         {{ macros.format_prayer(config['OTHER_PRAYERS']['lords_prayer']) }}
         <hr />
         <p class="subheader"><strong>Prayer for Protection and Rest</strong></p>
-        <p><strong>{{ protection_prayer }}</strong></p>
+        {{ macros.format_prayer(protection_prayer) }}
         <hr />
         <p class="subheader"><strong>Concluding Prayer</strong></p>
-        <p><strong>{{ concluding_prayer }}</strong></p>
+        {{ macros.format_prayer(concluding_prayer) }}
     {% endcall %}
 
     {% call macros.card('Closing') %}

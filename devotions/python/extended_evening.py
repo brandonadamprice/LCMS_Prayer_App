@@ -21,7 +21,7 @@ def generate_extended_evening_devotion():
   now = datetime.datetime.now(eastern_timezone)
   template_data = utils.get_devotion_data(now)
   template_data["concluding_prayer"] = random.choice(
-      utils.OFFICE_READINGS["close_of_day_prayers"]
+      utils.OTHER_PRAYERS["close_of_day_prayers"]
   )
   template_data["luthers_evening_prayer"] = utils.OTHER_PRAYERS[
       "luthers_evening_prayer"

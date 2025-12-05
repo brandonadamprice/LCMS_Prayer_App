@@ -19,7 +19,7 @@ def generate_midday_devotion():
   psalm_ref = f"Psalm {psalm_num}"
 
   reading_text, psalm_text = utils.fetch_passages([reading_ref, psalm_ref])
-  concluding_prayer = random.choice(utils.OFFICE_READINGS["midday_prayers"])
+  concluding_prayer = random.choice(utils.OTHER_PRAYERS["midday_prayers"])
 
   template_data = {
       "date_str": now.strftime("%A, %B %d, %Y"),
