@@ -95,6 +95,8 @@
       const menuButton = document.getElementById('menu-button');
       const appMenu = document.getElementById('app-menu');
       const darkModeToggle = document.getElementById('dark-mode-toggle');
+      const isLoggedIn = {{ current_user.is_authenticated|tojson }};
+      const userDarkMode = {{ current_user.dark_mode|tojson }};
 
       function applyDarkMode(isDark) {
         if (isDark) {
@@ -108,17 +110,32 @@
         }
       }
 
-      // Check for saved preference on load
-      const darkModePreference = localStorage.getItem('darkMode');
-      if (darkModePreference === 'enabled') {
-        applyDarkMode(true);
+      async function saveDarkModePreference(isDark) {
+          localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
+          if (isLoggedIn) {
+              try {
+                  await fetch('/save_dark_mode', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ dark_mode: isDark }),
+                  });
+              } catch (error) {
+                  console.error('Failed to save dark mode preference:', error);
+              }
+          }
+      }
+
+      // Set initial dark mode state
+      if (isLoggedIn && userDarkMode !== null) {
+          applyDarkMode(userDarkMode);
       } else {
-        applyDarkMode(false);
+          applyDarkMode(localStorage.getItem('darkMode') === 'enabled');
       }
 
       // Toggle dark mode
       darkModeToggle.addEventListener('change', function() {
         applyDarkMode(this.checked);
+        saveDarkModePreference(this.checked);
       });
 
       // Toggle app menu
