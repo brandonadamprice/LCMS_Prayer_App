@@ -11,7 +11,9 @@
 {% endmacro %}
 
 {% macro format_prayer(prayer_obj) %}
+{% if prayer_obj.display_title %}
 <p class="subheader"><strong>{{ prayer_obj.prayer_title }}</strong></p>
+{% endif %}
 <p>
   <strong>{{ prayer_obj.prayer | replace('\n', '<br />') | safe }}</strong>
   {% if prayer_obj.reference %}

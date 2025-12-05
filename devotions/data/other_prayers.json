@@ -1,28 +1,34 @@
 {
   "luthers_morning_prayer": {
     "prayer_title": "Luther's Morning Prayer",
-    "prayer": "I thank You, my heavenly Father, through Jesus Christ, Your dear Son, that You have kept me this night from all harm and danger; and I pray that You would keep me this day also from sin and every evil, that all my doings and life may please You. For into Your hands I commend myself, my body and soul, and all things. Let Your holy angel be with me, that the evil foe may have no power over me. Amen."
+    "prayer": "I thank You, my heavenly Father, through Jesus Christ, Your dear Son, that You have kept me this night from all harm and danger; and I pray that You would keep me this day also from sin and every evil, that all my doings and life may please You. For into Your hands I commend myself, my body and soul, and all things. Let Your holy angel be with me, that the evil foe may have no power over me. Amen.",
+    "display_title": true
   },
   "luthers_evening_prayer": {
     "prayer_title": "Luther's Evening Prayer",
-    "prayer": "I thank You, my heavenly Father, through Jesus Christ, Your dear Son, that You have graciously kept me this day; and I pray that You would forgive me all my sins where I have done wrong, and graciously keep me this night. For into Your hands I commend myself, my body and soul, and all things. Let Your holy angel be with me, anthat the evil foe may have no power over me. Amen."
+    "prayer": "I thank You, my heavenly Father, through Jesus Christ, Your dear Son, that You have graciously kept me this day; and I pray that You would forgive me all my sins where I have done wrong, and graciously keep me this night. For into Your hands I commend myself, my body and soul, and all things. Let Your holy angel be with me, anthat the evil foe may have no power over me. Amen.",
+    "display_title": true
   },
   "lords_prayer": {
     "prayer_title": "The Lord's Prayer",
     "prayer": "Our Father who art in heaven,\nhallowed be Thy name,\nThy kingdom come,\nThy will be done\non earth as it is in heaven.\nGive us this day our daily bread;\nand forgive us our trespasses\nas we forgive those who trespass against us;\nand lead us not into temptation,\nbut deliver us from evil.\nFor Thine is the kingdom\nand the power and the glory\nforever and ever. Amen.",
-    "reference": "Matthew 6:9-13"
+    "reference": "Matthew 6:9-13",
+    "display_title": true
   },
   "apostles_creed": {
     "prayer_title": "The Apostles' Creed",
-    "prayer": "I believe in God, the Father Almighty, maker of heaven and earth.\n\nAnd in Jesus Christ, His only Son, our Lord, who was conceived by the Holy Spirit, born of the virgin Mary, suffered under Pontius Pilate, was crucified, died and was buried. He descended into hell. The third day He rose again from the dead. He ascended into heaven and sits at the right hand of God the Father Almighty. From thence He will come to judge the living and the dead.\n\nI believe in the Holy Spirit, the holy Christian Church, the communion of saints, the forgiveness of sins, the resurrection of the body, and the life everlasting. Amen."
+    "prayer": "I believe in God, the Father Almighty, maker of heaven and earth.\n\nAnd in Jesus Christ, His only Son, our Lord, who was conceived by the Holy Spirit, born of the virgin Mary, suffered under Pontius Pilate, was crucified, died and was buried. He descended into hell. The third day He rose again from the dead. He ascended into heaven and sits at the right hand of God the Father Almighty. From thence He will come to judge the living and the dead.\n\nI believe in the Holy Spirit, the holy Christian Church, the communion of saints, the forgiveness of sins, the resurrection of the body, and the life everlasting. Amen.",
+    "display_title": true
   },
   "gloria_patri": {
     "prayer_title": "Gloria Patri",
-    "prayer": "Glory be to the Father and to the Son and to the Holy Spirit;\nas it was in the beginning, is now, and will be forever. Amen."
+    "prayer": "Glory be to the Father and to the Son and to the Holy Spirit;\nas it was in the beginning, is now, and will be forever. Amen.",
+    "display_title": false
   },
   "nunc_dimittis": {
     "prayer_title": "Nunc Dimittis",
     "prayer": "Lord, now You let Your servant go in peace;\nYour word has been fulfilled.\nMy own eyes have seen the salvation\nwhich You have prepared in the sight of every people:\na light to reveal You to the nations\nand the glory of Your people Israel.\nGlory be to the Father and to the Son and to the Holy Spirit;\nas it was in the beginning, is now, and will be forever. Amen.",
-    "reference": "Luke 2:29-32"
+    "reference": "Luke 2:29-32",
+    "display_title": true
   }
 }
