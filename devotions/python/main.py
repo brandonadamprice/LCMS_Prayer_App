@@ -4,6 +4,15 @@ import datetime
 import html
 import os
 import string
+from authlib.integrations.flask_client import OAuth
+from flask_login import (
+    LoginManager,
+    UserMixin,
+    current_user,
+    login_required,
+    login_user,
+    logout_user,
+)
 import advent
 import bible_in_a_year
 import close_of_day
@@ -16,7 +25,9 @@ import prayer_requests
 import psalms_by_category
 import gospels_by_category
 import pytz
+import secrets_fetcher
 import utils
+
 
 TEMPLATE_DIR = os.path.abspath(os.path.join(utils.SCRIPT_DIR, "..", "templates"))
 STATIC_DIR = os.path.abspath(os.path.join(utils.SCRIPT_DIR, "..", "static"))
@@ -25,6 +36,68 @@ app = flask.Flask(
     template_folder=TEMPLATE_DIR,
     static_folder=STATIC_DIR,
 )
+app.secret_key = secrets_fetcher.get_flask_secret_key()
+
+# OAuth and Flask-Login Setup
+oauth = OAuth(app)
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+google = oauth.register(
+    name="google",
+    client_id=secrets_fetcher.get_google_client_id(),
+    client_secret=secrets_fetcher.get_google_client_secret(),
+    server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
+    client_kwargs={"scope": "openid email profile"},
+)
+
+
+class User(UserMixin):
+  """User class for Flask-Login."""
+
+  def __init__(self, user_id, email=None, name=None, profile_pic=None):
+    self.id = user_id
+    self.email = email
+    self.name = name
+    self.profile_pic = profile_pic
+
+  @staticmethod
+  def get(user_id):
+    """Gets a user from Firestore by user_id (which is Google's sub)."""
+    db = prayer_requests.get_db_client()
+    user_ref = db.collection("users").document(user_id)
+    user_doc = user_ref.get()
+    if user_doc.exists:
+      data = user_doc.to_dict()
+      return User(
+          user_id=user_id,
+          email=data.get("email"),
+          name=data.get("name"),
+          profile_pic=data.get("profile_pic"),
+      )
+    return None
+
+
+@login_manager.user_loader
+def load_user(user_id):
+  """Flask-Login user loader."""
+  return User.get(user_id)
+
+
+def create_or_update_google_user(user_info):
+  """Creates or updates a user in Firestore based on Google profile info."""
+  db = prayer_requests.get_db_client()
+  user_id = user_info["sub"]
+  user_ref = db.collection("users").document(user_id)
+  user_ref.set({
+      "google_id": user_id,
+      "email": user_info.get("email"),
+      "name": user_info.get("name"),
+      "profile_pic": user_info.get("picture"),
+      "last_login": datetime.datetime.now(datetime.timezone.utc),
+  }, merge=True)
+  return User.get(user_id)
+
 
 INDEX_HTML_PATH = os.path.join(utils.SCRIPT_DIR, "..", "html", "index.html")
 FEEDBACK_HTML_PATH = os.path.join(
@@ -57,6 +130,35 @@ def index_route():
 def feedback_route():
   """Returns the feedback page HTML."""
   return flask.render_template("feedback.html")
+
+
+@app.route("/login")
+def login():
+  """Redirects to Google OAuth login."""
+  redirect_uri = flask.url_for("authorize", _external=True)
+  return google.authorize_redirect(redirect_uri)
+
+
+@app.route("/authorize")
+def authorize():
+  """Callback route for Google OAuth."""
+  try:
+    token = google.authorize_access_token()
+    user_info = google.parse_id_token(token)
+    user = create_or_update_google_user(user_info)
+    login_user(user)
+    return flask.redirect("/")
+  except Exception as e:
+    print(f"OAuth Error: {e}")
+    return "Authentication failed.", 400
+
+
+@app.route("/logout")
+@login_required
+def logout():
+  """Logs out the current user."""
+  logout_user()
+  return flask.redirect("/")
 
 
 @app.route("/extended_evening_devotion")

@@ -8,6 +8,14 @@
     <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml" />
   </head>
   <body>
+    <div id="user-status" style="position: absolute; top: 20px; left: 20px; z-index: 10;">
+      {% if current_user.is_authenticated %}
+          <span style="margin-right: 10px;">Hi, {{ current_user.name }}</span>
+          <a href="/logout" class="button" style="padding: 5px 10px; font-size: 0.8em;">Logout</a>
+      {% else %}
+          <a href="/login" class="button" style="padding: 5px 10px; font-size: 0.8em;">Login</a>
+      {% endif %}
+    </div>
     <button id="settings-button" aria-label="Settings">⚙️</button>
     <div id="settings-modal">
         <h3>Settings</h3>
