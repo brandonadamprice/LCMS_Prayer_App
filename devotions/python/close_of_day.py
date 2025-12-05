@@ -18,12 +18,14 @@ def generate_close_of_day_devotion():
   reading_text = utils.fetch_passages([reading_ref])[0]
 
   weekly_prayer_data = utils.get_weekly_prayer_for_day(now)
+  concluding_prayer = random.choice(utils.OFFICE_READINGS["close_of_day_prayers"])
 
   template_data = {
       "date_str": now.strftime("%A, %B %d, %Y"),
       "key": key,
       "reading_ref": reading_ref,
       "reading_text": reading_text,
+      "concluding_prayer": concluding_prayer,
   }
   template_data.update(weekly_prayer_data)
   print("Generated Close of Day HTML")

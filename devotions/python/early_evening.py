@@ -19,6 +19,9 @@ def generate_early_evening_devotion():
   psalm_num = random.randint(1, 150)
   psalm_ref = f"Psalm {psalm_num}"
   reading_text, psalm_text = utils.fetch_passages([reading_ref, psalm_ref])
+  concluding_prayer = random.choice(
+      utils.OFFICE_READINGS["early_evening_prayers"]
+  )
 
   template_data = {
       "date_str": now.strftime("%A, %B %d, %Y"),
@@ -27,6 +30,7 @@ def generate_early_evening_devotion():
       "reading_text": reading_text,
       "psalm_ref": psalm_ref,
       "psalm_text": psalm_text,
+      "concluding_prayer": concluding_prayer,
   }
   template_data.update(catechism_data)
 
