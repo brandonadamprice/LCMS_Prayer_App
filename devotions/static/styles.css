@@ -269,13 +269,11 @@ li.post-it:hover {
 
 /* User Status */
 #user-status {
+  position: relative; /* Anchor for user-menu */
   position: absolute;
   top: 20px;
   right: 20px;
   z-index: 10;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
   min-height: 34px; /* button padding etc */
 }
 #user-status .profile-pic {
@@ -283,9 +281,36 @@ li.post-it:hover {
     height: 32px;
     border-radius: 50%;
     border: 1px solid #ccc;
+    cursor: pointer;
 }
 body.dark-mode #user-status span {
   color: #e0e0e0;
+}
+
+.user-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 5px); /* Image height + 5px gap */
+  right: 0;
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  padding: 10px;
+  z-index: 1002;
+  width: 120px;
+}
+.user-menu .button {
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 8px 10px;
+    font-size: 0.9em;
+    text-align: center;
+    box-sizing: border-box;
+}
+body.dark-mode .user-menu {
+    background-color: #555;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
 
 /* Settings Button */

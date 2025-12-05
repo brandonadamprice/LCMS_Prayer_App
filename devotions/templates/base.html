@@ -10,7 +10,10 @@
   <body>
     <div id="user-status">
       {% if current_user.is_authenticated %}
-          <img src="{{ current_user.profile_pic }}" alt="Profile" class="profile-pic" title="{{ current_user.name }}">
+          <img src="{{ current_user.profile_pic }}" alt="Profile" class="profile-pic" id="profile-pic-btn" title="{{ current_user.name }}">
+          <div id="user-menu" class="user-menu">
+             <a href="/logout" class="button">Logout</a>
+          </div>
       {% else %}
           <a href="/login" class="button" style="padding: 5px 10px; font-size: 0.8em; margin: 0;">Login</a>
       {% endif %}
@@ -25,11 +28,6 @@
                 <span class="slider"></span>
             </label>
         </div>
-        {% if current_user.is_authenticated %}
-        <div class="settings-item" style="justify-content: center; margin-top: 20px;">
-             <a href="/logout" class="button" style="padding: 8px 15px; font-size: 0.9em; margin: 0; width: 100%;">Logout</a>
-        </div>
-        {% endif %}
     </div>
     {% block content %}{% endblock %}
     {% if request.endpoint != 'index_route' %}
@@ -90,6 +88,8 @@
       const settingsButton = document.getElementById('settings-button');
       const settingsModal = document.getElementById('settings-modal');
       const darkModeToggle = document.getElementById('dark-mode-toggle');
+      const profilePicBtn = document.getElementById('profile-pic-btn');
+      const userMenu = document.getElementById('user-menu');
 
       function applyDarkMode(isDark) {
         if (isDark) {
@@ -119,13 +119,26 @@
       // Toggle settings modal
       settingsButton.addEventListener('click', function(event) {
         settingsModal.style.display = settingsModal.style.display === 'block' ? 'none' : 'block';
+        if(userMenu) userMenu.style.display = 'none'; // close user menu if open
         event.stopPropagation();
       });
 
+      // Toggle user menu
+      if(profilePicBtn && userMenu) {
+          profilePicBtn.addEventListener('click', function(event) {
+              userMenu.style.display = userMenu.style.display === 'block' ? 'none' : 'block';
+              if(settingsModal) settingsModal.style.display = 'none'; // close settings if open
+              event.stopPropagation();
+          });
+      }
+
       // Close modal if clicking outside
       document.addEventListener('click', function(event) {
-        if (settingsModal.style.display === 'block' && !settingsModal.contains(event.target) && event.target !== settingsButton) {
+        if (settingsModal && settingsModal.style.display === 'block' && !settingsModal.contains(event.target) && event.target !== settingsButton) {
           settingsModal.style.display = 'none';
+        }
+        if (userMenu && userMenu.style.display === 'block' && !userMenu.contains(event.target) && event.target !== profilePicBtn) {
+            userMenu.style.display = 'none';
         }
       });
       {% block extra_js %}{% endblock %}
