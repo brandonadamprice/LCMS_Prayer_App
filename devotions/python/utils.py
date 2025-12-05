@@ -11,14 +11,9 @@ from google.cloud import firestore
 import requests
 import secrets_fetcher as secrets
 
-# Flag to enable/disable Catechism section in devotions
-# TODO(baprice): Enable catechism once we have permission from CPH to use it.
-ENABLE_CATECHISM = False
-
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(SCRIPT_DIR, "..", "data")
 LECTIONARY_JSON_PATH = os.path.join(DATA_DIR, "daily_lectionary.json")
-CATECHISM_JSON_PATH = os.path.join(DATA_DIR, "catechism.json")
 WEEKLY_PRAYERS_JSON_PATH = os.path.join(DATA_DIR, "weekly_prayers.json")
 OFFICE_READINGS_JSON_PATH = os.path.join(DATA_DIR, "office_readings.json")
 OTHER_PRAYERS_JSON_PATH = os.path.join(DATA_DIR, "other_prayers.json")
@@ -124,20 +119,12 @@ def load_weekly_prayers():
     return json.load(f)
 
 
-def load_catechism():
-  """Loads catechism data from JSON file."""
-  with open(CATECHISM_JSON_PATH, "r", encoding="utf-8") as f:
-    catechism_data = json.load(f)
-  return catechism_data
-
-
 def load_other_prayers():
   """Loads other prayers from JSON file."""
   with open(OTHER_PRAYERS_JSON_PATH, "r", encoding="utf-8") as f:
     return json.load(f)
 
 
-CATECHISM_SECTIONS = load_catechism()
 WEEKLY_PRAYERS = load_weekly_prayers()
 OFFICE_READINGS = load_office_readings()
 OTHER_PRAYERS = load_other_prayers()
@@ -145,27 +132,6 @@ OTHER_PRAYERS = load_other_prayers()
 def get_other_prayers():
   """Returns the OTHER_PRAYERS dictionary."""
   return OTHER_PRAYERS
-
-def get_catechism_for_day(now: datetime.datetime) -> dict:
-  """Returns the catechism section for a given day."""
-  if not ENABLE_CATECHISM:
-    return {"catechism_enabled": False}
-  day_of_year = now.timetuple().tm_yday
-  cat_idx = day_of_year % len(CATECHISM_SECTIONS)
-  catechism = CATECHISM_SECTIONS[cat_idx]
-  meaning_html = (
-      f'<p><strong>Meaning:</strong> {catechism["meaning"]}</p>'
-      if catechism["meaning"]
-      else ""
-  )
-  prayer = random.choice(catechism["prayers"])
-  return {
-      "catechism_enabled": True,
-      "catechism_title": catechism["title"],
-      "catechism_text": catechism["text"],
-      "catechism_meaning_html": meaning_html,
-      "catechism_prayer": prayer,
-  }
 
 
 def get_weekly_prayer_for_day(now: datetime.datetime) -> dict:
@@ -380,10 +346,6 @@ def get_devotion_data(now: datetime.datetime) -> dict:
   ot_text, nt_text, psalm_text = fetch_passages(refs_to_fetch)
   print("Texts Acquired")
 
-  # 5. Catechism - USE HELPER
-  catechism_data = get_catechism_for_day(now)
-  print("Populated Catechism Reading")
-
   # 6. Weekly Prayer - USE HELPER
   weekly_prayer_data = get_weekly_prayer_for_day(now)
   print("Populated Weekly Prayer section")
@@ -399,7 +361,6 @@ def get_devotion_data(now: datetime.datetime) -> dict:
       "nt_reading_ref": readings["NT"],
       "nt_text": nt_text,
   }
-  data.update(catechism_data)
   data.update(weekly_prayer_data)
   return data
 

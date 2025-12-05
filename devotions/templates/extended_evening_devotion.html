@@ -28,14 +28,6 @@
         </p>
     {% endcall %}
 
-    {% if catechism_enabled %}
-    {% call macros.card('Catechism: ' ~ catechism_title) %}
-        <p><strong>Text:</strong> {{ catechism_text|safe }}</p>
-        {{ catechism_meaning_html|safe }}
-        <p><strong>Prayer:</strong> {{ catechism_prayer|safe }}</p>
-    {% endcall %}
-    {% endif %}
-
     {% call macros.card('Psalmody') %}
         <span class="ref">{{ psalm_ref }}</span>
         <p>{{ psalm_text|safe }}</p>
@@ -65,9 +57,7 @@
         <p><em>(You may offer your own prayers at this time)</em></p>
         <hr />
         <p class="subheader"><strong>Concluding Prayer</strong></p>
-        <p>
-          {{ concluding_prayer }}
-        </p>
+        {{ macros.format_prayer(concluding_prayer) }}
         <hr />
         {{ macros.format_prayer(luthers_evening_prayer) }}
     {% endcall %}

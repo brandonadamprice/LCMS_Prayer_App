@@ -3,6 +3,7 @@
 import datetime
 import random
 import flask
+import flask_login
 import pytz
 import utils
 
@@ -20,12 +21,16 @@ def generate_extended_evening_devotion():
   eastern_timezone = pytz.timezone("America/New_York")
   now = datetime.datetime.now(eastern_timezone)
   template_data = utils.get_devotion_data(now)
-  template_data["concluding_prayer"] = random.choice(
-      utils.OFFICE_READINGS["close_of_day_prayers"]
-  )
-  template_data["luthers_evening_prayer"] = utils.OTHER_PRAYERS[
-      "luthers_evening_prayer"
+  template_data["concluding_prayer"] = utils.OTHER_PRAYERS[
+      "office_close_of_day_prayer"
   ]
+  if flask_login.current_user.is_authenticated:
+    luthers_evening_prayer = utils.OTHER_PRAYERS["luthers_evening_prayer"]
+  else:
+    luthers_evening_prayer = utils.OTHER_PRAYERS[
+        "evening_prayer_old_translation"
+    ]
+  template_data["luthers_evening_prayer"] = luthers_evening_prayer
 
   print("Generated Evening HTML")
   return flask.render_template(
