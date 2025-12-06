@@ -12,8 +12,7 @@ import requests
 import secrets_fetcher as secrets
 
 # Flag to enable/disable Catechism section in devotions
-# TODO(baprice): Enable catechism once we have permission from CPH to use it.
-ENABLE_CATECHISM = False
+ENABLE_CATECHISM = True
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(SCRIPT_DIR, "..", "data")
@@ -153,17 +152,12 @@ def get_catechism_for_day(now: datetime.datetime) -> dict:
   day_of_year = now.timetuple().tm_yday
   cat_idx = day_of_year % len(CATECHISM_SECTIONS)
   catechism = CATECHISM_SECTIONS[cat_idx]
-  meaning_html = (
-      f'<p><strong>Meaning:</strong> {catechism["meaning"]}</p>'
-      if catechism["meaning"]
-      else ""
-  )
   prayer = random.choice(catechism["prayers"])
   return {
       "catechism_enabled": True,
       "catechism_title": catechism["title"],
       "catechism_text": catechism["text"],
-      "catechism_meaning_html": meaning_html,
+      "questions_and_answers": catechism["questions_and_answers"],
       "catechism_prayer": prayer,
   }
 

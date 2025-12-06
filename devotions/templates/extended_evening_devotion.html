@@ -30,8 +30,13 @@
 
     {% if catechism_enabled %}
     {% call macros.card('Catechism: ' ~ catechism_title) %}
-        <p><strong>Text:</strong> {{ catechism_text|safe }}</p>
-        {{ catechism_meaning_html|safe }}
+        {% if catechism_text %}
+          <p>{{ catechism_text|safe }}</p>
+        {% endif %}
+        {% for qa in questions_and_answers %}
+          <p><strong>{{ qa.question }}</strong></p>
+          <p>{{ qa.answer|safe }}</p>
+        {% endfor %}
         <p><strong>Prayer:</strong> {{ catechism_prayer|safe }}</p>
     {% endcall %}
     {% endif %}
