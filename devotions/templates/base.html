@@ -38,6 +38,7 @@
           <span>Font Size</span>
           <div class="font-controls">
               <button id="decrease-font" aria-label="Decrease font size">-</button>
+              <button id="reset-font" aria-label="Reset font size">1x</button>
               <button id="increase-font" aria-label="Increase font size">+</button>
           </div>
       </div>
@@ -146,6 +147,10 @@
               applyFontSize(currentFontSizeIndex - 1);
               saveFontSizePreference(currentFontSizeIndex);
           }
+      });
+      document.getElementById('reset-font').addEventListener('click', () => {
+          applyFontSize(2);
+          saveFontSizePreference(2);
       });
 
       function applyDarkMode(isDark) {
