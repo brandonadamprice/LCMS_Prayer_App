@@ -7,6 +7,7 @@ import json
 import os
 import random
 import re
+from typing import Optional
 from cryptography.fernet import Fernet
 import flask_login
 from google.cloud import firestore
@@ -639,7 +640,7 @@ def fetch_passages(references: list[str]) -> list[str]:
   return list(_fetch_passages_cached(tuple(references)))
 
 
-def get_mid_week_reading_for_date(now: datetime.datetime) -> dict | None:
+def get_mid_week_reading_for_date(now: datetime.datetime) -> Optional[dict]:
   """Returns mid week reading data for given date based on week of church year."""
   cy = ChurchYear(now.year)
   week_num = cy.get_week_of_church_year(now.date())
