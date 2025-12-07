@@ -39,6 +39,22 @@
         <p>{{ gospel_text|safe }}</p>
     {% endcall %}
 
+    {% if catechism_enabled %}
+    {% call macros.card('Catechism: ' ~ catechism_title) %}
+        {% if catechism_text %}
+          <p>{{ catechism_text|safe }}</p>
+        {% endif %}
+        {% for qa in questions_and_answers %}
+          <div class="catechism-qa">
+            <p><strong>{{ qa.question }}</strong></p>
+            <p>{{ qa.answer|safe }}</p>
+          </div>
+        {% endfor %}
+        <p><strong>Prayer:</strong> {{ catechism_prayer|safe }}</p>
+        <span class="versicle-ref">Catechism source: <a href="https://bookofconcord.org/small-catechism/" target="_blank">bookofconcord.org</a></span>
+    {% endcall %}
+    {% endif %}
+
     {% call macros.card('Pray for others') %}
         {% for prayer in weekly_prayers_list %}
             <p class="subheader"><strong>{{ prayer.topic }}</strong></p>

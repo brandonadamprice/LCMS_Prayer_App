@@ -17,6 +17,8 @@ def generate_mid_week_devotion():
         error_message="Mid-week reading data not available for this week.",
     )
 
+  catechism_data = utils.get_catechism_for_day(now)
+
   refs_to_fetch = [
       reading_data["Psalm"],
       reading_data["OT"],
@@ -72,6 +74,7 @@ def generate_mid_week_devotion():
       "weekly_prayers_list": weekly_prayers_list,
       "mid_week_prayer": reading_data["Prayer"],
   }
+  template_data.update(catechism_data)
 
   print("Generated Mid-Week Devotion HTML")
   return flask.render_template("mid_week_devotion.html", **template_data)
