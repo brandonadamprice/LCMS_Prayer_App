@@ -645,9 +645,6 @@ def get_mid_week_reading_for_date(now: datetime.datetime) -> Optional[dict]:
   cy = ChurchYear(now.year)
   week_num = cy.get_week_of_church_year(now.date())
 
-  # Cycle through 52 readings based on week of year
-  reading_week_num = (week_num - 1) % 52 + 1
-
   for reading in MID_WEEK_READINGS["extended_mid_week_devotions"]:
     if reading["week_number"] == week_num:
       return reading
