@@ -14,6 +14,7 @@ import flask
 import flask_login
 from google.cloud import firestore
 import gospels_by_category
+import mid_week
 import midday
 import morning
 import night_watch
@@ -213,6 +214,12 @@ def evening_devotion_route():
 def close_of_day_devotion_route():
   """Returns the generated devotion HTML."""
   return close_of_day.generate_close_of_day_devotion()
+
+
+@app.route("/mid_week_devotion")
+def mid_week_devotion_route():
+  """Returns the generated mid-week devotion HTML."""
+  return mid_week.generate_mid_week_devotion()
 
 
 @app.route("/advent_devotion")

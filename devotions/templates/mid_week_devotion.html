@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% import "_macros.html" as macros %}
+{% block title %}Mid-Week Devotion{% endblock %}
+{% block content %}
+    <div class="page-header">
+      <h1>Mid-Week Devotion</h1>
+      <p>
+        {{ date_str }}<br />
+        <span style="color: #7f8c8d">{{ church_season_day }}</span>
+      </p>
+    </div>
+
+    {% call macros.card('Opening Invocation and Petition') %}
+        <p><span class="rubric">Make the sign of the cross and say:</span></p>
+        <p>
+          In the Name of the Father and of the † Son and of the Holy Ghost.<br/>
+          <strong>Amen.</strong>
+        </p>
+        <p>
+          O God, make speed to save me.<br/>
+          <strong>O Lord, make haste to help me.</strong>
+        </p>
+        {{ macros.format_prayer(config['OTHER_PRAYERS']['gloria_patri']) }}
+    {% endcall %}
+
+    {% call macros.card('Psalmody for Meditation and Vigilance') %}
+        <span class="ref">{{ psalm_ref }}</span>
+        <p>{{ psalm_text|safe }}</p>
+    {% endcall %}
+
+    {% call macros.card('Scripture Readings') %}
+        <span class="ref">Old Testament: {{ ot_ref }}</span>
+        <p>{{ ot_text|safe }}</p>
+        <hr />
+        <span class="ref">Epistle: {{ epistle_ref }}</span>
+        <p>{{ epistle_text|safe }}</p>
+        <hr />
+        <span class="ref">Gospel: {{ gospel_ref }}</span>
+        <p>{{ gospel_text|safe }}</p>
+    {% endcall %}
+
+    {% call macros.card('Pray for others') %}
+        {% for prayer in weekly_prayers_list %}
+            <p class="subheader"><strong>{{ prayer.topic }}</strong></p>
+            <p>{{ prayer.prayer }}</p>
+            {% if prayer.personal_prayers %}
+              <p class="subheader"><strong>Your Personal Prayers for this Topic</strong></p>
+              <ul>
+              {% for p in prayer.personal_prayers %}
+                <li>{{ p.text }}</li>
+              {% endfor %}
+              </ul>
+            {% endif %}
+            {% if not loop.last %}<hr />{% endif %}
+        {% endfor %}
+    {% endcall %}
+
+    {% call macros.card('Concluding Prayer and Dedication') %}
+         {{ macros.format_prayer(config['OTHER_PRAYERS']['lords_prayer']) }}
+         <hr/>
+         <p class="subheader"><strong>Dedication</strong></p>
+         <p>Almighty God, merciful Father, who created and completed all things, on this day when the work of our calling begins anew, we implore You to create its beginning, direct its continuance, and bless its end, that our doings may be preserved from sin, our life sanctified, and our work this day be well pleasing to You; through Jesus Christ, our Lord.<br/><strong>Amen.</strong></p>
+    {% endcall %}
+
+{% endblock %}

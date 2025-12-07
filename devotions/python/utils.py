@@ -24,6 +24,7 @@ WEEKLY_PRAYERS_JSON_PATH = os.path.join(DATA_DIR, "weekly_prayers.json")
 OFFICE_READINGS_JSON_PATH = os.path.join(DATA_DIR, "office_readings.json")
 OTHER_PRAYERS_JSON_PATH = os.path.join(DATA_DIR, "other_prayers.json")
 INAPPROPRIATE_WORDS_CSV_PATH = os.path.join(DATA_DIR, "inappropriate_words.csv")
+MID_WEEK_READINGS_JSON_PATH = os.path.join(DATA_DIR, "mid_week_readings.json")
 
 
 def get_db_client():
@@ -138,10 +139,19 @@ def load_other_prayers():
     return json.load(f)
 
 
+def load_mid_week_readings():
+  """Loads mid week readings from JSON file."""
+  with open(MID_WEEK_READINGS_JSON_PATH, "r", encoding="utf-8") as f:
+    data = json.load(f)
+    for item in data["extended_mid_week_devotions"]:
+      item["church_season_day"] = item.pop("church_season/day")
+    return data
+
 CATECHISM_SECTIONS = load_catechism()
 WEEKLY_PRAYERS = load_weekly_prayers()
 OFFICE_READINGS = load_office_readings()
 OTHER_PRAYERS = load_other_prayers()
+MID_WEEK_READINGS = load_mid_week_readings()
 
 
 def get_other_prayers():
@@ -254,6 +264,23 @@ class ChurchYear:
     self.ash_wednesday = self.easter_date - datetime.timedelta(days=46)
     self.pentecost = self.easter_date + datetime.timedelta(days=49)
     self.holy_trinity = self.pentecost + datetime.timedelta(days=7)
+
+  def _calculate_advent1(self, year: int) -> datetime.date:
+    """Advent 1 is the Sunday between Nov 27 and Dec 3."""
+    return datetime.date(year, 12, 3) - datetime.timedelta(
+        days=(datetime.date(year, 12, 3).weekday() + 1) % 7
+    )
+
+  def get_week_of_church_year(self, current_date: datetime.date) -> int:
+    """Returns week number 1-52 within church year starting Advent 1."""
+    adv1_this_year = self._calculate_advent1(current_date.year)
+    if current_date >= adv1_this_year:
+      start_of_cy = adv1_this_year
+    else:
+      start_of_cy = self._calculate_advent1(current_date.year - 1)
+
+    week = ((current_date - start_of_cy).days // 7) % 52 + 1
+    return week
 
   def calculate_easter(self, year: int) -> datetime.date:
     """Calculates the date of Western Easter for a given year."""
@@ -610,3 +637,17 @@ def _fetch_passages_cached(references: tuple[str, ...]) -> tuple[str, ...]:
 def fetch_passages(references: list[str]) -> list[str]:
   """Fetches multiple passages from api.esv.org in one request."""
   return list(_fetch_passages_cached(tuple(references)))
+
+
+def get_mid_week_reading_for_date(now: datetime.datetime) -> dict | None:
+  """Returns mid week reading data for given date based on week of church year."""
+  cy = ChurchYear(now.year)
+  week_num = cy.get_week_of_church_year(now.date())
+
+  # Cycle through 52 readings based on week of year
+  reading_week_num = (week_num - 1) % 52 + 1
+
+  for reading in MID_WEEK_READINGS["extended_mid_week_devotions"]:
+    if reading["week_number"] == week_num:
+      return reading
+  return None
