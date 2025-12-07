@@ -13,7 +13,7 @@ def generate_evening_devotion():
   now = datetime.datetime.now(eastern_timezone)
   cy = utils.ChurchYear(now.year)
   key = cy.get_liturgical_key(now)
-  catechism_data = utils.get_catechism_for_day(now)
+  catechism_data = utils.get_catechism_for_day(now, rotation="daily")
 
   reading_ref = random.choice(utils.OFFICE_READINGS["evening_readings"])
   psalm_num = random.randint(1, 150)

@@ -183,12 +183,17 @@ def decrypt_text(token: str) -> str:
     return "[Error decrypting prayer]"
 
 
-def get_catechism_for_day(now: datetime.datetime) -> dict:
-  """Returns the catechism section for a given day."""
+def get_catechism_for_day(now: datetime.datetime, rotation: str = "daily") -> dict:
+  """Returns the catechism section for a given day or week."""
   if not ENABLE_CATECHISM:
     return {"catechism_enabled": False}
-  day_of_year = now.timetuple().tm_yday
-  cat_idx = day_of_year % len(CATECHISM_SECTIONS)
+
+  if rotation == "weekly":
+    item_of_year = now.isocalendar()[1]  # week number
+  else:  # daily
+    item_of_year = now.timetuple().tm_yday  # day of year
+
+  cat_idx = (item_of_year - 1) % len(CATECHISM_SECTIONS)
   catechism = CATECHISM_SECTIONS[cat_idx]
   prayer = random.choice(catechism["prayers"])
   return {
@@ -448,7 +453,7 @@ def get_devotion_data(now: datetime.datetime) -> dict:
   print("Texts Acquired")
 
   # 5. Catechism - USE HELPER
-  catechism_data = get_catechism_for_day(now)
+  catechism_data = get_catechism_for_day(now, rotation="daily")
   print("Populated Catechism Reading")
 
   # 6. Weekly Prayer - USE HELPER
