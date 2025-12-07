@@ -51,6 +51,12 @@
       <a href="/" class="button">Back to Home</a>
     </div>
     {% endif %}
+
+    <div id="login-popup" class="hidden">
+      <button id="login-popup-close" aria-label="Close">&times;</button>
+      <p>Did you know? You can log in with Google via the menu (☰) to save preferences and access features like My Prayers!</p>
+    </div>
+
     <footer class="footer">
       <a href="/copyright">Copyright Information</a>
     </footer>
@@ -218,6 +224,22 @@
           appMenu.style.display = 'none';
         }
       });
+
+      // Login prompt popup
+      const loginPopup = document.getElementById('login-popup');
+      const closeLoginPopup = document.getElementById('login-popup-close');
+      const LOGIN_MSG_KEY = 'loginMessageShown';
+
+      if (!isLoggedIn && !localStorage.getItem(LOGIN_MSG_KEY)) {
+          loginPopup.classList.remove('hidden');
+      }
+
+      if(closeLoginPopup) {
+          closeLoginPopup.addEventListener('click', () => {
+              loginPopup.classList.add('hidden');
+              localStorage.setItem(LOGIN_MSG_KEY, 'true');
+          });
+      }
       {% block extra_js %}{% endblock %}
     </script>
   </body>

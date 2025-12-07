@@ -450,6 +450,51 @@ body.dark-mode .font-controls button:hover {
     background: #666;
 }
 
+/* Login Popup */
+#login-popup {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 280px;
+    background-color: #fff8e1; /* Light yellow */
+    color: #5d5d5d;
+    border: 1px solid #ffe0b3;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    padding: 15px 30px 15px 20px;
+    z-index: 1002;
+    font-size: 0.9em;
+    line-height: 1.5;
+}
+#login-popup.hidden {
+    display: none;
+}
+#login-popup-close {
+    position: absolute;
+    top: 0px;
+    right: 5px;
+    background: none;
+    border: none;
+    font-size: 1.8em;
+    color: #aaa;
+    cursor: pointer;
+    padding: 0;
+}
+#login-popup-close:hover {
+    color: #333;
+}
+body.dark-mode #login-popup {
+    background-color: #5a5340;
+    color: #eee;
+    border-color: #8c7d5e;
+}
+body.dark-mode #login-popup-close {
+    color: #ccc;
+}
+body.dark-mode #login-popup-close:hover {
+    color: #fff;
+}
+
 /* Catechism Q&A */
 .catechism-qa {
   margin-bottom: 1em;
