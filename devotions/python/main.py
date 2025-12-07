@@ -56,13 +56,20 @@ class User(flask_login.UserMixin):
   """User class for Flask-Login."""
 
   def __init__(
-      self, user_id, email=None, name=None, profile_pic=None, dark_mode=None
+      self,
+      user_id,
+      email=None,
+      name=None,
+      profile_pic=None,
+      dark_mode=None,
+      font_size_level=None,
   ):
     self.id = user_id
     self.email = email
     self.name = name
     self.profile_pic = profile_pic
     self.dark_mode = dark_mode
+    self.font_size_level = font_size_level
 
   @staticmethod
   def get(user_id):
@@ -78,6 +85,7 @@ class User(flask_login.UserMixin):
           name=data.get("name"),
           profile_pic=data.get("profile_pic"),
           dark_mode=data.get("dark_mode"),
+          font_size_level=data.get("font_size_level"),
       )
     return None
 
@@ -455,6 +463,27 @@ def save_dark_mode_route():
       return flask.jsonify({"success": True})
     except Exception as e:
       app.logger.error("Failed to save dark mode setting: %s", e)
+      return (
+          flask.jsonify({"success": False, "error": "Database save failed"}),
+          500,
+      )
+  return flask.jsonify({"success": False, "error": "Invalid data"}), 400
+
+
+@app.route("/save_font_size", methods=["POST"])
+@flask_login.login_required
+def save_font_size_route():
+  """Saves font size preference for the current user."""
+  data = flask.request.json
+  font_size_level = data.get("font_size_level")
+  if isinstance(font_size_level, int):
+    try:
+      db = utils.get_db_client()
+      user_ref = db.collection("users").document(flask_login.current_user.id)
+      user_ref.set({"font_size_level": font_size_level}, merge=True)
+      return flask.jsonify({"success": True})
+    except Exception as e:
+      app.logger.error("Failed to save font size setting: %s", e)
       return (
           flask.jsonify({"success": False, "error": "Database save failed"}),
           500,

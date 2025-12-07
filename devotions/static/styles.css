@@ -419,6 +419,50 @@ input:checked + .slider:before {
   transform: translateX(26px);
 }
 
+.font-controls {
+    display: flex;
+    align-items: center;
+}
+.font-controls button {
+    background: #eee;
+    color: #333;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 0px 10px;
+    margin-left: 5px;
+    cursor: pointer;
+    font-size: 1.4em;
+    font-weight: bold;
+    line-height: 1;
+    height: 28px;
+    text-align: center;
+    width: 30px;
+}
+.font-controls button:hover {
+    background: #ccc;
+}
+body.dark-mode .font-controls button {
+    background: #555;
+    color: #eee;
+    border-color: #777;
+}
+body.dark-mode .font-controls button:hover {
+    background: #666;
+}
+
+/* Catechism Q&A */
+.catechism-qa {
+  margin-bottom: 1em;
+  padding-left: 15px;
+  border-left: 3px solid #eee;
+}
+.catechism-qa p:first-child {
+  margin-bottom: 0.2em;
+}
+body.dark-mode .catechism-qa {
+  border-left-color: #555;
+}
+
 /* Dark Mode */
 body.dark-mode {
     background-color: #333333;

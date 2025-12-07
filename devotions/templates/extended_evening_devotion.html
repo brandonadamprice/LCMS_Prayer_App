@@ -34,8 +34,10 @@
           <p>{{ catechism_text|safe }}</p>
         {% endif %}
         {% for qa in questions_and_answers %}
-          <p><strong>{{ qa.question }}</strong></p>
-          <p>{{ qa.answer|safe }}</p>
+          <div class="catechism-qa">
+            <p><strong>{{ qa.question }}</strong></p>
+            <p>{{ qa.answer|safe }}</p>
+          </div>
         {% endfor %}
         <p><strong>Prayer:</strong> {{ catechism_prayer|safe }}</p>
         <span class="versicle-ref">Catechism source: <a href="https://bookofconcord.org/small-catechism/" target="_blank">bookofconcord.org</a></span>

@@ -34,6 +34,13 @@
                 <span class="slider"></span>
             </label>
         </div>
+        <div class="menu-item">
+          <span>Font Size</span>
+          <div class="font-controls">
+              <button id="decrease-font" aria-label="Decrease font size">-</button>
+              <button id="increase-font" aria-label="Increase font size">+</button>
+          </div>
+      </div>
       </div>
     </div>
     {% block content %}{% endblock %}
@@ -100,6 +107,46 @@
       const darkModeToggle = document.getElementById('dark-mode-toggle');
       const isLoggedIn = {{ current_user.is_authenticated|tojson }};
       const userDarkMode = {% if current_user.is_authenticated %}{{ current_user.dark_mode|tojson }}{% else %}null{% endif %};
+      const userFontSizeLevel = {% if current_user.is_authenticated and current_user.font_size_level is not none %}{{ current_user.font_size_level }}{% else %}null{% endif %};
+
+      // Font size settings
+      const FONT_SIZES = [0.8, 0.9, 1.0, 1.1, 1.2, 1.3]; // em
+      let currentFontSizeIndex = 2; // Default 1.0em
+
+      function applyFontSize(index) {
+          currentFontSizeIndex = Math.max(0, Math.min(index, FONT_SIZES.length - 1));
+          document.body.style.fontSize = FONT_SIZES[currentFontSizeIndex] + 'em';
+          document.getElementById('decrease-font').disabled = currentFontSizeIndex === 0;
+          document.getElementById('increase-font').disabled = currentFontSizeIndex === FONT_SIZES.length - 1;
+      }
+
+      async function saveFontSizePreference(index) {
+          localStorage.setItem('fontSizeLevel', index);
+          if (isLoggedIn) {
+              try {
+                  await fetch('/save_font_size', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ font_size_level: index }),
+                  });
+              } catch (error) {
+                  console.error('Failed to save font size preference:', error);
+              }
+          }
+      }
+
+      document.getElementById('increase-font').addEventListener('click', () => {
+          if(currentFontSizeIndex < FONT_SIZES.length - 1) {
+              applyFontSize(currentFontSizeIndex + 1);
+              saveFontSizePreference(currentFontSizeIndex);
+          }
+      });
+      document.getElementById('decrease-font').addEventListener('click', () => {
+          if(currentFontSizeIndex > 0) {
+              applyFontSize(currentFontSizeIndex - 1);
+              saveFontSizePreference(currentFontSizeIndex);
+          }
+      });
 
       function applyDarkMode(isDark) {
         if (isDark) {
@@ -133,6 +180,18 @@
           applyDarkMode(userDarkMode);
       } else {
           applyDarkMode(localStorage.getItem('darkMode') === 'enabled');
+      }
+
+      // Set initial font size
+      if (isLoggedIn && userFontSizeLevel !== null) {
+          applyFontSize(userFontSizeLevel);
+      } else {
+          const localSize = localStorage.getItem('fontSizeLevel');
+          if (localSize !== null) {
+              applyFontSize(parseInt(localSize, 10));
+          } else {
+              applyFontSize(2); // Default
+          }
       }
 
       // Toggle dark mode
