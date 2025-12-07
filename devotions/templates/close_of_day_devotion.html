@@ -52,6 +52,14 @@
         </p>
         <p>Lord, hear our prayer. <strong>And let our cry come to you.</strong></p>
         {{ weekly_prayer_html|safe }}
+        {% if personal_prayers_list %}
+          <p class="subheader"><strong>Your Personal Prayers for this Topic</strong></p>
+          <ul>
+          {% for prayer in personal_prayers_list %}
+            <li>{{ prayer.text }}</li>
+          {% endfor %}
+          </ul>
+        {% endif %}
         <p><em>(You may offer your own prayers at this time)</em></p>
         <hr />
         <p class="subheader"><strong>Concluding Prayer</strong></p>

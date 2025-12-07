@@ -8,6 +8,7 @@ import os
 import random
 import re
 from google.cloud import firestore
+import flask_login
 import requests
 import secrets_fetcher as secrets
 
@@ -168,11 +169,25 @@ def get_weekly_prayer_for_day(now: datetime.datetime) -> dict:
   prayer_data = WEEKLY_PRAYERS.get(
       str(weekday_idx), {"topic": "General Intercessions", "prayer": ""}
   )
+  topic = prayer_data["topic"]
+  personal_prayers_list = []
+  if flask_login.current_user.is_authenticated:
+    db = get_db_client()
+    prayers_ref = db.collection("personal-prayers")
+    query = prayers_ref.where("user_id", "==", flask_login.current_user.id).where(
+        "category", "==", topic
+    )
+    try:
+      docs = query.stream()
+      personal_prayers_list = [{"id": doc.id, **doc.to_dict()} for doc in docs]
+    except Exception as e:
+      print(f"Error fetching personal prayers: {e}")
   return {
-      "prayer_topic": prayer_data["topic"],
+      "prayer_topic": topic,
       "weekly_prayer_html": (
           f'<p>{prayer_data["prayer"]}</p>' if prayer_data["prayer"] else ""
       ),
+      "personal_prayers_list": personal_prayers_list,
   }
 
 

@@ -491,6 +491,74 @@ def save_font_size_route():
   return flask.jsonify({"success": False, "error": "Invalid data"}), 400
 
 
+@app.route("/my_prayers")
+@flask_login.login_required
+def my_prayers_route():
+  """Displays page for managing personal prayers."""
+  db = utils.get_db_client()
+  categories = sorted([d["topic"] for d in utils.WEEKLY_PRAYERS.values()])
+  prayers_by_cat = {cat: [] for cat in categories}
+  try:
+    docs = (
+        db.collection("personal-prayers")
+        .where("user_id", "==", flask_login.current_user.id)
+        .stream()
+    )
+    for doc in docs:
+      prayer = doc.to_dict()
+      prayer["id"] = doc.id
+      if prayer.get("category") in prayers_by_cat:
+        prayers_by_cat[prayer["category"]].append(prayer)
+  except Exception as e:
+    app.logger.error("Failed to fetch personal prayers: %s", e)
+    flask.flash("Could not load personal prayers.", "error")
+
+  return flask.render_template(
+      "my_prayers.html", prayers_by_cat=prayers_by_cat, categories=categories
+  )
+
+
+@app.route("/add_personal_prayer", methods=["POST"])
+@flask_login.login_required
+def add_personal_prayer_route():
+  """Adds a personal prayer to Firestore."""
+  category = flask.request.form.get("category")
+  prayer_text = flask.request.form.get("prayer_text")
+  categories = [d["topic"] for d in utils.WEEKLY_PRAYERS.values()]
+  if not category or not prayer_text or category not in categories:
+    flask.flash("Invalid category or empty prayer text.", "error")
+    return flask.redirect(flask.url_for("my_prayers_route"))
+  if len(prayer_text) > 1000:
+    flask.flash("Prayer text cannot exceed 1000 characters.", "error")
+    return flask.redirect(flask.url_for("my_prayers_route"))
+
+  db = utils.get_db_client()
+  db.collection("personal-prayers").add({
+      "user_id": flask_login.current_user.id,
+      "category": category,
+      "text": prayer_text,
+      "created_at": datetime.datetime.now(datetime.timezone.utc),
+  })
+  return flask.redirect(flask.url_for("my_prayers_route"))
+
+
+@app.route("/delete_personal_prayer", methods=["POST"])
+@flask_login.login_required
+def delete_personal_prayer_route():
+  """Deletes a personal prayer."""
+  prayer_id = flask.request.form.get("prayer_id")
+  if not prayer_id:
+    return flask.redirect(flask.url_for("my_prayers_route"))
+  db = utils.get_db_client()
+  doc_ref = db.collection("personal-prayers").document(prayer_id)
+  doc = doc_ref.get()
+  if doc.exists and doc.to_dict().get("user_id") == flask_login.current_user.id:
+    doc_ref.delete()
+  else:
+    flask.flash("Prayer not found or permission denied.", "error")
+  return flask.redirect(flask.url_for("my_prayers_route"))
+
+
 @app.route("/edit_prayer_request/<request_id>", methods=["POST"])
 @flask_login.login_required
 def edit_prayer_request_route(request_id):

@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}My Personal Prayers{% endblock %}
+{% block content %}
+    <div class="page-header">
+      <h1>My Personal Prayers</h1>
+      <p>Manage your personal prayer intentions here. These prayers will appear on daily devotion pages when the prayer topic matches.</p>
+    </div>
+
+    <div class="card">
+      <h2>Add New Prayer</h2>
+      <form action="/add_personal_prayer" method="post">
+        <div style="margin-bottom: 10px;">
+          <label for="category">Category:</label><br>
+          <select id="category" name="category" required style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box;">
+            {% for category in categories %}
+            <option value="{{ category }}">{{ category }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div style="margin-bottom: 10px;">
+          <label for="prayer_text">Prayer:</label><br>
+          <textarea id="prayer_text" name="prayer_text" rows="3" required maxlength="1000" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box;"></textarea>
+        </div>
+        <button type="submit" class="button">Add Prayer</button>
+      </form>
+    </div>
+
+    {% for category in categories %}
+      {% if prayers_by_cat[category] %}
+        <div class="card">
+          <h2>{{ category }}</h2>
+          <ul style="list-style: none; padding: 0;">
+            {% for prayer in prayers_by_cat[category] %}
+            <li style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding: 10px 0;">
+              <span>{{ prayer.text }}</span>
+              <form action="/delete_personal_prayer" method="post" style="margin: 0;">
+                <input type="hidden" name="prayer_id" value="{{ prayer.id }}">
+                <button type="submit" class="button" style="background-color: #e74c3c; padding: 5px 10px; font-size: 0.9em;">Delete</button>
+              </form>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+    {% endfor %}
+
+{% endblock %}
