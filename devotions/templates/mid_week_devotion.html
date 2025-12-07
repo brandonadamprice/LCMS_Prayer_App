@@ -58,6 +58,9 @@
     {% call macros.card('Concluding Prayer and Dedication') %}
          {{ macros.format_prayer(config['OTHER_PRAYERS']['lords_prayer']) }}
          <hr/>
+        <p class="subheader"><strong>Prayer for the Week</strong></p>
+        <p>{{ mid_week_prayer}}{% if not mid_week_prayer.endswith("...") and not mid_week_prayer.endswith("etc.") %} <strong>Amen.</strong>{% endif %}</p>
+        <hr/>
          <p class="subheader"><strong>Dedication</strong></p>
          <p>Almighty God, merciful Father, who created and completed all things, on this day when the work of our calling begins anew, we implore You to create its beginning, direct its continuance, and bless its end, that our doings may be preserved from sin, our life sanctified, and our work this day be well pleasing to You; through Jesus Christ, our Lord.<br/><strong>Amen.</strong></p>
     {% endcall %}

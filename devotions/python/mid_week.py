@@ -70,6 +70,7 @@ def generate_mid_week_devotion():
       "epistle_text": epistle_text,
       "gospel_text": gospel_text,
       "weekly_prayers_list": weekly_prayers_list,
+      "mid_week_prayer": reading_data["Prayer"],
   }
 
   print("Generated Mid-Week Devotion HTML")
