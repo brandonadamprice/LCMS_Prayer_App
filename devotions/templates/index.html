@@ -12,12 +12,10 @@
       <a href="/close_of_day_devotion" class="button">Close of Day</a>
       <a href="/night_watch_devotion" class="button">Night Watch</a>
     </div>
-    {% if is_advent %}
     <div class="card">
-        <h2>Advent Devotion</h2>
-        <a href="/advent_devotion" class="button">Advent Family Devotional</a>
+      <h2>Seasonal Devotions</h2>
+      <button onclick="location.href='/advent_devotion'" class="button" {% if not is_advent %}disabled{% endif %}>Advent Family Devotional</button>
     </div>
-    {% endif %}
     <div class="card">
       <h2>Longer Devotionals</h2>
       <a href="/extended_evening_devotion" class="button">Extended Evening Devotion</a>
