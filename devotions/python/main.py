@@ -14,8 +14,8 @@ import flask
 import flask_login
 from google.cloud import firestore
 import gospels_by_category
-import morning
 import midday
+import morning
 import night_watch
 import prayer_requests
 import psalms_by_category
@@ -312,7 +312,9 @@ def prayer_wall_route():
     prayed_request_ids = []
     if flask_login.current_user.is_authenticated:
       db = utils.get_db_client()
-      user_doc_ref = db.collection("users").document(flask_login.current_user.id)
+      user_doc_ref = db.collection("users").document(
+          flask_login.current_user.id
+      )
       user_doc = user_doc_ref.get()
       if user_doc.exists:
         prayed_request_ids = user_doc.to_dict().get("prayed_request_ids", [])

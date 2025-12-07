@@ -77,11 +77,11 @@
             popupJS.style.opacity = 1;
             popupJS.style.display = 'block';
             void popupJS.offsetWidth;
-            popupJS.style.transition = 'opacity 5s ease-out';
+            popupJS.style.transition = 'opacity 10s ease-out';
             popupJS.style.opacity = 0;
             fadeTimeoutJS = setTimeout(() => {
                 popupJS.style.display = 'none';
-            }, 5000);
+            }, 10000);
         });
     }
 {% endblock %}
