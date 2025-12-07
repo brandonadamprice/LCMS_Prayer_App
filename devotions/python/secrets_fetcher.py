@@ -41,3 +41,8 @@ def get_google_client_secret():
 def get_flask_secret_key():
   """Fetches the Flask SECRET_KEY for session signing."""
   return _get_secret("FLASK_SECRET_KEY", "FLASK_SECRET_KEY")
+
+
+def get_fernet_key():
+  """Fetches the Fernet encryption key."""
+  return _get_secret("FERNET_KEY", "FERNET_KEY")

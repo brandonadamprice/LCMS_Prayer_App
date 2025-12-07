@@ -7,8 +7,9 @@ import json
 import os
 import random
 import re
-from google.cloud import firestore
+from cryptography.fernet import Fernet
 import flask_login
+from google.cloud import firestore
 import requests
 import secrets_fetcher as secrets
 
@@ -142,9 +143,34 @@ WEEKLY_PRAYERS = load_weekly_prayers()
 OFFICE_READINGS = load_office_readings()
 OTHER_PRAYERS = load_other_prayers()
 
+
 def get_other_prayers():
   """Returns the OTHER_PRAYERS dictionary."""
   return OTHER_PRAYERS
+
+
+@functools.lru_cache()
+def get_fernet():
+  """Initializes and returns a Fernet instance with the key."""
+  key = secrets.get_fernet_key()
+  return Fernet(key.encode())
+
+
+def encrypt_text(text: str) -> str:
+  """Encrypts text using Fernet."""
+  f = get_fernet()
+  return f.encrypt(text.encode()).decode()
+
+
+def decrypt_text(token: str) -> str:
+  """Decrypts a Fernet token."""
+  try:
+    f = get_fernet()
+    return f.decrypt(token.encode()).decode()
+  except Exception as e:
+    print(f"Error decrypting token: {e}")
+    return "[Error decrypting prayer]"
+
 
 def get_catechism_for_day(now: datetime.datetime) -> dict:
   """Returns the catechism section for a given day."""
@@ -174,12 +200,16 @@ def get_weekly_prayer_for_day(now: datetime.datetime) -> dict:
   if flask_login.current_user.is_authenticated:
     db = get_db_client()
     prayers_ref = db.collection("personal-prayers")
-    query = prayers_ref.where("user_id", "==", flask_login.current_user.id).where(
-        "category", "==", topic
-    )
+    query = prayers_ref.where(
+        "user_id", "==", flask_login.current_user.id
+    ).where("category", "==", topic)
     try:
       docs = query.stream()
-      personal_prayers_list = [{"id": doc.id, **doc.to_dict()} for doc in docs]
+      for doc in docs:
+        prayer = doc.to_dict()
+        prayer["id"] = doc.id
+        prayer["text"] = decrypt_text(prayer["text"])
+        personal_prayers_list.append(prayer)
     except Exception as e:
       print(f"Error fetching personal prayers: {e}")
   return {
@@ -544,8 +574,8 @@ def _fetch_passages_cached(references: tuple[str, ...]) -> tuple[str, ...]:
               if text_block.endswith(" (ESV)"):
                 text_block = (
                     text_block.removesuffix(" (ESV)")
-                    + ' <span class="esv-attribution">(<a href="http://www.esv.org"'
-                    '>ESV</a>)</span>'
+                    + ' <span class="esv-attribution">(<a'
+                    ' href="http://www.esv.org">ESV</a>)</span>'
                 )
             else:
               text_block = ""

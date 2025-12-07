@@ -508,6 +508,7 @@ def my_prayers_route():
       prayer = doc.to_dict()
       prayer["id"] = doc.id
       if prayer.get("category") in prayers_by_cat:
+        prayer["text"] = utils.decrypt_text(prayer["text"])
         prayers_by_cat[prayer["category"]].append(prayer)
   except Exception as e:
     app.logger.error("Failed to fetch personal prayers: %s", e)
@@ -536,7 +537,7 @@ def add_personal_prayer_route():
   db.collection("personal-prayers").add({
       "user_id": flask_login.current_user.id,
       "category": category,
-      "text": prayer_text,
+      "text": utils.encrypt_text(prayer_text),
       "created_at": datetime.datetime.now(datetime.timezone.utc),
   })
   return flask.redirect(flask.url_for("my_prayers_route"))
