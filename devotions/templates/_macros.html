@@ -23,7 +23,7 @@
 {% endmacro %}
 
 {% macro personal_prayers_toggle(all_personal_prayers) %}
-{% if current_user.is_authenticated and all_personal_prayers %}
+{% if all_personal_prayers %}
 <button class="button" onclick="document.getElementById('personal-prayers-list').classList.toggle('hidden')">Show/Hide My Personal Prayers</button>
 <div id="personal-prayers-list" class="hidden" style="margin-top: 10px;">
   <p class="subheader"><strong>My Personal Prayers</strong></p>
