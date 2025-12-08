@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% import "_macros.html" as macros %}
+
+{% block title %}100 Prayers for Specific Situations{% endblock %}
+
+{% block content %}
+    <div class="page-header">
+      <h1>100 Prayers for Specific Situations</h1>
+      <p>Select a situation to view a prayer for reflection.</p>
+    </div>
+
+    {% for item in situations %}
+      {% call macros.card(item.situation, collapsed=True) %}
+        <p>{{ item.prayer }}</p>
+      {% endcall %}
+    {% endfor %}
+{% endblock %}

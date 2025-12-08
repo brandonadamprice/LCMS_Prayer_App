@@ -1,0 +1,509 @@
+{
+  "prayers_for_specific_situations": [
+    {
+      "situation": "General Time of Affliction and Distress",
+      "prayer": "Almighty and everlasting God, the Consolation of the sorrowful and the Strength of the weak, may the prayers of them that in any tribulation or distress cry unto Thee, graciously come before Thee, so that in all their necessities they may mark and receive Thy manifold help and comfort; through Jesus Christ, Thy Son, our Lord."
+    },
+    {
+      "situation": "Seeking Deliverance from Evil (Last Hour)",
+      "prayer": "Deliver us from evil. We pray in this petition, in summary, that our Father in heaven would rescue us from every evil of body and soul, possessions and reputation, and at last, when our last hour comes, give us a blessed end, and graciously take us from this valley of sorrow to Himself in heaven."
+    },
+    {
+      "situation": "Daily Need for Provision/Sustenance",
+      "prayer": "Give us this day our daily bread. In this petition, you pray for everything that is necessary in order to have and enjoy daily bread and, on the other hand, against everything which interferes with it."
+    },
+    {
+      "situation": "Seeking Pardon for Sins (General Petition)",
+      "prayer": "Hear, we beseech Thee, O Lord, the prayer of Thy suppliants and spare those who confess their sins unto Thee that Thou mayest bestow upon us both pardon and peace; through Jesus Christ, Thy Son, our Lord."
+    },
+    {
+      "situation": "Overcoming Sins and Punishments",
+      "prayer": "We beseech Thee, O Lord, in Thy clemency to show us Thine unspeakable mercy that Thou mayest both set us free from our sins and rescue us from the punishments which for our sins we deserve; through Jesus Christ, Thy Son, our Lord."
+    },
+    {
+      "situation": "Need for True Penitence and Contrition",
+      "prayer": "Merciful Father, give us grace that we may never presume to sin; but if at any time we offend Thy divine majesty, may we truly repent and lament our offense and by a lively faith obtain remission of all our sins, solely through the merits of Thy Son, our Savior, Jesus Christ."
+    },
+    {
+      "situation": "Seeking Protection Against Temptation",
+      "prayer": "O God, who justifiest the ungodly and who desirest not the death of the sinner... graciously assist by Thy heavenly aid, and evermore shield with Thy protection, Thy servants who trust in Thy mercy, that they may be separated by no temptations from Thee and without ceasing may serve Thee."
+    },
+    {
+      "situation": "Seeking Daily Protection from Sin and Danger (Morning)",
+      "prayer": "O Lord, our heavenly Father, almighty and everlasting God, who hast safely brought us to the beginning of this day, defend us in the same with Thy mighty power, and grant that this day we fall into no sin, neither run into any kind of danger, but that all our doings, being ordered by Thy governance, may be righteous in Thy sight; through Jesus Christ, Thy Son, our Lord."
+    },
+    {
+      "situation": "Illness and Sickness (Seeking Restoration to Health)",
+      "prayer": "Almighty, everlasting God, the eternal Salvation of them that believe, hear our prayers in behalf of Thy servants who are sick, for whom we implore the aid of Thy mercy, that, being restored to health, they may render thanks to Thee in Thy Church; through Jesus Christ, Thy Son, our Lord."
+    },
+    {
+      "situation": "Illness and Sickness (Seeking Comfort and Confidence)",
+      "prayer": "O Lord, look down from heaven, behold, visit, and relieve Thy servants... give them comfort and sure confidence in Thee, defend them from the danger of the enemy, and keep them in perpetual peace and safety."
+    },
+    {
+      "situation": "Time of Extreme Distress or Trouble (Relying on Promise)",
+      "prayer": "Call upon Me in the day of trouble: I will deliver thee, and thou shalt glorify Me."
+    },
+    {
+      "situation": "Need of Faith, Hope, and Charity",
+      "prayer": "Grant us, we beseech Thee, Almighty God, a steadfast faith in Jesus Christ, a cheerful hope in Thy mercy, and a sincere love to Thee and to all our fellow men; through Jesus Christ, Thy Son, our Lord."
+    },
+    {
+      "situation": "Need of Peace Amidst Enemies/Adversaries",
+      "prayer": "O God, who art the Author of peace and Lover of concord... defend us, Thy humble servants, in all assaults of our enemies, that we, surely trusting in Thy defense, may not fear the power of any adversaries."
+    },
+    {
+      "situation": "Seeking Guidance to Do God's Will",
+      "prayer": "Lord, we pray Thee, that Thy grace may always go before and follow after us, and make us continually to be given to all good works; through Thy Son, Jesus Christ our Lord..."
+    },
+    {
+      "situation": "Acknowledging Ignorance/Blindness in Asking",
+      "prayer": "Almighty God, the Fountain of all wisdom, who knowest our necessities before we ask and our ignorance in asking, we beseech Thee to have compassion upon our infirmities; and those things which for our unworthiness we dare not, and for our blindness we cannot, ask vouchsafe to give us for the worthiness of Jesus Christ, Thy Son, our Lord."
+    },
+    {
+      "situation": "Need for Ministers of the Word (Harvest)",
+      "prayer": "Send forth laborers into Thy harvest, and sustain those whom Thou hast sent, that the Word of Reconciliation may be proclaimed to all people and the Gospel preached in all the world."
+    },
+    {
+      "situation": "The Church (Seeking Purity of Doctrine)",
+      "prayer": "Most heartily we beseech Thee so to rule and govern Thy Church Universal... that we may be preserved in the pure doctrine of Thy saving Word, whereby faith toward Thee may be strengthened."
+    },
+    {
+      "situation": "During a Drought",
+      "prayer": "O God, most merciful Father, we beseech Thee to open the windows of heaven and to send a fruitful rain upon us, to revive the earth, and to refresh the fruits thereof, for all things droop and wither."
+    },
+    {
+      "situation": "Unseasonable or Extreme Weather",
+      "prayer": "O Lord God, heavenly Father... look not upon our sins and evil-doings, but upon our necessities, and according to Thy mercy send us such seasonable weather that the earth may in due time yield her increase..."
+    },
+    {
+      "situation": "Seeking Peace for Civil Authorities/The State",
+      "prayer": "For kings, and for all that are in authority; that we may lead a quiet and peaceable life in all godliness and honesty."
+    },
+    {
+      "situation": "Intercession for the Heathen/Unbelievers",
+      "prayer": "Almighty and everlasting God, who desirest not the death of a sinner... hear our prayers for the heathen, take away iniquity from their hearts, and turn them from their idols unto the living and true God and to Thine only Son; and gather them into Thy holy Church."
+    },
+    {
+      "situation": "Intercession for the Jews/Ancient People",
+      "prayer": "Almighty and everlasting God, who lovest to show mercy, hear the prayers which we offer unto Thee for Thine ancient people, that, acknowledging Jesus Christ, who is the Light of truth, they may be delivered from their darkness."
+    },
+    {
+      "situation": "Praying for Enemies/Those who Persecute",
+      "prayer": "O almighty, everlasting God... we earnestly beseech Thee that by Thy gracious visitation all our enemies may be led to true repentance and may have the same love and be of one accord and of one mind and heart with us and with Thy whole Christian Church."
+    },
+    {
+      "situation": "Before Receiving Holy Communion",
+      "prayer": "Dear Savior, upon Thy gracious invitation I come to Thine altar. Let me find favor in Thine eyes that I may approach Thy Table in true faith and receive the Sacrament to the salvation of my soul."
+    },
+    {
+      "situation": "In the Hour of Death (Final Commendation)",
+      "prayer": "Into Thy hands I commit my spirit."
+    },
+    {
+      "situation": "Deliverance from Temptation of the Devil (Litany)",
+      "prayer": "From the deceits of the world, the flesh, and the devil, **Good Lord, deliver us**."
+    },
+    {
+      "situation": "Deliverance from Spiritual Slumber",
+      "prayer": "Rouse us from slumber and death and kindle within our hearts the flame of a new life of godliness."
+    },
+    {
+      "situation": "Seeking Strength in Suffering (Job's Example)",
+      "prayer": "I rejoice in my sufferings for your sake, and in my flesh I am filling up what is lacking in Christ’s afflictions for the sake of his body, that is, the church."
+    },
+    {
+      "situation": "Seeking Divine Light and Truth",
+      "prayer": "O send out Thy Light and Thy Truth. They have led me, and brought me on unto Thy holy hill, and into Thy Tabernacles."
+    },
+    {
+      "situation": "Needing Heavenly Wisdom to Understand Doctrine",
+      "prayer": "Enlighten our minds, we beseech Thee, O God, by the Spirit which proceedeth from Thee, that, as Thy Son hath promised, we may be led into all truth; through the same Jesus Christ, Thy Son, our Lord."
+    },
+    {
+      "situation": "When Experiencing Extreme Trouble (Psalm 70)",
+      "prayer": "O God, to my aid make speed. Let them be confounded and fear that seek my soul."
+    },
+    {
+      "situation": "Seeking God's Presence Amidst Tribulation",
+      "prayer": "When I was in trouble I called unto the Lord, and He heard me."
+    },
+    {
+      "situation": "Renewal of Heart and Spirit",
+      "prayer": "Create in me a clean heart, O God: and renew a right spirit within me. Cast me not away from Thy presence: and take not Thy Holy Spirit from me."
+    },
+    {
+      "situation": "When Assailed by Evil Thoughts (Psalm 139)",
+      "prayer": "Surely Thou wilt slay the wicked, O God: depart from me, therefore, ye bloody men. For they speak against Thee wickedly: and Thine enemies take Thy name in vain."
+    },
+    {
+      "situation": "For the Growth and Edification of the Church",
+      "prayer": "Almighty and everlasting God, who by Thy Holy Spirit dost govern and sanctify the whole Christian Church, hear our prayers for all members of the same and mercifully grant that by Thy grace they may serve Thee in true faith."
+    },
+    {
+      "situation": "Seeking Forgiveness for Hidden Faults",
+      "prayer": "Clear Thou me from hidden faults, and keep back Thy servant from presumptuous sins, O Lord."
+    },
+    {
+      "situation": "When Facing Persecution for Righteousness' Sake",
+      "prayer": "Judge me, O Lord, and distinguish my cause from an ungodly nation."
+    },
+    {
+      "situation": "When Feeling Forsaken by God (Lament)",
+      "prayer": "O God, my God, attend to me: why hast Thou forsaken me? The words of my transgressions are far from my salvation."
+    },
+    {
+      "situation": "When Sin Causes Despair (Contrition)",
+      "prayer": "Hide Thy face from my sins: And blot out all mine iniquities."
+    },
+    {
+      "situation": "Forgiveness of Sins Against a Brother",
+      "prayer": "Forgive us our debts, as we also forgive our debtors."
+    },
+    {
+      "situation": "When Struggling with Unbelief and False Doctrine",
+      "prayer": "Dear Lord God, Father, destroy and wipe out the abomination, idolatry, and heresy of the Turks, the pope, and all false teachers and fanatics, who blaspheme your name."
+    },
+    {
+      "situation": "Seeking Perseverance in Faith",
+      "prayer": "Now unto Him that is able to keep you without offence, and to establish you before the presence of His glory, immaculate in joy."
+    },
+    {
+      "situation": "Seeking Continued Spiritual Growth",
+      "prayer": "Increase and multiply upon us Thy mercy; that, Thou being our ruler and guide, we may so pass through things temporal, that we finally lose not the things eternal."
+    },
+    {
+      "situation": "When Suffering from Physical Pain/Sickness",
+      "prayer": "Heal me, O Lord, for I am languishing."
+    },
+    {
+      "situation": "Praying for Those in Prison/Bonds",
+      "prayer": "Remember them that are in bonds, as bound with them; and them which suffer adversity, as being yourselves also in the body."
+    },
+    {
+      "situation": "Seeking God's Will in Difficult Decisions",
+      "prayer": "Lord, Thy will be done, Thy will be done, Thy will be done."
+    },
+    {
+      "situation": "Seeking True Worship/Praise (Daily)",
+      "prayer": "Offer unto God thanksgiving, and pay thy vows unto the Most High."
+    },
+    {
+      "situation": "Seeking the Holy Spirit (General)",
+      "prayer": "Send, we beseech Thee, Almighty God, Thy Holy Spirit into our hearts that He may rule and direct us according to Thy will, comfort us in all our temptations and afflictions."
+    },
+    {
+      "situation": "When Confessing Sins of Falsehood or Slander",
+      "prayer": "God of truth, set a guard over the door of our lips, that our tongues may be purified from sinful speech and sanctified for the words that edify."
+    },
+    {
+      "situation": "Giving Thanks for Salvation and Redemption",
+      "prayer": "My heart exults in the LORD; my strength is exalted in the LORD. My mouth derides my enemies, because I rejoice in thy salvation."
+    },
+    {
+      "situation": "Praying for Mariners/Travelers",
+      "prayer": "Remember, O Lord, Christians sailing, travelling, sojourning in strange lands."
+    },
+    {
+      "situation": "Praying for Peace in the World",
+      "prayer": "O Lord, that by Thy protection we may be rescued from the threatening perils of our sins and saved by Thy mighty deliverance."
+    },
+    {
+      "situation": "Giving Thanks after Receiving Holy Communion",
+      "prayer": "We thank Thee, holy Father, for Thy holy name which Thou didst cause to tabernacle in our hearts... and life eternal through Thy Servant."
+    },
+    {
+      "situation": "Seeking Protection for Children/The Young",
+      "prayer": "Almighty God, who justifiest the ungodly and who desirest not the death of the sinner... Grant that Thy Church, ever being preserved from false apostles, may continually abide in the doctrine of Thy true Apostles; through Jesus Christ, Thy Son, our Lord."
+    },
+    {
+      "situation": "When Lapsing into Sin (Need for Renewal)",
+      "prayer": "I have sinned, and committed iniquity, and have done wickedly... O Lord, righteousness belongs unto Thee, but unto us confusion."
+    },
+    {
+      "situation": "Seeking Freedom from Worldly Cares/Anxieties",
+      "prayer": "We beseech Thee to have compassion upon our infirmities... that all worldly and carnal affections... may be put away from us."
+    },
+    {
+      "situation": "When Persecuted by Men",
+      "prayer": "Blessed are ye when ye are persecuted for My sake: for the kingdom of heaven is yours."
+    },
+    {
+      "situation": "Asking for Grace to Fulfill Vows and Promises",
+      "prayer": "Give us courage at all times to prove ourselves fearless defenders of Thy Word and honor."
+    },
+    {
+      "situation": "Praying for Widows and Orphans",
+      "prayer": "Remember, O Lord, the sick and afflicted, and those troubled by unclean spirits, their speedy healing from Thee, O God, and their salvation."
+    },
+    {
+      "situation": "Seeking Purity of Heart (Psalm 51)",
+      "prayer": "Purge me with hyssop, and I shall be clean: Wash me, and I shall be whiter than snow."
+    },
+    {
+      "situation": "Seeking God's Mercy in Judgment (Psalm 143)",
+      "prayer": "Hear my prayer, O Lord; give ear to my supplications: in Thy faithfulness answer me, and in Thy righteousness. And enter not into judgment with Thy servant: for in Thy sight shall no man living be justified."
+    },
+    {
+      "situation": "Before Giving Alms or Doing Good Works",
+      "prayer": "Let my prayer be set forth before Thee as incense: And the lifting up of my hands as the evening sacrifice."
+    },
+    {
+      "situation": "Seeking Divine Aid for Ministry/Teaching",
+      "prayer": "Grant unto Thy servants, that with all boldness they may speak Thy word... that utterance may be given unto me, in opening my mouth to make known with boldness the mystery of the gospel."
+    },
+    {
+      "situation": "When Distressed by the Conduct of Others/Hypocrites",
+      "prayer": "Let us not provoke God by this indifference; but lament, as if we ourselves were in the same peril."
+    },
+    {
+      "situation": "Confessing Malicious Judgment/Gossip Against Neighbors",
+      "prayer": "We reckon our malicious judgment against our neighbor to be sin. We confess that sin to God, appealing to God’s grace in Christ who bore our sins."
+    },
+    {
+      "situation": "When Concerned About False Prophecies/Innovation",
+      "prayer": "Grant that Thy Church, ever being preserved from false apostles, may continually abide in the doctrine of Thy true Apostles."
+    },
+    {
+      "situation": "When Feeling the Burden of the Pastoral Office",
+      "prayer": "Help me, who am growing weary under this burden of pastoral care, with the intercession of thy prayer, lest its weight oppress me beyond my strength."
+    },
+    {
+      "situation": "Seeking Protection for Absolution from the Evil Foe",
+      "prayer": "Anyone whom you forgive, I also forgive. Indeed, what I have forgiven, if I have forgiven anything, has been for your sake in the presence of Christ so that we would not be outwitted by Satan."
+    },
+    {
+      "situation": "Giving Thanks for Relief and Asking for Perseverance",
+      "prayer": "Let us give thanks to Him for this deliverance from trials; and let us never forget them. Let us devote ourselves to prayer, to continual supplications, and to much piety."
+    },
+    {
+      "situation": "Praying for Enemies to be Converted",
+      "prayer": "As the righteous do Thy will, in like manner let sinners also do it, so that they may be converted unto Thee."
+    },
+    {
+      "situation": "Seeking Daily Renewal of the Christian Vocation",
+      "prayer": "Grant that we, being regenerate and made Thy children by adoption and grace, may daily be renewed by Thy Holy Spirit."
+    },
+    {
+      "situation": "Against the Practice of Swearing/Oaths",
+      "prayer": "Let us cut away excess... Let us put a bridle on our tongues; let no one swear by God."
+    },
+    {
+      "situation": "Praying for Boldness and Confidence in Witness",
+      "prayer": "Grant unto Thy servants, that with all boldness they may speak Thy word..."
+    },
+    {
+      "situation": "Seeking God's Mercy After Confessing Unworthiness",
+      "prayer": "O Lord, enter not into judgment with us, for in Thy sight shall no man living be justified."
+    },
+    {
+      "situation": "When Seeking Unity in the Church",
+      "prayer": "Holy Father, protect them by the power of your name—the name you gave me—so that they may be one as we are one."
+    },
+    {
+      "situation": "Seeking Spiritual Strength During Weakness",
+      "prayer": "My strength is dried up like a potsherd... But do not Thou remove Thine assistance from me, O Lord: give heed to help me; deliver my soul from the sword."
+    },
+    {
+      "situation": "Praying for Repentance in the Lukewarm",
+      "prayer": "Call to repentance all backsliders in our congregation, rouse all those who have begun to slumber, inspire anew the indifferent, restore to faithfulness the unfaithful."
+    },
+    {
+      "situation": "When Facing Societal Calamity (Earthquakes, etc.)",
+      "prayer": "Almighty and most merciful God... entreat Thee, of Thy boundless goodness to grant us true repentance, graciously to forgive our sins, to remove from us, or to lighten, our merited punishment."
+    },
+    {
+      "situation": "Praying for Help in Daily Labors/Works",
+      "prayer": "Almighty and everlasting God, direct our actions according to thy good pleasure, that, in the Name of thy beloved Son, we may be made to abound in good works."
+    },
+    {
+      "situation": "Praying for a Good Conscience (The Publican's humility)",
+      "prayer": "Lord, be merciful to me a sinner."
+    },
+    {
+      "situation": "Seeking Guidance from Scripture/Word of Christ",
+      "prayer": "Give us understanding according to Thy Word."
+    },
+    {
+      "situation": "Praying for the Church's Endurance in Times of Crisis",
+      "prayer": "The cause is yours, the glory too. Then hear us, Lord, and keep us true. Your Word alone our heart’s defense. The Church’s glorious confidence."
+    },
+    {
+      "situation": "Against Lusts and Incontinency",
+      "prayer": "Take away from me the lusts of the appetite, and let not sensual desire take hold on me."
+    },
+    {
+      "situation": "Giving Thanks for God's Fidelity/Protection",
+      "prayer": "The Lord is my Light and my Salvation: I will sing, yea, I will sing praises unto the Lord."
+    },
+    {
+      "situation": "Seeking Diligence in Repentance (Jonah's example)",
+      "prayer": "We confess that we have sinned, and committed iniquity, and have done wickedly: we have transgressed, and departed from Thy precepts, and from Thy judgments."
+    },
+    {
+      "situation": "When Facing Difficulties in the Family/Household",
+      "prayer": "Let each his lesson learn with care, And all the household well shall fare."
+    },
+    {
+      "situation": "When Concerned About the Lack of Piety in the Church",
+      "prayer": "Lord God, heavenly Father, in these last sad times, in which many false prophets have gone out into the world, it has pleased Thee to favor our congregation by giving unto it Thy pure Word."
+    },
+    {
+      "situation": "Seeking Humility and Condemnation of Self",
+      "prayer": "Condemn thyself therefore for thy sins. This is enough for the Master by way of self-defence. For he who condemns his sins, is slower to fall into them again."
+    },
+    {
+      "situation": "Praying for the Youth and Children",
+      "prayer": "O Lord, who dost will that not one of these little ones should perish... most heartily we beseech Thee so to bless and govern the children of Thy Church by Thy Holy Spirit that they may grow in grace and in the knowledge of Thy Word."
+    },
+    {
+      "situation": "Seeking Deliverance from the Fear of Death",
+      "prayer": "In the hour of death; **Good Lord, deliver us**."
+    },
+    {
+      "situation": "Praying for the Quickening/Healing of Souls",
+      "prayer": "Almighty God, who justifiest the ungodly... may Thy Word... have free course and be preached to the joy and edifying of Christ's holy people."
+    },
+    {
+      "situation": "When Suffering Financial/Material Loss",
+      "prayer": "Almighty and everlasting God, we humbly beseech Thee to put away from us all hurtful things, and to give us those things which be profitable for us."
+    },
+    {
+      "situation": "Seeking Assurance in Christ Alone",
+      "prayer": "We believe that in this Christian community we have forgiveness of sins, which takes place through the holy sacraments and absolution as well as through all the comforting words of the entire gospel."
+    },
+    {
+      "situation": "Praying for a Peaceful Life",
+      "prayer": "Lord God, heavenly Father, Thou knowest that because of our human weakness we are not able to stand fast amid so many and great dangers: Grant us strength both in body and soul."
+    },
+    {
+      "situation": "When Displeased with the World/Seeking Heavenly Focus",
+      "prayer": "I said, I will confess my transgressions unto the Lord; and Thou forgavest the iniquity of my sin."
+    },
+    {
+      "situation": "Praying for Unbelievers in the Public Square",
+      "prayer": "Let us pray for those that are without, and are wandered out of the way, that the Lord may convert them."
+    },
+    {
+      "situation": "When Overwhelmed by Troubles of the World",
+      "prayer": "I am come into the depth of the sea, and the storm hath overwhelmed me. Stretch out the hand of your prayer to me in my danger."
+    },
+    {
+      "situation": "When Facing Unavoidable Perils",
+      "prayer": "Stir up, we beseech Thee, Thy power, O Lord, and come, that by Thy protection we may be rescued from the threatening perils of our sins and saved by Thy mighty deliverance."
+    },
+    {
+      "situation": "In Preparation for Judgment Day",
+      "prayer": "Grant us grace constantly to bear in mind that we are sinners, to seek the rich treasures of Thy grace, to lay hold on Thee by faith, to watch and pray without ceasing."
+    },
+    {
+      "situation": "When Seeking Wisdom in Ministerial Duties",
+      "prayer": "Grant us that wisdom which cometh down from above that we may act wisely in all matters. Sanctify our will; create in us a clean heart and renew a right spirit within us."
+    },
+    {
+      "situation": "When Believing God Hides His Face (Psalm 88)",
+      "prayer": "Thou hast laid me in the lowest pit, in darkness, in the deeps. Wilt Thou show wonders to the dead? Shall the dead arise and praise Thee? Lord, why castest Thou off my soul? Why hidest Thou Thy face from me?"
+    },
+    {
+      "situation": "Seeking Protection of God's Name/Honor",
+      "prayer": "Heavenly Father, help that by all means Thy name may be holy, both within us and throughout the world."
+    },
+    {
+      "situation": "Seeking Boldness to Confess Christ",
+      "prayer": "Whosoever therefore shall confess me before men, him will I confess also before my Father which is in heaven."
+    },
+    {
+      "situation": "In Need of Deliverance from Persecution/Adversity",
+      "prayer": "Judge me, O God, and plead my cause against an ungodly nation: oh, deliver me from the deceitful and unjust man."
+    },
+    {
+      "situation": "Need for Spiritual Discernment",
+      "prayer": "Grant that we may have our senses exercised to discern both good and evil."
+    },
+    {
+      "situation": "Against Heresy and Innovation",
+      "prayer": "May we firmly believe Thy glad tidings of salvation and daily walk as it becometh the Gospel of Christ."
+    },
+    {
+      "situation": "Need to be Freed from Worldly Cares/Temporal Things",
+      "prayer": "Set me free, O God, from that multitude of speech which I suffer inwardly in my soul... Grant to me not to consent to them."
+    },
+    {
+      "situation": "Giving Thanks for the Word and Sacraments",
+      "prayer": "We give Thee thanks for all Thy goodness and tender mercies, especially for the gift of Thy dear Son and for the revelation of Thy will and grace."
+    },
+    {
+      "situation": "When Seeking Assurance of Salvation",
+      "prayer": "I will take the cup of salvation: and call upon the name of the Lord. I will pay my vows unto the Lord now: in the presence of all His people."
+    },
+    {
+      "situation": "Praying for Peace in the Community/City",
+      "prayer": "Seek the peace of the city whither I have caused you to be carried away captives and pray unto the Lord for it; for in the peace thereof shall ye have peace."
+    },
+    {
+      "situation": "When Speaking to Someone in Sadness or Despair",
+      "prayer": "Wilt thou not give any place to weeping? Wilt thou shed no tear? Mayest thou not meet with a Judge like thyself? Art thou not ashamed by the mercy of Jesus, Who took our infirmities and bare our sicknesses."
+    },
+    {
+      "situation": "When Suffering from Oppression/Injustice",
+      "prayer": "Redeem Israel, O God, out of all his troubles. Send them help from the Sanctuary And strengthen them out of Zion."
+    },
+    {
+      "situation": "When Concerned about the Purity of Worship",
+      "prayer": "The sacrifices of God are a broken spirit: A broken and a contrite heart, O God, Thou wilt not despise."
+    },
+    {
+      "situation": "Seeking God's Aid Before Engaging the World",
+      "prayer": "When we leave the roof which shelters us, prayer should be our armor; and when we return from the street we should pray before we sit down, and not give the frail body rest until the soul is fed."
+    },
+    {
+      "situation": "When Praying for the Church to Grow and Multiply",
+      "prayer": "May the Lord increase you more and more, you and your children."
+    },
+    {
+      "situation": "Asking to be Made More Like Christ (Hymn form)",
+      "prayer": "Let me keep Thy gift divine, Howsoe'er temptations thicken; May Thy Word still o'er me shine As my guiding star through life."
+    },
+    {
+      "situation": "Seeking to be Found Prepared at Christ's Return",
+      "prayer": "Prepare us to greet Thee with joy at Thy return. Guard us lest we say in carnal security, 'My Lord delayeth His coming.' Instead, grant us grace constantly to bear in mind that we are sinners."
+    },
+    {
+      "situation": "Need for Vigilance and Sobriety in Prayer",
+      "prayer": "Continue in prayer, watching therein with thanksgiving."
+    },
+    {
+      "situation": "Seeking Forgiveness/Remission of Sins Daily",
+      "prayer": "There is one remission of sins which is given once for all; another which is given day by day. Wherefore we say, 'Forgive us our debts.'"
+    },
+    {
+      "situation": "Seeking the Wisdom of God for Preaching",
+      "prayer": "We beseech Thee to have compassion upon our infirmities... and those things which for our unworthiness we dare not, and for our blindness we cannot, ask vouchsafe to give us for the worthiness of Jesus Christ, Thy Son, our Lord."
+    },
+    {
+      "situation": "When Feeling the Pain of Apostasy/Unbelief",
+      "prayer": "O Lord Jesus, Thou hast said that before Thy coming in the glory of heaven to judge the quick and the dead iniquity would abound and the love of many wax cold."
+    },
+    {
+      "situation": "Confessing Self-Righteousness/Trust in Works",
+      "prayer": "I will take the cup of salvation, and call upon the name of the Lord. I will pay my vows unto the Lord now: in the presence of all His people."
+    },
+    {
+      "situation": "Seeking Divine Comfort for a Troubled Soul",
+      "prayer": "My soul melteth for heaviness; strengthen Thou me according unto Thy word."
+    },
+    {
+      "situation": "When Facing Imminent Death/Uncertainty of Life",
+      "prayer": "Perform, now, the vow which you then made in the presence of God. Human life is uncertain. Therefore, lest you may be snatched away before you have fulfilled your promise, imitate her whose teacher you ought to have been."
+    },
+    {
+      "situation": "Seeking Conversion for Neighbors/Community",
+      "prayer": "Then we will again speak, that both ye may be more approved, and we may rejoice over you, in all things giving glory to God."
+    },
+    {
+      "situation": "Seeking Protection Against Plague/Epidemic",
+      "prayer": "Lord God, heavenly Father, we thank Thee that at a time when so many have quickly and suddenly been carried away by a deadly epidemic, Thou hast preserved us thus far and grantest us grace to meet here to-day."
+    }
+  ]
+}
+```
