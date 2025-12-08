@@ -1,9 +1,11 @@
 """Functions for generating the mid-week devotion."""
+
 import datetime
 import flask
 import flask_login
 import pytz
 import utils
+
 
 def generate_mid_week_devotion():
   """Generates HTML for the mid-week devotion."""

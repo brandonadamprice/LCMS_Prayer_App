@@ -148,6 +148,7 @@ def load_mid_week_readings():
       item["church_season_day"] = item.pop("church_season/day")
     return data
 
+
 CATECHISM_SECTIONS = load_catechism()
 WEEKLY_PRAYERS = load_weekly_prayers()
 OFFICE_READINGS = load_office_readings()
@@ -183,7 +184,9 @@ def decrypt_text(token: str) -> str:
     return "[Error decrypting prayer]"
 
 
-def get_catechism_for_day(now: datetime.datetime, rotation: str = "daily") -> dict:
+def get_catechism_for_day(
+    now: datetime.datetime, rotation: str = "daily"
+) -> dict:
   """Returns the catechism section for a given day or week."""
   if not ENABLE_CATECHISM:
     return {"catechism_enabled": False}

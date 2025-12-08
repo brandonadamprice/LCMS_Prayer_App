@@ -148,6 +148,12 @@ def feedback_route():
   return flask.render_template("feedback.html")
 
 
+@app.route("/about")
+def about_route():
+  """Returns the about page HTML."""
+  return flask.render_template("about.html")
+
+
 @app.route("/copyright")
 def copyright_route():
   """Returns the copyright page HTML."""
