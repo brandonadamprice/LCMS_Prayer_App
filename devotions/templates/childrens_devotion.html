@@ -6,17 +6,16 @@
       <h1>A Christian Child's Daily Devotion</h1>
     </div>
 
-    {% call macros.card('I. Opening and Invocation') %}
+    {% call macros.card('Opening and Invocation') %}
         <p>The devotion begins with the foundational Christian act of confession, faith, and remembrance of Holy Baptism:</p>
         <p class="rubric">The Sign of the Cross: The sign of the holy cross may be made by all in remembrance of their Baptism.</p>
-        <p class="rubric">The Invocation: Say the holy name into which you were baptized:</p>
         <p>
           In the name of the Father and of the † Son and of the Holy Spirit.<br />
           <strong>Amen.</strong>
         </p>
     {% endcall %}
 
-    {% call macros.card('II. Daily Instruction: The Rule of Faith') %}
+    {% call macros.card('Daily Instruction: The Rule of Faith') %}
         <p>This section reviews the simplest and most necessary parts of Christian doctrine, often referred to as the Catechism. This instruction, when done word for word and repeatedly, helps instill the divine message.</p>
         <p class="rubric">Kneeling or standing, recite these fundamental parts:</p>
         
@@ -35,14 +34,29 @@
         <p class="rubric">(It is sometimes helpful to add supplemental readings from the Catechism for discussion.)</p>
     {% endcall %}
 
-    {% call macros.card('III. Daily Petition') %}
+    {% if catechism_enabled %}
+    {% call macros.card('Catechism: ' ~ catechism_title) %}
+        {% if catechism_text %}
+          <p>{{ catechism_text|safe }}</p>
+        {% endif %}
+        {% for qa in questions_and_answers %}
+          <div class="catechism-qa">
+            <p><strong>{{ qa.question }}</strong></p>
+            <p>{{ qa.answer|safe }}</p>
+          </div>
+        {% endfor %}
+        <p><strong>Prayer:</strong> {{ catechism_prayer|safe }}</p>
+        <span class="versicle-ref">Catechism source: <a href="https://bookofconcord.org/small-catechism/" target="_blank">bookofconcord.org</a></span>
+    {% endcall %}
+    {% endif %}
+
+    {% call macros.card('Daily Petition') %}
         <p>Prayer is an obligation commanded by God, and through it, we honor His name. Using a set form for prayer encourages children to call upon God with cheerfulness and confidence.</p>
         <p class="rubric">Pray the following general devotion, focusing on giving thanks and seeking protection and guidance for the day:</p>
         {{ macros.format_prayer(childs_daily_petition) }}
     {% endcall %}
 
-    {% call macros.card('IV. Conclusion') %}
-        <p>The Christian, now renewed in Christ, should dedicate their actions to God's purpose.</p>
+    {% call macros.card('Conclusion') %}
         <p>
           Let us bless the Lord.<br />
           <strong>Thanks be to God.</strong>

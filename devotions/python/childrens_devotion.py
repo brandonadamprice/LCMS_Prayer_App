@@ -1,6 +1,8 @@
 """Functions for generating the children's devotion."""
 
+import datetime
 import flask
+import pytz
 import utils
 
 
@@ -14,6 +16,9 @@ def get_ten_commandments():
 
 def generate_childrens_devotion():
   """Generates HTML for the children's devotion."""
+  eastern_timezone = pytz.timezone("America/New_York")
+  now = datetime.datetime.now(eastern_timezone)
+  catechism_data = utils.get_catechism_for_day(now, rotation="daily")
 
   ten_commandments = get_ten_commandments()
 
@@ -23,6 +28,7 @@ def generate_childrens_devotion():
       "lords_prayer": utils.OTHER_PRAYERS["lords_prayer"],
       "childs_daily_petition": utils.OTHER_PRAYERS["childs_daily_petition"],
   }
+  template_data.update(catechism_data)
 
   print("Generated Children's Devotion HTML")
   return flask.render_template("childrens_devotion.html", **template_data)
