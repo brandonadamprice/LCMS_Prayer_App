@@ -620,10 +620,9 @@ def edit_prayer_request_route(request_id):
 @flask_login.login_required
 def admin_traffic_route():
   """Renders the admin traffic analytics page."""
-  if (
-      not app.config.get("ADMIN_USER_ID")
-      or flask_login.current_user.id != app.config.get("ADMIN_USER_ID")
-  ):
+  if not app.config.get(
+      "ADMIN_USER_ID"
+  ) or flask_login.current_user.id != app.config.get("ADMIN_USER_ID"):
     return flask.abort(403)
   return flask.render_template("admin_traffic.html")
 
@@ -631,10 +630,9 @@ def admin_traffic_route():
 @app.route("/admin/traffic_data")
 @flask_login.login_required
 def traffic_data_route():
-  if (
-      not app.config.get("ADMIN_USER_ID")
-      or flask_login.current_user.id != app.config.get("ADMIN_USER_ID")
-  ):
+  if not app.config.get(
+      "ADMIN_USER_ID"
+  ) or flask_login.current_user.id != app.config.get("ADMIN_USER_ID"):
     return flask.jsonify({"error": "Forbidden"}), 403
 
   try:
@@ -650,26 +648,25 @@ def traffic_data_route():
       else:
         # Stop if we go earlier than data collection began
         break
-    
+
     if not date_strs:
-        return flask.jsonify([])
+      return flask.jsonify([])
 
     doc_refs = [db.collection("daily_analytics").document(d) for d in date_strs]
-    snapshots = db.get_all(doc_refs)
-    snapshot_map = {snap.id: snap for snap in snapshots}
+    snapshots = list(db.get_all(doc_refs))
 
     traffic_map = {date_str: 0 for date_str in date_strs}
-    for date_str in date_strs:
-      if date_str in snapshot_map and snapshot_map[date_str].exists:
-        entry = snapshot_map[date_str].to_dict()
-        hashes = entry.get("visitor_hashes") if entry else None
-        count = len(hashes) if isinstance(hashes, dict) else 0
-        traffic_map[date_str] = count
+    for snap in snapshots:
+      if snap.exists:
+        data = snap.to_dict()
+        hashes = data.get("visitor_hashes") if data else None
+        if isinstance(hashes, dict):
+          traffic_map[snap.id] = len(hashes)
 
     traffic = [
-        {"date": date_str, "count": traffic_map[date_str]}
-        for date_str in sorted(traffic_map.keys())
+        {"date": date, "count": count} for date, count in traffic_map.items()
     ]
+    traffic.sort(key=lambda x: x["date"])
     return flask.jsonify(traffic)
   except Exception as e:
     app.logger.error(f"Error in traffic_data_route: {e}", exc_info=True)
