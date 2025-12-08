@@ -6,12 +6,40 @@
 {% block content %}
     <div class="page-header">
       <h1>100 Prayers for Specific Situations</h1>
-      <p>Select a situation to view a prayer for reflection.</p>
+      <p>Select a situation to view a prayer for reflection, or use the search bar to filter.</p>
     </div>
 
+    <div style="margin-bottom: 20px;">
+      <input type="text" id="prayer-search" onkeyup="filterPrayers()" placeholder="Search situations..." style="width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box;">
+    </div>
+
+    <div id="prayer-cards">
     {% for item in situations %}
       {% call macros.card(item.situation, collapsed=True) %}
         <p>{{ item.prayer }}</p>
       {% endcall %}
     {% endfor %}
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+function filterPrayers() {
+  const input = document.getElementById('prayer-search');
+  const filter = input.value.toLowerCase();
+  const prayerCardsDiv = document.getElementById('prayer-cards');
+  const cards = prayerCardsDiv.getElementsByClassName('card');
+
+  for (let i = 0; i < cards.length; i++) {
+    const card = cards[i];
+    const header = card.getElementsByTagName('h2')[0];
+    if (header) {
+      const txtValue = header.textContent || header.innerText;
+      if (txtValue.toLowerCase().indexOf(filter) > -1) {
+        card.style.display = "";
+      } else {
+        card.style.display = "none";
+      }
+    }
+  }
+}
 {% endblock %}
