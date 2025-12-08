@@ -4,6 +4,13 @@
       <p>Select an option below to begin.</p>
     </div>
 
+    {% if current_user.is_authenticated and current_user.id == '100474017432155817469' %}
+    <div class="card">
+      <h2>Admin Panel</h2>
+      <a href="/admin/traffic" class="button">Unique Traffic Per Day</a>
+    </div>
+    {% endif %}
+
     <div class="card">
       <h2>Daily Prayer</h2>
       <a href="/morning_devotion" class="button">Morning</a>

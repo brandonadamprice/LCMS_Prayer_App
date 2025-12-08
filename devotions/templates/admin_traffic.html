@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block head_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+{% endblock %}
+{% block title %}Traffic Analytics{% endblock %}
+{% block content %}
+    <div class="page-header">
+      <h1>Admin - Traffic Analytics</h1>
+    </div>
+
+    <div class="card">
+      <h2>Unique Daily Visits - Last 30 Days</h2>
+      <div id="traffic-section" style="margin-top: 20px;">
+        <canvas id="traffic-chart"></canvas>
+        <table id="traffic-table" style="width: 100%; margin-top: 20px; border-collapse: collapse;">
+          <thead>
+            <tr style="border-bottom: 1px solid #ccc;">
+              <th style="text-align: left; padding: 8px;">Date</th>
+              <th style="text-align: right; padding: 8px;">Unique Visits</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="2"><em>Loading...</em></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+let trafficChartInstance = null;
+
+async function loadTrafficData() {
+    try {
+        const response = await fetch('/admin/traffic_data');
+        if (!response.ok) {
+            if (response.status === 403) {
+                 document.querySelector('#traffic-section').innerHTML = '<p><em>Access denied.</em></p>';
+                 return;
+            }
+            throw new Error('Failed to fetch traffic data');
+        }
+        const data = await response.json();
+
+        // Populate table
+        const tableBody = document.querySelector('#traffic-table tbody');
+        tableBody.innerHTML = '';
+        data.forEach(item => {
+            const row = tableBody.insertRow();
+            row.innerHTML = `<td style="text-align: left; padding: 8px;">${item.date}</td><td style="text-align: right; padding: 8px;">${item.count}</td>`;
+        });
+
+        // Prepare chart
+        const ctx = document.getElementById('traffic-chart').getContext('2d');
+        const labels = data.map(item => item.date);
+        const counts = data.map(item => item.count);
+
+        if (trafficChartInstance) {
+            trafficChartInstance.destroy();
+        }
+        
+        const isDarkMode = document.body.classList.contains('dark-mode');
+
+        trafficChartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Unique Visits',
+                    data: counts,
+                    borderColor: '#2980b9',
+                    backgroundColor: 'rgba(41, 128, 185, 0.2)',
+                    fill: true,
+                    tension: 0.1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                           precision: 0,
+                           color: isDarkMode ? '#ccc' : '#4a4a4a',
+                        },
+                        grid: {
+                          color: isDarkMode ? '#555' : '#eee',
+                        }
+                    },
+                    x: {
+                         ticks: {
+                           color: isDarkMode ? '#ccc' : '#4a4a4a',
+                         },
+                         grid: {
+                          color: isDarkMode ? '#555' : '#eee',
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: isDarkMode ? '#ccc' : '#4a4a4a',
+                        }
+                    }
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Error loading traffic data:', error);
+        alert('Could not load traffic data.');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', loadTrafficData);
+{% endblock %}

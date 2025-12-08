@@ -1,6 +1,7 @@
 """Main Flask application for serving devotions."""
 
 import datetime
+import hashlib
 import html
 import os
 import secrets
@@ -14,6 +15,7 @@ import extended_evening
 import flask
 import flask_login
 from google.cloud import firestore
+from google.cloud.firestore_v1 import base_query
 import gospels_by_category
 import mid_week
 import midday
@@ -603,6 +605,76 @@ def edit_prayer_request_route(request_id):
     return flask.jsonify({"success": True})
   else:
     return flask.jsonify({"success": False, "error": error_message}), 400
+
+
+@app.route("/admin/traffic")
+@flask_login.login_required
+def admin_traffic_route():
+  """Renders the admin traffic analytics page."""
+  if flask_login.current_user.id != "100474017432155817469":
+    return flask.abort(403)
+  return flask.render_template("admin_traffic.html")
+
+
+@app.route("/admin/traffic_data")
+@flask_login.login_required
+def traffic_data_route():
+  if flask_login.current_user.id != "100474017432155817469":
+    return flask.jsonify({"error": "Forbidden"}), 403
+
+  db = utils.get_db_client()
+  today = datetime.datetime.now(datetime.timezone.utc)
+  date_strs = [
+      (today - datetime.timedelta(days=i)).strftime("%Y-%m-%d")
+      for i in range(30)
+  ]
+
+  docs = (
+      db.collection("daily_analytics")
+      .where(
+          filter=base_query.FieldFilter(
+              firestore.FieldPath.document_id(), "in", date_strs
+          )
+      )
+      .stream()
+  )
+
+  traffic_map = {date_str: 0 for date_str in date_strs}
+  for doc in docs:
+    try:
+      count = len(doc.to_dict().get("visitor_hashes", {}))
+      traffic_map[doc.id] = count
+    except:
+      traffic_map[doc.id] = 0
+
+  traffic = [
+      {"date": date_str, "count": traffic_map[date_str]}
+      for date_str in sorted(traffic_map.keys())
+  ]
+  return flask.jsonify(traffic)
+
+
+@app.after_request
+def track_visitor(response):
+  """Tracks unique visitors based on IP address for each HTML page loaded."""
+  # Only track successful HTML page views, ignore redirects, errors, etc.
+  if response.status_code == 200 and response.mimetype == "text/html":
+    try:
+      ip = flask.request.environ.get(
+          "HTTP_X_FORWARDED_FOR", flask.request.remote_addr
+      )
+      date_str = datetime.datetime.now(datetime.timezone.utc).strftime(
+          "%Y-%m-%d"
+      )
+      ip_hash = hashlib.sha256(ip.encode()).hexdigest()
+      db = utils.get_db_client()
+      doc_ref = db.collection("daily_analytics").document(date_str)
+      doc_ref.set(
+          {"visitor_hashes": {ip_hash: firestore.SERVER_TIMESTAMP}}, merge=True
+      )
+    except Exception as e:
+      app.logger.error(f"Error tracking visitor: {e}")
+  return response
 
 
 if __name__ == "__main__":
