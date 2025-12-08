@@ -643,13 +643,12 @@ def traffic_data_route():
       (today - datetime.timedelta(days=i)).strftime("%Y-%m-%d")
       for i in range(30)
   ]
+  doc_refs = [db.collection("daily_analytics").document(d) for d in date_strs]
 
   docs = (
       db.collection("daily_analytics")
       .where(
-          filter=base_query.FieldFilter(
-              FieldPath.document_id(), "in", date_strs
-          )
+          filter=base_query.FieldFilter(FieldPath.document_id(), "in", doc_refs)
       )
       .stream()
   )
