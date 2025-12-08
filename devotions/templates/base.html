@@ -67,6 +67,14 @@
         card.classList.toggle("collapsed");
       }
 
+      function togglePersonalPrayers(button) {
+        const prayersList = document.getElementById('personal-prayers-list');
+        if (prayersList) {
+            prayersList.classList.toggle('hidden');
+            button.textContent = prayersList.classList.contains('hidden') ? 'Show My Personal Prayers' : 'Hide My Personal Prayers';
+        }
+      }
+
       function togglePicker(button, cardIndex) {
         const picker = document.getElementById("picker-" + cardIndex);
         picker.classList.toggle("visible");
