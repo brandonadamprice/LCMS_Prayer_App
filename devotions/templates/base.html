@@ -46,6 +46,9 @@
               <button id="increase-font" aria-label="Increase font size">+</button>
           </div>
       </div>
+      {% if current_user.is_authenticated and config['ADMIN_USER_ID'] and current_user.id == config['ADMIN_USER_ID'] %}
+      <a href="/admin/traffic" class="button menu-button-full">Traffic Analytics</a>
+      {% endif %}
       </div>
     </div>
     {% block content %}{% endblock %}
