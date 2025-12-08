@@ -651,11 +651,10 @@ def traffic_data_route():
   traffic_map = {date_str: 0 for date_str in date_strs}
   for date_str in date_strs:
     if date_str in snapshot_map:
-      try:
-        count = len(snapshot_map[date_str].to_dict().get("visitor_hashes", {}))
-        traffic_map[date_str] = count
-      except:
-        traffic_map[date_str] = 0
+      entry = snapshot_map[date_str].to_dict()
+      hashes = entry.get("visitor_hashes") if entry else None
+      count = len(hashes) if isinstance(hashes, dict) else 0
+      traffic_map[date_str] = count
 
   traffic = [
       {"date": date_str, "count": traffic_map[date_str]}
