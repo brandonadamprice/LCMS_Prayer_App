@@ -1,11 +1,11 @@
 body {
-    font-family: 'Georgia', serif;
+    font-family: 'Lora', serif;
     line-height: 1.7;
     max-width: 800px;
     margin: 40px auto;
     padding: 20px;
-    background-color: #f7f4ed;
-    color: #5d5d5d;
+    background-color: #f9f8f4;
+    color: #4a4a4a;
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
@@ -13,17 +13,20 @@ body {
     background: white;
     padding: 30px;
     margin-bottom: 20px;
-    border-radius: 8px;
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.07);
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
     transition: background-color 0.3s ease;
+    border: 1px solid #f5f5f5;
 }
 
 h1,
 h2 {
-    color: #4a4a4a;
+    color: #333;
     border-bottom: 1px solid #f0f0f0;
     padding-bottom: 10px;
-    font-weight: normal;
+    font-weight: 400;
+    font-family: 'Montserrat', sans-serif;
+    letter-spacing: 0.5px;
 }
 
 .page-header h1, .page-header h2 {
@@ -41,6 +44,7 @@ h2 {
 .ref {
     font-weight: bold;
     color: #7f8c8d;
+    font-family: 'Montserrat', sans-serif;
     font-size: 0.9em;
     display: block;
     margin-bottom: 10px;
@@ -52,25 +56,32 @@ h2 {
     font-size: 1.1em;
 }
 
+button,
 .button {
     display: inline-block;
     padding: 10px 20px;
     margin: 10px 5px 10px 0;
-    background-color: #8a9a9a;
+    background-color: #708090;
     color: white;
     text-decoration: none;
     border-radius: 5px;
     text-align: center;
-    transition: background-color 0.2s ease;
+    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
     border: none;
     cursor: pointer;
-    font-size: 1em;
-    font-family: inherit;
+    font-size: 0.9em;
+    font-family: 'Montserrat', sans-serif;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-weight: 700;
 }
 
+button:hover,
 .button:hover {
-    background-color: #798989;
+    background-color: #525e6a;
     color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
 .button:disabled,
@@ -241,6 +252,7 @@ li.post-it:hover {
   margin: 15px 0 5px 0;
   padding: 8px 15px;
   font-size: 0.9em;
+  text-transform: none;
 }
 
 .item-picker {
@@ -254,18 +266,23 @@ li.post-it:hover {
 .item-picker.visible {
   display: flex;
 }
-.picker-select-button {
+button.picker-select-button {
   padding: 5px 10px;
   min-width: 40px;
-  font-size: 0.85em;
+  font-size: 0.8em;
   background-color: #eee;
   color: #333;
   border: 1px solid #ccc;
   margin: 2px;
+  text-transform: none;
+  font-weight: 400;
+  letter-spacing: normal;
 }
-.picker-select-button:hover {
-  background-color: #34495e;
+button.picker-select-button:hover {
+  background-color: #525e6a;
   color: white;
+  transform: none;
+  box-shadow: none;
 }
 
 /* Menu Button */
@@ -277,6 +294,7 @@ li.post-it:hover {
     border: none;
     font-size: 2em; /* Hamburger icon size */
     cursor: pointer;
+    font-family: 'Montserrat', sans-serif;
     z-index: 1000;
     color: #333;
     padding: 0;
@@ -318,6 +336,7 @@ body.dark-mode .app-menu-section {
     display: block;
     margin-bottom: 10px;
     font-size: 1.1em;
+    font-family: 'Montserrat', sans-serif;
     color: #333;
     font-weight: bold;
 }
@@ -441,6 +460,8 @@ input:checked + .slider:before {
 }
 .font-controls button:hover {
     background: #ccc;
+    transform: none;
+    box-shadow: none;
 }
 body.dark-mode .font-controls button {
     background: #555;
@@ -449,6 +470,8 @@ body.dark-mode .font-controls button {
 }
 body.dark-mode .font-controls button:hover {
     background: #666;
+    transform: none;
+    box-shadow: none;
 }
 
 /* Login Popup */
@@ -517,7 +540,8 @@ body.dark-mode {
 
 body.dark-mode .card {
     background: #444444;
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-color: #404040;
 }
 
 body.dark-mode h1,
@@ -551,7 +575,7 @@ body.dark-mode .button {
 }
 
 body.dark-mode .button:hover {
-    background-color: #777777;
+    background-color: #555555;
 }
 
 body.dark-mode .button:disabled,
@@ -564,13 +588,13 @@ body.dark-mode .card-content .subheader {
     border-bottom-color: #444;
 }
 
-body.dark-mode .picker-select-button {
-  background-color: #444;
+body.dark-mode button.picker-select-button {
+  background-color: #555;
   color: #e0e0e0;
   border: 1px solid #666;
 }
-body.dark-mode .picker-select-button:hover {
-  background-color: #555;
+body.dark-mode button.picker-select-button:hover {
+  background-color: #666;
   color: white;
 }
 body.dark-mode .item-picker {
