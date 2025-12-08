@@ -7,6 +7,7 @@ import secrets
 import advent
 from authlib.integrations.flask_client import OAuth
 import bible_in_a_year
+import childrens_devotion
 import close_of_day
 import evening
 import extended_evening
@@ -232,6 +233,12 @@ def mid_week_devotion_route():
 def advent_devotion_route():
   """Returns the generated devotion HTML."""
   return advent.generate_advent_devotion()
+
+
+@app.route("/childrens_devotion")
+def childrens_devotion_route():
+  """Returns the generated children's devotion HTML."""
+  return childrens_devotion.generate_childrens_devotion()
 
 
 @app.route("/night_watch_devotion")

@@ -62,5 +62,11 @@
     "prayer_title": "Morning Prayer",
     "prayer": "Almighty God, our heavenly Father, whose mercies are new unto us every morning, as we rise to serve in the vocations You have assigned to us this day, grant us, we beseech Thee, the daily renewal of Thy Holy Spirit. Direct our hearts and hands in our labor, that we may diligently attend to our calling, avoiding the temptations of sin and evil. Keep us steadfast in the holiness we have received in Christ so that our doings may be acceptable and our life a spiritual sacrifice of thanks to You. Through Jesus Christ, Thy Son, our Lord. Amen.",
     "display_title": false
+  },
+  "childs_daily_petition": {
+    "prayer_title": "Child's Daily Petition",
+    "prayer": "I thank You, my heavenly Father, through Jesus Christ, Your dear Son, that You have protected me from all danger and harm; and I pray You to preserve and keep me this day also, from all sin and evil; that in all my thoughts, words, and deeds, I may serve and please You. Into Your hands I commend my body and soul, and all that is mine. Let Your holy angel have charge concerning me, that the wicked one may have no power over me. Amen.",
+    "reference": null,
+    "display_title": false
   }
 }
