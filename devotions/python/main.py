@@ -637,30 +637,43 @@ def traffic_data_route():
   ):
     return flask.jsonify({"error": "Forbidden"}), 403
 
-  db = utils.get_db_client()
-  today = datetime.datetime.now(datetime.timezone.utc)
-  date_strs = [
-      (today - datetime.timedelta(days=i)).strftime("%Y-%m-%d")
-      for i in range(30)
-  ]
-  doc_refs = [db.collection("daily_analytics").document(d) for d in date_strs]
+  try:
+    db = utils.get_db_client()
+    today = datetime.datetime.now(datetime.timezone.utc).date()
+    start_date = datetime.date(2025, 12, 8)
 
-  snapshots = db.get_all(doc_refs)
-  snapshot_map = {snap.id: snap for snap in snapshots}
+    date_strs = []
+    for i in range(30):
+      current_date = today - datetime.timedelta(days=i)
+      if current_date >= start_date:
+        date_strs.append(current_date.strftime("%Y-%m-%d"))
+      else:
+        # Stop if we go earlier than data collection began
+        break
+    
+    if not date_strs:
+        return flask.jsonify([])
 
-  traffic_map = {date_str: 0 for date_str in date_strs}
-  for date_str in date_strs:
-    if date_str in snapshot_map and snapshot_map[date_str].exists:
-      entry = snapshot_map[date_str].to_dict()
-      hashes = entry.get("visitor_hashes") if entry else None
-      count = len(hashes) if isinstance(hashes, dict) else 0
-      traffic_map[date_str] = count
+    doc_refs = [db.collection("daily_analytics").document(d) for d in date_strs]
+    snapshots = db.get_all(doc_refs)
+    snapshot_map = {snap.id: snap for snap in snapshots}
 
-  traffic = [
-      {"date": date_str, "count": traffic_map[date_str]}
-      for date_str in sorted(traffic_map.keys())
-  ]
-  return flask.jsonify(traffic)
+    traffic_map = {date_str: 0 for date_str in date_strs}
+    for date_str in date_strs:
+      if date_str in snapshot_map and snapshot_map[date_str].exists:
+        entry = snapshot_map[date_str].to_dict()
+        hashes = entry.get("visitor_hashes") if entry else None
+        count = len(hashes) if isinstance(hashes, dict) else 0
+        traffic_map[date_str] = count
+
+    traffic = [
+        {"date": date_str, "count": traffic_map[date_str]}
+        for date_str in sorted(traffic_map.keys())
+    ]
+    return flask.jsonify(traffic)
+  except Exception as e:
+    app.logger.error(f"Error in traffic_data_route: {e}", exc_info=True)
+    return flask.jsonify({"error": "Internal server error"}), 500
 
 
 @app.after_request
