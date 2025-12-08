@@ -645,21 +645,17 @@ def traffic_data_route():
   ]
   doc_refs = [db.collection("daily_analytics").document(d) for d in date_strs]
 
-  docs = (
-      db.collection("daily_analytics")
-      .where(
-          filter=base_query.FieldFilter(FieldPath.document_id(), "in", doc_refs)
-      )
-      .stream()
-  )
+  snapshots = db.get_all(doc_refs)
+  snapshot_map = {snap.id: snap for snap in snapshots}
 
   traffic_map = {date_str: 0 for date_str in date_strs}
-  for doc in docs:
-    try:
-      count = len(doc.to_dict().get("visitor_hashes", {}))
-      traffic_map[doc.id] = count
-    except:
-      traffic_map[doc.id] = 0
+  for date_str in date_strs:
+    if date_str in snapshot_map:
+      try:
+        count = len(snapshot_map[date_str].to_dict().get("visitor_hashes", {}))
+        traffic_map[date_str] = count
+      except:
+        traffic_map[date_str] = 0
 
   traffic = [
       {"date": date_str, "count": traffic_map[date_str]}
