@@ -38,9 +38,21 @@ async function loadTrafficData() {
                  document.querySelector('#traffic-section').innerHTML = '<p><em>Access denied.</em></p>';
                  return;
             }
-            throw new Error('Failed to fetch traffic data');
+            let errorText = "Could not reach server.";
+            try {
+              errorText = await response.text();
+              const errorJson = JSON.parse(errorText);
+              if(errorJson && errorJson.error) errorText = errorJson.error;
+            } catch(e) { /* ignore parse errors */ }
+            throw new Error(`Server returned status ${response.status} - ${errorText}`);
         }
         const data = await response.json();
+
+        if (!data || data.length === 0) {
+            document.querySelector('#traffic-table tbody').innerHTML = '<tr><td colspan="2"><em>No traffic data to display for the last 30 days since tracking began.</em></td></tr>';
+            document.getElementById('traffic-chart').style.display = 'none';
+            return;
+        }
 
         // Populate table
         const tableBody = document.querySelector('#traffic-table tbody');
@@ -106,7 +118,7 @@ async function loadTrafficData() {
         });
     } catch (error) {
         console.error('Error loading traffic data:', error);
-        alert('Could not load traffic data.');
+        alert(`Could not load traffic data: ${error.message}`);
     }
 }
 
