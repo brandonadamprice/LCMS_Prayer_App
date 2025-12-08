@@ -57,6 +57,7 @@
         {{ macros.format_prayer(config['OTHER_PRAYERS']['lords_prayer']) }}
         <hr />
         <p><em>(You may offer your own prayers at this time)</em></p>
+        {{ macros.personal_prayers_toggle(all_personal_prayers) }}
         <hr />
         <p class="subheader"><strong>Concluding Prayer</strong></p>
         {{ macros.format_prayer(concluding_prayer) }}

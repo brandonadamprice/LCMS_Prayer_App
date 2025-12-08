@@ -648,6 +648,36 @@ def fetch_passages(references: list[str]) -> list[str]:
   return list(_fetch_passages_cached(tuple(references)))
 
 
+def get_all_personal_prayers_for_user() -> dict:
+  """Fetches all personal prayers for user, grouped by category."""
+  prayers_by_cat_with_prayers = {}
+  if flask_login.current_user.is_authenticated:
+    db = get_db_client()
+    prayers_ref = db.collection("personal-prayers")
+    query = prayers_ref.where("user_id", "==", flask_login.current_user.id)
+
+    temp_prayers = {}  # category -> list
+    try:
+      for doc in query.stream():
+        prayer = doc.to_dict()
+        prayer["id"] = doc.id
+        category = prayer.get("category")
+        if category:
+          if category not in temp_prayers:
+            temp_prayers[category] = []
+          prayer["text"] = decrypt_text(prayer["text"])
+          temp_prayers[category].append(prayer)
+    except Exception as e:
+      print(f"Error fetching all personal prayers: {e}")
+      return {}
+
+    for category in sorted(temp_prayers.keys()):
+      if temp_prayers[category]:
+        prayers_by_cat_with_prayers[category] = temp_prayers[category]
+
+  return prayers_by_cat_with_prayers
+
+
 def get_mid_week_reading_for_date(now: datetime.datetime) -> Optional[dict]:
   """Returns mid week reading data for given date based on week of church year."""
   cy = ChurchYear(now.year)

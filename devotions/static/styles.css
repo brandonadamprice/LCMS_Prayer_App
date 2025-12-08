@@ -467,7 +467,7 @@ body.dark-mode .font-controls button:hover {
     font-size: 0.9em;
     line-height: 1.5;
 }
-#login-popup.hidden {
+#login-popup.hidden, .hidden {
     display: none;
 }
 #login-popup-close {

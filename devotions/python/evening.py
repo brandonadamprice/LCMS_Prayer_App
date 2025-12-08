@@ -20,6 +20,7 @@ def generate_evening_devotion():
   psalm_ref = f"Psalm {psalm_num}"
   reading_text, psalm_text = utils.fetch_passages([reading_ref, psalm_ref])
   concluding_prayer = utils.OTHER_PRAYERS["evening_prayers"]
+  all_personal_prayers = utils.get_all_personal_prayers_for_user()
 
   template_data = {
       "date_str": now.strftime("%A, %B %d, %Y"),
@@ -29,6 +30,7 @@ def generate_evening_devotion():
       "psalm_ref": psalm_ref,
       "psalm_text": psalm_text,
       "concluding_prayer": concluding_prayer,
+      "all_personal_prayers": all_personal_prayers,
   }
   template_data.update(catechism_data)
 

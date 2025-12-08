@@ -20,6 +20,7 @@ def generate_morning_devotion():
 
   reading_text, psalm_text = utils.fetch_passages([reading_ref, psalm_ref])
   concluding_prayer = utils.OTHER_PRAYERS["morning_prayers"]
+  all_personal_prayers = utils.get_all_personal_prayers_for_user()
 
   template_data = {
       "date_str": now.strftime("%A, %B %d, %Y"),
@@ -30,6 +31,7 @@ def generate_morning_devotion():
       "psalm_text": psalm_text,
       "concluding_prayer": concluding_prayer,
       "luthers_morning_prayer": utils.OTHER_PRAYERS["luthers_morning_prayer"],
+      "all_personal_prayers": all_personal_prayers,
   }
   print("Generated Morning HTML")
   return flask.render_template("morning_devotion.html", **template_data)
