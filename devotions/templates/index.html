@@ -4,7 +4,7 @@
       <p>Select an option below to begin.</p>
     </div>
 
-    {% if current_user.is_authenticated and current_user.id == '100474017432155817469' %}
+    {% if current_user.is_authenticated and admin_user_id and current_user.id == admin_user_id %}
     <div class="card">
       <h2>Admin Panel</h2>
       <a href="/admin/traffic" class="button">Unique Traffic Per Day</a>

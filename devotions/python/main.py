@@ -16,6 +16,7 @@ import flask
 import flask_login
 from google.cloud import firestore
 from google.cloud.firestore_v1 import base_query
+from google.cloud.firestore_v1.field_path import FieldPath
 import gospels_by_category
 import mid_week
 import midday
@@ -40,6 +41,10 @@ app = flask.Flask(
 )
 app.secret_key = secrets_fetcher.get_flask_secret_key()
 app.config["OTHER_PRAYERS"] = utils.get_other_prayers()
+try:
+  app.config["ADMIN_USER_ID"] = secrets_fetcher.get_brandon_user_id()
+except:
+  app.config["ADMIN_USER_ID"] = None
 
 # OAuth and Flask-Login Setup
 oauth = OAuth(app)
@@ -143,7 +148,11 @@ def index_route():
   eastern_timezone = pytz.timezone("America/New_York")
   now = datetime.datetime.now(eastern_timezone)
   is_advent = now.month == 12 and 1 <= now.day <= 25
-  return flask.render_template("index.html", is_advent=is_advent)
+  return flask.render_template(
+      "index.html",
+      is_advent=is_advent,
+      admin_user_id=app.config.get("ADMIN_USER_ID"),
+  )
 
 
 @app.route("/feedback")
@@ -611,7 +620,10 @@ def edit_prayer_request_route(request_id):
 @flask_login.login_required
 def admin_traffic_route():
   """Renders the admin traffic analytics page."""
-  if flask_login.current_user.id != "100474017432155817469":
+  if (
+      not app.config.get("ADMIN_USER_ID")
+      or flask_login.current_user.id != app.config.get("ADMIN_USER_ID")
+  ):
     return flask.abort(403)
   return flask.render_template("admin_traffic.html")
 
@@ -619,7 +631,10 @@ def admin_traffic_route():
 @app.route("/admin/traffic_data")
 @flask_login.login_required
 def traffic_data_route():
-  if flask_login.current_user.id != "100474017432155817469":
+  if (
+      not app.config.get("ADMIN_USER_ID")
+      or flask_login.current_user.id != app.config.get("ADMIN_USER_ID")
+  ):
     return flask.jsonify({"error": "Forbidden"}), 403
 
   db = utils.get_db_client()
@@ -633,7 +648,7 @@ def traffic_data_route():
       db.collection("daily_analytics")
       .where(
           filter=base_query.FieldFilter(
-              firestore.FieldPath.document_id(), "in", date_strs
+              FieldPath.document_id(), "in", date_strs
           )
       )
       .stream()

@@ -46,3 +46,8 @@ def get_flask_secret_key():
 def get_fernet_key():
   """Fetches the Fernet encryption key."""
   return _get_secret("FERNET_KEY", "FERNET_KEY")
+
+
+def get_brandon_user_id():
+  """Fetches BRANDON_USER_ID."""
+  return _get_secret("BRANDON_USER_ID", "BRANDON_USER_ID")
