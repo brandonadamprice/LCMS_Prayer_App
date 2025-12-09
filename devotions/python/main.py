@@ -22,7 +22,7 @@ import mid_week
 import midday
 import morning
 import night_watch
-import one_hundred_prayers
+import short_prayers
 import prayer_requests
 import psalms_by_category
 import pytz
@@ -291,10 +291,10 @@ def gospels_by_category_route():
   return gospels_by_category.generate_gospels_by_category_page()
 
 
-@app.route("/100_prayers")
-def one_hundred_prayers_route():
-  """Returns 100 Prayers page."""
-  return one_hundred_prayers.generate_100_prayers_page()
+@app.route("/short_prayers")
+def short_prayers_route():
+  """Returns Short Prayers page."""
+  return short_prayers.generate_short_prayers_page()
 
 
 @app.route("/bible_in_a_year")
