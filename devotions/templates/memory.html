@@ -40,9 +40,10 @@
   >
     Select a verse above to start.
   </div>
+  <button class="button" id="btn-reset" disabled>Reset</button>
   <button class="button" id="btn-fill-blank" disabled>Fill-in-the-Blank</button>
   <button class="button" id="btn-first-letter" disabled>First Letters</button>
-  <button class="button" id="btn-reset" disabled>Reset</button>
+  <button class="button" id="btn-word-order" disabled>Word Order</button>
 </div>
 
 {% if current_user.is_authenticated %}
@@ -95,12 +96,15 @@ const drillRef = document.getElementById('drill-ref');
 const drillText = document.getElementById('drill-text');
 const btnFillBlank = document.getElementById('btn-fill-blank');
 const btnFirstLetter = document.getElementById('btn-first-letter');
+const btnWordOrder = document.getElementById('btn-word-order');
 const btnReset = document.getElementById('btn-reset');
 const userVersesList = document.getElementById('user-verses-list');
 
 let currentVerseIndex = -1;
 let currentCleanText = "";
 let currentHtmlText = "";
+let wordOrderCorrectList = [];
+let wordOrderCurrentIndex = 0;
 
 function populateVerseSelect() {
     let groupPredefined = document.createElement('optgroup');
@@ -153,6 +157,7 @@ function populateUserVerseList() {
 function setDrillButtonsEnabled(enabled) {
     btnFillBlank.disabled = !enabled;
     btnFirstLetter.disabled = !enabled;
+    btnWordOrder.disabled = !enabled;
     btnReset.disabled = !enabled;
 }
 
@@ -232,12 +237,55 @@ function firstLetters() {
     createDrill(true);
 }
 
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+function onWordBankClick(event) {
+    const btn = event.target;
+    if (btn.textContent === wordOrderCorrectList[wordOrderCurrentIndex]) {
+        const built = document.getElementById('built-sentence');
+        built.textContent += btn.textContent + ' ';
+        btn.disabled = true;
+        wordOrderCurrentIndex++;
+    } else {
+        btn.classList.add('wrong');
+        setTimeout(() => btn.classList.remove('wrong'), 500);
+    }
+}
+
+function wordOrder() {
+    if (!currentCleanText) return;
+    wordOrderCorrectList = currentCleanText.match(/[\w']+|[^\w\s']/g); // split into words and punctuation
+    wordOrderCorrectList = currentCleanText.split(/(\s+)/).filter(w => w.trim().length > 0);
+
+
+    wordOrderCorrectList = currentCleanText.split(' ').filter(w => w);
+    wordOrderCurrentIndex = 0;
+    const shuffled = shuffle([...wordOrderCorrectList]);
+
+    drillText.innerHTML = `<div id="built-sentence"></div><div id="word-bank" style="margin-top:15px; border-top: 1px solid #eee; padding-top: 10px;"></div>`;
+    const bank = document.getElementById('word-bank');
+    shuffled.forEach(word => {
+        const btn = document.createElement('button');
+        btn.className = 'button';
+        btn.textContent = word;
+        btn.onclick = onWordBankClick;
+        bank.appendChild(btn);
+    });
+}
+
 verseSelect.addEventListener('change', (e) => {
     loadVerse(parseInt(e.target.value, 10));
 });
 
 btnFillBlank.addEventListener('click', () => fillInTheBlank());
 btnFirstLetter.addEventListener('click', () => firstLetters());
+btnWordOrder.addEventListener('click', () => wordOrder());
 btnReset.addEventListener('click', () => resetVerse());
 
 document.addEventListener('DOMContentLoaded', () => {

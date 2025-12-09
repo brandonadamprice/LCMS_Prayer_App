@@ -823,3 +823,61 @@ body.dark-mode .memory-input {
 body.dark-mode .memory-input:focus {
     border-bottom-color: #64b5f6; /* Lighter blue */
 }
+
+/* Word Order Puzzle */
+#word-bank .button {
+    margin: 3px;
+    background-color: #eee;
+    color: #333;
+    border: 1px solid #ccc;
+    font-weight: normal;
+    text-transform: none;
+    padding: 5px 10px;
+}
+#word-bank .button:hover {
+    background-color: #ddd;
+    color: #333;
+    transform: none;
+    box-shadow: none;
+}
+#word-bank .button.wrong {
+    background-color: #e74c3c !important;
+    color: white !important;
+    border-color: #c0392b !important;
+    animation: shake 0.5s;
+}
+#word-bank .button:disabled {
+    opacity: 0.3;
+    pointer-events: none;
+    background-color: #eee !important;
+}
+#built-sentence {
+    font-weight: bold;
+    margin-bottom: 15px;
+    min-height: 1.5em;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    line-height: 1.8;
+}
+body.dark-mode #word-bank .button {
+    background-color: #555;
+    color: #eee;
+    border-color: #777;
+}
+body.dark-mode #word-bank .button:hover {
+    background-color: #666;
+}
+body.dark-mode #word-bank .button:disabled {
+    background-color: #555 !important;
+}
+body.dark-mode #built-sentence {
+    border-bottom-color: #555;
+}
+
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+  100% { transform: translateX(0); }
+}
