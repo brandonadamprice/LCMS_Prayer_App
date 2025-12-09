@@ -1,0 +1,217 @@
+{% extends "base.html" %} {% import "_macros.html" as macros %} {% block
+title %}Scripture Memorization{% endblock %} {% block content %}
+<div class="page-header">
+  <h1>Scripture Memorization</h1>
+  <p>Select a verse below to begin memorizing.</p>
+</div>
+
+<div class="card">
+  <h2>Select Verse</h2>
+  <select
+    id="verse-select"
+    style="
+      width: 100%;
+      padding: 8px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+      margin-bottom: 10px;
+    "
+  >
+    <option value="-1">-- Select a verse --</option>
+  </select>
+</div>
+
+<div class="card">
+  <h2>Memorization Drill</h2>
+  <p class="ref" id="drill-ref"></p>
+  <div
+    id="drill-text"
+    style="
+      min-height: 50px;
+      margin-bottom: 15px;
+      font-size: 1.1em;
+      line-height: 1.8;
+    "
+  >
+    Select a verse above to start.
+  </div>
+  <button class="button" id="btn-fill-blank" disabled>Fill-in-the-Blank</button>
+  <button class="button" id="btn-first-letter" disabled>First Letters</button>
+  <button class="button" id="btn-reset" disabled>Reset</button>
+</div>
+
+{% if current_user.is_authenticated %}
+<div class="card">
+  <h2>My Memory Verses</h2>
+  <p>Add or remove your own verses to memorize.</p>
+  <form action="/add_memory_verse" method="post" style="margin-bottom: 20px">
+    <div style="margin-bottom: 10px">
+      <label for="ref">Verse Reference (e.g., John 3:16):</label><br />
+      <input
+        type="text"
+        id="ref"
+        name="ref"
+        required
+        style="
+          width: 100%;
+          padding: 8px;
+          border-radius: 4px;
+          border: 1px solid #ccc;
+          box-sizing: border-box;
+        "
+      />
+    </div>
+    <div style="margin-bottom: 10px">
+      <label for="topic">Topic (Optional):</label><br />
+      <input
+        type="text"
+        id="topic"
+        name="topic"
+        style="
+          width: 100%;
+          padding: 8px;
+          border-radius: 4px;
+          border: 1px solid #ccc;
+          box-sizing: border-box;
+        "
+      />
+    </div>
+    <button type="submit" class="button">Add Verse</button>
+  </form>
+  <div id="user-verses-list"></div>
+</div>
+{% endif %} {% endblock %} {% block extra_js %}
+const verses = JSON.parse('{{ verses_json|safe }}');
+const verseSelect = document.getElementById('verse-select');
+const drillRef = document.getElementById('drill-ref');
+const drillText = document.getElementById('drill-text');
+const btnFillBlank = document.getElementById('btn-fill-blank');
+const btnFirstLetter = document.getElementById('btn-first-letter');
+const btnReset = document.getElementById('btn-reset');
+const userVersesList = document.getElementById('user-verses-list');
+
+let currentVerseIndex = -1;
+let currentCleanText = "";
+let currentHtmlText = "";
+
+function populateVerseSelect() {
+    let groupPredefined = document.createElement('optgroup');
+    groupPredefined.label = 'Predefined Verses';
+    let groupUser = document.createElement('optgroup');
+    groupUser.label = 'My Verses';
+
+    verses.forEach((verse, index) => {
+        const option = document.createElement('option');
+        option.value = index;
+        option.textContent = `${verse.ref} - ${verse.topic}`;
+        if (verse.is_user) {
+            groupUser.appendChild(option);
+        } else {
+            groupPredefined.appendChild(option);
+        }
+    });
+
+    if (groupPredefined.hasChildNodes()) {
+      verseSelect.appendChild(groupPredefined);
+    }
+    if (groupUser.hasChildNodes()) {
+      verseSelect.appendChild(groupUser);
+    }
+}
+
+function populateUserVerseList() {
+    if (!userVersesList) return;
+    const userVerses = verses.filter(v => v.is_user);
+    if (userVerses.length === 0) {
+        userVersesList.innerHTML = '<p><em>You have not added any verses yet.</em></p>';
+        return;
+    }
+    let html = '<ul style="list-style: none; padding: 0;">';
+    userVerses.forEach(verse => {
+        html += `
+            <li style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding: 5px 0;">
+                <span>${verse.ref} - ${verse.topic}</span>
+                <form action="/delete_memory_verse" method="post" style="margin: 0;">
+                    <input type="hidden" name="verse_id" value="${verse.id}">
+                    <button type="submit" class="button" style="background-color: #e74c3c; padding: 3px 8px; font-size: 0.8em; margin: 0;">Delete</button>
+                </form>
+            </li>
+        `;
+    });
+    html += '</ul>';
+    userVersesList.innerHTML = html;
+}
+
+function setDrillButtonsEnabled(enabled) {
+    btnFillBlank.disabled = !enabled;
+    btnFirstLetter.disabled = !enabled;
+    btnReset.disabled = !enabled;
+}
+
+function loadVerse(index) {
+    currentVerseIndex = index;
+    if (index === -1) {
+        drillRef.textContent = '';
+        drillText.innerHTML = 'Select a verse above to start.';
+        currentCleanText = "";
+        currentHtmlText = "";
+        setDrillButtonsEnabled(false);
+    } else {
+        const verse = verses[index];
+        drillRef.textContent = verse.ref;
+        drillText.innerHTML = verse.text_html;
+        currentCleanText = verse.clean_text;
+        currentHtmlText = verse.text_html;
+        setDrillButtonsEnabled(true);
+    }
+}
+
+function resetVerse() {
+    if (currentVerseIndex !== -1) {
+        drillText.innerHTML = currentHtmlText;
+    }
+}
+
+function fillInTheBlank(difficulty = 0.3) {
+    if (!currentCleanText) return;
+    const words = currentCleanText.split(/([,\.\?!;:" ]+)/); // Split by punctuation/space, keeping delimiters
+    const elements = words.map(word => {
+        if (word.match(/^\w+$/) && Math.random() < difficulty) {
+            return `<span style="text-decoration: underline; display: inline-block; min-width: ${word.length * 0.8}em; text-align: center;">&nbsp;&nbsp;&nbsp;&nbsp;</span>`;
+        }
+        return word;
+    });
+    drillText.innerHTML = elements.join('');
+}
+
+function firstLetters() {
+    if (!currentCleanText) return;
+    const words = currentCleanText.split(/([,\.\?!;:" ]+)/); // Split by punctuation/space, keeping delimiters
+    const elements = words.map(word => {
+        if (word.match(/^\w+$/)) {
+             if (word.length > 1) {
+                return word.charAt(0) + '_'.repeat(word.length - 1);
+             }
+             return word.charAt(0);
+        }
+        return word;
+    });
+    drillText.innerHTML = elements.join(' ');
+}
+
+verseSelect.addEventListener('change', (e) => {
+    loadVerse(parseInt(e.target.value, 10));
+});
+
+btnFillBlank.addEventListener('click', () => fillInTheBlank());
+btnFirstLetter.addEventListener('click', () => firstLetters());
+btnReset.addEventListener('click', () => resetVerse());
+
+document.addEventListener('DOMContentLoaded', () => {
+    populateVerseSelect();
+    populateUserVerseList();
+    loadVerse(-1);
+});
+
+{% endblock %}

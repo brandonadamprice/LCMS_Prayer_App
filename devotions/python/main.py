@@ -21,6 +21,7 @@ import gospels_by_category
 import mid_week
 import midday
 import morning
+import memory
 import night_watch
 import short_prayers
 import prayer_requests
@@ -289,6 +290,12 @@ def psalms_by_category_route():
 def gospels_by_category_route():
   """Returns Gospels by Category page."""
   return gospels_by_category.generate_gospels_by_category_page()
+
+
+@app.route("/memory")
+def memory_route():
+  """Returns Scripture Memorization page."""
+  return memory.generate_memory_page()
 
 
 @app.route("/short_prayers")
@@ -598,6 +605,49 @@ def delete_personal_prayer_route():
   else:
     flask.flash("Prayer not found or permission denied.", "error")
   return flask.redirect(flask.url_for("my_prayers_route"))
+
+
+@app.route("/add_memory_verse", methods=["POST"])
+@flask_login.login_required
+def add_memory_verse_route():
+  """Adds a memory verse for the current user."""
+  ref = flask.request.form.get("ref")
+  topic = flask.request.form.get("topic", "User Added")
+  if not ref:
+    flask.flash("Verse reference cannot be empty.", "error")
+    return flask.redirect(flask.url_for("memory_route"))
+  try:
+    # Attempt to fetch to validate ref - simple validation
+    utils.fetch_passages([ref], include_verse_numbers=False, include_copyright=False)
+  except:
+    flask.flash(f"Could not validate reference: {ref}", "error")
+    return flask.redirect(flask.url_for("memory_route"))
+    
+  db = utils.get_db_client()
+  db.collection("user-memory-verses").add({
+      "user_id": flask_login.current_user.id,
+      "ref": ref,
+      "topic": topic,
+      "created_at": datetime.datetime.now(datetime.timezone.utc),
+  })
+  return flask.redirect(flask.url_for("memory_route"))
+
+
+@app.route("/delete_memory_verse", methods=["POST"])
+@flask_login.login_required
+def delete_memory_verse_route():
+  """Deletes a memory verse."""
+  verse_id = flask.request.form.get("verse_id")
+  if not verse_id:
+    return flask.redirect(flask.url_for("memory_route"))
+  db = utils.get_db_client()
+  doc_ref = db.collection("user-memory-verses").document(verse_id)
+  doc = doc_ref.get()
+  if doc.exists and doc.to_dict().get("user_id") == flask_login.current_user.id:
+    doc_ref.delete()
+  else:
+    flask.flash("Verse not found or permission denied.", "error")
+  return flask.redirect(flask.url_for("memory_route"))
 
 
 @app.route("/edit_prayer_request/<request_id>", methods=["POST"])

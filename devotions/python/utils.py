@@ -537,7 +537,11 @@ def _preprocess_ref(ref: str) -> str:
 
 
 @functools.lru_cache(maxsize=512)
-def _fetch_passages_cached(references: tuple[str, ...]) -> tuple[str, ...]:
+def _fetch_passages_cached(
+    references: tuple[str, ...],
+    include_verse_numbers: bool = True,
+    include_copyright: bool = True,
+) -> tuple[str, ...]:
   """Cached fetching of passages from api.esv.org."""
   passage_results = {}
   references_list = list(references)
@@ -571,10 +575,10 @@ def _fetch_passages_cached(references: tuple[str, ...]) -> tuple[str, ...]:
       "q": query,
       "include-headings": "false",
       "include-footnotes": "false",
-      "include-verse-numbers": "true",
+      "include-verse-numbers": str(include_verse_numbers).lower(),
       "include-passage-references": "false",
       "include-chapter-numbers": "false",
-      "include-copyright": "true",
+      "include-copyright": str(include_copyright).lower(),
   }
   headers = {"Authorization": f"Token {api_key}"}
 
@@ -598,16 +602,16 @@ def _fetch_passages_cached(references: tuple[str, ...]) -> tuple[str, ...]:
                 passage_idx : passage_idx + num_passages
             ]
             if passages_list:
-              if len(passages_list) > 1:
+              if len(passages_list) > 1 and include_copyright:
                 processed_passages = [
                     p.strip().removesuffix(" (ESV)") for p in passages_list[:-1]
                 ]
                 processed_passages.append(passages_list[-1].strip())
                 text_block = " ".join(processed_passages)
               else:
-                text_block = passages_list[0].strip()
+                text_block = " ".join(p.strip() for p in passages_list)
 
-              if text_block.endswith(" (ESV)"):
+              if include_copyright and text_block.endswith(" (ESV)"):
                 text_block = (
                     text_block.removesuffix(" (ESV)")
                     + ' <span class="esv-attribution">(<a'
@@ -615,9 +619,14 @@ def _fetch_passages_cached(references: tuple[str, ...]) -> tuple[str, ...]:
                 )
             else:
               text_block = ""
-            text_block = re.sub(r"\[(\d+)\]", r"<br><sup>\1</sup>", text_block)
-            if text_block.startswith("<br>"):
-              text_block = text_block[4:]
+
+            if include_verse_numbers:
+              text_block = re.sub(r"\[(\d+)\]", r"<br><sup>\1</sup>", text_block)
+              if text_block.startswith("<br>"):
+                text_block = text_block[4:]
+            else:
+              text_block = re.sub(r"\[\d+\]", "", text_block).strip()
+
             passage_results[ref] = text_block
             passage_idx += num_passages
           else:
@@ -643,9 +652,17 @@ def _fetch_passages_cached(references: tuple[str, ...]) -> tuple[str, ...]:
     return tuple(passage_results[ref] for ref in references_list)
 
 
-def fetch_passages(references: list[str]) -> list[str]:
+def fetch_passages(
+    references: list[str],
+    include_verse_numbers: bool = True,
+    include_copyright: bool = True,
+) -> list[str]:
   """Fetches multiple passages from api.esv.org in one request."""
-  return list(_fetch_passages_cached(tuple(references)))
+  return list(
+      _fetch_passages_cached(
+          tuple(references), include_verse_numbers, include_copyright
+      )
+  )
 
 
 def get_all_personal_prayers_for_user() -> dict:
