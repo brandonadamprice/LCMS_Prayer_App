@@ -783,3 +783,35 @@ body.dark-mode .esv-attribution a {
 body.dark-mode .footer a {
     color: #aaa;
 }
+
+/* Memory Verse Inputs */
+.memory-input {
+    border: none;
+    border-bottom: 1px solid #7f8c8d;
+    background: transparent;
+    text-align: center;
+    font-size: 1em;
+    padding: 0 2px;
+    margin: 0 1px;
+    min-width: 3ch;
+    color: inherit;
+    border-radius: 0;
+}
+.memory-input:focus {
+    outline: none;
+    border-bottom: 2px solid #2980b9;
+}
+.memory-input.wrong {
+    border-bottom-color: red;
+    color: red !important;
+}
+.memory-input.wrong::placeholder {
+    color: #ff9999;
+}
+.memory-input.correct {
+    border-bottom-color: green;
+    color: green !important;
+}
+.memory-input.correct::placeholder {
+    color: #99cc99;
+}

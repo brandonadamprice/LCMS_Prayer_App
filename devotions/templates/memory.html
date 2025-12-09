@@ -180,31 +180,51 @@ function resetVerse() {
     }
 }
 
-function fillInTheBlank(difficulty = 0.3) {
+function checkAnswer(event) {
+    const input = event.target;
+    const answer = input.dataset.answer;
+    if (input.value.trim().toLowerCase() === answer.toLowerCase()) {
+        input.classList.remove('wrong');
+        input.classList.add('correct');
+    } else if (input.value === '') {
+        input.classList.remove('wrong');
+        input.classList.remove('correct');
+    } else {
+        input.classList.add('wrong');
+        input.classList.remove('correct');
+    }
+}
+
+function createDrill(isFirstLetter) {
     if (!currentCleanText) return;
+    drillText.innerHTML = ''; // Clear
     const words = currentCleanText.split(/([,\.\?!;:" ]+)/); // Split by punctuation/space, keeping delimiters
-    const elements = words.map(word => {
-        if (word.match(/^\w+$/) && Math.random() < difficulty) {
-            return `<span style="text-decoration: underline; display: inline-block; min-width: ${word.length * 0.8}em; text-align: center;">&nbsp;&nbsp;&nbsp;&nbsp;</span>`;
+
+    words.forEach(word => {
+        const shouldBeBlank = isFirstLetter ? true : Math.random() < 0.3;
+        if (word.match(/^\w+$/) && shouldBeBlank) {
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.classList.add('memory-input');
+            input.dataset.answer = word;
+            input.style.width = `${Math.max(word.length * 0.9, 2)}ch`;
+            if(isFirstLetter) {
+                input.placeholder = word.charAt(0);
+            }
+            input.addEventListener('input', checkAnswer);
+            drillText.appendChild(input);
+        } else {
+            drillText.appendChild(document.createTextNode(word));
         }
-        return word;
     });
-    drillText.innerHTML = elements.join('');
+}
+
+function fillInTheBlank() {
+    createDrill(false);
 }
 
 function firstLetters() {
-    if (!currentCleanText) return;
-    const words = currentCleanText.split(/([,\.\?!;:" ]+)/); // Split by punctuation/space, keeping delimiters
-    const elements = words.map(word => {
-        if (word.match(/^\w+$/)) {
-             if (word.length > 1) {
-                return word.charAt(0) + '_'.repeat(word.length - 1);
-             }
-             return word.charAt(0);
-        }
-        return word;
-    });
-    drillText.innerHTML = elements.join(' ');
+    createDrill(true);
 }
 
 verseSelect.addEventListener('change', (e) => {

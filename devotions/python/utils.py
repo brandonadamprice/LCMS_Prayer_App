@@ -617,6 +617,8 @@ def _fetch_passages_cached(
                     + ' <span class="esv-attribution">(<a'
                     ' href="http://www.esv.org">ESV</a>)</span>'
                 )
+              elif not include_copyright and text_block.endswith(" (ESV)"):
+                text_block = text_block.removesuffix(" (ESV)")
             else:
               text_block = ""
 
