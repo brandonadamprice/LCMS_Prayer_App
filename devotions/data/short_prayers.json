@@ -1,84 +1,164 @@
 {
   "prayers_for_specific_situations": [
     {
-      "situation": "Seeking Comfort and Help in Deep Personal Distress",
-      "prayer": "Almighty and everlasting God, the Consolation of the sorrowful and the Strength of the weak, mercifully assist our prayers which we make before Thee in all our tribulations and adversities whensoever they oppress us. Graciously hear us, that those evils which the craft and subtlety of the devil or man worketh against us may by Thy good providence be brought to naught. Defend us, Thy humble servants, in all assaults of our enemies, that we may continually mark and receive Thy manifold help and comfort."
+      "situation": "Against Murmuring and Loss of Thanksgiving in Affliction",
+      "prayer": "In everything give thanks, for this is the will of God in Christ Jesus. Grant that we may bear all things thankfully, be it poverty, disease, or false accusations, for You alone know what is expedient for us. Let us not be cast down by sadness, but rejoice in hope, knowing that all things work together for good to them that love God. Help us to see afflictions as manifestations of Your fatherly will and chastisement for our good."
     },
     {
-      "situation": "Seeking Pardon and Peace for Known Sins",
-      "prayer": "Hear, we beseech Thee, O Lord, the prayer of Thy suppliants and spare those who confess their sins unto Thee that Thou mayest bestow upon us both pardon and peace. We humbly confess those sins which we know and feel in our hearts, acknowledging that we daily stumble and transgress because we live in the world and are assaulted by Satan. We pray that Thou mayest set us free from our sins and rescue us from the punishments which for our sins we deserve, granting us a joyful and confident conscience to stand before Thee."
-    },
-    {
-      "situation": "In Sickness or Physical Affliction",
-      "prayer": "We commend to Thy fatherly goodness all those who are afflicted or distressed in mind, body, or estate, that it may please Thee to comfort and relieve them according to their several necessities. Deliver them from every sickness and every disease, granting them patience under their sufferings and a happy issue out of all their afflictions. Preserve us all from all sorts of calamity to body and livelihood, that we may have faith which works by love and endures unto the end."
-    },
-    {
-      "situation": "Struggling with Temptation and Spiritual Weakness",
-      "prayer": "We pray Thee, Heavenly Father, guard and keep us so that the devil, the world, and our sinful nature may not deceive us or mislead us into false belief, despair, and other great shame and vice. Though we are incessantly attacked, grant us strength, wisdom, and power through Thy Spirit that as good soldiers we may resist the evil foe and finally conquer. Lead us not into the temptation of self-deception, but uphold us with Thy free Spirit, that we may finally overcome them and win the victory."
-    },
-    {
-      "situation": "Thanksgiving for Redemption in Christ",
-      "prayer": "Almighty and everlasting God, we give Thee thanks that of Thy great goodness and mercy Thou didst suffer Thine only-begotten Son to become incarnate and to redeem us from sin and everlasting death. We praise Thee for Thine inestimable love in the redemption of the world by our Lord and Savior Jesus Christ, for the means of grace, and for the hope of glory. Enlighten our hearts by Thy Holy Spirit that we may evermore yield Thee unfeigned thanks for this Thy grace and may comfort ourselves with the same in all time of tribulation and temptation."
-    },
-    {
-      "situation": "For Increase in Faith, Hope, and Charity",
-      "prayer": "Grant us, we beseech Thee, Almighty God, a steadfast faith in Jesus Christ, a cheerful hope in Thy mercy, and a sincere love to Thee and to all our fellow men. We pray that Your Holy Spirit may in all things direct and rule our hearts, that we may receive the gifts of God and cling to the assurance of our justification. That we may obtain that which Thou dost promise, make us to love that which Thou dost command, fulfilling our lives with obedience and good works."
-    },
-    {
-      "situation": "For Guidance and Preservation in Daily Work/Vocation",
-      "prayer": "O Lord, on this day when the work of our calling begins anew, we implore You to create its beginning, direct its continuance, and bless its end. Give success to the Christian training of the young, to all lawful occupations on land and sea, and to all pure arts and useful knowledge. We pray that our doings may be preserved from sin, our life sanctified, and our work this day be well pleasing to You, relying not on our own work, but on Christ’s finished work."
-    },
-    {
-      "situation": "For a Blessed End (The Last Hour of Life)",
-      "prayer": "Have mercy upon those to whom death draws near, bringing consolation to those in sorrow or mourning. Almighty, everlasting, and most merciful God, confirm, we beseech Thee, Thine unworthy servants in Thy grace that in the hour of our death the adversary may not prevail against us. Lead us from this world of sorrow to the heavenly home, granting us a blessed end that we may be found worthy of everlasting life."
-    },
-    {
-      "situation": "Struggling with Doubt and Unbelief",
-      "prayer": "O Holy Spirit, Whom Thou hast not enlightened, he is still in darkness, knowing neither himself nor his Savior. Preserve us from unbelief and error, which in these latter days threaten to engulf all, even Thy baptized Christians. Give the thunder of Thy Law power to terrify the secure and the balm of Thy Gospel power to soothe and strengthen the faint hearts, leading us into the true knowledge of the truth."
-    },
-    {
-      "situation": "For Unity and Piety in Family and Home Life",
-      "prayer": "We pray Thee especially, heavenly Father, to sanctify our homes with Thy light and joy. Keep our children in the covenant of their baptism, and enable their parents to rear them in a life of faith and godliness. By the spirit of affection and service unite the members of all Christian families, that husband and wife, parents and children live in ordered harmony according to the Word of God."
-    },
-    {
-      "situation": "Thanksgiving for Temporal Blessings (Health, Peace, etc.)",
-      "prayer": "Lord God, heavenly Father, from whom without ceasing we receive exceeding abundantly all good gifts, grant us Thy Holy Spirit that, acknowledging with our whole heart all this Thy goodness, we may now and evermore thank and praise Thy loving-kindness. We thank Thee for our creation, preservation, and all the blessings of this life, such as good government, peace, health, and faithful neighbors. Cause us to prize Thy pure Word and faithfully use it, holding fast to Thee, our gracious God and Father."
-    },
-    {
-      "situation": "Seeking Contentment and Guarding Against Covetousness",
-      "prayer": "Generous Father, restrain our rogue hearts as they too easily are drawn to covetousness, which is idolatry. Break every scheme that would attempt to obtain for ourselves the property that You have given to our neighbors. Grant unto us contentment with the daily bread You have freely granted to us, enabling us to serve our neighbors by helping them keep and guard all that You have given to them."
-    },
-    {
-      "situation": "For Assistance in Forgiving Others",
-      "prayer": "Lord God, heavenly Father, we pray that You would forgive us our debts, knowing that we ask that only so much will be remitted to us, as we have remitted to those who have injured us spitefully. Help us to put away all hatred, envy, and dissension, loving one another as good and true children of God. As You have forgiven us, grant us the capacity to love our conflicted neighbors enough to approach them and sincerely forgive those who trespass against us."
-    },
-    {
-      "situation": "When Feeling Overwhelmed by Anxiety and Distress",
-      "prayer": "Most merciful God, the Consolation of the troubled and the Hope of all who cast their cares on You, look on our distress with eyes of compassion. When my soul is troubled and afflicted, I cry unto Thee, trusting that Thou wilt hear me right soon and deliver me. Grant unto us all that peace which passes all understanding, so that with a quiet mind we may view the storms and troubles of life."
-    },
-    {
-      "situation": "For Protection Against Slander and False Accusations",
-      "prayer": "O Lord, guard us against false accusation, and keep us from all evil rumors and false accusers. We pray for all that speak evil of us; grant us wisdom to bear it patiently and continue steadfast in Thy grace. Keep us from all hatred, wrath, and revengefulness toward our slanderers, that we may continually walk the path leading to heaven."
-    },
-    {
-      "situation": "For Wisdom and Understanding of God's Word",
-      "prayer": "O Lord, if any of us lack wisdom, let him ask of God, that giveth to all men liberally. We pray Thee to enlighten our understanding and stablish Thy Word unto us, so that we may sincerely love it and be governed by it in all matters. Grant us wisdom in Thy word, and in Thy fear, that Thy Holy Spirit may illuminate and guide us according to Thy promises."
-    },
-    {
-      "situation": "For Repentance and Conversion of Unbelievers",
-      "prayer": "Almighty and everlasting God, who desirest not the death of a sinner, but wouldest have all men to repent and live, hear our prayers for the heathen and our enemies. Take away iniquity from their hearts, and turn them from their idols unto the living and true God and to Thine only Son. We pray that God would work in them to will also, granting them the gift of faith that they may be converted and join the holy flock."
-    },
-    {
-      "situation": "Thanksgiving for God's Mercy and Steadfastness",
-      "prayer": "O Lord, our God, through Christ Thou art our reconciled Father, daily, yea, hourly, Thou dost shower down upon us bodily and spiritual, earthly and heavenly, blessings. Grant us, we beseech Thee, a heart that is truly thankful for the overwhelming riches of Thy goodness, that we may give praise and honor to Thee. Help us to hate sin, which Thou hatest, and earnestly to fight against it; and to love righteousness, that we may extol Thy praise forever and ever."
+      "situation": "Against Pride and Arrogance of Heart",
+      "prayer": "O Lord, who resistest the proud, but givest grace unto the humble, preserve us from the haughty spirits who would reign over Your Church. We pray that You would break our pride and keep us humble. Help us to confess our sins, knowing that pride is the beginning of sin. Grant that we may endure all that is hurtful and saddening with patience, constantly bearing in mind the passion of our Lord and His saints."
     },
     {
       "situation": "Against Sloth, Complacency, and Lack of Zeal",
       "prayer": "Lord God, Father, keep us brave and alert, fervent and eager in the use of your Word and service, lest we become complacent, lazy, or sluggish, as if we had need of nothing more. Enable us by your grace to be not slothful in business, but fervent in spirit, serving the Lord. Preserve us from sinfully insisting upon our own opinions, but rather grant that we may be humbled by confession and serve Thee willingly."
     },
     {
+      "situation": "Against Spiritual Decay and Hardening of Heart",
+      "prayer": "O Lord, preserve us from self-deception, blindness, and hardening of heart. Show us the errors and perils into which we have fallen and bring us back to what is right. Bless us with Thy Holy Spirit that we may not become sluggish, but more zealous; not earthly-minded, but more heavenly-minded; not carnal, but daily more spiritual."
+    },
+    {
+      "situation": "Deliverance from Sudden and Unexpected Calamity",
+      "prayer": "O God the Father in heaven, deliver us from sudden and evil death; from pestilence and famine; from war and bloodshed; from sedition and rebellion; from lightning and tempest; from all calamity by fire and water, and from everlasting death. Be pleased to help the afflicted, cast not away Your people who cry unto You in their tribulation, for the glory of Your name."
+    },
+    {
+      "situation": "For Adoration and Praise of the Holy Trinity",
+      "prayer": "We worship You, O God the Father in heaven, O God the Son, Redeemer of the world, O God the Holy Ghost. Bless the Lord, O my soul, and all that is within me, bless His holy name. I will love You, O Lord, my Strength, my Rock, and my Fortress. Glory be to the Father, and to the Son, and to the Holy Ghost, as it was in the beginning, is now, and ever shall be, world without end."
+    },
+    {
+      "situation": "For Assistance in Forgiving Others",
+      "prayer": "Lord God, heavenly Father, we pray that You would forgive us our debts, knowing that we ask that only so much will be remitted to us, as we have remitted to those who have injured us spitefully. Help us to put away all hatred, envy, and dissension, loving one another as good and true children of God. As You have forgiven us, grant us the capacity to love our conflicted neighbors enough to approach them and sincerely forgive those who trespass against us."
+    },
+    {
+      "situation": "For Civil Authorities and the Maintenance of Righteousness",
+      "prayer": "O merciful Father in heaven, who hast ordained the powers that be for the punishment of evildoers and for the praise of them that do well, we humbly beseech You to graciously regard all rulers and magistrates. Endue them with grace to rule after Your good pleasure, to the maintenance of righteousness and to the hindrance and punishment of wickedness, that Your people may be guarded and directed in righteousness, quietness, and unity. May we, in return for their defense and service, pray for them."
+    },
+    {
+      "situation": "For Consolation of Soul in Despair or Deep Grief",
+      "prayer": "Hear my prayer, O Lord, and lighten the darkness of my heart by Thy gracious visitation. When overwhelmed by sadness and pain, be Thou our Solace, Strength, and Stay. If our soul can find no comfort and despondency grows strong, comfort then the aching breast, grant us courage, patience, and rest. Deliver us from the evil of darkness and death."
+    },
+    {
+      "situation": "For Defense and Provision for Widows and Fatherless Children",
+      "prayer": "We beseech You, O Lord God, to defend and provide for all fatherless children and widows. Judge for the fatherless, plead for the widow. Bless the oblations and alms given to the needy, widows, and orphans."
+    },
+    {
+      "situation": "For Guidance and Preservation in Daily Work/Vocation",
+      "prayer": "O Lord, on this day when the work of our calling begins anew, we implore You to create its beginning, direct its continuance, and bless its end. Give success to the Christian training of the young, to all lawful occupations on land and sea, and to all pure arts and useful knowledge. We pray that our doings may be preserved from sin, our life sanctified, and our work this day be well pleasing to You, relying not on our own work, but on Christ’s finished work."
+    },
+    {
+      "situation": "For Increase in Faith, Hope, and Charity",
+      "prayer": "Grant us, we beseech Thee, Almighty God, a steadfast faith in Jesus Christ, a cheerful hope in Thy mercy, and a sincere love to Thee and to all our fellow men. We pray that Your Holy Spirit may in all things direct and rule our hearts, that we may receive the gifts of God and cling to the assurance of our justification. That we may obtain that which Thou dost promise, make us to love that which Thou dost command, fulfilling our lives with obedience and good works."
+    },
+    {
+      "situation": "For Protection Against Slander and False Accusations",
+      "prayer": "O Lord, guard us against false accusation, and keep us from all evil rumors and false accusers. We pray for all that speak evil of us; grant us wisdom to bear it patiently and continue steadfast in Thy grace. Keep us from all hatred, wrath, and revengefulness toward our slanderers, that we may continually walk the path leading to heaven."
+    },
+    {
+      "situation": "For Protection and Help in Peril or Need (General)",
+      "prayer": "May it please You, O Lord, to preserve all that travel by land or water, to help all that are in peril or need, and to satisfy the wants of all Your creatures. Almighty God, the Consolation of the sorrowful and the Strength of the weak, may the prayers of them that in any tribulation or distress cry unto You graciously come before You, so that in all their necessities they may mark and receive Your manifold help and comfort."
+    },
+    {
+      "situation": "For Repentance and Conversion of Unbelievers",
+      "prayer": "Almighty and everlasting God, who desirest not the death of a sinner, but wouldest have all men to repent and live, hear our prayers for the heathen and our enemies. Take away iniquity from their hearts, and turn them from their idols unto the living and true God and to Thine only Son. We pray that God would work in them to will also, granting them the gift of faith that they may be converted and join the holy flock."
+    },
+    {
+      "situation": "For Steadfastness and Preservation in God's Fear and Love",
+      "prayer": "O Lord, who never failest to help and govern those whom Thou dost bring up in Thy steadfast fear and love, make us to have a perpetual fear and love of Thy holy name. O God, the Protector of all that trust in Thee, increase and multiply upon us Thy mercy that, Thou being our Ruler and Guide, we may so pass through things temporal that we finally lose not the things eternal. Keep us both outwardly and inwardly that we may be defended from all adversities which may happen to the body and from all evil thoughts which may assault and hurt the soul."
+    },
+    {
+      "situation": "For Strength in the Face of Specific Spiritual Attacks (Flesh, World, Devil)",
+      "prayer": "Spare us, good Lord, from all sin; from all error; from all evil, and from the crafts and assaults of the devil. Grant us strength and protection as may support us in all dangers and carry us through all temptations. Strengthen us that we may conquer the inclination to anger, hatred, pride, and unchastity remaining in our flesh after baptism, against which we need the help of Christ and His saints. Let us not be led into temptation, but deliver us from evil."
+    },
+    {
+      "situation": "For True Friends and Faithful Neighbors",
+      "prayer": "Dear Lord God, Father, we pray You to bestow upon all classes, both city folk and country folk, piety and a mutual love and sincerity. Favor us with faithful neighbors and good friends. Grant us grace to speak to one another in a brotherly, friendly, and charitable spirit."
+    },
+    {
+      "situation": "For Unity and Piety in Family and Home Life",
+      "prayer": "We pray Thee especially, heavenly Father, to sanctify our homes with Thy light and joy. Keep our children in the covenant of their baptism, and enable their parents to rear them in a life of faith and godliness. By the spirit of affection and service unite the members of all Christian families, that husband and wife, parents and children live in ordered harmony according to the Word of God."
+    },
+    {
+      "situation": "For Wisdom and Understanding of God's Word",
+      "prayer": "O Lord, if any of us lack wisdom, let him ask of God, that giveth to all men liberally. We pray Thee to enlighten our understanding and stablish Thy Word unto us, so that we may sincerely love it and be governed by it in all matters. Grant us wisdom in Thy word, and in Thy fear, that Thy Holy Spirit may illuminate and guide us according to Thy promises."
+    },
+    {
+      "situation": "For Women in the Perils of Childbirth",
+      "prayer": "We poor sinners do beseech You, O Lord God, to preserve all women in the perils of childbirth. Deliver and save them by Your power."
+    },
+    {
+      "situation": "For a Blessed End (The Last Hour of Life)",
+      "prayer": "Have mercy upon those to whom death draws near, bringing consolation to those in sorrow or mourning. Almighty, everlasting, and most merciful God, confirm, we beseech Thee, Thine unworthy servants in Thy grace that in the hour of our death the adversary may not prevail against us. Lead us from this world of sorrow to the heavenly home, granting us a blessed end that we may be found worthy of everlasting life."
+    },
+    {
+      "situation": "For the Church in its Conflicts and Suppression of the Truth",
+      "prayer": "Almighty and everlasting God, who desires that all men be saved, we beseech Your glorious majesty, through Jesus Christ, our Lord and Savior, to impart the grace and help of Your Holy Spirit to all ministers that they may purely teach Your saving Word. Bring to naught by Your almighty power and unsearchable wisdom all the counsels of those who, by corrupt teaching or with violent hands, would destroy Your Word. Comfort Your suffering people who are in trouble or anguish for Your name's and truth's sake, that we may be defended from all adversities which may happen to the body and from all evil thoughts which may assault and hurt the soul. Grant that we may lead a quiet and peaceable life."
+    },
+    {
+      "situation": "For the Innocently Imprisoned or Captive",
+      "prayer": "We beseech You, O Lord God, to set free all who are innocently imprisoned, and to redeem Your people, O God, out of all their troubles, sending them help from the Sanctuary. Remember our brethren who are in bonds, in prison, in captivity, and in exile."
+    },
+    {
+      "situation": "For the Sending of Faithful Laborers into the Harvest",
+      "prayer": "O Lord God, heavenly Father, and Almighty and most merciful God, we beseech You to send forth laborers into Your harvest and to sustain those whom You have sent, that the Word of Reconciliation may be proclaimed to all people and the Gospel preached in all the world. Preserve all pastors and ministers of Your Church in the true knowledge and understanding of Your Word and in holiness of life."
+    },
+    {
       "situation": "For the Spiritual Growth and Protection of Children",
       "prayer": "Almighty and everlasting God, who dost will that not one of these little ones should perish, most heartily we beseech Thee so to bless and govern the children of Thy Church by Thy Holy Spirit. Grant that the little ones who are baptized in Your name may be brought up in Your fear, growing in grace and in the knowledge of Thy Word. Protect and defend them against all danger and harm, giving Thy holy angels charge over them, that the wicked Foe may have no power over them."
+    },
+    {
+      "situation": "In Sickness or Physical Affliction",
+      "prayer": "We commend to Thy fatherly goodness all those who are afflicted or distressed in mind, body, or estate, that it may please Thee to comfort and relieve them according to their several necessities. Deliver them from every sickness and every disease, granting them patience under their sufferings and a happy issue out of all their afflictions. Preserve us all from all sorts of calamity to body and livelihood, that we may have faith which works by love and endures unto the end."
+    },
+    {
+      "situation": "In Time of Drought or Unseasonable Weather",
+      "prayer": "O God, most merciful Father, we beseech Thee to open the windows of heaven and to send a fruitful rain upon us, to revive the earth, and to refresh the fruits thereof, for all things droop and wither. Look not upon our sins and evil-doings, but upon our necessities, and according to Your mercy send us such seasonable weather that the earth may in due time yield her increase, that by Your goodness we may receive our daily bread."
+    },
+    {
+      "situation": "Seeking Comfort and Help in Deep Personal Distress",
+      "prayer": "Almighty and everlasting God, the Consolation of the sorrowful and the Strength of the weak, mercifully assist our prayers which we make before Thee in all our tribulations and adversities whensoever they oppress us. Graciously hear us, that those evils which the craft and subtlety of the devil or man worketh against us may by Thy good providence be brought to naught. Defend us, Thy humble servants, in all assaults of our enemies, that we may continually mark and receive Thy manifold help and comfort."
+    },
+    {
+      "situation": "Seeking Contentment and Guarding Against Covetousness",
+      "prayer": "Generous Father, restrain our rogue hearts as they too easily are drawn to covetousness, which is idolatry. Break every scheme that would attempt to obtain for ourselves the property that You have given to our neighbors. Grant unto us contentment with the daily bread You have freely granted to us, enabling us to serve our neighbors by helping them keep and guard all that You have given to them."
+    },
+    {
+      "situation": "Seeking Pardon and Peace for Known Sins",
+      "prayer": "Hear, we beseech Thee, O Lord, the prayer of Thy suppliants and spare those who confess their sins unto Thee that Thou mayest bestow upon us both pardon and peace. We humbly confess those sins which we know and feel in our hearts, acknowledging that we daily stumble and transgress because we live in the world and are assaulted by Satan. We pray that Thou mayest set us free from our sins and rescue us from the punishments which for our sins we deserve, granting us a joyful and confident conscience to stand before Thee."
+    },
+    {
+      "situation": "Struggling with Doubt and Unbelief",
+      "prayer": "O Holy Spirit, Whom Thou hast not enlightened, he is still in darkness, knowing neither himself nor his Savior. Preserve us from unbelief and error, which in these latter days threaten to engulf all, even Thy baptized Christians. Give the thunder of Thy Law power to terrify the secure and the balm of Thy Gospel power to soothe and strengthen the faint hearts, leading us into the true knowledge of the truth."
+    },
+    {
+      "situation": "Struggling with Temptation and Spiritual Weakness",
+      "prayer": "We pray Thee, Heavenly Father, guard and keep us so that the devil, the world, and our sinful nature may not deceive us or mislead us into false belief, despair, and other great shame and vice. Though we are incessantly attacked, grant us strength, wisdom, and power through Thy Spirit that as good soldiers we may resist the evil foe and finally conquer. Lead us not into the temptation of self-deception, but uphold us with Thy free Spirit, that we may finally overcome them and win the victory."
+    },
+    {
+      "situation": "Thanksgiving for Deliverance from Great Peril (e.g., Storms, Shipwreck)",
+      "prayer": "O Lord, my Strength, I will offer unto You the sacrifice of thanksgiving for all Your benefits toward me. We thank Thee, heavenly Father, through Jesus Christ, Thy dear Son, that Thou hast graciously kept us this day. We give thanks for being delivered from great peril, whether it be from war, tempest, or disease, acknowledging that God has rescued us when we expected death and despair."
+    },
+    {
+      "situation": "Thanksgiving for God's Mercy and Steadfastness",
+      "prayer": "O Lord, our God, through Christ Thou art our reconciled Father, daily, yea, hourly, Thou dost shower down upon us bodily and spiritual, earthly and heavenly, blessings. Grant us, we beseech Thee, a heart that is truly thankful for the overwhelming riches of Thy goodness, that we may give praise and honor to Thee. Help us to hate sin, which Thou hatest, and earnestly to fight against it; and to love righteousness, that we may extol Thy praise forever and ever."
+    },
+    {
+      "situation": "Thanksgiving for Redemption in Christ",
+      "prayer": "Almighty and everlasting God, we give Thee thanks that of Thy great goodness and mercy Thou didst suffer Thine only-begotten Son to become incarnate and to redeem us from sin and everlasting death. We praise Thee for Thine inestimable love in the redemption of the world by our Lord and Savior Jesus Christ, for the means of grace, and for the hope of glory. Enlighten our hearts by Thy Holy Spirit that we may evermore yield Thee unfeigned thanks for this Thy grace and may comfort ourselves with the same in all time of tribulation and temptation."
+    },
+    {
+      "situation": "Thanksgiving for Temporal Blessings (Health, Peace, etc.)",
+      "prayer": "Lord God, heavenly Father, from whom without ceasing we receive exceeding abundantly all good gifts, grant us Thy Holy Spirit that, acknowledging with our whole heart all this Thy goodness, we may now and evermore thank and praise Thy loving-kindness. We thank Thee for our creation, preservation, and all the blessings of this life, such as good government, peace, health, and faithful neighbors. Cause us to prize Thy pure Word and faithfully use it, holding fast to Thee, our gracious God and Father."
+    },
+    {
+      "situation": "Thanksgiving for the Preservation of God's Saving Word and Ordinances",
+      "prayer": "Almighty and everlasting God, we give You most humble and hearty thanks that You hast preserved unto us in their purity Your saving Word and the sacred ordinances of Your house. We thank Thee for the revelation of Thy will and grace, and we beseech Thee so to implant Thy Word in us that in good and honest hearts we may keep it and bring forth fruit. Grant that the Word which I have heard this day may through Your grace be so engrafted in my heart that I may bring forth the fruit of the Spirit."
+    },
+    {
+      "situation": "When Feeling Overwhelmed by Anxiety and Distress",
+      "prayer": "Most merciful God, the Consolation of the troubled and the Hope of all who cast their cares on You, look on our distress with eyes of compassion. When my soul is troubled and afflicted, I cry unto Thee, trusting that Thou wilt hear me right soon and deliver me. Grant unto us all that peace which passes all understanding, so that with a quiet mind we may view the storms and troubles of life."
+    },
+    {
+      "situation": "When Seeking Assurance of Private Absolution",
+      "prayer": "Dear Savior, grant that I may approach Your Table in true faith and receive the Sacrament to the salvation of my soul. Hear my cry, for a broken and a contrite heart, O God, You wilt not despise. I confess my sins which I know and feel in my heart, and also plead guilty of all secret sins, for in Your sight shall no man living be justified. Forgive my many transgressions, not remembering the sins of my youth, and deliver me from the condemnation I deserve."
     }
   ]
 }
