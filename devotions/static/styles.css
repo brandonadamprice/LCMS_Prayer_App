@@ -815,3 +815,11 @@ body.dark-mode .footer a {
 .memory-input.correct::placeholder {
     color: #99cc99;
 }
+
+body.dark-mode .memory-input {
+    border-bottom-color: #aaa;
+    color: inherit;
+}
+body.dark-mode .memory-input:focus {
+    border-bottom-color: #64b5f6; /* Lighter blue */
+}

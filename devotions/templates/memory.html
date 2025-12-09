@@ -182,11 +182,16 @@ function resetVerse() {
 
 function checkAnswer(event) {
     const input = event.target;
-    const answer = input.dataset.answer;
-    if (input.value.trim().toLowerCase() === answer.toLowerCase()) {
+    const answer = input.dataset.answer.toLowerCase();
+    const value = input.value.toLowerCase();
+
+    if (value === '') {
+        input.classList.remove('wrong');
+        input.classList.remove('correct');
+    } else if (answer === value) {
         input.classList.remove('wrong');
         input.classList.add('correct');
-    } else if (input.value === '') {
+    } else if (answer.startsWith(value)) {
         input.classList.remove('wrong');
         input.classList.remove('correct');
     } else {
@@ -207,7 +212,7 @@ function createDrill(isFirstLetter) {
             input.type = 'text';
             input.classList.add('memory-input');
             input.dataset.answer = word;
-            input.style.width = `${Math.max(word.length * 0.9, 2)}ch`;
+            input.style.width = `${word.length + 1}ch`;
             if(isFirstLetter) {
                 input.placeholder = word.charAt(0);
             }
