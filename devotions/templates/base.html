@@ -3,10 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{% block title %}Prayer & Scripture Companion{% endblock %}</title>
+    {% set page_title %}{% block title %}Prayer & Scripture Companion{% endblock %}{% endset %}
+    <title>{{ page_title }}</title>
 
     <!-- Open Graph Meta Tags for Social Media Sharing -->
-    <meta property="og:title" content="{% block title %}Prayer & Scripture Companion{% endblock %}" />
+    <meta property="og:title" content="{{ page_title }}" />
     <meta property="og:description" content="A website for daily prayer, Scripture reading, and reflection on the Catechism, according to LCMS traditions." />
     <meta property="og:image" content="{{ url_for('static', filename='banner.jpg', _external=True) }}" />
     <meta property="og:url" content="{{ request.url }}" />
