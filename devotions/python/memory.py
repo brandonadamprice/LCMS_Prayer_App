@@ -78,6 +78,6 @@ def generate_memory_page():
       verse_item["id"] = v["id"]
     verses_for_template.append(verse_item)
 
-  template_data = {"verses_json": json.dumps(verses_for_template)}
+  template_data = {"verses": verses_for_template}
   print("Generated Memory Page HTML")
   return flask.render_template("memory.html", **template_data)

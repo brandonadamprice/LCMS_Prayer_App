@@ -89,7 +89,7 @@
 {% endblock %}
 
 {% block extra_js %}
-const verses = JSON.parse('{{ verses_json|safe }}');
+const verses = {{ verses|tojson }};
 const verseSelect = document.getElementById('verse-select');
 const drillRef = document.getElementById('drill-ref');
 const drillText = document.getElementById('drill-text');
