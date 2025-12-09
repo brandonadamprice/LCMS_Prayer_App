@@ -86,6 +86,11 @@
   </form>
   <div id="user-verses-list"></div>
 </div>
+{% else %}
+<div class="card">
+    <h2>My Memory Verses</h2>
+    <p>Log in via the menu (☰) to add and manage your own memory verses.</p>
+</div>
 {% endif %}
 {% endblock %}
 
@@ -185,20 +190,30 @@ function resetVerse() {
     }
 }
 
-function triggerFireworks() {
-    const colors = ['#FFC107', '#FF5722', '#4CAF50', '#2196F3', '#9C27B0'];
-    for (let i = 0; i < 50; i++) {
+function triggerFireworks(bursts = 4, particlesPerBurst = 25) {
+    const colors = ['#FFC107', '#FF5722', '#4CAF50', '#2196F3', '#9C27B0', '#F44336', '#00BCD4'];
+    const createParticle = (x, y) => {
         const particle = document.createElement('div');
         particle.classList.add('particle');
-        particle.style.left = `calc(50% - 4px)`;
-        particle.style.top = `calc(50% - 4px)`;
+        particle.style.left = `${x}px`;
+        particle.style.top = `${y}px`;
         particle.style.background = colors[Math.floor(Math.random() * colors.length)];
         const angle = Math.random() * 360;
-        const distance = Math.random() * 150 + 50;
+        const distance = Math.random() * 120 + 50; // 50-170px burst radius
         particle.style.setProperty('--dx', `${Math.cos(angle * Math.PI / 180) * distance}px`);
         particle.style.setProperty('--dy', `${Math.sin(angle * Math.PI / 180) * distance}px`);
         document.body.appendChild(particle);
-        setTimeout(() => particle.remove(), 1000);
+        setTimeout(() => particle.remove(), 1200); // give animation time
+    };
+
+    for(let i = 0; i < bursts; i++) {
+        setTimeout(() => {
+            const burstX = Math.random() * (window.innerWidth * 0.8) + (window.innerWidth * 0.1); // 10%-90% width
+            const burstY = Math.random() * (window.innerHeight * 0.7) + (window.innerHeight * 0.1); // 10%-80% height
+            for(let j = 0; j < particlesPerBurst; j++) {
+                createParticle(burstX, burstY);
+            }
+        }, i * 150); // Stagger bursts
     }
 }
 
