@@ -196,6 +196,12 @@ function checkAnswer(event) {
     } else if (answer === value) {
         input.classList.remove('wrong');
         input.classList.add('correct');
+        // If correct, move to next input
+        const inputs = drillText.querySelectorAll('.memory-input');
+        const currentIndex = Array.from(inputs).indexOf(input);
+        if (currentIndex > -1 && currentIndex < inputs.length - 1) {
+            inputs[currentIndex + 1].focus();
+        }
     } else if (answer.startsWith(value)) {
         input.classList.remove('wrong');
         input.classList.remove('correct');
