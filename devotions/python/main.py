@@ -637,7 +637,8 @@ def traffic_data_route():
 
   try:
     db = utils.get_db_client()
-    today = datetime.datetime.now(datetime.timezone.utc).date()
+    eastern_timezone = pytz.timezone("America/New_York")
+    today = datetime.datetime.now(eastern_timezone).date()
     start_date = datetime.date(2025, 12, 8)
 
     date_strs = []
@@ -682,9 +683,8 @@ def track_visitor(response):
       ip = flask.request.environ.get(
           "HTTP_X_FORWARDED_FOR", flask.request.remote_addr
       )
-      date_str = datetime.datetime.now(datetime.timezone.utc).strftime(
-          "%Y-%m-%d"
-      )
+      eastern_timezone = pytz.timezone("America/New_York")
+      date_str = datetime.datetime.now(eastern_timezone).strftime("%Y-%m-%d")
       ip_hash = hashlib.sha256(ip.encode()).hexdigest()
       db = utils.get_db_client()
       doc_ref = db.collection("daily_analytics").document(date_str)
