@@ -1,5 +1,9 @@
-{% extends "base.html" %} {% import "_macros.html" as macros %} {% block
-title %}Scripture Memorization{% endblock %} {% block content %}
+{% extends "base.html" %}
+{% import "_macros.html" as macros %}
+
+{% block title %}Scripture Memorization{% endblock %}
+
+{% block content %}
 <div class="page-header">
   <h1>Scripture Memorization</h1>
   <p>Select a verse below to begin memorizing.</p>
@@ -81,7 +85,10 @@ title %}Scripture Memorization{% endblock %} {% block content %}
   </form>
   <div id="user-verses-list"></div>
 </div>
-{% endif %} {% endblock %} {% block extra_js %}
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
 const verses = JSON.parse('{{ verses_json|safe }}');
 const verseSelect = document.getElementById('verse-select');
 const drillRef = document.getElementById('drill-ref');
