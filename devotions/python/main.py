@@ -304,6 +304,12 @@ def short_prayers_route():
   return short_prayers.generate_short_prayers_page()
 
 
+@app.route("/litany")
+def litany_route():
+  """Returns the Litany page HTML."""
+  return flask.render_template("litany.html")
+
+
 @app.route("/bible_in_a_year")
 def bible_in_a_year_route():
   """Returns Bible in a Year page."""
