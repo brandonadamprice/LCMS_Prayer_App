@@ -156,6 +156,12 @@ def index_route():
   )
 
 
+@app.route("/sw.js")
+def service_worker():
+  """Serves the service worker file from static."""
+  return app.send_static_file("sw.js")
+
+
 @app.route("/feedback")
 def feedback_route():
   """Returns the feedback page HTML."""
