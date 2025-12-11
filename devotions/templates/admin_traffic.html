@@ -69,6 +69,7 @@ async function loadTrafficData() {
                             ${item.visitors.map(v => `
                                 <li style="margin-bottom: 5px; border-bottom: 1px dashed #eee; padding-bottom: 5px;">
                                     <strong>Hash:</strong> ${v.hash.substring(0, 8)}...<br>
+                                    ${v.email ? `<strong>Email:</strong> ${v.email}<br>` : ''}
                                     <strong>Paths:</strong> ${v.paths && v.paths.length > 0 ? v.paths.join(', ') : '<em style="color: #999;">No path data recorded</em>'}
                                 </li>
                             `).join('')}

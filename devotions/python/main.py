@@ -738,6 +738,7 @@ def traffic_data_route():
         data = snap.to_dict()
         hashes = data.get("visitor_hashes") if data else None
         paths_map = data.get("visitor_paths", {})
+        emails_map = data.get("visitor_emails", {})
 
         if isinstance(hashes, dict):
           traffic_map[snap.id]["count"] = len(hashes)
@@ -745,7 +746,10 @@ def traffic_data_route():
           for h in hashes:
             # Get paths for this visitor, defaulting to empty list
             visitor_paths = paths_map.get(h, [])
-            visitors.append({"hash": h, "paths": visitor_paths})
+            visitor_email = emails_map.get(h)
+            visitors.append(
+                {"hash": h, "paths": visitor_paths, "email": visitor_email}
+            )
           traffic_map[snap.id]["visitors"] = visitors
 
     traffic = [
@@ -774,11 +778,18 @@ def track_visitor(response):
       path = flask.request.path
       db = utils.get_db_client()
       doc_ref = db.collection("daily_analytics").document(date_str)
+
+      update_data = {
+          "visitor_hashes": {ip_hash: firestore.SERVER_TIMESTAMP},
+          "visitor_paths": {ip_hash: firestore.ArrayUnion([path])},
+      }
+      if flask_login.current_user.is_authenticated:
+        update_data["visitor_emails"] = {
+            ip_hash: flask_login.current_user.email
+        }
+
       doc_ref.set(
-          {
-              "visitor_hashes": {ip_hash: firestore.SERVER_TIMESTAMP},
-              "visitor_paths": {ip_hash: firestore.ArrayUnion([path])},
-          },
+          update_data,
           merge=True,
       )
     except Exception as e:
