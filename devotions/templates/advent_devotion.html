@@ -2,23 +2,26 @@
 {% import "_macros.html" as macros %}
 {% block title %}Advent Devotion{% endblock %}
 {% block content %}
-    <div id="advent-wreath-container" style="position: absolute; top: 20px; left: 20px; z-index: 10;">
-        <div class="advent-wreath">
-          <div class="wreath-base"></div>
-          <div class="candle purple-1{% if candle_1_lit %} lit{% endif %}"></div>
-          <div class="candle purple-2{% if candle_2_lit %} lit{% endif %}"></div>
-          <div class="candle pink{% if candle_3_lit %} lit{% endif %}"></div>
-          <div class="candle purple-3{% if candle_4_lit %} lit{% endif %}"></div>
-          <div class="candle white{% if candle_5_lit %} lit{% endif %}"></div>
-        </div>
-    </div>
-    <div id="advent-popup">
-      May the peace and joy of the season fill your heart and home as we await the birth of our Savior.
-    </div>
     <div class="page-header">
           <h1>The Advent of Our Lord</h1>
           <h2>{{ devotion_title|safe }}</h2>
           <p>{{ date_str }}</p>
+    </div>
+
+    <div style="position: relative; display: flex; justify-content: center; margin-bottom: 30px;">
+        <div id="advent-wreath-container">
+            <div class="advent-wreath">
+              <div class="wreath-base"></div>
+              <div class="candle purple-1{% if candle_1_lit %} lit{% endif %}"></div>
+              <div class="candle purple-2{% if candle_2_lit %} lit{% endif %}"></div>
+              <div class="candle pink{% if candle_3_lit %} lit{% endif %}"></div>
+              <div class="candle purple-3{% if candle_4_lit %} lit{% endif %}"></div>
+              <div class="candle white{% if candle_5_lit %} lit{% endif %}"></div>
+            </div>
+        </div>
+        <div id="advent-popup" style="top: 70px; left: 50%; transform: translateX(-50%); width: 250px; text-align: center;">
+          May the peace and joy of the season fill your heart and home as we await the birth of our Savior.
+        </div>
     </div>
 
     {% call macros.card('Invocation') %}
