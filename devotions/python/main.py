@@ -5,6 +5,7 @@ import hashlib
 import html
 import os
 import secrets
+import uuid
 import advent
 from authlib.integrations.flask_client import OAuth
 import bible_in_a_year
@@ -721,73 +722,66 @@ def traffic_data_route():
       if current_date >= start_date:
         date_strs.append(current_date.strftime("%Y-%m-%d"))
       else:
-        # Stop if we go earlier than data collection began
         break
 
     if not date_strs:
       return flask.jsonify([])
 
-    doc_refs = [db.collection("daily_analytics").document(d) for d in date_strs]
-    snapshots = list(db.get_all(doc_refs))
-
-    # First pass: Collect all known IP-to-Email mappings
-    global_ip_to_email = {}
-    for snap in snapshots:
-      if snap.exists:
-        data = snap.to_dict()
-        emails_map = data.get("visitor_emails", {})
-        if emails_map:
-          for h, email in emails_map.items():
-            if email:
-              global_ip_to_email[h] = email
-
-    traffic_map = {
-        date_str: {"count": 0, "visitors": []} for date_str in date_strs
-    }
-    for snap in snapshots:
-      if snap.exists:
-        data = snap.to_dict()
-        hashes = data.get("visitor_hashes") if data else None
-        paths_map = data.get("visitor_paths", {})
-        emails_map = data.get("visitor_emails", {})
-
-        if isinstance(hashes, dict):
-          aggregated_visitors = {}
-          for h in hashes:
-            visitor_paths = paths_map.get(h, [])
-            # Try to get email from today's record, fallback to global history
-            visitor_email = emails_map.get(h) or global_ip_to_email.get(h)
-
-            if visitor_email:
-              key = f"email:{visitor_email}"
-            else:
-              key = f"ip:{h}"
-
-            if key not in aggregated_visitors:
-              aggregated_visitors[key] = {
-                  "email": visitor_email,
-                  "hashes": set(),
-                  "paths": set(),
-              }
-
-            aggregated_visitors[key]["hashes"].add(h)
-            aggregated_visitors[key]["paths"].update(visitor_paths)
-
-          final_visitors = []
-          for v in aggregated_visitors.values():
-            final_visitors.append({
-                "email": v["email"],
-                "hashes": sorted(list(v["hashes"])),
-                "paths": sorted(list(v["paths"])),
-            })
-
-          traffic_map[snap.id]["count"] = len(final_visitors)
-          traffic_map[snap.id]["visitors"] = final_visitors
-
-    traffic = [
-        {"date": date, "count": info["count"], "visitors": info["visitors"]}
-        for date, info in traffic_map.items()
+    # 1. Fetch Daily Analytics
+    daily_refs = [
+        db.collection("daily_analytics").document(d) for d in date_strs
     ]
+    daily_snapshots = list(db.get_all(daily_refs))
+
+    # 2. Collect all User IDs involved
+    user_ids_to_fetch = set()
+    daily_data_map = {}  # date -> {user_id: paths}
+
+    for snap in daily_snapshots:
+      if snap.exists:
+        data = snap.to_dict()
+        # New format: visits is a map of user_id -> {paths: []}
+        visits = data.get("visits", {})
+        daily_data_map[snap.id] = visits
+        for uid in visits.keys():
+          user_ids_to_fetch.add(uid)
+      else:
+        daily_data_map[snap.id] = {}
+
+    # 3. Fetch User Details
+    users_info = {}  # user_id -> {email, ip_hashes}
+    if user_ids_to_fetch:
+      # Firestore 'in' query limited to 10 items, so we fetch by ID list or get_all
+      # get_all allows many refs
+      user_refs = [
+          db.collection("analytics_users").document(uid)
+          for uid in user_ids_to_fetch
+      ]
+      # process in chunks if necessary, but get_all handles list
+      user_snapshots = list(db.get_all(user_refs))
+      for snap in user_snapshots:
+        if snap.exists:
+          users_info[snap.id] = snap.to_dict()
+
+    # 4. Assemble Response
+    traffic = []
+    for date_str in date_strs:
+      visits = daily_data_map.get(date_str, {})
+      visitors_list = []
+      for uid, visit_data in visits.items():
+        user_data = users_info.get(uid, {})
+        visitors_list.append({
+            "email": user_data.get("email"),
+            "hashes": sorted(user_data.get("ip_hashes", [])),
+            "paths": sorted(visit_data.get("paths", [])),
+        })
+
+      traffic.append({
+          "date": date_str,
+          "count": len(visitors_list),
+          "visitors": visitors_list,
+      })
+
     traffic.sort(key=lambda x: x["date"])
     return flask.jsonify(traffic)
   except Exception as e:
@@ -795,10 +789,76 @@ def traffic_data_route():
     return flask.jsonify({"error": "Internal server error"}), 500
 
 
+def get_analytics_user(db, ip_hash, current_user):
+  """Finds or creates an analytics user."""
+  user_ref = None
+  user_id = None
+  updates = {}
+
+  users_col = db.collection("analytics_users")
+
+  if current_user.is_authenticated:
+    # 1. Try finding by Google ID
+    query = users_col.where("google_id", "==", current_user.id).limit(1)
+    docs = list(query.stream())
+    if docs:
+      user_ref = docs[0].reference
+      user_data = docs[0].to_dict()
+      user_id = docs[0].id
+      # Check if we need to add this IP
+      if ip_hash not in user_data.get("ip_hashes", []):
+        updates["ip_hashes"] = firestore.ArrayUnion([ip_hash])
+      # Ensure email is up to date
+      if user_data.get("email") != current_user.email:
+        updates["email"] = current_user.email
+    else:
+      # 2. Not found by Google ID, create new
+      # (We could check IP, but explicit login takes precedence for new identity)
+      user_id = uuid.uuid4().hex
+      user_ref = users_col.document(user_id)
+      user_ref.set({
+          "google_id": current_user.id,
+          "email": current_user.email,
+          "ip_hashes": [ip_hash],
+          "created_at": firestore.SERVER_TIMESTAMP,
+          "last_seen": firestore.SERVER_TIMESTAMP,
+      })
+      return user_id
+
+  else:
+    # Anonymous: Try finding by IP hash
+    query = users_col.where(
+        filter=base_query.FieldFilter("ip_hashes", "array_contains", ip_hash)
+    ).limit(1)
+    docs = list(query.stream())
+    if docs:
+      user_ref = docs[0].reference
+      user_id = docs[0].id
+    else:
+      # Create new anonymous user
+      user_id = uuid.uuid4().hex
+      user_ref = users_col.document(user_id)
+      user_ref.set({
+          "ip_hashes": [ip_hash],
+          "created_at": firestore.SERVER_TIMESTAMP,
+          "last_seen": firestore.SERVER_TIMESTAMP,
+      })
+      return user_id
+
+  # Perform updates if found
+  if updates:
+    updates["last_seen"] = firestore.SERVER_TIMESTAMP
+    user_ref.update(updates)
+  else:
+    # Just update last seen
+    user_ref.update({"last_seen": firestore.SERVER_TIMESTAMP})
+
+  return user_id
+
+
 @app.after_request
 def track_visitor(response):
   """Tracks unique visitors based on IP address for each HTML page loaded."""
-  # Only track successful HTML page views, ignore redirects, errors, etc.
   if response.status_code == 200 and response.mimetype == "text/html":
     try:
       ip = flask.request.environ.get(
@@ -808,23 +868,22 @@ def track_visitor(response):
       date_str = datetime.datetime.now(eastern_timezone).strftime("%Y-%m-%d")
       ip_hash = hashlib.sha256(ip.encode()).hexdigest()
       path = flask.request.path
+
       db = utils.get_db_client()
+
+      # Get or Create User
+      analytics_user_id = get_analytics_user(
+          db, ip_hash, flask_login.current_user
+      )
+
+      # Record Visit
       doc_ref = db.collection("daily_analytics").document(date_str)
-
-      # Use dot notation to avoid overwriting the entire map fields
-      update_data = {
-          f"visitor_hashes.{ip_hash}": firestore.SERVER_TIMESTAMP,
-          f"visitor_paths.{ip_hash}": firestore.ArrayUnion([path]),
-      }
-      if flask_login.current_user.is_authenticated:
-        update_data[f"visitor_emails.{ip_hash}"] = (
-            flask_login.current_user.email
-        )
-
+      # Use dot notation to add path to the user's list in the daily map
       doc_ref.set(
-          update_data,
+          {f"visits.{analytics_user_id}.paths": firestore.ArrayUnion([path])},
           merge=True,
       )
+
     except Exception as e:
       app.logger.error(f"Error tracking visitor: {e}")
   return response
