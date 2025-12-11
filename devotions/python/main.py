@@ -41,6 +41,8 @@ app = flask.Flask(
     static_folder=STATIC_DIR,
 )
 app.secret_key = secrets_fetcher.get_flask_secret_key()
+app.config["PERMANENT_SESSION_LIFETIME"] = datetime.timedelta(days=31)
+app.config["REMEMBER_COOKIE_DURATION"] = datetime.timedelta(days=31)
 app.config["OTHER_PRAYERS"] = utils.get_other_prayers()
 try:
   app.config["ADMIN_USER_ID"] = secrets_fetcher.get_brandon_user_id()
@@ -197,7 +199,8 @@ def authorize():
     nonce = flask.session.pop("nonce", None)
     user_info = google.parse_id_token(token, nonce=nonce)
     user = create_or_update_google_user(user_info)
-    flask_login.login_user(user)
+    flask_login.login_user(user, remember=True)
+    flask.session.permanent = True
     return flask.redirect("/")
   except Exception as e:
     app.logger.warning("OAuth Error: %s", e)
