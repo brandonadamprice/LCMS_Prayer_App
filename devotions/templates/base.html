@@ -51,9 +51,59 @@
           <div class="app-menu-section">
             <strong>Navigation</strong>
             <a href="/" class="button menu-button-full">Home</a>
-            <a href="/morning_devotion" class="button menu-button-full">Morning Prayer</a>
-            <a href="/evening_devotion" class="button menu-button-full">Evening Prayer</a>
-            <a href="/prayer_wall" class="button menu-button-full">Prayer Wall</a>
+            
+            <button class="menu-accordion">Daily Prayer</button>
+            <div class="menu-panel">
+              <a href="/morning_devotion" class="menu-sub-link">Morning</a>
+              <a href="/midday_devotion" class="menu-sub-link">Midday</a>
+              <a href="/evening_devotion" class="menu-sub-link">Evening</a>
+              <a href="/close_of_day_devotion" class="menu-sub-link">Close of Day</a>
+              <a href="/night_watch_devotion" class="menu-sub-link">Night Watch</a>
+            </div>
+
+            <button class="menu-accordion">Seasonal Devotions</button>
+            <div class="menu-panel">
+               {% if is_advent %}
+               <a href="/advent_devotion" class="menu-sub-link">Advent Family Devotional</a>
+               {% else %}
+               <span class="menu-sub-link disabled">Advent (Seasonal)</span>
+               {% endif %}
+            </div>
+
+            <button class="menu-accordion">Children's Devotions</button>
+            <div class="menu-panel">
+                <a href="/childrens_devotion" class="menu-sub-link">Children's Daily Devotion</a>
+            </div>
+
+            <button class="menu-accordion">Other Devotions</button>
+            <div class="menu-panel">
+                <a href="/litany" class="menu-sub-link">The Litany</a>
+                <a href="/extended_evening_devotion" class="menu-sub-link">Extended Evening</a>
+                <a href="/mid_week_devotion" class="menu-sub-link">Mid-Week Devotion</a>
+                <a href="/short_prayers" class="menu-sub-link">Short Prayers</a>
+            </div>
+
+            <button class="menu-accordion">Bible Helps</button>
+            <div class="menu-panel">
+                <a href="/psalms_by_category" class="menu-sub-link">Psalms</a>
+                <a href="/gospels_by_category" class="menu-sub-link">Gospels</a>
+                <a href="/bible_in_a_year" class="menu-sub-link">Bible in a Year</a>
+                <a href="/memory" class="menu-sub-link">Scripture Memorization</a>
+            </div>
+
+            <button class="menu-accordion">Prayer Requests</button>
+            <div class="menu-panel">
+                <a href="/prayer_requests" class="menu-sub-link">Submit a Request</a>
+                <a href="/prayer_wall" class="menu-sub-link">Pray for Someone</a>
+                {% if current_user.is_authenticated %}
+                <a href="/my_prayers" class="menu-sub-link">My Personal Prayers</a>
+                {% endif %}
+            </div>
+
+            <button class="menu-accordion">Feedback</button>
+            <div class="menu-panel">
+                <a href="/feedback" class="menu-sub-link">Submit Feedback</a>
+            </div>
           </div>
           <div class="app-menu-section">
             <strong>Settings</strong>
@@ -296,6 +346,22 @@
           }, err => {
             console.log('ServiceWorker registration failed: ', err);
           });
+        });
+      }
+
+      // Accordion Menu
+      var acc = document.getElementsByClassName("menu-accordion");
+      var i;
+
+      for (i = 0; i < acc.length; i++) {
+        acc[i].addEventListener("click", function() {
+          this.classList.toggle("active");
+          var panel = this.nextElementSibling;
+          if (panel.style.maxHeight) {
+            panel.style.maxHeight = null;
+          } else {
+            panel.style.maxHeight = panel.scrollHeight + "px";
+          }
         });
       }
     </script>

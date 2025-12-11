@@ -109,6 +109,15 @@ def load_user(user_id):
   return User.get(user_id)
 
 
+@app.context_processor
+def inject_advent_status():
+  """Injects is_advent status into all templates."""
+  eastern_timezone = pytz.timezone("America/New_York")
+  now = datetime.datetime.now(eastern_timezone)
+  is_advent = now.month == 12 and 1 <= now.day <= 25
+  return dict(is_advent=is_advent)
+
+
 def create_or_update_google_user(user_info):
   """Creates or updates a user in Firestore based on Google profile info."""
   db = utils.get_db_client()
