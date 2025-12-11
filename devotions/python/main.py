@@ -730,6 +730,17 @@ def traffic_data_route():
     doc_refs = [db.collection("daily_analytics").document(d) for d in date_strs]
     snapshots = list(db.get_all(doc_refs))
 
+    # First pass: Collect all known IP-to-Email mappings
+    global_ip_to_email = {}
+    for snap in snapshots:
+      if snap.exists:
+        data = snap.to_dict()
+        emails_map = data.get("visitor_emails", {})
+        if emails_map:
+          for h, email in emails_map.items():
+            if email:
+              global_ip_to_email[h] = email
+
     traffic_map = {
         date_str: {"count": 0, "visitors": []} for date_str in date_strs
     }
@@ -744,7 +755,8 @@ def traffic_data_route():
           aggregated_visitors = {}
           for h in hashes:
             visitor_paths = paths_map.get(h, [])
-            visitor_email = emails_map.get(h)
+            # Try to get email from today's record, fallback to global history
+            visitor_email = emails_map.get(h) or global_ip_to_email.get(h)
 
             if visitor_email:
               key = f"email:{visitor_email}"
@@ -799,14 +811,15 @@ def track_visitor(response):
       db = utils.get_db_client()
       doc_ref = db.collection("daily_analytics").document(date_str)
 
+      # Use dot notation to avoid overwriting the entire map fields
       update_data = {
-          "visitor_hashes": {ip_hash: firestore.SERVER_TIMESTAMP},
-          "visitor_paths": {ip_hash: firestore.ArrayUnion([path])},
+          f"visitor_hashes.{ip_hash}": firestore.SERVER_TIMESTAMP,
+          f"visitor_paths.{ip_hash}": firestore.ArrayUnion([path]),
       }
       if flask_login.current_user.is_authenticated:
-        update_data["visitor_emails"] = {
-            ip_hash: flask_login.current_user.email
-        }
+        update_data[f"visitor_emails.{ip_hash}"] = (
+            flask_login.current_user.email
+        )
 
       doc_ref.set(
           update_data,
