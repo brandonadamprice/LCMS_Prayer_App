@@ -715,12 +715,12 @@ def debug_ip_route():
     source = "remote_addr"
 
   ip_hash = hashlib.sha256(ip.encode()).hexdigest()
-  
+
   return flask.jsonify({
       "ip": ip,
       "hash": ip_hash,
       "source": source,
-      "headers": dict(flask.request.headers)
+      "headers": dict(flask.request.headers),
   })
 
 
@@ -811,8 +811,8 @@ def traffic_data_route():
     return flask.jsonify({"error": "Internal server error"}), 500
 
 
-def get_analytics_user(db, ip_hash, current_user):
-  """Finds or creates an analytics user."""
+def get_analytics_user(db, visitor_id, ip_hash, current_user):
+  """Finds or creates an analytics user based on visitor_id/cookie or login."""
   user_ref = None
   user_id = None
   updates = {}
@@ -827,54 +827,64 @@ def get_analytics_user(db, ip_hash, current_user):
       user_ref = docs[0].reference
       user_data = docs[0].to_dict()
       user_id = docs[0].id
-      # Check if we need to add this IP
+
+      # Link current visitor_id to this user if not already present
+      existing_ids = user_data.get("visitor_ids", [])
+      if visitor_id and visitor_id not in existing_ids:
+        updates["visitor_ids"] = firestore.ArrayUnion([visitor_id])
+
+      # Add IP hash if new
       existing_hashes = user_data.get("ip_hashes", [])
       if ip_hash not in existing_hashes:
-        print(f"Adding new IP hash {ip_hash} to user {user_id}")
         updates["ip_hashes"] = firestore.ArrayUnion([ip_hash])
+
       # Ensure email is up to date
       if user_data.get("email") != current_user.email:
         updates["email"] = current_user.email
+
     else:
-      # 2. Not found by Google ID, create new or merge
-      # Check if an anonymous user exists with this IP hash
-      query_anon = users_col.where(
-          filter=base_query.FieldFilter("ip_hashes", "array_contains", ip_hash)
-      ).limit(1)
-      anon_docs = list(query_anon.stream())
+      # 2. Not found by Google ID.
+      # Check if an anonymous user exists with this visitor_id
+      if visitor_id:
+        query_anon = users_col.where(
+            filter=base_query.FieldFilter(
+                "visitor_ids", "array_contains", visitor_id
+            )
+        ).limit(1)
+        anon_docs = list(query_anon.stream())
+      else:
+        anon_docs = []
 
       if anon_docs:
-        # Found anonymous user, upgrade to logged-in user
+        # Upgrade anonymous user to logged-in user
         user_ref = anon_docs[0].reference
         user_data = anon_docs[0].to_dict()
         user_id = anon_docs[0].id
-        
-        # If this anonymous user was already linked to a different google_id, we have a conflict.
-        # But for now, we assume simple case: upgrade anonymous to logged-in.
+
         if not user_data.get("google_id"):
-             updates["google_id"] = current_user.id
-             updates["email"] = current_user.email
+          updates["google_id"] = current_user.id
+          updates["email"] = current_user.email
         elif user_data.get("google_id") != current_user.id:
-             # This IP is associated with another user. 
-             # We should probably create a new user for this google_id or just proceed with creating new.
-             # Let's create a new one to avoid merging distinct accounts just because of shared IP (e.g. public wifi)
-             user_id = uuid.uuid4().hex
-             user_ref = users_col.document(user_id)
-             user_ref.set({
-                "google_id": current_user.id,
-                "email": current_user.email,
-                "ip_hashes": [ip_hash],
-                "created_at": firestore.SERVER_TIMESTAMP,
-                "last_seen": firestore.SERVER_TIMESTAMP,
-             })
-             return user_id
+          # Conflict: This cookie is used by another user. Create new user.
+          user_id = uuid.uuid4().hex
+          user_ref = users_col.document(user_id)
+          user_ref.set({
+              "google_id": current_user.id,
+              "email": current_user.email,
+              "visitor_ids": [visitor_id] if visitor_id else [],
+              "ip_hashes": [ip_hash],
+              "created_at": firestore.SERVER_TIMESTAMP,
+              "last_seen": firestore.SERVER_TIMESTAMP,
+          })
+          return user_id
       else:
-        # No existing user found, create new
+        # Create new logged-in user
         user_id = uuid.uuid4().hex
         user_ref = users_col.document(user_id)
         user_ref.set({
             "google_id": current_user.id,
             "email": current_user.email,
+            "visitor_ids": [visitor_id] if visitor_id else [],
             "ip_hashes": [ip_hash],
             "created_at": firestore.SERVER_TIMESTAMP,
             "last_seen": firestore.SERVER_TIMESTAMP,
@@ -882,19 +892,36 @@ def get_analytics_user(db, ip_hash, current_user):
         return user_id
 
   else:
-    # Anonymous: Try finding by IP hash
+    # Anonymous User
+    if not visitor_id:
+      # Should ideally not happen if cookie logic works, but fallback to creating new
+      visitor_id = str(uuid.uuid4())
+
+    # Try finding by visitor_id
+    # We do NOT fallback to IP hash lookup for anonymous users anymore,
+    # to avoid merging different devices on the same network (e.g. WiFi).
     query = users_col.where(
-        filter=base_query.FieldFilter("ip_hashes", "array_contains", ip_hash)
+        filter=base_query.FieldFilter(
+            "visitor_ids", "array_contains", visitor_id
+        )
     ).limit(1)
     docs = list(query.stream())
+
     if docs:
       user_ref = docs[0].reference
+      user_data = docs[0].to_dict()
       user_id = docs[0].id
+
+      # Add IP hash if new
+      if ip_hash not in user_data.get("ip_hashes", []):
+        updates["ip_hashes"] = firestore.ArrayUnion([ip_hash])
+
     else:
       # Create new anonymous user
       user_id = uuid.uuid4().hex
       user_ref = users_col.document(user_id)
       user_ref.set({
+          "visitor_ids": [visitor_id],
           "ip_hashes": [ip_hash],
           "created_at": firestore.SERVER_TIMESTAMP,
           "last_seen": firestore.SERVER_TIMESTAMP,
@@ -906,7 +933,6 @@ def get_analytics_user(db, ip_hash, current_user):
     updates["last_seen"] = firestore.SERVER_TIMESTAMP
     user_ref.update(updates)
   else:
-    # Just update last seen
     user_ref.update({"last_seen": firestore.SERVER_TIMESTAMP})
 
   return user_id
@@ -914,24 +940,39 @@ def get_analytics_user(db, ip_hash, current_user):
 
 @app.after_request
 def track_visitor(response):
-  """Tracks unique visitors based on IP address for each HTML page loaded."""
+  """Tracks unique visitors using a cookie and IP address."""
   if response.status_code == 200 and response.mimetype == "text/html":
     try:
+      # 1. Get/Set Visitor ID Cookie
+      visitor_id = flask.request.cookies.get("visitor_id")
+      if not visitor_id:
+        visitor_id = str(uuid.uuid4())
+        # Set cookie for 1 year
+        expire_date = datetime.datetime.now() + datetime.timedelta(days=365)
+        response.set_cookie(
+            "visitor_id",
+            visitor_id,
+            expires=expire_date,
+            httponly=True,
+            samesite="Lax",
+        )
+
+      # 2. Get IP Info
       if "HTTP_X_FORWARDED_FOR" in flask.request.environ:
         ip = flask.request.environ["HTTP_X_FORWARDED_FOR"].split(",")[0].strip()
       else:
         ip = flask.request.remote_addr
+      ip_hash = hashlib.sha256(ip.encode()).hexdigest()
 
+      # 3. Analytics Logic
       eastern_timezone = pytz.timezone("America/New_York")
       date_str = datetime.datetime.now(eastern_timezone).strftime("%Y-%m-%d")
-      ip_hash = hashlib.sha256(ip.encode()).hexdigest()
       path = flask.request.path
-
       db = utils.get_db_client()
 
       # Get or Create User
       analytics_user_id = get_analytics_user(
-          db, ip_hash, flask_login.current_user
+          db, visitor_id, ip_hash, flask_login.current_user
       )
 
       if not analytics_user_id:
@@ -940,8 +981,6 @@ def track_visitor(response):
 
       # Record Visit
       doc_ref = db.collection("daily_analytics").document(date_str)
-      # Use nested dictionary structure to add path to the user's list in the
-      # daily map
       doc_ref.set(
           {
               "visits": {
