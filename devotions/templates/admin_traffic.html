@@ -17,10 +17,11 @@
             <tr style="border-bottom: 1px solid #ccc;">
               <th style="text-align: left; padding: 8px;">Date</th>
               <th style="text-align: right; padding: 8px;">Unique Visits</th>
+              <th style="text-align: right; padding: 8px;">Details</th>
             </tr>
           </thead>
           <tbody>
-            <tr><td colspan="2"><em>Loading...</em></td></tr>
+            <tr><td colspan="3"><em>Loading...</em></td></tr>
           </tbody>
         </table>
       </div>
@@ -57,9 +58,29 @@ async function loadTrafficData() {
         // Populate table
         const tableBody = document.querySelector('#traffic-table tbody');
         tableBody.innerHTML = '';
-        data.forEach(item => {
+        data.forEach((item, index) => {
             const row = tableBody.insertRow();
-            row.innerHTML = `<td style="text-align: left; padding: 8px;">${item.date}</td><td style="text-align: right; padding: 8px;">${item.count}</td>`;
+            let detailsHtml = '';
+            if (item.visitors && item.visitors.length > 0) {
+                detailsHtml = `
+                    <button class="button" style="padding: 5px 10px; font-size: 0.8em;" onclick="toggleDetails(${index})">Show Details</button>
+                    <div id="details-${index}" style="display: none; margin-top: 10px; text-align: left;">
+                        <ul style="list-style: none; padding: 0;">
+                            ${item.visitors.map(v => `
+                                <li style="margin-bottom: 5px; border-bottom: 1px dashed #eee; padding-bottom: 5px;">
+                                    <strong>Hash:</strong> ${v.hash.substring(0, 8)}...<br>
+                                    <strong>Paths:</strong> ${v.paths && v.paths.length > 0 ? v.paths.join(', ') : '<em style="color: #999;">No path data recorded</em>'}
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+            row.innerHTML = `
+                <td style="text-align: left; padding: 8px; vertical-align: top;">${item.date}</td>
+                <td style="text-align: right; padding: 8px; vertical-align: top;">${item.count}</td>
+                <td style="text-align: right; padding: 8px; vertical-align: top;">${detailsHtml}</td>
+            `;
         });
 
         // Prepare chart
@@ -119,6 +140,15 @@ async function loadTrafficData() {
     } catch (error) {
         console.error('Error loading traffic data:', error);
         alert(`Could not load traffic data: ${error.message}`);
+    }
+}
+
+function toggleDetails(index) {
+    const detailsDiv = document.getElementById(`details-${index}`);
+    if (detailsDiv) {
+        detailsDiv.style.display = detailsDiv.style.display === 'none' ? 'block' : 'none';
+        const btn = detailsDiv.previousElementSibling;
+        btn.textContent = detailsDiv.style.display === 'none' ? 'Show Details' : 'Hide Details';
     }
 }
 

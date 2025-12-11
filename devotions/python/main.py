@@ -730,16 +730,27 @@ def traffic_data_route():
     doc_refs = [db.collection("daily_analytics").document(d) for d in date_strs]
     snapshots = list(db.get_all(doc_refs))
 
-    traffic_map = {date_str: 0 for date_str in date_strs}
+    traffic_map = {
+        date_str: {"count": 0, "visitors": []} for date_str in date_strs
+    }
     for snap in snapshots:
       if snap.exists:
         data = snap.to_dict()
         hashes = data.get("visitor_hashes") if data else None
+        paths_map = data.get("visitor_paths", {})
+
         if isinstance(hashes, dict):
-          traffic_map[snap.id] = len(hashes)
+          traffic_map[snap.id]["count"] = len(hashes)
+          visitors = []
+          for h in hashes:
+            # Get paths for this visitor, defaulting to empty list
+            visitor_paths = paths_map.get(h, [])
+            visitors.append({"hash": h, "paths": visitor_paths})
+          traffic_map[snap.id]["visitors"] = visitors
 
     traffic = [
-        {"date": date, "count": count} for date, count in traffic_map.items()
+        {"date": date, "count": info["count"], "visitors": info["visitors"]}
+        for date, info in traffic_map.items()
     ]
     traffic.sort(key=lambda x: x["date"])
     return flask.jsonify(traffic)
@@ -760,10 +771,15 @@ def track_visitor(response):
       eastern_timezone = pytz.timezone("America/New_York")
       date_str = datetime.datetime.now(eastern_timezone).strftime("%Y-%m-%d")
       ip_hash = hashlib.sha256(ip.encode()).hexdigest()
+      path = flask.request.path
       db = utils.get_db_client()
       doc_ref = db.collection("daily_analytics").document(date_str)
       doc_ref.set(
-          {"visitor_hashes": {ip_hash: firestore.SERVER_TIMESTAMP}}, merge=True
+          {
+              "visitor_hashes": {ip_hash: firestore.SERVER_TIMESTAMP},
+              "visitor_paths": {ip_hash: firestore.ArrayUnion([path])},
+          },
+          merge=True,
       )
     except Exception as e:
       app.logger.error(f"Error tracking visitor: {e}")
