@@ -19,16 +19,16 @@ from google.cloud import firestore
 from google.cloud.firestore_v1 import base_query
 from google.cloud.firestore_v1.field_path import FieldPath
 import gospels_by_category
+import memory
 import mid_week
 import midday
 import morning
-import memory
 import night_watch
-import short_prayers
 import prayer_requests
 import psalms_by_category
 import pytz
 import secrets_fetcher
+import short_prayers
 import utils
 
 
@@ -643,11 +643,13 @@ def add_memory_verse_route():
     return flask.redirect(flask.url_for("memory_route"))
   try:
     # Attempt to fetch to validate ref - simple validation
-    utils.fetch_passages([ref], include_verse_numbers=False, include_copyright=False)
+    utils.fetch_passages(
+        [ref], include_verse_numbers=False, include_copyright=False
+    )
   except:
     flask.flash(f"Could not validate reference: {ref}", "error")
     return flask.redirect(flask.url_for("memory_route"))
-    
+
   db = utils.get_db_client()
   db.collection("user-memory-verses").add({
       "user_id": flask_login.current_user.id,
@@ -878,9 +880,14 @@ def track_visitor(response):
 
       # Record Visit
       doc_ref = db.collection("daily_analytics").document(date_str)
-      # Use dot notation to add path to the user's list in the daily map
+      # Use nested dictionary structure to add path to the user's list in the
+      # daily map
       doc_ref.set(
-          {f"visits.{analytics_user_id}.paths": firestore.ArrayUnion([path])},
+          {
+              "visits": {
+                  analytics_user_id: {"paths": firestore.ArrayUnion([path])}
+              }
+          },
           merge=True,
       )
 
