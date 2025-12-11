@@ -25,62 +25,82 @@
     <meta name="apple-mobile-web-app-title" content="Prayer App">
   </head>
   <body>
-    <button id="menu-button" aria-label="Menu">&#9776;</button>
-    <div id="app-menu">
-      <div class="app-menu-section">
-        <strong>Account</strong>
-        {% if current_user.is_authenticated %}
-          <div class="menu-profile">
-            <img src="{{ current_user.profile_pic }}" alt="{{ current_user.name }}" title="{{ current_user.name }}">
-            <div class="menu-profile-info">
-              <strong>{{ current_user.name }}</strong>
-              <span>{{ current_user.email }}</span>
+    <nav id="top-navbar">
+      <div class="navbar-left">
+        <a href="/" class="nav-brand">Prayer App</a>
+        <a href="/morning_devotion" class="nav-link hide-mobile">Morning</a>
+        <a href="/evening_devotion" class="nav-link hide-mobile">Evening</a>
+        <a href="/prayer_wall" class="nav-link hide-mobile">Wall</a>
+      </div>
+      <div class="navbar-right">
+        <button id="menu-button" aria-label="Menu">&#9776;</button>
+        <div id="app-menu">
+          <div class="app-menu-section">
+            <strong>Account</strong>
+            {% if current_user.is_authenticated %}
+              <div class="menu-profile">
+                <img src="{{ current_user.profile_pic }}" alt="{{ current_user.name }}" title="{{ current_user.name }}">
+                <div class="menu-profile-info">
+                  <strong>{{ current_user.name }}</strong>
+                  <span>{{ current_user.email }}</span>
+                </div>
+              </div>
+              <a href="/logout" class="button menu-button-full">Logout</a>
+              <a href="/my_prayers" class="button menu-button-full">My Prayers</a>
+            {% else %}
+              <a href="/login" class="button menu-button-full">Login</a>
+            {% endif %}
+          </div>
+          <div class="app-menu-section">
+            <strong>Navigation</strong>
+            <a href="/" class="button menu-button-full">Home</a>
+            <a href="/morning_devotion" class="button menu-button-full">Morning Prayer</a>
+            <a href="/evening_devotion" class="button menu-button-full">Evening Prayer</a>
+            <a href="/prayer_wall" class="button menu-button-full">Prayer Wall</a>
+          </div>
+          <div class="app-menu-section">
+            <strong>Settings</strong>
+            <div class="menu-item">
+                <label for="dark-mode-toggle">Dark Mode</label>
+                <label class="switch">
+                    <input type="checkbox" id="dark-mode-toggle">
+                    <span class="slider"></span>
+                </label>
             </div>
+            <div class="menu-item">
+              <span>Font Size</span>
+              <div class="font-controls">
+                  <button id="decrease-font" aria-label="Decrease font size">-</button>
+                  <button id="reset-font" aria-label="Reset font size">1x</button>
+                  <button id="increase-font" aria-label="Increase font size">+</button>
+              </div>
           </div>
-          <a href="/logout" class="button menu-button-full">Logout</a>
-          <a href="/my_prayers" class="button menu-button-full">My Prayers</a>
-        {% else %}
-          <a href="/login" class="button menu-button-full">Login</a>
-        {% endif %}
-      </div>
-      <div class="app-menu-section">
-        <strong>Settings</strong>
-        <div class="menu-item">
-            <label for="dark-mode-toggle">Dark Mode</label>
-            <label class="switch">
-                <input type="checkbox" id="dark-mode-toggle">
-                <span class="slider"></span>
-            </label>
+          {% if current_user.is_authenticated and config['ADMIN_USER_ID'] and current_user.id == config['ADMIN_USER_ID'] %}
+          <a href="/admin/traffic" class="button menu-button-full">Traffic Analytics</a>
+          {% endif %}
+          </div>
         </div>
-        <div class="menu-item">
-          <span>Font Size</span>
-          <div class="font-controls">
-              <button id="decrease-font" aria-label="Decrease font size">-</button>
-              <button id="reset-font" aria-label="Reset font size">1x</button>
-              <button id="increase-font" aria-label="Increase font size">+</button>
-          </div>
       </div>
-      {% if current_user.is_authenticated and config['ADMIN_USER_ID'] and current_user.id == config['ADMIN_USER_ID'] %}
-      <a href="/admin/traffic" class="button menu-button-full">Traffic Analytics</a>
+    </nav>
+
+    <main class="container">
+      {% block content %}{% endblock %}
+      {% if request.endpoint != 'index_route' %}
+      <div style="text-align: center; margin-top: 20px;">
+        <a href="/" class="button">Back to Home</a>
+      </div>
       {% endif %}
-      </div>
-    </div>
-    {% block content %}{% endblock %}
-    {% if request.endpoint != 'index_route' %}
-    <div style="text-align: center">
-      <a href="/" class="button">Back to Home</a>
-    </div>
-    {% endif %}
+
+      <footer class="footer">
+        <p>This website is not an official product of The Lutheran Church—Missouri Synod.</p>
+        <a href="/about">About</a> | <a href="/copyright">Copyright Information</a>
+      </footer>
+    </main>
 
     <div id="login-popup" class="hidden">
       <button id="login-popup-close" aria-label="Close">&times;</button>
       <p>Did you know? You can log in with Google via the menu (☰) to save preferences and access features like My Prayers!</p>
     </div>
-
-    <footer class="footer">
-      <p>This website is not an official product of The Lutheran Church—Missouri Synod.</p>
-      <a href="/about">About</a> | <a href="/copyright">Copyright Information</a>
-    </footer>
     {% block body_scripts %}{% endblock %}
     <script>
       function toggleCard(header) {

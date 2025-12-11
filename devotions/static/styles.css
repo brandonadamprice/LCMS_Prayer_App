@@ -1,12 +1,17 @@
 body {
     font-family: 'Lora', serif;
     line-height: 1.7;
-    max-width: 800px;
-    margin: 40px auto;
-    padding: 20px;
+    margin: 0;
+    padding: 0;
     background-color: #f9f8f4;
     color: #4a4a4a;
     transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
 }
 
 .card {
@@ -285,17 +290,63 @@ button.picker-select-button:hover {
   box-shadow: none;
 }
 
+/* Top Navbar */
+#top-navbar {
+    background-color: #ffffff;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.navbar-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.nav-brand {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 1.2em;
+    color: #333;
+    text-decoration: none;
+}
+
+.nav-link {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.9em;
+    color: #555;
+    text-decoration: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.nav-link:hover {
+    background-color: #f0f0f0;
+    color: #2980b9;
+}
+
+/* Hide navigation links on small screens */
+@media (max-width: 600px) {
+    .hide-mobile {
+        display: none;
+    }
+}
+
 /* Menu Button */
 #menu-button {
-    position: absolute;
-    top: 20px;
-    right: 20px;
     background: none;
     border: none;
-    font-size: 2em; /* Hamburger icon size */
+    font-size: 1.8em; /* Hamburger icon size */
     cursor: pointer;
     font-family: 'Montserrat', sans-serif;
-    z-index: 1000;
     color: #333;
     padding: 0;
     line-height: 1;
@@ -308,8 +359,8 @@ body.dark-mode #menu-button {
 #app-menu {
     display: none;
     position: absolute;
-    top: 60px;
-    right: 20px;
+    top: 50px; /* Below navbar */
+    right: 0;
     width: 260px;
     background-color: white;
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
@@ -536,6 +587,24 @@ body.dark-mode .catechism-qa {
 body.dark-mode {
     background-color: #333333;
     color: #cccccc;
+}
+
+body.dark-mode #top-navbar {
+    background-color: #444;
+    border-bottom-color: #555;
+}
+
+body.dark-mode .nav-brand {
+    color: #e0e0e0;
+}
+
+body.dark-mode .nav-link {
+    color: #bbb;
+}
+
+body.dark-mode .nav-link:hover {
+    background-color: #555;
+    color: #fff;
 }
 
 body.dark-mode .card {
