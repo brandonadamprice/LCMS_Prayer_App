@@ -704,6 +704,26 @@ def admin_traffic_route():
   return flask.render_template("admin_traffic.html")
 
 
+@app.route("/debug_ip")
+def debug_ip_route():
+  """Debug route to show visitor IP and hash."""
+  if "HTTP_X_FORWARDED_FOR" in flask.request.environ:
+    ip = flask.request.environ["HTTP_X_FORWARDED_FOR"].split(",")[0].strip()
+    source = "HTTP_X_FORWARDED_FOR"
+  else:
+    ip = flask.request.remote_addr
+    source = "remote_addr"
+
+  ip_hash = hashlib.sha256(ip.encode()).hexdigest()
+  
+  return flask.jsonify({
+      "ip": ip,
+      "hash": ip_hash,
+      "source": source,
+      "headers": dict(flask.request.headers)
+  })
+
+
 @app.route("/admin/traffic_data")
 @flask_login.login_required
 def traffic_data_route():
