@@ -765,7 +765,7 @@ def traffic_data_route():
           for v in aggregated_visitors.values():
             final_visitors.append({
                 "email": v["email"],
-                "hash": ", ".join(sorted(list(v["hashes"]))),
+                "hashes": sorted(list(v["hashes"])),
                 "paths": sorted(list(v["paths"])),
             })
 
