@@ -16,7 +16,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}?v=4" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}?v=5" />
     <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml" />
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
     <meta name="theme-color" content="#708090">
@@ -34,6 +34,53 @@
           </svg>
         </a>
       </div>
+
+      <div class="navbar-center desktop-nav">
+        <div class="dropdown">
+          <button class="dropbtn">Daily Prayer ▾</button>
+          <div class="dropdown-content">
+            <a href="/morning_devotion">Morning</a>
+            <a href="/midday_devotion">Midday</a>
+            <a href="/evening_devotion">Evening</a>
+            <a href="/close_of_day_devotion">Close of Day</a>
+            <a href="/night_watch_devotion">Night Watch</a>
+          </div>
+        </div>
+        <div class="dropdown">
+          <button class="dropbtn">Devotions ▾</button>
+          <div class="dropdown-content">
+            {% if is_advent %}
+            <a href="/advent_devotion">Advent</a>
+            {% endif %}
+            <a href="/childrens_devotion">Children's</a>
+            <a href="/litany">The Litany</a>
+            <a href="/extended_evening_devotion">Extended Evening</a>
+            <a href="/mid_week_devotion">Mid-Week</a>
+            <a href="/short_prayers">Short Prayers</a>
+          </div>
+        </div>
+        <div class="dropdown">
+          <button class="dropbtn">Bible ▾</button>
+          <div class="dropdown-content">
+            <a href="/psalms_by_category">Psalms</a>
+            <a href="/gospels_by_category">Gospels</a>
+            <a href="/bible_in_a_year">Bible in a Year</a>
+            <a href="/memory">Memorization</a>
+          </div>
+        </div>
+        <div class="dropdown">
+          <button class="dropbtn">Prayer ▾</button>
+          <div class="dropdown-content">
+            <a href="/prayer_requests">Submit Request</a>
+            <a href="/prayer_wall">Prayer Wall</a>
+            {% if current_user.is_authenticated %}
+            <a href="/my_prayers">My Prayers</a>
+            {% endif %}
+          </div>
+        </div>
+        <a href="/feedback" class="nav-link">Feedback</a>
+      </div>
+
       <div class="navbar-right">
         <button id="menu-button" aria-label="Menu">&#9776;</button>
         <div id="app-menu">
@@ -52,7 +99,7 @@
               <a href="/login" class="button menu-button-full">Login</a>
             {% endif %}
           </div>
-          <div class="app-menu-section">
+          <div class="app-menu-section mobile-nav">
             <strong>Navigation</strong>
             <a href="/" class="button menu-button-full">Home</a>
             
