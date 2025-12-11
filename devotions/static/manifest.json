@@ -1,7 +1,10 @@
 {
+  "id": "/",
   "name": "Prayer & Scripture Companion",
   "short_name": "Prayer App",
+  "description": "Daily devotions, prayers, and scripture readings according to the LCMS tradition.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#f9f8f4",
   "theme_color": "#708090",
@@ -10,6 +13,23 @@
       "src": "/static/favicon.svg",
       "sizes": "any",
       "type": "image/svg+xml"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Morning Prayer",
+      "url": "/morning_devotion",
+      "description": "Start your day with prayer"
+    },
+    {
+      "name": "Evening Prayer",
+      "url": "/evening_devotion",
+      "description": "Close your day with prayer"
+    },
+    {
+      "name": "Prayer Wall",
+      "url": "/prayer_wall",
+      "description": "View and pray for requests"
     }
   ]
 }

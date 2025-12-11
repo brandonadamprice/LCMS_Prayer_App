@@ -7,6 +7,7 @@ const ASSETS_TO_CACHE = [
 
 // Install event: Cache static assets
 self.addEventListener('install', (event) => {
+  self.skipWaiting(); // Activate worker immediately
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(ASSETS_TO_CACHE);
@@ -25,7 +26,7 @@ self.addEventListener('activate', (event) => {
           }
         })
       );
-    })
+    }).then(() => self.clients.claim()) // Become available to all pages
   );
 });
 
