@@ -35,7 +35,7 @@
         </a>
       </div>
 
-      <div class="navbar-center desktop-nav">
+      <div class="navbar-center desktop-nav" {% if request.endpoint == 'index_route' %}style="visibility: hidden;"{% endif %}>
         <div class="dropdown">
           <button class="dropbtn">Daily Prayer ▾</button>
           <div class="dropdown-content">
