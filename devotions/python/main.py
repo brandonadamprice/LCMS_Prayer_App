@@ -741,16 +741,36 @@ def traffic_data_route():
         emails_map = data.get("visitor_emails", {})
 
         if isinstance(hashes, dict):
-          traffic_map[snap.id]["count"] = len(hashes)
-          visitors = []
+          aggregated_visitors = {}
           for h in hashes:
-            # Get paths for this visitor, defaulting to empty list
             visitor_paths = paths_map.get(h, [])
             visitor_email = emails_map.get(h)
-            visitors.append(
-                {"hash": h, "paths": visitor_paths, "email": visitor_email}
-            )
-          traffic_map[snap.id]["visitors"] = visitors
+
+            if visitor_email:
+              key = f"email:{visitor_email}"
+            else:
+              key = f"ip:{h}"
+
+            if key not in aggregated_visitors:
+              aggregated_visitors[key] = {
+                  "email": visitor_email,
+                  "hashes": set(),
+                  "paths": set(),
+              }
+
+            aggregated_visitors[key]["hashes"].add(h)
+            aggregated_visitors[key]["paths"].update(visitor_paths)
+
+          final_visitors = []
+          for v in aggregated_visitors.values():
+            final_visitors.append({
+                "email": v["email"],
+                "hash": ", ".join(sorted(list(v["hashes"]))),
+                "paths": sorted(list(v["paths"])),
+            })
+
+          traffic_map[snap.id]["count"] = len(final_visitors)
+          traffic_map[snap.id]["visitors"] = final_visitors
 
     traffic = [
         {"date": date, "count": info["count"], "visitors": info["visitors"]}
