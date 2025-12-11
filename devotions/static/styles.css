@@ -523,6 +523,7 @@ body.dark-mode .menu-sub-link.disabled {
     display: flex;
     align-items: center;
     margin-bottom: 15px;
+    padding: 0 20px;
 }
 .menu-profile img {
     width: 40px;
@@ -567,6 +568,7 @@ body.dark-mode .menu-profile-info span {
     align-items: center;
     margin-top: 15px;
     font-size: 1em;
+    padding: 0 20px;
 }
 
 /* Toggle Switch */
