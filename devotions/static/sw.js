@@ -1,4 +1,4 @@
-const CACHE_NAME = 'prayer-app-v2';
+const CACHE_NAME = 'prayer-app-v3';
 const ASSETS_TO_CACHE = [
   '/static/styles.css',
   '/static/favicon.svg',
