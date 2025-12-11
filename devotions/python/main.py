@@ -808,24 +808,58 @@ def get_analytics_user(db, ip_hash, current_user):
       user_data = docs[0].to_dict()
       user_id = docs[0].id
       # Check if we need to add this IP
-      if ip_hash not in user_data.get("ip_hashes", []):
+      existing_hashes = user_data.get("ip_hashes", [])
+      if ip_hash not in existing_hashes:
+        print(f"Adding new IP hash {ip_hash} to user {user_id}")
         updates["ip_hashes"] = firestore.ArrayUnion([ip_hash])
       # Ensure email is up to date
       if user_data.get("email") != current_user.email:
         updates["email"] = current_user.email
     else:
-      # 2. Not found by Google ID, create new
-      # (We could check IP, but explicit login takes precedence for new identity)
-      user_id = uuid.uuid4().hex
-      user_ref = users_col.document(user_id)
-      user_ref.set({
-          "google_id": current_user.id,
-          "email": current_user.email,
-          "ip_hashes": [ip_hash],
-          "created_at": firestore.SERVER_TIMESTAMP,
-          "last_seen": firestore.SERVER_TIMESTAMP,
-      })
-      return user_id
+      # 2. Not found by Google ID, create new or merge
+      # Check if an anonymous user exists with this IP hash
+      query_anon = users_col.where(
+          filter=base_query.FieldFilter("ip_hashes", "array_contains", ip_hash)
+      ).limit(1)
+      anon_docs = list(query_anon.stream())
+
+      if anon_docs:
+        # Found anonymous user, upgrade to logged-in user
+        user_ref = anon_docs[0].reference
+        user_data = anon_docs[0].to_dict()
+        user_id = anon_docs[0].id
+        
+        # If this anonymous user was already linked to a different google_id, we have a conflict.
+        # But for now, we assume simple case: upgrade anonymous to logged-in.
+        if not user_data.get("google_id"):
+             updates["google_id"] = current_user.id
+             updates["email"] = current_user.email
+        elif user_data.get("google_id") != current_user.id:
+             # This IP is associated with another user. 
+             # We should probably create a new user for this google_id or just proceed with creating new.
+             # Let's create a new one to avoid merging distinct accounts just because of shared IP (e.g. public wifi)
+             user_id = uuid.uuid4().hex
+             user_ref = users_col.document(user_id)
+             user_ref.set({
+                "google_id": current_user.id,
+                "email": current_user.email,
+                "ip_hashes": [ip_hash],
+                "created_at": firestore.SERVER_TIMESTAMP,
+                "last_seen": firestore.SERVER_TIMESTAMP,
+             })
+             return user_id
+      else:
+        # No existing user found, create new
+        user_id = uuid.uuid4().hex
+        user_ref = users_col.document(user_id)
+        user_ref.set({
+            "google_id": current_user.id,
+            "email": current_user.email,
+            "ip_hashes": [ip_hash],
+            "created_at": firestore.SERVER_TIMESTAMP,
+            "last_seen": firestore.SERVER_TIMESTAMP,
+        })
+        return user_id
 
   else:
     # Anonymous: Try finding by IP hash
@@ -863,9 +897,11 @@ def track_visitor(response):
   """Tracks unique visitors based on IP address for each HTML page loaded."""
   if response.status_code == 200 and response.mimetype == "text/html":
     try:
-      ip = flask.request.environ.get(
-          "HTTP_X_FORWARDED_FOR", flask.request.remote_addr
-      )
+      if "HTTP_X_FORWARDED_FOR" in flask.request.environ:
+        ip = flask.request.environ["HTTP_X_FORWARDED_FOR"].split(",")[0].strip()
+      else:
+        ip = flask.request.remote_addr
+
       eastern_timezone = pytz.timezone("America/New_York")
       date_str = datetime.datetime.now(eastern_timezone).strftime("%Y-%m-%d")
       ip_hash = hashlib.sha256(ip.encode()).hexdigest()
@@ -877,6 +913,10 @@ def track_visitor(response):
       analytics_user_id = get_analytics_user(
           db, ip_hash, flask_login.current_user
       )
+
+      if not analytics_user_id:
+        app.logger.error("Failed to get analytics_user_id")
+        return response
 
       # Record Visit
       doc_ref = db.collection("daily_analytics").document(date_str)
