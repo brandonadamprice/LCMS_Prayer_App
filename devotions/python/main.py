@@ -714,7 +714,7 @@ def traffic_data_route():
     db = utils.get_db_client()
     eastern_timezone = pytz.timezone("America/New_York")
     today = datetime.datetime.now(eastern_timezone).date()
-    start_date = datetime.date(2025, 12, 8)
+    start_date = datetime.date(2025, 12, 11)
 
     date_strs = []
     for i in range(30):
