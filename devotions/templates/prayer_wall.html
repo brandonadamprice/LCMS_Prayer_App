@@ -13,24 +13,26 @@
         <p><em>No active prayer requests at this time.</em></p>
       </div>
     {% else %}
+      <ul class="prayer-wall-container">
       {% for req in prayer_requests %}
-        <div class="card" data-id="{{ req.id }}">
+        <li class="post-it" data-id="{{ req.id }}">
           {% if current_user.is_authenticated and req.user_id == current_user.id %}
             <div class="owner-controls" style="float: right; margin-left: 10px;">
                 <button class="button" style="padding: 5px 10px; font-size: 0.8em;" onclick="editPrayerRequest('{{ req.id }}')">Edit</button>
                 <button class="button" style="background-color: #e74c3c; padding: 5px 10px; font-size: 0.8em;" onclick="deletePrayerRequest('{{ req.id }}')">Delete</button>
             </div>
           {% endif %}
-          <p class="post-it-text" style="font-size: 1.1em; line-height: 1.6;">{{ req.request }}</p>
-          <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
+          <p class="post-it-text">{{ req.request }}</p>
+          <div class="post-it-footer">
               <div class="pray-container">
-                  <button class="pray-button {% if req.id in prayed_request_ids %}prayed{% endif %}" style="font-size: 1.5em; border: none; background: none; cursor: pointer;">🙏</button>
-                  <span class="pray-count" style="font-size: 1.1em; margin-left: 5px;">{{ req.pray_count }}</span>
+                  <button class="pray-button {% if req.id in prayed_request_ids %}prayed{% endif %}">🙏</button>
+                  <span class="pray-count">{{ req.pray_count }}</span>
               </div>
-              <p class="post-it-name" style="font-weight: bold; color: #555; margin: 0;">~ {{ req.name }}</p>
+              <p class="post-it-name">~ {{ req.name }}</p>
           </div>
-        </div>
+        </li>
       {% endfor %}
+      </ul>
     {% endif %}
 
     <div style="text-align: center">
@@ -51,9 +53,9 @@ async function deletePrayerRequest(requestId) {
             },
         });
         if (response.ok) {
-            const card = document.querySelector(`.card[data-id="${requestId}"]`);
-            if (card) {
-                card.remove();
+            const postIt = document.querySelector(`.post-it[data-id="${requestId}"]`);
+            if (postIt) {
+                postIt.remove();
             }
         } else {
             const error = await response.json();
@@ -66,10 +68,10 @@ async function deletePrayerRequest(requestId) {
 }
 
 function editPrayerRequest(requestId) {
-    const card = document.querySelector(`.card[data-id="${requestId}"]`);
-    if (!card) return;
+    const postIt = document.querySelector(`.post-it[data-id="${requestId}"]`);
+    if (!postIt) return;
 
-    const textP = card.querySelector('.post-it-text');
+    const textP = postIt.querySelector('.post-it-text');
     const currentText = textP.textContent;
     const currentTextB64 = btoa(encodeURIComponent(currentText));
 
@@ -81,7 +83,7 @@ function editPrayerRequest(requestId) {
     textArea.style.marginBottom = '10px';
     textP.replaceWith(textArea);
 
-    const controlsDiv = card.querySelector('.owner-controls');
+    const controlsDiv = postIt.querySelector('.owner-controls');
     controlsDiv.innerHTML = `
         <button class="button" style="padding: 5px 10px; font-size: 0.8em;" onclick="savePrayerRequest('${requestId}')">Save</button>
         <button class="button" style="background-color: #95a5a6; padding: 5px 10px; font-size: 0.8em;" onclick="cancelEdit('${requestId}', '${currentTextB64}')">Cancel</button>
@@ -89,19 +91,17 @@ function editPrayerRequest(requestId) {
 }
 
 function cancelEdit(requestId, originalTextB64) {
-    const card = document.querySelector(`.card[data-id="${requestId}"]`);
-    if (!card) return;
+    const postIt = document.querySelector(`.post-it[data-id="${requestId}"]`);
+    if (!postIt) return;
     const originalText = decodeURIComponent(atob(originalTextB64));
 
-    const textArea = card.querySelector('.post-it-text-edit');
+    const textArea = postIt.querySelector('.post-it-text-edit');
     const textP = document.createElement('p');
     textP.className = 'post-it-text';
-    textP.style.fontSize = '1.1em';
-    textP.style.lineHeight = '1.6';
     textP.textContent = originalText;
     textArea.replaceWith(textP);
 
-    const controlsDiv = card.querySelector('.owner-controls');
+    const controlsDiv = postIt.querySelector('.owner-controls');
     controlsDiv.innerHTML = `
         <button class="button" style="padding: 5px 10px; font-size: 0.8em;" onclick="editPrayerRequest('${requestId}')">Edit</button>
         <button class="button" style="background-color: #e74c3c; padding: 5px 10px; font-size: 0.8em;" onclick="deletePrayerRequest('${requestId}')">Delete</button>
@@ -109,9 +109,9 @@ function cancelEdit(requestId, originalTextB64) {
 }
 
 async function savePrayerRequest(requestId) {
-    const card = document.querySelector(`.card[data-id="${requestId}"]`);
-    if (!card) return;
-    const textArea = card.querySelector('.post-it-text-edit');
+    const postIt = document.querySelector(`.post-it[data-id="${requestId}"]`);
+    if (!postIt) return;
+    const textArea = postIt.querySelector('.post-it-text-edit');
     const newText = textArea.value;
 
     try {
@@ -125,12 +125,10 @@ async function savePrayerRequest(requestId) {
         if (response.ok) {
             const textP = document.createElement('p');
             textP.className = 'post-it-text';
-            textP.style.fontSize = '1.1em';
-            textP.style.lineHeight = '1.6';
             textP.textContent = newText;
             textArea.replaceWith(textP);
 
-            const controlsDiv = card.querySelector('.owner-controls');
+            const controlsDiv = postIt.querySelector('.owner-controls');
             controlsDiv.innerHTML = `
                 <button class="button" style="padding: 5px 10px; font-size: 0.8em;" onclick="editPrayerRequest('${requestId}')">Edit</button>
                 <button class="button" style="background-color: #e74c3c; padding: 5px 10px; font-size: 0.8em;" onclick="deletePrayerRequest('${requestId}')">Delete</button>
@@ -150,9 +148,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const storagePrefix = 'prayed_';
 
     prayerButtons.forEach(button => {
-        const card = button.closest('.card');
-        const requestId = card.dataset.id;
-        const countSpan = card.querySelector('.pray-count');
+        const postIt = button.closest('.post-it');
+        const requestId = postIt.dataset.id;
+        const countSpan = postIt.querySelector('.pray-count');
         let prayCount = parseInt(countSpan.textContent);
 
         // Check local storage on load

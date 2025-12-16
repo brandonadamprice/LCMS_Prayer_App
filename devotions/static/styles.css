@@ -163,8 +163,8 @@ button:hover,
 /* Prayer Wall */
 .prayer-wall-container {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
   list-style: none;
   margin: 20px 0 0 0;
   padding: 30px 15px; /* Padding around notes */
@@ -180,11 +180,12 @@ button:hover,
   border-top: 1px solid #eee;
 }
 
-li.post-it {
-  width: 210px;
-  min-height: 210px;
+.post-it {
+  width: 90%;
+  max-width: 600px;
+  min-height: 150px;
   padding: 20px;
-  margin: 15px;
+  margin: 15px 0;
   box-shadow: 3px 3px 6px rgba(0,0,0,.4);
   transition: all .2s ease-in-out;
   font-family: cursive, sans-serif;
@@ -196,7 +197,7 @@ li.post-it {
   font-size: 1.1em;
   color: #333;
 }
-li.post-it p { margin: 0; }
+.post-it p { margin: 0; }
 .post-it-text { flex-grow: 1; }
 .post-it-footer {
   display: flex;
@@ -240,18 +241,18 @@ li.post-it p { margin: 0; }
   font-family: 'Georgia', serif; /* match body */
 }
 
-li.post-it:hover {
+.post-it:hover {
   box-shadow:7px 7px 10px rgba(0,0,0,.5);
-  transform: scale(1.1) rotate(0deg) !important;
+  transform: scale(1.02) !important;
   z-index: 5;
 }
 
-/* Colors and rotations */
-.post-it:nth-child(5n+1) { transform: rotate(-5deg); background: #FFF9B1; } /* yellow */
-.post-it:nth-child(5n+2) { transform: rotate(3deg); background: #C1FFC1; } /* green */
-.post-it:nth-child(5n+3) { transform: rotate(-2deg); background: #AEC6CF; } /* blue */
-.post-it:nth-child(5n+4) { transform: rotate(4deg); background: #FFD1DC; } /* pink */
-.post-it:nth-child(5n)   { transform: rotate(1deg); background: #FFF9B1; } /* yellow */
+/* Colors and rotations - subtle rotation for stacked notes */
+.post-it:nth-child(5n+1) { transform: rotate(-1deg); background: #FFF9B1; } /* yellow */
+.post-it:nth-child(5n+2) { transform: rotate(1deg); background: #C1FFC1; } /* green */
+.post-it:nth-child(5n+3) { transform: rotate(-1deg); background: #AEC6CF; } /* blue */
+.post-it:nth-child(5n+4) { transform: rotate(1deg); background: #FFD1DC; } /* pink */
+.post-it:nth-child(5n)   { transform: rotate(0deg); background: #FFF9B1; } /* yellow */
 
 .picker-toggle-button {
   margin: 15px 0 5px 0;
@@ -905,11 +906,11 @@ body.dark-mode .prayer-wall-container {
     background-color:#4d4230; /* darker cork board */
     border-top-color: #444;
 }
-body.dark-mode li.post-it {
+body.dark-mode .post-it {
     color: #1a1a1a; /* dark text on light post-its */
     box-shadow: 3px 3px 6px rgba(0,0,0,.6);
 }
-body.dark-mode li.post-it:hover {
+body.dark-mode .post-it:hover {
   box-shadow:7px 7px 10px rgba(0,0,0,.7);
 }
 
