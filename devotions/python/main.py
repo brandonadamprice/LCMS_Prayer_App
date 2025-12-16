@@ -374,70 +374,33 @@ def prayer_wall_route():
   except Exception as e:
     print(f"Error removing expired prayer requests: {e}")
   requests = prayer_requests.get_prayer_wall_requests(limit=10)
-  if not requests:
-    prayer_requests_html = (
-        "<p><em>No active prayer requests at this time.</em></p>"
+  prayed_request_ids = []
+  if flask_login.current_user.is_authenticated:
+    db = utils.get_db_client()
+    user_doc_ref = db.collection("users").document(
+        flask_login.current_user.id
     )
-  else:
-    prayed_request_ids = []
-    if flask_login.current_user.is_authenticated:
-      db = utils.get_db_client()
-      user_doc_ref = db.collection("users").document(
-          flask_login.current_user.id
-      )
-      user_doc = user_doc_ref.get()
-      if user_doc.exists:
-        prayed_request_ids = user_doc.to_dict().get("prayed_request_ids", [])
-        if prayed_request_ids:
-          active_prayed_request_ids = []
-          prayer_requests_ref = db.collection("prayer-requests")
-          for request_id in prayed_request_ids:
-            prayer_request_doc = prayer_requests_ref.document(request_id).get()
-            if prayer_request_doc.exists:
-              active_prayed_request_ids.append(request_id)
+    user_doc = user_doc_ref.get()
+    if user_doc.exists:
+      prayed_request_ids = user_doc.to_dict().get("prayed_request_ids", [])
+      if prayed_request_ids:
+        active_prayed_request_ids = []
+        prayer_requests_ref = db.collection("prayer-requests")
+        for request_id in prayed_request_ids:
+          prayer_request_doc = prayer_requests_ref.document(request_id).get()
+          if prayer_request_doc.exists:
+            active_prayed_request_ids.append(request_id)
 
-          if len(active_prayed_request_ids) < len(prayed_request_ids):
-            user_doc_ref.update(
-                {"prayed_request_ids": active_prayed_request_ids}
-            )
-            prayed_request_ids = active_prayed_request_ids
-    html_parts = []
-    for req in requests:
-      name = html.escape(req.get("name", "Anonymous"))
-      prayer = html.escape(req.get("request", ""))
-      req_id = req.get("id", "")
-      pray_count = req.get("pray_count", 0)
-      prayed_class = "prayed" if req_id in prayed_request_ids else ""
-      is_owner = (
-          flask_login.current_user.is_authenticated
-          and req.get("user_id") == flask_login.current_user.id
-      )
-      owner_controls = ""
-      if is_owner:
-        owner_controls = f"""
-        <div class="owner-controls">
-            <button onclick="editPrayerRequest('{req_id}')">Edit</button>
-            <button onclick="deletePrayerRequest('{req_id}')">Delete</button>
-        </div>
-        """
-      html_parts.append(f"""<li class="post-it" data-id="{req_id}">
-              {owner_controls}
-              <p class="post-it-text">{prayer}</p>
-              <div class="post-it-footer">
-                  <div class="pray-container">
-                      <button class="pray-button {prayed_class}">🙏</button>
-                      <span class="pray-count">{pray_count}</span>
-                  </div>
-                  <p class="post-it-name">~ {name}</p>
-              </div>
-          </li>""")
-    prayer_requests_html = (
-        '<ul class="prayer-wall-container">\n'
-        + "\n".join(html_parts)
-        + "\n</ul>"
-    )
+        if len(active_prayed_request_ids) < len(prayed_request_ids):
+          user_doc_ref.update(
+              {"prayed_request_ids": active_prayed_request_ids}
+          )
+          prayed_request_ids = active_prayed_request_ids
+
   return flask.render_template(
-      "prayer_wall.html", prayer_requests_html=prayer_requests_html
+      "prayer_wall.html",
+      prayer_requests=requests,
+      prayed_request_ids=prayed_request_ids,
   )
 
 
