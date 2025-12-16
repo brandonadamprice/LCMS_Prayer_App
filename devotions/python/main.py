@@ -664,7 +664,7 @@ def edit_personal_prayer_route():
   if for_whom:
     update_data["for_whom"] = utils.encrypt_text(for_whom)
   else:
-    update_data["for_whom"] = firestore.DELETE_FIELD
+    update_data["for_whom"] = utils.encrypt_text("")
 
   doc_ref.update(update_data)
   return flask.redirect(flask.url_for("my_prayers_route"))
