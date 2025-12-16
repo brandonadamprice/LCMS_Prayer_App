@@ -21,6 +21,10 @@
           <label for="prayer_text">Prayer:</label><br>
           <textarea id="prayer_text" name="prayer_text" rows="3" required maxlength="1000" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box;"></textarea>
         </div>
+        <div style="margin-bottom: 10px;">
+          <label for="for_whom">For Whom (Optional):</label><br>
+          <input type="text" id="for_whom" name="for_whom" placeholder="e.g., Mom, Friend, etc." style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box;">
+        </div>
         <button type="submit" class="button">Add Prayer</button>
       </form>
     </div>
@@ -31,12 +35,48 @@
           <h2>{{ category }}</h2>
           <ul style="list-style: none; padding: 0;">
             {% for prayer in prayers_by_cat[category] %}
-            <li style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding: 10px 0;">
-              <span>{{ prayer.text }}</span>
-              <form action="/delete_personal_prayer" method="post" style="margin: 0;">
-                <input type="hidden" name="prayer_id" value="{{ prayer.id }}">
-                <button type="submit" class="button" style="background-color: #e74c3c; padding: 5px 10px; font-size: 0.9em;">Delete</button>
-              </form>
+            <li style="border-bottom: 1px solid #eee; padding: 10px 0;">
+              <!-- Display Mode -->
+              <div id="display-{{ prayer.id }}" style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  {% if prayer.for_whom %}
+                    <strong>(For: {{ prayer.for_whom }})</strong>
+                  {% endif %}
+                  <span>{{ prayer.text }}</span>
+                </div>
+                <div style="display: flex; gap: 5px;">
+                  <button onclick="toggleEdit('{{ prayer.id }}')" class="button" style="padding: 5px 10px; font-size: 0.9em;">Edit</button>
+                  <form action="/delete_personal_prayer" method="post" style="margin: 0;">
+                    <input type="hidden" name="prayer_id" value="{{ prayer.id }}">
+                    <button type="submit" class="button" style="background-color: #e74c3c; padding: 5px 10px; font-size: 0.9em;">Delete</button>
+                  </form>
+                </div>
+              </div>
+
+              <!-- Edit Mode -->
+              <div id="edit-{{ prayer.id }}" style="display: none; margin-top: 10px;">
+                <form action="/edit_personal_prayer" method="post">
+                  <input type="hidden" name="prayer_id" value="{{ prayer.id }}">
+                  <div style="margin-bottom: 10px;">
+                    <label>Category:</label>
+                    <select name="category" required style="width: 100%; padding: 5px;">
+                      {% for cat in categories %}
+                      <option value="{{ cat }}" {% if cat == category %}selected{% endif %}>{{ cat }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div style="margin-bottom: 10px;">
+                    <label>Prayer:</label>
+                    <textarea name="prayer_text" rows="3" required maxlength="1000" style="width: 100%; padding: 5px;">{{ prayer.text }}</textarea>
+                  </div>
+                  <div style="margin-bottom: 10px;">
+                    <label>For Whom:</label>
+                    <input type="text" name="for_whom" value="{{ prayer.for_whom or '' }}" style="width: 100%; padding: 5px;">
+                  </div>
+                  <button type="submit" class="button" style="padding: 5px 10px; font-size: 0.9em;">Save</button>
+                  <button type="button" class="button" onclick="toggleEdit('{{ prayer.id }}')" style="background-color: #95a5a6; padding: 5px 10px; font-size: 0.9em;">Cancel</button>
+                </form>
+              </div>
             </li>
             {% endfor %}
           </ul>
@@ -44,4 +84,20 @@
       {% endif %}
     {% endfor %}
 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleEdit(prayerId) {
+  var displayDiv = document.getElementById('display-' + prayerId);
+  var editDiv = document.getElementById('edit-' + prayerId);
+  if (displayDiv.style.display === 'none') {
+    displayDiv.style.display = 'flex';
+    editDiv.style.display = 'none';
+  } else {
+    displayDiv.style.display = 'none';
+    editDiv.style.display = 'block';
+  }
+}
+</script>
 {% endblock %}

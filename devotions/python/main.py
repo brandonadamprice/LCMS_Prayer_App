@@ -581,6 +581,8 @@ def my_prayers_route():
       prayer["id"] = doc.id
       if prayer.get("category") in prayers_by_cat:
         prayer["text"] = utils.decrypt_text(prayer["text"])
+        if prayer.get("for_whom"):
+          prayer["for_whom"] = utils.decrypt_text(prayer["for_whom"])
         prayers_by_cat[prayer["category"]].append(prayer)
   except Exception as e:
     app.logger.error("Failed to fetch personal prayers: %s", e)
@@ -597,6 +599,7 @@ def add_personal_prayer_route():
   """Adds a personal prayer to Firestore."""
   category = flask.request.form.get("category")
   prayer_text = flask.request.form.get("prayer_text")
+  for_whom = flask.request.form.get("for_whom")
   categories = [d["topic"] for d in utils.WEEKLY_PRAYERS.values()]
   if not category or not prayer_text or category not in categories:
     flask.flash("Invalid category or empty prayer text.", "error")
@@ -606,12 +609,64 @@ def add_personal_prayer_route():
     return flask.redirect(flask.url_for("my_prayers_route"))
 
   db = utils.get_db_client()
-  db.collection("personal-prayers").add({
+  data = {
       "user_id": flask_login.current_user.id,
       "category": category,
       "text": utils.encrypt_text(prayer_text),
       "created_at": datetime.datetime.now(datetime.timezone.utc),
-  })
+  }
+  if for_whom:
+    data["for_whom"] = utils.encrypt_text(for_whom)
+
+  db.collection("personal-prayers").add(data)
+  return flask.redirect(flask.url_for("my_prayers_route"))
+
+
+@app.route("/edit_personal_prayer", methods=["POST"])
+@flask_login.login_required
+def edit_personal_prayer_route():
+  """Edits a personal prayer."""
+  prayer_id = flask.request.form.get("prayer_id")
+  category = flask.request.form.get("category")
+  prayer_text = flask.request.form.get("prayer_text")
+  for_whom = flask.request.form.get("for_whom")
+
+  categories = [d["topic"] for d in utils.WEEKLY_PRAYERS.values()]
+
+  if (
+      not prayer_id
+      or not category
+      or not prayer_text
+      or category not in categories
+  ):
+    flask.flash("Invalid data provided.", "error")
+    return flask.redirect(flask.url_for("my_prayers_route"))
+
+  if len(prayer_text) > 1000:
+    flask.flash("Prayer text cannot exceed 1000 characters.", "error")
+    return flask.redirect(flask.url_for("my_prayers_route"))
+
+  db = utils.get_db_client()
+  doc_ref = db.collection("personal-prayers").document(prayer_id)
+  doc = doc_ref.get()
+
+  if (
+      not doc.exists
+      or doc.to_dict().get("user_id") != flask_login.current_user.id
+  ):
+    flask.flash("Prayer not found or permission denied.", "error")
+    return flask.redirect(flask.url_for("my_prayers_route"))
+
+  update_data = {
+      "category": category,
+      "text": utils.encrypt_text(prayer_text),
+  }
+  if for_whom:
+    update_data["for_whom"] = utils.encrypt_text(for_whom)
+  else:
+    update_data["for_whom"] = firestore.DELETE_FIELD
+
+  doc_ref.update(update_data)
   return flask.redirect(flask.url_for("my_prayers_route"))
 
 
