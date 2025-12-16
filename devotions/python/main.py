@@ -652,18 +652,8 @@ def edit_personal_prayer_route():
   doc = doc_ref.get()
 
   if not doc.exists:
-    # Check old location
-    old_doc_ref = db.collection("personal-prayers").document(prayer_id)
-    old_doc = old_doc_ref.get()
-    if old_doc.exists and old_doc.to_dict().get("user_id") == user_id:
-      # Migrate to new location before editing
-      data = old_doc.to_dict()
-      doc_ref.set(data)
-      old_doc_ref.delete()
-      doc = doc_ref.get()
-    else:
-      flask.flash("Prayer not found or permission denied.", "error")
-      return flask.redirect(flask.url_for("my_prayers_route"))
+    flask.flash("Prayer not found or permission denied.", "error")
+    return flask.redirect(flask.url_for("my_prayers_route"))
 
   if doc.to_dict().get("user_id") != user_id:
     flask.flash("Prayer not found or permission denied.", "error")
@@ -699,18 +689,7 @@ def delete_personal_prayer_route():
   )
   doc = doc_ref.get()
 
-  if not doc.exists:
-    # Check old location
-    old_doc_ref = db.collection("personal-prayers").document(prayer_id)
-    old_doc = old_doc_ref.get()
-    if old_doc.exists and old_doc.to_dict().get("user_id") == user_id:
-      old_doc_ref.delete()
-      return flask.redirect(flask.url_for("my_prayers_route"))
-    else:
-      flask.flash("Prayer not found or permission denied.", "error")
-      return flask.redirect(flask.url_for("my_prayers_route"))
-
-  if doc.to_dict().get("user_id") == user_id:
+  if doc.exists and doc.to_dict().get("user_id") == user_id:
     doc_ref.delete()
   else:
     flask.flash("Prayer not found or permission denied.", "error")

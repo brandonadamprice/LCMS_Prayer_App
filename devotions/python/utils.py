@@ -662,37 +662,15 @@ def fetch_passages(
 
 
 def fetch_personal_prayers(user_id: str) -> list[dict]:
-  """Fetches personal prayers for a user, migrating if necessary."""
+  """Fetches personal prayers for a user from their subcollection."""
   db = get_db_client()
-  new_collection_ref = (
+  collection_ref = (
       db.collection("users").document(user_id).collection("personal-prayers")
   )
-  old_collection_ref = db.collection("personal-prayers")
 
-  # TODO: Delete this migration code once all users are migrated.
-  # Check old collection
-  try:
-    old_query = old_collection_ref.where("user_id", "==", user_id)
-    old_docs = list(old_query.stream())
-
-    if old_docs:
-      print(f"Migrating {len(old_docs)} prayers for user {user_id}...")
-      batch = db.batch()
-      for doc in old_docs:
-        data = doc.to_dict()
-        # We keep the same ID
-        new_doc_ref = new_collection_ref.document(doc.id)
-        batch.set(new_doc_ref, data)
-        batch.delete(doc.reference)
-      batch.commit()
-      print("Migration complete.")
-  except Exception as e:
-    print(f"Error during migration for user {user_id}: {e}")
-
-  # Fetch from new collection
   prayers = []
   try:
-    new_docs = new_collection_ref.stream()
+    new_docs = collection_ref.stream()
     for doc in new_docs:
       prayer = doc.to_dict()
       prayer["id"] = doc.id
