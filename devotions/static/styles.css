@@ -162,12 +162,12 @@ button:hover,
 
 /* Prayer Wall */
 .prayer-wall-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  display: block;
+  column-count: 1;
+  column-gap: 20px;
   list-style: none;
   margin: 20px 0 0 0;
-  padding: 30px 15px; /* Padding around notes */
+  padding: 30px 20px;
   background:
     radial-gradient(#a0522d 15%, transparent 16%) 0 0,
     radial-gradient(#a0522d 15%, transparent 16%) 8px 8px,
@@ -180,12 +180,26 @@ button:hover,
   border-top: 1px solid #eee;
 }
 
+@media (min-width: 700px) {
+  .prayer-wall-container {
+    column-count: 2;
+  }
+}
+
+@media (min-width: 1000px) {
+  .prayer-wall-container {
+    column-count: 3;
+  }
+}
+
 .post-it {
-  width: 90%;
-  max-width: 600px;
+  width: 100%;
+  box-sizing: border-box;
   min-height: 150px;
   padding: 20px;
-  margin: 15px 0;
+  margin: 0 0 20px 0;
+  break-inside: avoid;
+  page-break-inside: avoid;
   box-shadow: 3px 3px 6px rgba(0,0,0,.4);
   transition: all .2s ease-in-out;
   font-family: cursive, sans-serif;
