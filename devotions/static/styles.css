@@ -1174,6 +1174,32 @@ body.dark-mode #built-sentence {
     border-bottom-color: #555;
 }
 
+/* Form Inputs */
+.form-input {
+    width: 100%;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    font-family: inherit;
+    font-size: 1em;
+}
+
+.prayer-list-item {
+    border-bottom: 1px solid #eee;
+    padding: 10px 0;
+}
+
+body.dark-mode .form-input {
+    background-color: #555;
+    color: #eee;
+    border-color: #777;
+}
+
+body.dark-mode .prayer-list-item {
+    border-bottom-color: #555;
+}
+
 /* Fireworks effect */
 .particle {
     position: fixed;

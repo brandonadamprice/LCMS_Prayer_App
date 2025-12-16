@@ -11,7 +11,7 @@
       <form action="/add_personal_prayer" method="post">
         <div style="margin-bottom: 10px;">
           <label for="category">Category:</label><br>
-          <select id="category" name="category" required style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box;">
+          <select id="category" name="category" required class="form-input">
             {% for category in categories %}
             <option value="{{ category }}">{{ category }}</option>
             {% endfor %}
@@ -19,11 +19,11 @@
         </div>
         <div style="margin-bottom: 10px;">
           <label for="prayer_text">Prayer:</label><br>
-          <textarea id="prayer_text" name="prayer_text" rows="3" required maxlength="1000" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box;"></textarea>
+          <textarea id="prayer_text" name="prayer_text" rows="3" required maxlength="1000" class="form-input"></textarea>
         </div>
         <div style="margin-bottom: 10px;">
           <label for="for_whom">For Whom (Optional):</label><br>
-          <input type="text" id="for_whom" name="for_whom" placeholder="e.g., Mom, Friend, etc." style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box;">
+          <input type="text" id="for_whom" name="for_whom" placeholder="e.g., Mom, Friend, etc." class="form-input">
         </div>
         <button type="submit" class="button">Add Prayer</button>
       </form>
@@ -35,7 +35,7 @@
           <h2>{{ category }}</h2>
           <ul style="list-style: none; padding: 0;">
             {% for prayer in prayers_by_cat[category] %}
-            <li style="border-bottom: 1px solid #eee; padding: 10px 0;">
+            <li class="prayer-list-item">
               <!-- Display Mode -->
               <div id="display-{{ prayer.id }}" style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
@@ -59,7 +59,7 @@
                   <input type="hidden" name="prayer_id" value="{{ prayer.id }}">
                   <div style="margin-bottom: 10px;">
                     <label>Category:</label>
-                    <select name="category" required style="width: 100%; padding: 5px;">
+                    <select name="category" required class="form-input">
                       {% for cat in categories %}
                       <option value="{{ cat }}" {% if cat == category %}selected{% endif %}>{{ cat }}</option>
                       {% endfor %}
@@ -67,11 +67,11 @@
                   </div>
                   <div style="margin-bottom: 10px;">
                     <label>Prayer:</label>
-                    <textarea name="prayer_text" rows="3" required maxlength="1000" style="width: 100%; padding: 5px;">{{ prayer.text }}</textarea>
+                    <textarea name="prayer_text" rows="3" required maxlength="1000" class="form-input">{{ prayer.text }}</textarea>
                   </div>
                   <div style="margin-bottom: 10px;">
                     <label>For Whom:</label>
-                    <input type="text" name="for_whom" value="{{ prayer.for_whom or '' }}" style="width: 100%; padding: 5px;">
+                    <input type="text" name="for_whom" value="{{ prayer.for_whom or '' }}" class="form-input">
                   </div>
                   <button type="submit" class="button" style="padding: 5px 10px; font-size: 0.9em;">Save</button>
                   <button type="button" class="button" onclick="toggleEdit('{{ prayer.id }}')" style="background-color: #95a5a6; padding: 5px 10px; font-size: 0.9em;">Cancel</button>
@@ -87,7 +87,6 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
 function toggleEdit(prayerId) {
   var displayDiv = document.getElementById('display-' + prayerId);
   var editDiv = document.getElementById('edit-' + prayerId);
@@ -99,5 +98,4 @@ function toggleEdit(prayerId) {
     editDiv.style.display = 'block';
   }
 }
-</script>
 {% endblock %}
