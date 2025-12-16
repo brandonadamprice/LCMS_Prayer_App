@@ -567,18 +567,11 @@ def save_font_size_route():
 @flask_login.login_required
 def my_prayers_route():
   """Displays page for managing personal prayers."""
-  db = utils.get_db_client()
   categories = sorted([d["topic"] for d in utils.WEEKLY_PRAYERS.values()])
   prayers_by_cat = {cat: [] for cat in categories}
   try:
-    docs = (
-        db.collection("personal-prayers")
-        .where("user_id", "==", flask_login.current_user.id)
-        .stream()
-    )
-    for doc in docs:
-      prayer = doc.to_dict()
-      prayer["id"] = doc.id
+    raw_prayers = utils.fetch_personal_prayers(flask_login.current_user.id)
+    for prayer in raw_prayers:
       if prayer.get("category") in prayers_by_cat:
         prayer["text"] = utils.decrypt_text(prayer["text"])
         if prayer.get("for_whom"):
@@ -618,7 +611,9 @@ def add_personal_prayer_route():
   if for_whom:
     data["for_whom"] = utils.encrypt_text(for_whom)
 
-  db.collection("personal-prayers").add(data)
+  db.collection("users").document(flask_login.current_user.id).collection(
+      "personal-prayers"
+  ).add(data)
   return flask.redirect(flask.url_for("my_prayers_route"))
 
 
@@ -647,13 +642,30 @@ def edit_personal_prayer_route():
     return flask.redirect(flask.url_for("my_prayers_route"))
 
   db = utils.get_db_client()
-  doc_ref = db.collection("personal-prayers").document(prayer_id)
+  user_id = flask_login.current_user.id
+  doc_ref = (
+      db.collection("users")
+      .document(user_id)
+      .collection("personal-prayers")
+      .document(prayer_id)
+  )
   doc = doc_ref.get()
 
-  if (
-      not doc.exists
-      or doc.to_dict().get("user_id") != flask_login.current_user.id
-  ):
+  if not doc.exists:
+    # Check old location
+    old_doc_ref = db.collection("personal-prayers").document(prayer_id)
+    old_doc = old_doc_ref.get()
+    if old_doc.exists and old_doc.to_dict().get("user_id") == user_id:
+      # Migrate to new location before editing
+      data = old_doc.to_dict()
+      doc_ref.set(data)
+      old_doc_ref.delete()
+      doc = doc_ref.get()
+    else:
+      flask.flash("Prayer not found or permission denied.", "error")
+      return flask.redirect(flask.url_for("my_prayers_route"))
+
+  if doc.to_dict().get("user_id") != user_id:
     flask.flash("Prayer not found or permission denied.", "error")
     return flask.redirect(flask.url_for("my_prayers_route"))
 
@@ -678,9 +690,27 @@ def delete_personal_prayer_route():
   if not prayer_id:
     return flask.redirect(flask.url_for("my_prayers_route"))
   db = utils.get_db_client()
-  doc_ref = db.collection("personal-prayers").document(prayer_id)
+  user_id = flask_login.current_user.id
+  doc_ref = (
+      db.collection("users")
+      .document(user_id)
+      .collection("personal-prayers")
+      .document(prayer_id)
+  )
   doc = doc_ref.get()
-  if doc.exists and doc.to_dict().get("user_id") == flask_login.current_user.id:
+
+  if not doc.exists:
+    # Check old location
+    old_doc_ref = db.collection("personal-prayers").document(prayer_id)
+    old_doc = old_doc_ref.get()
+    if old_doc.exists and old_doc.to_dict().get("user_id") == user_id:
+      old_doc_ref.delete()
+      return flask.redirect(flask.url_for("my_prayers_route"))
+    else:
+      flask.flash("Prayer not found or permission denied.", "error")
+      return flask.redirect(flask.url_for("my_prayers_route"))
+
+  if doc.to_dict().get("user_id") == user_id:
     doc_ref.delete()
   else:
     flask.flash("Prayer not found or permission denied.", "error")

@@ -217,22 +217,14 @@ def get_weekly_prayer_for_day(now: datetime.datetime) -> dict:
   topic = prayer_data["topic"]
   personal_prayers_list = []
   if flask_login.current_user.is_authenticated:
-    db = get_db_client()
-    prayers_ref = db.collection("personal-prayers")
-    query = prayers_ref.where(
-        "user_id", "==", flask_login.current_user.id
-    ).where("category", "==", topic)
-    try:
-      docs = query.stream()
-      for doc in docs:
-        prayer = doc.to_dict()
-        prayer["id"] = doc.id
+    raw_prayers = fetch_personal_prayers(flask_login.current_user.id)
+    for prayer in raw_prayers:
+      if prayer.get("category") == topic:
         prayer["text"] = decrypt_text(prayer["text"])
         if prayer.get("for_whom"):
           prayer["for_whom"] = decrypt_text(prayer["for_whom"])
         personal_prayers_list.append(prayer)
-    except Exception as e:
-      print(f"Error fetching personal prayers: {e}")
+
   return {
       "prayer_topic": topic,
       "weekly_prayer_html": (
@@ -669,30 +661,64 @@ def fetch_passages(
   )
 
 
+def fetch_personal_prayers(user_id: str) -> list[dict]:
+  """Fetches personal prayers for a user, migrating if necessary."""
+  db = get_db_client()
+  new_collection_ref = (
+      db.collection("users").document(user_id).collection("personal-prayers")
+  )
+  old_collection_ref = db.collection("personal-prayers")
+
+  # TODO: Delete this migration code once all users are migrated.
+  # Check old collection
+  try:
+    old_query = old_collection_ref.where("user_id", "==", user_id)
+    old_docs = list(old_query.stream())
+
+    if old_docs:
+      print(f"Migrating {len(old_docs)} prayers for user {user_id}...")
+      batch = db.batch()
+      for doc in old_docs:
+        data = doc.to_dict()
+        # We keep the same ID
+        new_doc_ref = new_collection_ref.document(doc.id)
+        batch.set(new_doc_ref, data)
+        batch.delete(doc.reference)
+      batch.commit()
+      print("Migration complete.")
+  except Exception as e:
+    print(f"Error during migration for user {user_id}: {e}")
+
+  # Fetch from new collection
+  prayers = []
+  try:
+    new_docs = new_collection_ref.stream()
+    for doc in new_docs:
+      prayer = doc.to_dict()
+      prayer["id"] = doc.id
+      prayers.append(prayer)
+  except Exception as e:
+    print(f"Error fetching personal prayers from new collection: {e}")
+
+  return prayers
+
+
 def get_all_personal_prayers_for_user() -> dict:
   """Fetches all personal prayers for user, grouped by category."""
   prayers_by_cat_with_prayers = {}
   if flask_login.current_user.is_authenticated:
-    db = get_db_client()
-    prayers_ref = db.collection("personal-prayers")
-    query = prayers_ref.where("user_id", "==", flask_login.current_user.id)
-
+    raw_prayers = fetch_personal_prayers(flask_login.current_user.id)
     temp_prayers = {}  # category -> list
-    try:
-      for doc in query.stream():
-        prayer = doc.to_dict()
-        prayer["id"] = doc.id
-        category = prayer.get("category")
-        if category:
-          if category not in temp_prayers:
-            temp_prayers[category] = []
-          prayer["text"] = decrypt_text(prayer["text"])
-          if prayer.get("for_whom"):
-            prayer["for_whom"] = decrypt_text(prayer["for_whom"])
-          temp_prayers[category].append(prayer)
-    except Exception as e:
-      print(f"Error fetching all personal prayers: {e}")
-      return {}
+
+    for prayer in raw_prayers:
+      category = prayer.get("category")
+      if category:
+        if category not in temp_prayers:
+          temp_prayers[category] = []
+        prayer["text"] = decrypt_text(prayer["text"])
+        if prayer.get("for_whom"):
+          prayer["for_whom"] = decrypt_text(prayer["for_whom"])
+        temp_prayers[category].append(prayer)
 
     for category in sorted(temp_prayers.keys()):
       if temp_prayers[category]:

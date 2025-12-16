@@ -40,12 +40,9 @@ def generate_mid_week_devotion():
 
   personal_prayers_by_topic = {}
   if flask_login.current_user.is_authenticated:
-    db = utils.get_db_client()
-    prayers_ref = db.collection("personal-prayers")
-    query = prayers_ref.where("user_id", "==", flask_login.current_user.id)
     try:
-      for doc in query.stream():
-        prayer = doc.to_dict()
+      raw_prayers = utils.fetch_personal_prayers(flask_login.current_user.id)
+      for prayer in raw_prayers:
         topic = prayer.get("category")
         if topic:
           if topic not in personal_prayers_by_topic:
