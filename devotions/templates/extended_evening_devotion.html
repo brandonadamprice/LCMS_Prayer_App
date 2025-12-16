@@ -74,7 +74,9 @@
           <p class="subheader"><strong>Your Personal Prayers for this Topic</strong></p>
           <ul>
           {% for prayer in personal_prayers_list %}
-            <li>{{ prayer.text }}</li>
+            <li>
+              {% if prayer.for_whom %}<strong>(For {{ prayer.for_whom }}):</strong> {% endif %}{{ prayer.text }}
+            </li>
           {% endfor %}
           </ul>
         {% endif %}

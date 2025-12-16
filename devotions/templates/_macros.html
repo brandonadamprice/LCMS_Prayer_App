@@ -32,7 +32,9 @@
       <p><strong>{{ category }}</strong></p>
       <ul>
         {% for prayer in prayers %}
-        <li>{{ prayer.text }}</li>
+        <li>
+          {% if prayer.for_whom %}<strong>(For {{ prayer.for_whom }}):</strong> {% endif %}{{ prayer.text }}
+        </li>
         {% endfor %}
       </ul>
     {% endif %}

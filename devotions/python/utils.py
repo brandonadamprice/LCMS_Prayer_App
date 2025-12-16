@@ -228,6 +228,8 @@ def get_weekly_prayer_for_day(now: datetime.datetime) -> dict:
         prayer = doc.to_dict()
         prayer["id"] = doc.id
         prayer["text"] = decrypt_text(prayer["text"])
+        if prayer.get("for_whom"):
+          prayer["for_whom"] = decrypt_text(prayer["for_whom"])
         personal_prayers_list.append(prayer)
     except Exception as e:
       print(f"Error fetching personal prayers: {e}")
@@ -685,6 +687,8 @@ def get_all_personal_prayers_for_user() -> dict:
           if category not in temp_prayers:
             temp_prayers[category] = []
           prayer["text"] = decrypt_text(prayer["text"])
+          if prayer.get("for_whom"):
+            prayer["for_whom"] = decrypt_text(prayer["for_whom"])
           temp_prayers[category].append(prayer)
     except Exception as e:
       print(f"Error fetching all personal prayers: {e}")
