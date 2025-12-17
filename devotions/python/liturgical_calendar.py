@@ -135,6 +135,40 @@ def generate_calendar_data(year, month):
 
       # Refine key for display if it is a date string
       display_name = key
+
+      # Suppress "Ash Thursday", "Ash Friday", "Ash Saturday" and Pentecost week ferias
+      if key in [
+          "Ash Thursday",
+          "Ash Friday",
+          "Ash Saturday",
+          "Pentecost Monday",
+          "Pentecost Tuesday",
+          "Pentecost Wednesday",
+          "Pentecost Thursday",
+          "Pentecost Friday",
+          "Pentecost Saturday",
+      ]:
+        display_name = ""
+
+      # Add names for Advent Sundays and Christmas
+      advent1 = day_cy.calculate_advent1(day.year)
+      if day == advent1:
+        display_name = "Advent 1"
+      elif day == advent1 + datetime.timedelta(days=7):
+        display_name = "Advent 2"
+      elif day == advent1 + datetime.timedelta(days=14):
+        display_name = "Advent 3"
+      elif day == advent1 + datetime.timedelta(days=21):
+        display_name = "Advent 4"
+
+      if day.month == 12 and day.day == 24:
+        if display_name == "Advent 4":
+          display_name = "Advent 4 / Christmas Eve"
+        else:
+          display_name = "Christmas Eve"
+      elif day.month == 12 and day.day == 25:
+        display_name = "Christmas Day"
+
       try:
         # If key is just a date, maybe look up special feasts?
         # The get_liturgical_key handles moveable feasts.
