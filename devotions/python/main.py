@@ -16,6 +16,7 @@ import flask
 import flask_login
 from google.cloud import firestore
 import gospels_by_category
+import liturgical_calendar
 import memory
 import mid_week
 import midday
@@ -324,6 +325,12 @@ def short_prayers_route():
 def litany_route():
   """Returns the Litany page HTML."""
   return flask.render_template("litany.html")
+
+
+@app.route("/liturgical_calendar")
+def liturgical_calendar_route():
+  """Returns Liturgical Calendar page."""
+  return liturgical_calendar.generate_liturgical_calendar_page()
 
 
 @app.route("/bible_in_a_year")

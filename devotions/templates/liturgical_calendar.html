@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% import "_macros.html" as macros %}
+
+{% block title %}Liturgical Calendar{% endblock %}
+
+{% block content %}
+    <div class="page-header">
+      <h1>Liturgical Calendar</h1>
+      <p>View the church year seasons, colors, and feast days.</p>
+    </div>
+
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <a href="/liturgical_calendar?year={{ prev_year }}&month={{ prev_month }}" class="button">&laquo; Prev</a>
+            <h2 style="border-bottom: none; margin: 0;">{{ month_name }} {{ year }}</h2>
+            <a href="/liturgical_calendar?year={{ next_year }}&month={{ next_month }}" class="button">Next &raquo;</a>
+        </div>
+
+        <div class="calendar-grid">
+            <div class="calendar-header">Sun</div>
+            <div class="calendar-header">Mon</div>
+            <div class="calendar-header">Tue</div>
+            <div class="calendar-header">Wed</div>
+            <div class="calendar-header">Thu</div>
+            <div class="calendar-header">Fri</div>
+            <div class="calendar-header">Sat</div>
+
+            {% for week in calendar_data %}
+                {% for day in week %}
+                    <div class="calendar-day {{ day.color }} {% if day.is_today %}today{% endif %} {% if not day.is_current_month %}other-month{% endif %}">
+                        <span class="day-number">{{ day.day }}</span>
+                        {% if day.key != day.day ~ " " ~ month_name[:3] and day.key != (day.day < 10 and "0" ~ day.day or day.day) ~ " " ~ month_name[:3] %}
+                            <div class="feast-name">{{ day.key }}</div>
+                        {% endif %}
+                        <div class="liturgical-color-dot" title="{{ day.color_name }}"></div>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+        </div>
+        
+        <div style="margin-top: 20px; text-align: center; font-size: 0.9em;">
+            <span class="legend-item"><span class="liturgical-color-dot white"></span> White</span>
+            <span class="legend-item"><span class="liturgical-color-dot violet"></span> Violet</span>
+            <span class="legend-item"><span class="liturgical-color-dot rose"></span> Rose</span>
+            <span class="legend-item"><span class="liturgical-color-dot red"></span> Red</span>
+            <span class="legend-item"><span class="liturgical-color-dot green"></span> Green</span>
+            <span class="legend-item"><span class="liturgical-color-dot black"></span> Black</span>
+        </div>
+    </div>
+{% endblock %}

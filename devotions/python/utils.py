@@ -271,7 +271,7 @@ class ChurchYear:
     self.pentecost = self.easter_date + datetime.timedelta(days=49)
     self.holy_trinity = self.pentecost + datetime.timedelta(days=7)
 
-  def _calculate_advent1(self, year: int) -> datetime.date:
+  def calculate_advent1(self, year: int) -> datetime.date:
     """Advent 1 is the Sunday between Nov 27 and Dec 3."""
     return datetime.date(year, 12, 3) - datetime.timedelta(
         days=(datetime.date(year, 12, 3).weekday() + 1) % 7
@@ -279,11 +279,11 @@ class ChurchYear:
 
   def get_week_of_church_year(self, current_date: datetime.date) -> int:
     """Returns week number 1-52 within church year starting Advent 1."""
-    adv1_this_year = self._calculate_advent1(current_date.year)
+    adv1_this_year = self.calculate_advent1(current_date.year)
     if current_date >= adv1_this_year:
       start_of_cy = adv1_this_year
     else:
-      start_of_cy = self._calculate_advent1(current_date.year - 1)
+      start_of_cy = self.calculate_advent1(current_date.year - 1)
 
     week = ((current_date - start_of_cy).days // 7) % 52 + 1
     return week
