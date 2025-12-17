@@ -17,6 +17,8 @@ def get_liturgical_color(key, date, church_year):
       or "Trinity" in key
   ):
     return "White"
+  if "Ash Wednesday" in key:
+    return "Black"
   if "Ash" in key or "Lent" in key:
     return "Violet"
   if "Good Friday" in key:
@@ -136,18 +138,24 @@ def generate_calendar_data(year, month):
       # Refine key for display if it is a date string
       display_name = key
 
-      # Suppress "Ash Thursday", "Ash Friday", "Ash Saturday" and Pentecost week ferias
-      if key in [
-          "Ash Thursday",
-          "Ash Friday",
-          "Ash Saturday",
-          "Pentecost Monday",
-          "Pentecost Tuesday",
-          "Pentecost Wednesday",
-          "Pentecost Thursday",
-          "Pentecost Friday",
-          "Pentecost Saturday",
-      ]:
+      # Suppress "Ash Thursday", "Ash Friday", "Ash Saturday", Pentecost week ferias, and Easter weekdays
+      if (
+          key
+          in [
+              "Ash Thursday",
+              "Ash Friday",
+              "Ash Saturday",
+              "Pentecost Monday",
+              "Pentecost Tuesday",
+              "Pentecost Wednesday",
+              "Pentecost Thursday",
+              "Pentecost Friday",
+              "Pentecost Saturday",
+          ]
+          or (key.startswith("Easter") and "Sunday" not in key)
+          or (key.startswith("Lent") and "Sunday" not in key)
+          or (key.startswith("Advent") and "Sunday" not in key)
+      ):
         display_name = ""
 
       # Add names for Advent Sundays and Christmas
@@ -224,11 +232,8 @@ def generate_calendar_data(year, month):
             display_name = fixed_feasts[(day.month, day.day)]
           elif (
               display_name == ""
-          ):  # Was suppressed (Ash Thu/Fri/Sat/Pentecost ferias)
-            # Keep suppressed or override? Usually feasts don't override Ash Wed/Good Fri etc.
-            # But if it's a fixed feast conflicting with a movable season, the movable season usually takes precedence in the calendar display logic of the church,
-            # or they are transferred. For simplicity, we might just append or leave it.
-            pass
+          ):  # Was suppressed
+            display_name = fixed_feasts[(day.month, day.day)]
       except:
         pass
 
