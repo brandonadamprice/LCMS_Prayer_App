@@ -10,24 +10,40 @@ import utils
 def get_liturgical_color(key, date, church_year):
   """Determines the liturgical color based on the day key and date."""
   # Special Days have specific colors
+  # Specific Feast overrides for White
   if (
       "Christmas" in key
       or "Epiphany of Our Lord" in key
       or "All Saints" in key
       or "Trinity" in key
+      or "Conversion of St. Paul" in key
+      or "Confession of St. Peter" in key
+      or "St. John, Apostle" in key
+      or "Nativity of St. John the Baptist" in key
+      or "Circumcision" in key
+      or "Presentation" in key
+      or "Annunciation" in key
+      or "Visitation" in key
+      or "St. Mary" in key
+      or "St. Joseph" in key
+      or "St. Timothy" in key
+      or "St. Titus" in key
   ):
     return "White"
+
   if "Ash Wednesday" in key:
     return "Black"
   if "Ash" in key or "Lent" in key:
     return "Violet"
   if "Good Friday" in key:
     return "Black"
+
   if (
       "Palm Sunday" in key
       or "Pentecost" in key
       or "Reformation" in key
       or "Martyr" in key
+      or "Holy Cross" in key
       or "Andrew" in key
       or "Thomas" in key
       or "James" in key
@@ -40,6 +56,8 @@ def get_liturgical_color(key, date, church_year):
       or "Paul" in key
       or "Bartholomew" in key
       or "Philip" in key
+      or "Barnabas" in key
+      or "Matthias" in key
   ):
     return "Red"
   if "Easter" in key or "Ascension" in key:
@@ -198,29 +216,37 @@ def generate_calendar_data(year, month):
             (11, 30): "St. Andrew, Apostle",
             (12, 21): "St. Thomas, Apostle",
             (12, 26): "St. Stephen, Martyr",
-            (12, 27): "St. John, Apostle",
-            (12, 28): "The Holy Innocents",
+            (12, 27): "St. John, Apostle and Evangelist",
+            (12, 28): "The Holy Innocents, Martyrs",
+            (12, 31): (
+                "Eve of the Circumcision and Name of Jesus | New Year's Eve"
+            ),
             (1, 1): "Circumcision and Name of Jesus",
             (1, 6): "Epiphany of Our Lord",
-            (1, 18): "Confession of St. Peter",
-            (1, 25): "Conversion of St. Paul",
-            (2, 2): "Purification of Mary / Presentation of Our Lord",
+            (1, 18): "The Confession of St. Peter",
+            (1, 24): "St. Timothy, Pastor and Confessor",
+            (1, 25): "The Conversion of St. Paul",
+            (1, 26): "St. Titus, Pastor and Confessor",
+            (2, 2): "The Purification of Mary and the Presentation of Our Lord",
             (2, 24): "St. Matthias, Apostle",
-            (3, 25): "Annunciation of Our Lord",
+            (3, 19): "St. Joseph, Guardian of Jesus",
+            (3, 25): "The Annunciation of Our Lord",
             (4, 25): "St. Mark, Evangelist",
             (5, 1): "St. Philip and St. James, Apostles",
-            (5, 31): "The Visitation",
             (6, 11): "St. Barnabas, Apostle",
-            (6, 24): "Nativity of St. John the Baptist",
+            (6, 24): "The Nativity of St. John the Baptist",
             (6, 29): "St. Peter and St. Paul, Apostles",
-            (7, 2): "The Visitation (Traditional)",
+            (7, 2): "The Visitation (1-Year Lectionary)",
             (7, 22): "St. Mary Magdalene",
             (7, 25): "St. James the Elder, Apostle",
             (8, 15): "St. Mary, Mother of Our Lord",
             (8, 24): "St. Bartholomew, Apostle",
-            (9, 21): "St. Matthew, Apostle",
+            (8, 29): "The Martyrdom of St. John the Baptist",
+            (9, 14): "Holy Cross Day",
+            (9, 21): "St. Matthew, Apostle and Evangelist",
             (9, 29): "St. Michael and All Angels",
             (10, 18): "St. Luke, Evangelist",
+            (10, 23): "St. James of Jerusalem, Brother of Jesus and Martyr",
             (10, 28): "St. Simon and St. Jude, Apostles",
             (10, 31): "Reformation Day",
             (11, 1): "All Saints' Day",
