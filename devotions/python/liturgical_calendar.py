@@ -17,7 +17,7 @@ def get_liturgical_color(key, date, church_year):
       or "Trinity" in key
   ):
     return "White"
-  if "Ash Wednesday" in key or "Lent" in key:
+  if "Ash" in key or "Lent" in key:
     return "Violet"
   if "Good Friday" in key:
     return "Black"
@@ -170,15 +170,72 @@ def generate_calendar_data(year, month):
         display_name = "Christmas Day"
 
       try:
-        # If key is just a date, maybe look up special feasts?
-        # The get_liturgical_key handles moveable feasts.
         # Fixed feasts are in lectionary.json keys sometimes, but get_liturgical_key
         # falls back to date string if not in movable season.
-        pass
+        date_str_key = day.strftime("%d %b")
+        data = utils.load_lectionary(utils.LECTIONARY_JSON_PATH)
+        # Check if the key from get_liturgical_key is different from the date string,
+        # which means it's a movable feast or already identified.
+        # If it IS the date string, we check if there's a special reading for this date
+        # that might be a fixed feast (like "St. Mark").
+        # Note: The lectionary JSON keys are sometimes dates like "25 Apr" but sometimes
+        # names. The current structure of lectionary.json seems to use dates for fixed feasts mostly.
+        # However, we can check if the day matches a known fixed feast date manually if needed,
+        # or rely on the fact that if get_liturgical_key returned a date string, we might
+        # want to check if that date string maps to a special day in a separate mapping if one existed.
+        # BUT, looking at the code for get_liturgical_key, it returns "25 Dec" etc.
+        # Let's check for specific fixed feasts that might be interesting.
+
+        fixed_feasts = {
+            (11, 30): "St. Andrew, Apostle",
+            (12, 21): "St. Thomas, Apostle",
+            (12, 26): "St. Stephen, Martyr",
+            (12, 27): "St. John, Apostle",
+            (12, 28): "The Holy Innocents",
+            (1, 1): "Circumcision and Name of Jesus",
+            (1, 6): "Epiphany of Our Lord",
+            (1, 18): "Confession of St. Peter",
+            (1, 25): "Conversion of St. Paul",
+            (2, 2): "Purification of Mary / Presentation of Our Lord",
+            (2, 24): "St. Matthias, Apostle",
+            (3, 25): "Annunciation of Our Lord",
+            (4, 25): "St. Mark, Evangelist",
+            (5, 1): "St. Philip and St. James, Apostles",
+            (5, 31): "The Visitation",
+            (6, 11): "St. Barnabas, Apostle",
+            (6, 24): "Nativity of St. John the Baptist",
+            (6, 29): "St. Peter and St. Paul, Apostles",
+            (7, 2): "The Visitation (Traditional)",
+            (7, 22): "St. Mary Magdalene",
+            (7, 25): "St. James the Elder, Apostle",
+            (8, 15): "St. Mary, Mother of Our Lord",
+            (8, 24): "St. Bartholomew, Apostle",
+            (9, 21): "St. Matthew, Apostle",
+            (9, 29): "St. Michael and All Angels",
+            (10, 18): "St. Luke, Evangelist",
+            (10, 28): "St. Simon and St. Jude, Apostles",
+            (10, 31): "Reformation Day",
+            (11, 1): "All Saints' Day",
+        }
+
+        if (day.month, day.day) in fixed_feasts:
+          # Only overwrite if it's currently showing a generic date
+          if display_name == day.strftime("%d %b"):
+            display_name = fixed_feasts[(day.month, day.day)]
+          elif (
+              display_name == ""
+          ):  # Was suppressed (Ash Thu/Fri/Sat/Pentecost ferias)
+            # Keep suppressed or override? Usually feasts don't override Ash Wed/Good Fri etc.
+            # But if it's a fixed feast conflicting with a movable season, the movable season usually takes precedence in the calendar display logic of the church,
+            # or they are transferred. For simplicity, we might just append or leave it.
+            pass
       except:
         pass
 
-      color = get_liturgical_color(key, day, day_cy)
+      # Use display_name for color if available (e.g. "Reformation Day"),
+      # otherwise fallback to key (e.g. "Ash Thursday" which has display_name="")
+      color_key = display_name if display_name else key
+      color = get_liturgical_color(color_key, day, day_cy)
       season = get_season_name(key, day, day_cy)
 
       is_today = day == today
