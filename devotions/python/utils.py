@@ -8,9 +8,12 @@ import os
 import random
 import re
 from typing import Optional
-from cryptography.fernet import Fernet
+import uuid
+
+import cryptography.fernet
 import flask_login
 from google.cloud import firestore
+from google.cloud.firestore_v1 import base_query
 import requests
 import secrets_fetcher as secrets
 
@@ -165,7 +168,7 @@ def get_other_prayers():
 def get_fernet():
   """Initializes and returns a Fernet instance with the key."""
   key = secrets.get_fernet_key()
-  return Fernet(key.encode())
+  return cryptography.fernet.Fernet(key.encode())
 
 
 def encrypt_text(text: str) -> str:
@@ -714,3 +717,128 @@ def get_mid_week_reading_for_date(now: datetime.datetime) -> Optional[dict]:
     if reading["week_number"] == week_num:
       return reading
   return None
+
+
+def get_analytics_user(db, visitor_id, ip_hash, current_user):
+  """Finds or creates an analytics user based on visitor_id/cookie or login."""
+  updates = {}
+
+  users_col = db.collection("analytics_users")
+
+  if current_user.is_authenticated:
+    # 1. Try finding by Google ID
+    query = users_col.where("google_id", "==", current_user.id).limit(1)
+    docs = list(query.stream())
+    if docs:
+      user_ref = docs[0].reference
+      user_data = docs[0].to_dict()
+      user_id = docs[0].id
+
+      # Link current visitor_id to this user if not already present
+      existing_ids = user_data.get("visitor_ids", [])
+      if visitor_id and visitor_id not in existing_ids:
+        updates["visitor_ids"] = firestore.ArrayUnion([visitor_id])
+
+      # Add IP hash if new
+      existing_hashes = user_data.get("ip_hashes", [])
+      if ip_hash not in existing_hashes:
+        updates["ip_hashes"] = firestore.ArrayUnion([ip_hash])
+
+      # Ensure email is up to date
+      if user_data.get("email") != current_user.email:
+        updates["email"] = current_user.email
+
+    else:
+      # 2. Not found by Google ID.
+      # Check if an anonymous user exists with this visitor_id
+      if visitor_id:
+        query_anon = users_col.where(
+            filter=base_query.FieldFilter(
+                "visitor_ids", "array_contains", visitor_id
+            )
+        ).limit(1)
+        anon_docs = list(query_anon.stream())
+      else:
+        anon_docs = []
+
+      if anon_docs:
+        # Upgrade anonymous user to logged-in user
+        user_ref = anon_docs[0].reference
+        user_data = anon_docs[0].to_dict()
+        user_id = anon_docs[0].id
+
+        if not user_data.get("google_id"):
+          updates["google_id"] = current_user.id
+          updates["email"] = current_user.email
+        elif user_data.get("google_id") != current_user.id:
+          # Conflict: This cookie is used by another user. Create new user.
+          user_id = uuid.uuid4().hex
+          user_ref = users_col.document(user_id)
+          user_ref.set({
+              "google_id": current_user.id,
+              "email": current_user.email,
+              "visitor_ids": [visitor_id] if visitor_id else [],
+              "ip_hashes": [ip_hash],
+              "created_at": firestore.SERVER_TIMESTAMP,
+              "last_seen": firestore.SERVER_TIMESTAMP,
+          })
+          return user_id
+      else:
+        # Create new logged-in user
+        user_id = uuid.uuid4().hex
+        user_ref = users_col.document(user_id)
+        user_ref.set({
+            "google_id": current_user.id,
+            "email": current_user.email,
+            "visitor_ids": [visitor_id] if visitor_id else [],
+            "ip_hashes": [ip_hash],
+            "created_at": firestore.SERVER_TIMESTAMP,
+            "last_seen": firestore.SERVER_TIMESTAMP,
+        })
+        return user_id
+
+  else:
+    # Anonymous User
+    if not visitor_id:
+      # Should ideally not happen if cookie logic works, but fallback to creating new
+      visitor_id = str(uuid.uuid4())
+
+    # Try finding by visitor_id
+    # We do NOT fallback to IP hash lookup for anonymous users anymore,
+    # to avoid merging different devices on the same network (e.g. WiFi).
+    query = users_col.where(
+        filter=base_query.FieldFilter(
+            "visitor_ids", "array_contains", visitor_id
+        )
+    ).limit(1)
+    docs = list(query.stream())
+
+    if docs:
+      user_ref = docs[0].reference
+      user_data = docs[0].to_dict()
+      user_id = docs[0].id
+
+      # Add IP hash if new
+      if ip_hash not in user_data.get("ip_hashes", []):
+        updates["ip_hashes"] = firestore.ArrayUnion([ip_hash])
+
+    else:
+      # Create new anonymous user
+      user_id = uuid.uuid4().hex
+      user_ref = users_col.document(user_id)
+      user_ref.set({
+          "visitor_ids": [visitor_id],
+          "ip_hashes": [ip_hash],
+          "created_at": firestore.SERVER_TIMESTAMP,
+          "last_seen": firestore.SERVER_TIMESTAMP,
+      })
+      return user_id
+
+  # Perform updates if found
+  if updates:
+    updates["last_seen"] = firestore.SERVER_TIMESTAMP
+    user_ref.update(updates)
+  else:
+    user_ref.update({"last_seen": firestore.SERVER_TIMESTAMP})
+
+  return user_id

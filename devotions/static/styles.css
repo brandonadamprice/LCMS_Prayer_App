@@ -1200,19 +1200,43 @@ body.dark-mode #built-sentence {
     font-size: 1em;
 }
 
-.prayer-list-item {
-    border-bottom: 1px solid #eee;
-    padding: 10px 0;
-}
-
 body.dark-mode .form-input {
     background-color: #555;
     color: #eee;
     border-color: #777;
 }
 
+/* Prayer List Items */
+.prayer-list-item {
+    border-bottom: 1px solid #eee;
+    padding: 10px 0;
+}
+
 body.dark-mode .prayer-list-item {
     border-bottom-color: #555;
+}
+
+/* Analytics Table */
+.analytics-table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+}
+.analytics-table th, .analytics-table td {
+    padding: 8px;
+}
+.analytics-table th {
+    text-align: left;
+    border-bottom: 1px solid #ccc;
+}
+.analytics-table td {
+    border-bottom: 1px solid #eee;
+}
+body.dark-mode .analytics-table th {
+    border-bottom-color: #555;
+}
+body.dark-mode .analytics-table td {
+    border-bottom-color: #444;
 }
 
 /* Fireworks effect */
