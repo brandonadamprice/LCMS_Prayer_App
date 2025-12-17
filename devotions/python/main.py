@@ -819,10 +819,16 @@ def traffic_data_route():
       visitors_list = []
       for uid, visit_data in visits.items():
         user_data = users_info.get(uid, {})
+        created_at = user_data.get("created_at")
+        if created_at:
+          created_at = created_at.isoformat()
         visitors_list.append({
             "email": user_data.get("email"),
             "hashes": sorted(user_data.get("ip_hashes", [])),
             "paths": sorted(visit_data.get("paths", [])),
+            "timestamps": sorted(visit_data.get("timestamps", [])),
+            "user_agent": visit_data.get("user_agent"),
+            "created_at": created_at,
         })
 
       traffic.append({
@@ -993,8 +999,11 @@ def track_visitor(response):
 
       # 3. Analytics Logic
       eastern_timezone = pytz.timezone("America/New_York")
-      date_str = datetime.datetime.now(eastern_timezone).strftime("%Y-%m-%d")
+      current_time = datetime.datetime.now(eastern_timezone)
+      date_str = current_time.strftime("%Y-%m-%d")
+      timestamp = current_time.isoformat()
       path = flask.request.path
+      user_agent = flask.request.headers.get("User-Agent", "Unknown")
       db = utils.get_db_client()
 
       # Get or Create User
@@ -1011,7 +1020,11 @@ def track_visitor(response):
       doc_ref.set(
           {
               "visits": {
-                  analytics_user_id: {"paths": firestore.ArrayUnion([path])}
+                  analytics_user_id: {
+                      "paths": firestore.ArrayUnion([path]),
+                      "timestamps": firestore.ArrayUnion([timestamp]),
+                      "user_agent": user_agent,
+                  }
               }
           },
           merge=True,

@@ -26,6 +26,33 @@
         </table>
       </div>
     </div>
+
+    <div class="card">
+        <h2>Top Pages</h2>
+        <canvas id="top-pages-chart"></canvas>
+    </div>
+
+    <div class="card">
+        <h2>Device Breakdown</h2>
+        <div style="width: 50%; margin: 0 auto;">
+            <canvas id="device-chart"></canvas>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Time of Day (EST)</h2>
+        <canvas id="time-chart"></canvas>
+    </div>
+
+    <div class="card">
+        <h2>User Retention: Visit Frequency (Last 30 Days)</h2>
+        <canvas id="frequency-chart"></canvas>
+    </div>
+
+    <div class="card">
+        <h2>New vs. Returning Users (Daily)</h2>
+        <canvas id="new-returning-chart"></canvas>
+    </div>
 {% endblock %}
 
 {% block extra_js %}
@@ -84,6 +111,86 @@ async function loadTrafficData() {
             `;
         });
 
+        // Aggregate Top Pages, Devices, Time of Day, Retention
+        const pageCounts = {};
+        const deviceCounts = { Mobile: 0, Desktop: 0, Other: 0 };
+        const hourCounts = new Array(24).fill(0);
+        const userVisitFrequency = {}; // UserHash -> Days Visited Count
+        const dailyNewVsReturning = { dates: [], newUsers: [], returningUsers: [] };
+
+        data.forEach(day => {
+            let dailyNewCount = 0;
+            let dailyReturningCount = 0;
+            
+            dailyNewVsReturning.dates.push(day.date);
+
+            if (day.visitors) {
+                day.visitors.forEach(visitor => {
+                    // Pages
+                    if (visitor.paths) {
+                        visitor.paths.forEach(path => {
+                            if (path !== '/sw.js' && !path.startsWith('/static')) {
+                                pageCounts[path] = (pageCounts[path] || 0) + 1;
+                            }
+                        });
+                    }
+                    // Devices
+                    const ua = visitor.user_agent || "";
+                    if (/Mobi|Android/i.test(ua)) {
+                        deviceCounts.Mobile++;
+                    } else if (ua === "Unknown") {
+                        deviceCounts.Other++;
+                    } else {
+                        deviceCounts.Desktop++;
+                    }
+                    
+                    // Time of Day
+                    if (visitor.timestamps) {
+                        visitor.timestamps.forEach(ts => {
+                            try {
+                                const date = new Date(ts);
+                                hourCounts[date.getHours()]++;
+                            } catch (e) {}
+                        });
+                    }
+
+                    // User Frequency
+                    // Use hash as unique ID (or email if available)
+                    const uid = visitor.email || (visitor.hashes && visitor.hashes.length > 0 ? visitor.hashes[0] : null);
+                    if (uid) {
+                        userVisitFrequency[uid] = (userVisitFrequency[uid] || 0) + 1;
+                    
+                        // New vs Returning Logic
+                        // If created_at is strictly on this day (ignoring time), it's new.
+                        // Otherwise it's returning.
+                        if (visitor.created_at) {
+                            const createdDate = visitor.created_at.split('T')[0];
+                            if (createdDate === day.date) {
+                                dailyNewCount++;
+                            } else {
+                                dailyReturningCount++;
+                            }
+                        } else {
+                            // Fallback if no created_at: assume returning if not first day of data?
+                            // Or just count as 'Unknown/Returning'
+                            dailyReturningCount++;
+                        }
+                    }
+                });
+            }
+            dailyNewVsReturning.newUsers.push(dailyNewCount);
+            dailyNewVsReturning.returningUsers.push(dailyReturningCount);
+        });
+
+        // Prepare Frequency Histogram data
+        const frequencyBuckets = { '1 Day': 0, '2-5 Days': 0, '6-10 Days': 0, '11+ Days': 0 };
+        Object.values(userVisitFrequency).forEach(freq => {
+            if (freq === 1) frequencyBuckets['1 Day']++;
+            else if (freq <= 5) frequencyBuckets['2-5 Days']++;
+            else if (freq <= 10) frequencyBuckets['6-10 Days']++;
+            else frequencyBuckets['11+ Days']++;
+        });
+
         // Prepare chart
         const ctx = document.getElementById('traffic-chart').getContext('2d');
         const labels = data.map(item => item.date);
@@ -94,6 +201,8 @@ async function loadTrafficData() {
         }
         
         const isDarkMode = document.body.classList.contains('dark-mode');
+        const textColor = isDarkMode ? '#ccc' : '#4a4a4a';
+        const gridColor = isDarkMode ? '#555' : '#eee';
 
         trafficChartInstance = new Chart(ctx, {
             type: 'line',
@@ -112,32 +221,134 @@ async function loadTrafficData() {
                 scales: {
                     y: {
                         beginAtZero: true,
-                        ticks: {
-                           precision: 0,
-                           color: isDarkMode ? '#ccc' : '#4a4a4a',
-                        },
-                        grid: {
-                          color: isDarkMode ? '#555' : '#eee',
-                        }
+                        ticks: { precision: 0, color: textColor },
+                        grid: { color: gridColor }
                     },
                     x: {
-                         ticks: {
-                           color: isDarkMode ? '#ccc' : '#4a4a4a',
-                         },
-                         grid: {
-                          color: isDarkMode ? '#555' : '#eee',
-                        }
+                         ticks: { color: textColor },
+                         grid: { color: gridColor }
                     }
                 },
                 plugins: {
-                    legend: {
-                        labels: {
-                            color: isDarkMode ? '#ccc' : '#4a4a4a',
-                        }
-                    }
+                    legend: { labels: { color: textColor } }
                 }
             }
         });
+
+        // Top Pages Chart
+        const topPagesCtx = document.getElementById('top-pages-chart').getContext('2d');
+        const sortedPages = Object.entries(pageCounts)
+            .sort(([,a], [,b]) => b - a)
+            .slice(0, 10); // Top 10
+
+        new Chart(topPagesCtx, {
+            type: 'bar',
+            data: {
+                labels: sortedPages.map(([path]) => path),
+                datasets: [{
+                    label: 'Total Views',
+                    data: sortedPages.map(([,count]) => count),
+                    backgroundColor: '#2ecc71'
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                scales: {
+                    x: { ticks: { color: textColor, precision: 0 }, grid: { color: gridColor } },
+                    y: { ticks: { color: textColor }, grid: { display: false } }
+                },
+                plugins: { legend: { display: false }, title: { display: false } }
+            }
+        });
+
+        // Device Chart
+        const deviceCtx = document.getElementById('device-chart').getContext('2d');
+        new Chart(deviceCtx, {
+            type: 'pie',
+            data: {
+                labels: Object.keys(deviceCounts),
+                datasets: [{
+                    data: Object.values(deviceCounts),
+                    backgroundColor: ['#e74c3c', '#3498db', '#95a5a6']
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: { labels: { color: textColor } }
+                }
+            }
+        });
+
+        // Time of Day Chart
+        const timeCtx = document.getElementById('time-chart').getContext('2d');
+        new Chart(timeCtx, {
+            type: 'bar',
+            data: {
+                labels: Array.from({length: 24}, (_, i) => i + ':00'),
+                datasets: [{
+                    label: 'Visits',
+                    data: hourCounts,
+                    backgroundColor: '#f1c40f'
+                }]
+            },
+            options: {
+                scales: {
+                    y: { ticks: { color: textColor }, grid: { color: gridColor } },
+                    x: { ticks: { color: textColor }, grid: { color: gridColor } }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        // Frequency Chart
+        const freqCtx = document.getElementById('frequency-chart').getContext('2d');
+        new Chart(freqCtx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(frequencyBuckets),
+                datasets: [{
+                    label: 'Users',
+                    data: Object.values(frequencyBuckets),
+                    backgroundColor: '#9b59b6'
+                }]
+            },
+            options: {
+                scales: {
+                    y: { ticks: { color: textColor }, grid: { color: gridColor } },
+                    x: { ticks: { color: textColor }, grid: { display: false } }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        // New vs Returning Chart
+        const newReturningCtx = document.getElementById('new-returning-chart').getContext('2d');
+        new Chart(newReturningCtx, {
+            type: 'bar',
+            data: {
+                labels: dailyNewVsReturning.dates,
+                datasets: [
+                    {
+                        label: 'New Users',
+                        data: dailyNewVsReturning.newUsers,
+                        backgroundColor: '#27ae60'
+                    },
+                    {
+                        label: 'Returning Users',
+                        data: dailyNewVsReturning.returningUsers,
+                        backgroundColor: '#2980b9'
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    y: { stacked: true, ticks: { color: textColor }, grid: { color: gridColor } },
+                    x: { stacked: true, ticks: { color: textColor }, grid: { color: gridColor } }
+                },
+                plugins: { legend: { labels: { color: textColor } } }
+            }
+        });
+
     } catch (error) {
         console.error('Error loading traffic data:', error);
         alert(`Could not load traffic data: ${error.message}`);
