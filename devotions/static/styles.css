@@ -1339,8 +1339,23 @@ body.dark-mode .analytics-table td {
     position: static;
 }
 
+.calendar-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+}
+
 /* Responsive */
 @media (max-width: 600px) {
+    .container {
+        padding: 10px;
+    }
+    .card {
+        padding: 15px;
+    }
+    .calendar-grid {
+        min-width: 500px;
+    }
     .calendar-day {
         min-height: 60px;
     }
