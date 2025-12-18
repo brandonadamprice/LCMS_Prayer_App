@@ -1070,6 +1070,18 @@ body.dark-mode .page-header {
     background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url("banner.jpg");
 }
 
+#favorite-icon {
+    opacity: 0.5;
+    transition: opacity 0.2s, transform 0.2s;
+}
+#favorite-icon:hover {
+    opacity: 0.8;
+    transform: scale(1.2);
+}
+#favorite-icon.active {
+    opacity: 1;
+}
+
 .footer {
   text-align: center;
   margin-top: 40px;

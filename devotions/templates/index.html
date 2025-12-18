@@ -4,6 +4,15 @@
       <p>Select an option below to begin.</p>
     </div>
 
+    {% if current_user.is_authenticated and current_user.favorites %}
+    <div class="card">
+      <h2>Favorites</h2>
+      {% for fav in current_user.favorites %}
+        <a href="{{ fav.path }}" class="button">{{ fav.title }}</a>
+      {% endfor %}
+    </div>
+    {% endif %}
+
     <div class="card">
       <h2>Daily Prayer</h2>
       <a href="/morning_devotion" class="button">Morning</a>

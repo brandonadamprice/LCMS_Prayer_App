@@ -75,6 +75,7 @@ class User(flask_login.UserMixin):
       profile_pic=None,
       dark_mode=None,
       font_size_level=None,
+      favorites=None,
   ):
     self.id = user_id
     self.email = email
@@ -82,6 +83,7 @@ class User(flask_login.UserMixin):
     self.profile_pic = profile_pic
     self.dark_mode = dark_mode
     self.font_size_level = font_size_level
+    self.favorites = favorites or []
 
   @staticmethod
   def get(user_id):
@@ -98,6 +100,7 @@ class User(flask_login.UserMixin):
           profile_pic=data.get("profile_pic"),
           dark_mode=data.get("dark_mode"),
           font_size_level=data.get("font_size_level"),
+          favorites=data.get("favorites", []),
       )
     return None
 
@@ -109,11 +112,25 @@ def load_user(user_id):
 
 
 @app.context_processor
-def inject_advent_status():
-  """Injects is_advent status into all templates."""
+def inject_globals():
+  """Injects global variables into all templates."""
   eastern_timezone = pytz.timezone("America/New_York")
   now = datetime.datetime.now(eastern_timezone)
   is_advent = now.month == 12 and 1 <= now.day <= 25
+  
+  user_favorites = []
+  if flask_login.current_user.is_authenticated:
+      # We fetch favorites here to make them available in the navbar/menu everywhere
+      # Optimally this should be cached or part of the User object loaded by flask_login
+      # For now, let's fetch from User object which might need to load it
+      # Ideally load_user should load this.
+      # Let's rely on a property or method we will add to User or fetch here.
+      # Since User.get() loads data, let's make sure it loads favorites.
+      # But User class definition is above. Let's update User class first or fetch here.
+      # To avoid modifying User class too much in this block, let's fetch directly if not present.
+      # Actually, let's update User class to include favorites.
+      pass 
+
   return dict(is_advent=is_advent)
 
 
@@ -528,6 +545,49 @@ def save_font_size_route():
           500,
       )
   return flask.jsonify({"success": False, "error": "Invalid data"}), 400
+
+
+@app.route("/toggle_favorite", methods=["POST"])
+@flask_login.login_required
+def toggle_favorite_route():
+  """Toggles a favorite page for the current user."""
+  data = flask.request.json
+  path = data.get("path")
+  title = data.get("title")
+  
+  if not path or not title:
+      return flask.jsonify({"success": False, "error": "Missing path or title"}), 400
+
+  try:
+      db = utils.get_db_client()
+      user_ref = db.collection("users").document(flask_login.current_user.id)
+      
+      # We need to fetch current favorites to toggle
+      user_doc = user_ref.get()
+      if not user_doc.exists:
+          return flask.jsonify({"success": False, "error": "User not found"}), 404
+      
+      favorites = user_doc.to_dict().get("favorites", [])
+      
+      # Check if already exists (by path)
+      existing_index = next((i for i, f in enumerate(favorites) if f["path"] == path), -1)
+      
+      is_favorite = False
+      if existing_index >= 0:
+          # Remove
+          favorites.pop(existing_index)
+          is_favorite = False
+      else:
+          # Add
+          favorites.append({"path": path, "title": title})
+          is_favorite = True
+      
+      user_ref.update({"favorites": favorites})
+      return flask.jsonify({"success": True, "is_favorite": is_favorite})
+      
+  except Exception as e:
+      app.logger.error("Failed to toggle favorite: %s", e)
+      return flask.jsonify({"success": False, "error": str(e)}), 500
 
 
 @app.route("/my_prayers")

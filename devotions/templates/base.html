@@ -79,6 +79,16 @@
           </div>
         </div>
         <a href="/liturgical_calendar" class="nav-link">Calendar</a>
+        {% if current_user.is_authenticated and current_user.favorites %}
+        <div class="dropdown">
+          <button class="dropbtn">Favorites ▾</button>
+          <div class="dropdown-content">
+            {% for fav in current_user.favorites %}
+            <a href="{{ fav.path }}">{{ fav.title }}</a>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
         <a href="/feedback" class="nav-link">Feedback</a>
       </div>
 
@@ -157,6 +167,15 @@
                 {% endif %}
             </div>
 
+            {% if current_user.is_authenticated and current_user.favorites %}
+            <button class="menu-accordion">Favorites</button>
+            <div class="menu-panel">
+                {% for fav in current_user.favorites %}
+                <a href="{{ fav.path }}" class="menu-sub-link">{{ fav.title }}</a>
+                {% endfor %}
+            </div>
+            {% endif %}
+
             <button class="menu-accordion">Feedback</button>
             <div class="menu-panel">
                 <a href="/feedback" class="menu-sub-link">Submit Feedback</a>
@@ -203,6 +222,76 @@
     </div>
     {% block body_scripts %}{% endblock %}
     <script>
+      // Favorites handling
+      async function toggleFavorite(path, title) {
+          if (!isLoggedIn) {
+              alert("Please log in to favorite pages.");
+              return;
+          }
+          const icon = document.getElementById('favorite-icon');
+          if (!icon) return;
+          
+          try {
+              const response = await fetch('/toggle_favorite', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ path: path, title: title }),
+              });
+              const data = await response.json();
+              if (data.success) {
+                  if (data.is_favorite) {
+                      icon.classList.add('active');
+                      icon.innerHTML = '★'; // Solid star
+                  } else {
+                      icon.classList.remove('active');
+                      icon.innerHTML = '☆'; // Outline star
+                  }
+                  // Optionally reload to update menu/home, but that disrupts user.
+                  // Just UI update is fine.
+              } else {
+                  console.error('Toggle favorite failed:', data.error);
+              }
+          } catch (e) {
+              console.error('Toggle favorite error:', e);
+          }
+      }
+
+      function injectFavoriteButton() {
+          if (!isLoggedIn) return;
+          
+          const headerH1 = document.querySelector('.page-header h1');
+          if (headerH1) {
+              const currentPath = window.location.pathname;
+              // Ignore home, feedback, etc if desired, but user said 'devotions'. 
+              // We can just enable for all non-root pages for simplicity or allow user to favorite anything.
+              if (currentPath === '/' || currentPath === '/login' || currentPath === '/logout') return;
+
+              const isFav = {% if current_user.is_authenticated %}{{ current_user.favorites|tojson }}{% else %}[]{% endif %}.some(f => f.path === currentPath);
+              
+              const starSpan = document.createElement('span');
+              starSpan.id = 'favorite-icon';
+              starSpan.style.cursor = 'pointer';
+              starSpan.style.marginLeft = '10px';
+              starSpan.style.color = '#f1c40f';
+              starSpan.style.fontSize = '0.8em'; // relative to H1
+              starSpan.title = 'Toggle Favorite';
+              starSpan.innerHTML = isFav ? '★' : '☆';
+              if (isFav) starSpan.classList.add('active');
+              
+              // Use page title, strip newlines/extra spaces
+              let pageTitle = document.title.replace("Prayer & Scripture Companion", "").trim();
+              if (!pageTitle) pageTitle = headerH1.textContent; 
+              // Sometimes document.title has the app name appended or prepended.
+              // Let's use h1 text as default title if reasonable.
+              const titleToSave = headerH1.textContent.trim();
+
+              starSpan.onclick = () => toggleFavorite(currentPath, titleToSave);
+              headerH1.appendChild(starSpan);
+          }
+      }
+
+      document.addEventListener('DOMContentLoaded', injectFavoriteButton);
+
       function toggleCard(header) {
         const card = header.parentElement;
         card.classList.toggle("collapsed");
