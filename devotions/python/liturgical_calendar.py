@@ -187,7 +187,7 @@ def generate_calendar_data(year, month):
         display_name = ""
 
       # Check against liturgical_year.json
-      json_color = None
+      matched_items = []
       for item in liturgical_year_data:
         match = False
         if "absolute_date" in item:
@@ -241,28 +241,48 @@ def generate_calendar_data(year, month):
             # epiphany_1 = 1st Sunday after Jan 6
             # epiphany_2 = 2nd Sunday after Jan 6
             try:
-                week_num = int(item["rule"].split("_")[1])
-                epiphany = datetime.date(day.year, 1, 6)
-                days_until_sunday = 6 - epiphany.weekday()
-                if days_until_sunday == 0:
-                  days_until_sunday = 7
-                # 1st Sunday
-                target = epiphany + datetime.timedelta(days=days_until_sunday)
-                # Nth Sunday
-                target = target + datetime.timedelta(days=(week_num - 1) * 7)
-                if day == target:
-                    match = True
+              week_num = int(item["rule"].split("_")[1])
+              epiphany = datetime.date(day.year, 1, 6)
+              days_until_sunday = 6 - epiphany.weekday()
+              if days_until_sunday == 0:
+                days_until_sunday = 7
+              # 1st Sunday
+              target = epiphany + datetime.timedelta(days=days_until_sunday)
+              # Nth Sunday
+              target = target + datetime.timedelta(days=(week_num - 1) * 7)
+              if day == target:
+                match = True
             except:
-                pass
+              pass
 
         if match:
-          display_name = item["Name"]
-          if "color" in item:
-            json_color = item["color"]
-          break
+          matched_items.append(item)
+
+      json_color = None
+      if matched_items:
+        # Separate into movable and fixed
+        movable = [
+            item for item in matched_items if "absolute_date" not in item
+        ]
+        fixed = [item for item in matched_items if "absolute_date" in item]
+
+        # Display Name: Movable first, then Fixed
+        names = [item["Name"] for item in movable] + [
+            item["Name"] for item in fixed
+        ]
+        display_name = " / ".join(names)
+
+        # Color: Movable takes precedence
+        if movable:
+          if "color" in movable[0]:
+            json_color = movable[0]["color"]
+        elif fixed:
+          if "color" in fixed[0]:
+            json_color = fixed[0]["color"]
 
       # Use display_name for color if available (e.g. "Reformation Day"),
-      # otherwise fallback to key (e.g. "Ash Thursday" which has display_name="")
+      # otherwise fallback to key (e.g. "Ash Thursday" which has 
+      # display_name="")
       color_key = display_name if display_name else key
       if json_color:
         color = json_color
