@@ -29,6 +29,7 @@ OFFICE_READINGS_JSON_PATH = os.path.join(DATA_DIR, "office_readings.json")
 OTHER_PRAYERS_JSON_PATH = os.path.join(DATA_DIR, "other_prayers.json")
 INAPPROPRIATE_WORDS_CSV_PATH = os.path.join(DATA_DIR, "inappropriate_words.csv")
 MID_WEEK_READINGS_JSON_PATH = os.path.join(DATA_DIR, "mid_week_readings.json")
+LITURGICAL_YEAR_JSON_PATH = os.path.join(DATA_DIR, "liturgical_year.json")
 
 
 def get_db_client():
@@ -270,6 +271,9 @@ class ChurchYear:
     self.ash_wednesday = self.easter_date - datetime.timedelta(days=46)
     self.pentecost = self.easter_date + datetime.timedelta(days=49)
     self.holy_trinity = self.pentecost + datetime.timedelta(days=7)
+    self.septuagesima = self.easter_date - datetime.timedelta(days=63)
+    self.sexagesima = self.easter_date - datetime.timedelta(days=56)
+    self.quinquagesima = self.easter_date - datetime.timedelta(days=49)
 
   def calculate_advent1(self, year: int) -> datetime.date:
     """Advent 1 is the Sunday between Nov 27 and Dec 3."""

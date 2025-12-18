@@ -2,6 +2,7 @@
 
 import calendar
 import datetime
+import json
 import flask
 import pytz
 import utils
@@ -9,6 +10,10 @@ import utils
 
 def get_liturgical_color(key, date, church_year):
   """Determines the liturgical color based on the day key and date."""
+  # Pre-Lent Sundays
+  if "Septuagesima" in key or "Sexagesima" in key or "Quinquagesima" in key:
+    return "Green"
+
   # Special Days have specific colors
   # Specific Feast overrides for White
   if (
@@ -98,6 +103,12 @@ def get_liturgical_color(key, date, church_year):
 
 def get_season_name(key, date, church_year):
   """Determines the liturgical season."""
+  if "Septuagesima" in key or "Sexagesima" in key or "Quinquagesima" in key:
+    return "Pre-Lent"
+
+  if date >= church_year.septuagesima and date < church_year.ash_wednesday:
+    return "Pre-Lent"
+
   if "Advent" in key:
     return "Advent"
   if "Christmas" in key:
@@ -139,9 +150,8 @@ def generate_calendar_data(year, month):
   cal = calendar.Calendar(firstweekday=6)  # Sunday first
   month_days = cal.monthdatescalendar(year, month)
 
-  cy = utils.ChurchYear(year)
-  # We might need next year's CY for Dec if Advent starts?
-  # Actually ChurchYear class logic handles calculating dates for that year.
+  with open(utils.LITURGICAL_YEAR_JSON_PATH, "r", encoding="utf-8") as f:
+    liturgical_year_data = json.load(f)
 
   calendar_rows = []
   today = datetime.date.today()
@@ -176,97 +186,88 @@ def generate_calendar_data(year, month):
       ):
         display_name = ""
 
-      # Add names for Advent Sundays and Christmas
-      advent1 = day_cy.calculate_advent1(day.year)
-      if day == advent1:
-        display_name = "Advent 1"
-      elif day == advent1 + datetime.timedelta(days=7):
-        display_name = "Advent 2"
-      elif day == advent1 + datetime.timedelta(days=14):
-        display_name = "Advent 3"
-      elif day == advent1 + datetime.timedelta(days=21):
-        display_name = "Advent 4"
+      # Check against liturgical_year.json
+      json_color = None
+      for item in liturgical_year_data:
+        match = False
+        if "absolute_date" in item:
+          try:
+            month_str, day_str = item["absolute_date"].split("-")
+            if day.month == int(month_str) and day.day == int(day_str):
+              match = True
+          except ValueError:
+            pass
+        elif "relative_date" in item:
+          # relative_date is relative to Easter of the current day's year
+          target_date = day_cy.easter_date + datetime.timedelta(
+              days=item["relative_date"]
+          )
+          if day == target_date:
+            match = True
+        elif "rule" in item:
+          if item["rule"] == "advent_1":
+            target = day_cy.calculate_advent1(day.year)
+            if day == target:
+              match = True
+          elif item["rule"] == "advent_2":
+            target = day_cy.calculate_advent1(day.year) + datetime.timedelta(
+                days=7
+            )
+            if day == target:
+              match = True
+          elif item["rule"] == "advent_3":
+            target = day_cy.calculate_advent1(day.year) + datetime.timedelta(
+                days=14
+            )
+            if day == target:
+              match = True
+          elif item["rule"] == "advent_4":
+            target = day_cy.calculate_advent1(day.year) + datetime.timedelta(
+                days=21
+            )
+            if day == target:
+              match = True
+          elif item["rule"] == "sunday_after_christmas":
+            # First Sunday after Dec 25
+            christmas = datetime.date(day.year, 12, 25)
+            # 6 is Sunday. weekday() returns 0 for Mon, 6 for Sun.
+            days_until_sunday = 6 - christmas.weekday()
+            if days_until_sunday == 0:
+              days_until_sunday = 7
+            target = christmas + datetime.timedelta(days=days_until_sunday)
+            if day == target:
+              match = True
+          elif item["rule"].startswith("epiphany_"):
+            # epiphany_1 = 1st Sunday after Jan 6
+            # epiphany_2 = 2nd Sunday after Jan 6
+            try:
+                week_num = int(item["rule"].split("_")[1])
+                epiphany = datetime.date(day.year, 1, 6)
+                days_until_sunday = 6 - epiphany.weekday()
+                if days_until_sunday == 0:
+                  days_until_sunday = 7
+                # 1st Sunday
+                target = epiphany + datetime.timedelta(days=days_until_sunday)
+                # Nth Sunday
+                target = target + datetime.timedelta(days=(week_num - 1) * 7)
+                if day == target:
+                    match = True
+            except:
+                pass
 
-      if day.month == 12 and day.day == 24:
-        if display_name == "Advent 4":
-          display_name = "Advent 4 / Christmas Eve"
-        else:
-          display_name = "Christmas Eve"
-      elif day.month == 12 and day.day == 25:
-        display_name = "Christmas Day"
-
-      try:
-        # Fixed feasts are in lectionary.json keys sometimes, but get_liturgical_key
-        # falls back to date string if not in movable season.
-        date_str_key = day.strftime("%d %b")
-        data = utils.load_lectionary(utils.LECTIONARY_JSON_PATH)
-        # Check if the key from get_liturgical_key is different from the date string,
-        # which means it's a movable feast or already identified.
-        # If it IS the date string, we check if there's a special reading for this date
-        # that might be a fixed feast (like "St. Mark").
-        # Note: The lectionary JSON keys are sometimes dates like "25 Apr" but sometimes
-        # names. The current structure of lectionary.json seems to use dates for fixed feasts mostly.
-        # However, we can check if the day matches a known fixed feast date manually if needed,
-        # or rely on the fact that if get_liturgical_key returned a date string, we might
-        # want to check if that date string maps to a special day in a separate mapping if one existed.
-        # BUT, looking at the code for get_liturgical_key, it returns "25 Dec" etc.
-        # Let's check for specific fixed feasts that might be interesting.
-
-        fixed_feasts = {
-            (11, 30): "St. Andrew, Apostle",
-            (12, 21): "St. Thomas, Apostle",
-            (12, 26): "St. Stephen, Martyr",
-            (12, 27): "St. John, Apostle and Evangelist",
-            (12, 28): "The Holy Innocents, Martyrs",
-            (12, 31): (
-                "Eve of the Circumcision and Name of Jesus | New Year's Eve"
-            ),
-            (1, 1): "Circumcision and Name of Jesus",
-            (1, 6): "Epiphany of Our Lord",
-            (1, 18): "The Confession of St. Peter",
-            (1, 24): "St. Timothy, Pastor and Confessor",
-            (1, 25): "The Conversion of St. Paul",
-            (1, 26): "St. Titus, Pastor and Confessor",
-            (2, 2): "The Purification of Mary and the Presentation of Our Lord",
-            (2, 24): "St. Matthias, Apostle",
-            (3, 19): "St. Joseph, Guardian of Jesus",
-            (3, 25): "The Annunciation of Our Lord",
-            (4, 25): "St. Mark, Evangelist",
-            (5, 1): "St. Philip and St. James, Apostles",
-            (6, 11): "St. Barnabas, Apostle",
-            (6, 24): "The Nativity of St. John the Baptist",
-            (6, 29): "St. Peter and St. Paul, Apostles",
-            (7, 2): "The Visitation (1-Year Lectionary)",
-            (7, 22): "St. Mary Magdalene",
-            (7, 25): "St. James the Elder, Apostle",
-            (8, 15): "St. Mary, Mother of Our Lord",
-            (8, 24): "St. Bartholomew, Apostle",
-            (8, 29): "The Martyrdom of St. John the Baptist",
-            (9, 14): "Holy Cross Day",
-            (9, 21): "St. Matthew, Apostle and Evangelist",
-            (9, 29): "St. Michael and All Angels",
-            (10, 18): "St. Luke, Evangelist",
-            (10, 23): "St. James of Jerusalem, Brother of Jesus and Martyr",
-            (10, 28): "St. Simon and St. Jude, Apostles",
-            (10, 31): "Reformation Day",
-            (11, 1): "All Saints' Day",
-        }
-
-        if (day.month, day.day) in fixed_feasts:
-          # Only overwrite if it's currently showing a generic date
-          if display_name == day.strftime("%d %b"):
-            display_name = fixed_feasts[(day.month, day.day)]
-          elif (
-              display_name == ""
-          ):  # Was suppressed
-            display_name = fixed_feasts[(day.month, day.day)]
-      except:
-        pass
+        if match:
+          display_name = item["Name"]
+          if "color" in item:
+            json_color = item["color"]
+          break
 
       # Use display_name for color if available (e.g. "Reformation Day"),
       # otherwise fallback to key (e.g. "Ash Thursday" which has display_name="")
       color_key = display_name if display_name else key
-      color = get_liturgical_color(color_key, day, day_cy)
+      if json_color:
+        color = json_color
+      else:
+        color = get_liturgical_color(color_key, day, day_cy)
       season = get_season_name(key, day, day_cy)
 
       is_today = day == today
