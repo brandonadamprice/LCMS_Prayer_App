@@ -27,6 +27,7 @@
   { "Name": "St. James of Jerusalem, Brother of Jesus and Martyr", "absolute_date": "10-23", "color": "Red" },
   { "Name": "St. Simon and St. Jude, Apostles", "absolute_date": "10-28", "color": "Red" },
   { "Name": "Reformation Day", "absolute_date": "10-31", "color": "Red" },
+  { "Name": "Reformation Day (Observed)", "rule": "reformation_observed", "color": "Red" },
   { "Name": "All Saints' Day", "absolute_date": "11-01", "color": "White" },
   { "Name": "St. Andrew, Apostle", "absolute_date": "11-30", "color": "Red" },
   { "Name": "St. Thomas, Apostle", "absolute_date": "12-21", "color": "Red" },

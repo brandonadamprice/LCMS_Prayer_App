@@ -254,6 +254,19 @@ def generate_calendar_data(year, month):
                 match = True
             except:
               pass
+          elif item["rule"] == "reformation_observed":
+            # First Sunday before Oct 31, if Oct 31 is not a Sunday.
+            reformation_day = datetime.date(day.year, 10, 31)
+            if reformation_day.weekday() != 6:  # If not Sunday
+              # Find preceding Sunday
+              # weekday() 0=Mon, 6=Sun.
+              # To get previous Sunday: sub (weekday + 1) days
+              days_to_subtract = reformation_day.weekday() + 1
+              target = reformation_day - datetime.timedelta(
+                  days=days_to_subtract
+              )
+              if day == target:
+                match = True
 
         if match:
           matched_items.append(item)
@@ -267,7 +280,27 @@ def generate_calendar_data(year, month):
         fixed = [item for item in matched_items if "absolute_date" in item]
 
         # Priority Handling for Movable Feasts
-        # Remove Epiphany # if a higher priority movable feast exists (Septuagesima, Sexagesima, Quinquagesima, Transfiguration, Lent)
+
+        # 1. Reformation Day (Observed) trumps other movable feasts on that Sunday (e.g. Trinity #)
+        has_reformation_observed = any(
+            item["Name"] == "Reformation Day (Observed)" for item in movable
+        )
+        if has_reformation_observed:
+          movable = [
+              item
+              for item in movable
+              if item["Name"] == "Reformation Day (Observed)"
+          ]
+
+        # 1b. All Saints' Day (Fixed) overrides movable feasts (like Trinity #) if it falls on Sunday
+        has_all_saints = any(
+            item["Name"] == "All Saints' Day" for item in fixed
+        )
+        if has_all_saints:
+          # Clear movable feasts (like Trinity 23) if All Saints is present
+          movable = []
+
+        # 2. Remove Epiphany # if a higher priority movable feast exists (Septuagesima, Sexagesima, Quinquagesima, Transfiguration, Lent)
         has_priority_feast = any(
             "Septuagesima" in item["Name"]
             or "Sexagesima" in item["Name"]
@@ -279,7 +312,13 @@ def generate_calendar_data(year, month):
         )
 
         if has_priority_feast:
-          movable = [item for item in movable if "Epiphany" not in item["Name"] or "The Baptism of Our Lord" in item["Name"] or "Epiphany of Our Lord" in item["Name"]]
+          movable = [
+              item
+              for item in movable
+              if "Epiphany" not in item["Name"]
+              or "The Baptism of Our Lord" in item["Name"]
+              or "Epiphany of Our Lord" in item["Name"]
+          ]
 
         # Display Name: Movable first, then Fixed
         names = [item["Name"] for item in movable] + [
@@ -300,7 +339,7 @@ def generate_calendar_data(year, month):
             json_color = fixed[0]["color"]
 
       # Use display_name for color if available (e.g. "Reformation Day"),
-      # otherwise fallback to key (e.g. "Ash Thursday" which has 
+      # otherwise fallback to key (e.g. "Ash Thursday" which has
       # display_name="")
       color_key = display_name if display_name else key
       if json_color:
