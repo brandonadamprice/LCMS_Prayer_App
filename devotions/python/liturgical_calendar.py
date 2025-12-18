@@ -300,6 +300,15 @@ def generate_calendar_data(year, month):
           # Clear movable feasts (like Trinity 23) if All Saints is present
           movable = []
 
+        # 1c. Advent trumps Trinity
+        has_advent = any("Advent" in item["Name"] for item in movable)
+        if has_advent:
+          movable = [
+              item
+              for item in movable
+              if "Trinity" not in item["Name"]
+          ]
+
         # 2. Remove Epiphany # if a higher priority movable feast exists (Septuagesima, Sexagesima, Quinquagesima, Transfiguration, Lent)
         has_priority_feast = any(
             "Septuagesima" in item["Name"]
