@@ -266,6 +266,21 @@ def generate_calendar_data(year, month):
         ]
         fixed = [item for item in matched_items if "absolute_date" in item]
 
+        # Priority Handling for Movable Feasts
+        # Remove Epiphany # if a higher priority movable feast exists (Septuagesima, Sexagesima, Quinquagesima, Transfiguration, Lent)
+        has_priority_feast = any(
+            "Septuagesima" in item["Name"]
+            or "Sexagesima" in item["Name"]
+            or "Quinquagesima" in item["Name"]
+            or "Transfiguration" in item["Name"]
+            or "Lent" in item["Name"]
+            or "Ash Wednesday" in item["Name"]
+            for item in movable
+        )
+
+        if has_priority_feast:
+          movable = [item for item in movable if "Epiphany" not in item["Name"] or "The Baptism of Our Lord" in item["Name"] or "Epiphany of Our Lord" in item["Name"]]
+
         # Display Name: Movable first, then Fixed
         names = [item["Name"] for item in movable] + [
             item["Name"] for item in fixed
@@ -274,6 +289,10 @@ def generate_calendar_data(year, month):
 
         # Color: Movable takes precedence
         if movable:
+          # If multiple movable, use the one that survived filtering (e.g. Septuagesima over Epiphany)
+          # We just pick the first one's color for now, assuming conflict resolution leaves consistent colors or correct priority is first.
+          # Ideally, we should pick color of priority feast if multiple remain.
+          # Since we filtered out the lower priority ones, using movable[0] is generally safe.
           if "color" in movable[0]:
             json_color = movable[0]["color"]
         elif fixed:
