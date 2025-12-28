@@ -117,19 +117,19 @@ def inject_globals():
   eastern_timezone = pytz.timezone("America/New_York")
   now = datetime.datetime.now(eastern_timezone)
   is_advent = now.month == 12 and 1 <= now.day <= 25
-  
+
   user_favorites = []
   if flask_login.current_user.is_authenticated:
-      # We fetch favorites here to make them available in the navbar/menu everywhere
-      # Optimally this should be cached or part of the User object loaded by flask_login
-      # For now, let's fetch from User object which might need to load it
-      # Ideally load_user should load this.
-      # Let's rely on a property or method we will add to User or fetch here.
-      # Since User.get() loads data, let's make sure it loads favorites.
-      # But User class definition is above. Let's update User class first or fetch here.
-      # To avoid modifying User class too much in this block, let's fetch directly if not present.
-      # Actually, let's update User class to include favorites.
-      pass 
+    # We fetch favorites here to make them available in the navbar/menu everywhere
+    # Optimally this should be cached or part of the User object loaded by flask_login
+    # For now, let's fetch from User object which might need to load it
+    # Ideally load_user should load this.
+    # Let's rely on a property or method we will add to User or fetch here.
+    # Since User.get() loads data, let's make sure it loads favorites.
+    # But User class definition is above. Let's update User class first or fetch here.
+    # To avoid modifying User class too much in this block, let's fetch directly if not present.
+    # Actually, let's update User class to include favorites.
+    pass
 
   return dict(is_advent=is_advent)
 
@@ -398,9 +398,7 @@ def prayer_wall_route():
   prayed_request_ids = []
   if flask_login.current_user.is_authenticated:
     db = utils.get_db_client()
-    user_doc_ref = db.collection("users").document(
-        flask_login.current_user.id
-    )
+    user_doc_ref = db.collection("users").document(flask_login.current_user.id)
     user_doc = user_doc_ref.get()
     if user_doc.exists:
       prayed_request_ids = user_doc.to_dict().get("prayed_request_ids", [])
@@ -413,9 +411,7 @@ def prayer_wall_route():
             active_prayed_request_ids.append(request_id)
 
         if len(active_prayed_request_ids) < len(prayed_request_ids):
-          user_doc_ref.update(
-              {"prayed_request_ids": active_prayed_request_ids}
-          )
+          user_doc_ref.update({"prayed_request_ids": active_prayed_request_ids})
           prayed_request_ids = active_prayed_request_ids
 
   return flask.render_template(
@@ -554,40 +550,45 @@ def toggle_favorite_route():
   data = flask.request.json
   path = data.get("path")
   title = data.get("title")
-  
+
   if not path or not title:
-      return flask.jsonify({"success": False, "error": "Missing path or title"}), 400
+    return (
+        flask.jsonify({"success": False, "error": "Missing path or title"}),
+        400,
+    )
 
   try:
-      db = utils.get_db_client()
-      user_ref = db.collection("users").document(flask_login.current_user.id)
-      
-      # We need to fetch current favorites to toggle
-      user_doc = user_ref.get()
-      if not user_doc.exists:
-          return flask.jsonify({"success": False, "error": "User not found"}), 404
-      
-      favorites = user_doc.to_dict().get("favorites", [])
-      
-      # Check if already exists (by path)
-      existing_index = next((i for i, f in enumerate(favorites) if f["path"] == path), -1)
-      
+    db = utils.get_db_client()
+    user_ref = db.collection("users").document(flask_login.current_user.id)
+
+    # We need to fetch current favorites to toggle
+    user_doc = user_ref.get()
+    if not user_doc.exists:
+      return flask.jsonify({"success": False, "error": "User not found"}), 404
+
+    favorites = user_doc.to_dict().get("favorites", [])
+
+    # Check if already exists (by path)
+    existing_index = next(
+        (i for i, f in enumerate(favorites) if f["path"] == path), -1
+    )
+
+    is_favorite = False
+    if existing_index >= 0:
+      # Remove
+      favorites.pop(existing_index)
       is_favorite = False
-      if existing_index >= 0:
-          # Remove
-          favorites.pop(existing_index)
-          is_favorite = False
-      else:
-          # Add
-          favorites.append({"path": path, "title": title})
-          is_favorite = True
-      
-      user_ref.update({"favorites": favorites})
-      return flask.jsonify({"success": True, "is_favorite": is_favorite})
-      
+    else:
+      # Add
+      favorites.append({"path": path, "title": title})
+      is_favorite = True
+
+    user_ref.update({"favorites": favorites})
+    return flask.jsonify({"success": True, "is_favorite": is_favorite})
+
   except Exception as e:
-      app.logger.error("Failed to toggle favorite: %s", e)
-      return flask.jsonify({"success": False, "error": str(e)}), 500
+    app.logger.error("Failed to toggle favorite: %s", e)
+    return flask.jsonify({"success": False, "error": str(e)}), 500
 
 
 @app.route("/my_prayers")

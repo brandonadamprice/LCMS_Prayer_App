@@ -50,11 +50,17 @@ def generate_memory_page():
       {**v, "is_user": True} for v in user_verses
   ]
 
-  refs = list(dict.fromkeys([v["ref"] for v in all_verse_metadata])) # unique refs
+  refs = list(
+      dict.fromkeys([v["ref"] for v in all_verse_metadata])
+  )  # unique refs
 
   try:
-    texts_html = utils.fetch_passages(refs, include_verse_numbers=True, include_copyright=True)
-    clean_texts = utils.fetch_passages(refs, include_verse_numbers=False, include_copyright=False)
+    texts_html = utils.fetch_passages(
+        refs, include_verse_numbers=True, include_copyright=True
+    )
+    clean_texts = utils.fetch_passages(
+        refs, include_verse_numbers=False, include_copyright=False
+    )
   except Exception as e:
     return flask.render_template(
         "prayer_request_failed.html",

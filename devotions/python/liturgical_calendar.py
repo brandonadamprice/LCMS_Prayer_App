@@ -8,65 +8,81 @@ import pytz
 import utils
 
 
+WHITE_KEYWORDS = [
+    "Christmas",
+    "Epiphany of Our Lord",
+    "All Saints",
+    "Trinity",
+    "Conversion of St. Paul",
+    "Confession of St. Peter",
+    "St. John, Apostle",
+    "Nativity of St. John the Baptist",
+    "Circumcision",
+    "Presentation",
+    "Annunciation",
+    "Visitation",
+    "St. Mary",
+    "St. Joseph",
+    "St. Timothy",
+    "St. Titus",
+    "Easter",
+    "Ascension",
+]
+
+RED_KEYWORDS = [
+    "Palm Sunday",
+    "Pentecost",
+    "Reformation",
+    "Martyr",
+    "Holy Cross",
+    "Andrew",
+    "Thomas",
+    "James",
+    "Simon",
+    "Jude",
+    "Matthew",
+    "Luke",
+    "Mark",
+    "Peter",
+    "Paul",
+    "Bartholomew",
+    "Philip",
+    "Barnabas",
+    "Matthias",
+]
+
+VIOLET_KEYWORDS = ["Ash", "Lent"]
+BLACK_KEYWORDS = ["Ash Wednesday", "Good Friday"]
+PRE_LENT_KEYWORDS = ["Septuagesima", "Sexagesima", "Quinquagesima"]
+SUPPRESS_KEYWORDS = [
+    "Ash Thursday",
+    "Ash Friday",
+    "Ash Saturday",
+    "Pentecost Monday",
+    "Pentecost Tuesday",
+    "Pentecost Wednesday",
+    "Pentecost Thursday",
+    "Pentecost Friday",
+    "Pentecost Saturday",
+]
+
+
 def get_liturgical_color(key, date, church_year):
   """Determines the liturgical color based on the day key and date."""
-  # Pre-Lent Sundays
-  if "Septuagesima" in key or "Sexagesima" in key or "Quinquagesima" in key:
+  if any(k in key for k in PRE_LENT_KEYWORDS):
     return "Green"
 
-  # Special Days have specific colors
-  # Specific Feast overrides for White
-  if (
-      "Christmas" in key
-      or "Epiphany of Our Lord" in key
-      or "All Saints" in key
-      or "Trinity" in key
-      or "Conversion of St. Paul" in key
-      or "Confession of St. Peter" in key
-      or "St. John, Apostle" in key
-      or "Nativity of St. John the Baptist" in key
-      or "Circumcision" in key
-      or "Presentation" in key
-      or "Annunciation" in key
-      or "Visitation" in key
-      or "St. Mary" in key
-      or "St. Joseph" in key
-      or "St. Timothy" in key
-      or "St. Titus" in key
-  ):
+  if any(k in key for k in BLACK_KEYWORDS):
+    return "Black"
+
+  if any(k in key for k in WHITE_KEYWORDS):
     return "White"
 
-  if "Ash Wednesday" in key:
-    return "Black"
-  if "Ash" in key or "Lent" in key:
-    return "Violet"
-  if "Good Friday" in key:
-    return "Black"
-
-  if (
-      "Palm Sunday" in key
-      or "Pentecost" in key
-      or "Reformation" in key
-      or "Martyr" in key
-      or "Holy Cross" in key
-      or "Andrew" in key
-      or "Thomas" in key
-      or "James" in key
-      or "Simon" in key
-      or "Jude" in key
-      or "Matthew" in key
-      or "Luke" in key
-      or "Mark" in key
-      or "Peter" in key
-      or "Paul" in key
-      or "Bartholomew" in key
-      or "Philip" in key
-      or "Barnabas" in key
-      or "Matthias" in key
-  ):
+  if any(k in key for k in RED_KEYWORDS):
     return "Red"
-  if "Easter" in key or "Ascension" in key:
-    return "White"
+
+  if any(k in key for k in VIOLET_KEYWORDS):
+    return "Violet"
 
   # Seasons by date ranges if key is generic or fixed date
   # Advent
@@ -103,7 +119,7 @@ def get_liturgical_color(key, date, church_year):
 
 def get_season_name(key, date, church_year):
   """Determines the liturgical season."""
-  if "Septuagesima" in key or "Sexagesima" in key or "Quinquagesima" in key:
+  if any(k in key for k in PRE_LENT_KEYWORDS):
     return "Pre-Lent"
 
   if date >= church_year.septuagesima and date < church_year.ash_wednesday:
@@ -115,7 +131,7 @@ def get_season_name(key, date, church_year):
     return "Christmas"
   if "Epiphany" in key:
     return "Epiphany"
-  if "Lent" in key or "Ash" in key:
+  if any(k in key for k in VIOLET_KEYWORDS):
     return "Lent"
   if "Easter" in key:
     return "Easter"
@@ -145,13 +161,62 @@ def get_season_name(key, date, church_year):
   return "Ordinary Time"
 
 
+def _matches_rule(rule, day, day_cy):
+  """Checks if a specific liturgical rule applies to the given day."""
+  if rule == "advent_1":
+    return day == day_cy.calculate_advent1(day.year)
+  elif rule == "advent_2":
+    return day == day_cy.calculate_advent1(day.year) + datetime.timedelta(
+        days=7
+    )
+  elif rule == "advent_3":
+    return day == day_cy.calculate_advent1(day.year) + datetime.timedelta(
+        days=14
+    )
+  elif rule == "advent_4":
+    return day == day_cy.calculate_advent1(day.year) + datetime.timedelta(
+        days=21
+    )
+  elif rule == "sunday_after_christmas":
+    christmas = datetime.date(day.year, 12, 25)
+    # 6 is Sunday. weekday() returns 0 for Mon, 6 for Sun.
+    days_until_sunday = 6 - christmas.weekday()
+    if days_until_sunday == 0:
+      days_until_sunday = 7
+    return day == christmas + datetime.timedelta(days=days_until_sunday)
+  elif rule.startswith("epiphany_"):
+    try:
+      week_num = int(rule.split("_")[1])
+      epiphany = datetime.date(day.year, 1, 6)
+      days_until_sunday = 6 - epiphany.weekday()
+      if days_until_sunday == 0:
+        days_until_sunday = 7
+      target = epiphany + datetime.timedelta(
+          days=days_until_sunday + (week_num - 1) * 7
+      )
+      return day == target
+    except (IndexError, ValueError):
+      pass
+  elif rule == "reformation_observed":
+    reformation_day = datetime.date(day.year, 10, 31)
+    if reformation_day.weekday() != 6:  # If not Sunday
+      days_to_subtract = reformation_day.weekday() + 1
+      target = reformation_day - datetime.timedelta(days=days_to_subtract)
+      return day == target
+  return False
+
+
+def _load_liturgical_year_data():
+  """Loads liturgical year data from JSON file."""
+  with open(utils.LITURGICAL_YEAR_JSON_PATH, "r", encoding="utf-8") as f:
+    return json.load(f)
+
+
 def generate_calendar_data(year, month):
   """Generates calendar data for the given month and year."""
   cal = calendar.Calendar(firstweekday=6)  # Sunday first
   month_days = cal.monthdatescalendar(year, month)
-
-  with open(utils.LITURGICAL_YEAR_JSON_PATH, "r", encoding="utf-8") as f:
-    liturgical_year_data = json.load(f)
+  liturgical_year_data = _load_liturgical_year_data()
 
   calendar_rows = []
   today = datetime.date.today()
@@ -166,23 +231,14 @@ def generate_calendar_data(year, month):
       # Refine key for display if it is a date string
       display_name = key
 
-      # Suppress "Ash Thursday", "Ash Friday", "Ash Saturday", Pentecost week ferias, and Easter weekdays
-      if (
-          key
-          in [
-              "Ash Thursday",
-              "Ash Friday",
-              "Ash Saturday",
-              "Pentecost Monday",
-              "Pentecost Tuesday",
-              "Pentecost Wednesday",
-              "Pentecost Thursday",
-              "Pentecost Friday",
-              "Pentecost Saturday",
-          ]
-          or (key.startswith("Easter") and "Sunday" not in key)
-          or (key.startswith("Lent") and "Sunday" not in key)
-          or (key.startswith("Advent") and "Sunday" not in key)
+      # Suppress ferias and seasonal weekdays
+      if key in SUPPRESS_KEYWORDS or (
+          "Sunday" not in key
+          and (
+              key.startswith("Easter")
+              or key.startswith("Lent")
+              or key.startswith("Advent")
+          )
       ):
         display_name = ""
 
@@ -205,68 +261,8 @@ def generate_calendar_data(year, month):
           if day == target_date:
             match = True
         elif "rule" in item:
-          if item["rule"] == "advent_1":
-            target = day_cy.calculate_advent1(day.year)
-            if day == target:
-              match = True
-          elif item["rule"] == "advent_2":
-            target = day_cy.calculate_advent1(day.year) + datetime.timedelta(
-                days=7
-            )
-            if day == target:
-              match = True
-          elif item["rule"] == "advent_3":
-            target = day_cy.calculate_advent1(day.year) + datetime.timedelta(
-                days=14
-            )
-            if day == target:
-              match = True
-          elif item["rule"] == "advent_4":
-            target = day_cy.calculate_advent1(day.year) + datetime.timedelta(
-                days=21
-            )
-            if day == target:
-              match = True
-          elif item["rule"] == "sunday_after_christmas":
-            # First Sunday after Dec 25
-            christmas = datetime.date(day.year, 12, 25)
-            # 6 is Sunday. weekday() returns 0 for Mon, 6 for Sun.
-            days_until_sunday = 6 - christmas.weekday()
-            if days_until_sunday == 0:
-              days_until_sunday = 7
-            target = christmas + datetime.timedelta(days=days_until_sunday)
-            if day == target:
-              match = True
-          elif item["rule"].startswith("epiphany_"):
-            # epiphany_1 = 1st Sunday after Jan 6
-            # epiphany_2 = 2nd Sunday after Jan 6
-            try:
-              week_num = int(item["rule"].split("_")[1])
-              epiphany = datetime.date(day.year, 1, 6)
-              days_until_sunday = 6 - epiphany.weekday()
-              if days_until_sunday == 0:
-                days_until_sunday = 7
-              # 1st Sunday
-              target = epiphany + datetime.timedelta(days=days_until_sunday)
-              # Nth Sunday
-              target = target + datetime.timedelta(days=(week_num - 1) * 7)
-              if day == target:
-                match = True
-            except:
-              pass
-          elif item["rule"] == "reformation_observed":
-            # First Sunday before Oct 31, if Oct 31 is not a Sunday.
-            reformation_day = datetime.date(day.year, 10, 31)
-            if reformation_day.weekday() != 6:  # If not Sunday
-              # Find preceding Sunday
-              # weekday() 0=Mon, 6=Sun.
-              # To get previous Sunday: sub (weekday + 1) days
-              days_to_subtract = reformation_day.weekday() + 1
-              target = reformation_day - datetime.timedelta(
-                  days=days_to_subtract
-              )
-              if day == target:
-                match = True
+          if _matches_rule(item["rule"], day, day_cy):
+            match = True
 
         if match:
           matched_items.append(item)
@@ -303,11 +299,7 @@ def generate_calendar_data(year, month):
         # 1c. Advent trumps Trinity
         has_advent = any("Advent" in item["Name"] for item in movable)
         if has_advent:
-          movable = [
-              item
-              for item in movable
-              if "Trinity" not in item["Name"]
-          ]
+          movable = [item for item in movable if "Trinity" not in item["Name"]]
 
         # 2. Remove Epiphany # if a higher priority movable feast exists (Septuagesima, Sexagesima, Quinquagesima, Transfiguration, Lent)
         has_priority_feast = any(
