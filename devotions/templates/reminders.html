@@ -12,7 +12,13 @@
 <div class="card">
   <h2>Device Setup</h2>
   <p>To receive notifications on this device, please enable them below. This is required even if you have enabled them on other devices.</p>
-  <button class="button" onclick="enableNotifications()">Enable Notifications on this Device</button>
+  <div style="display: flex; align-items: center; gap: 15px; margin-top: 15px;">
+    <label class="switch">
+        <input type="checkbox" id="notifications-toggle">
+        <span class="slider"></span>
+    </label>
+    <span id="notif-status-text" style="font-weight: bold;">Enable Notifications</span>
+  </div>
 </div>
 
 <div class="card">
@@ -175,15 +181,86 @@
     }
   }
 
-  async function enableNotifications() {
-    const granted = await requestPushPermission();
-    if (granted) {
-        alert("Notifications enabled for this device!");
-    } else {
-        // requestPushPermission handles its own alerts for permission denied / auth failed
+  const notifToggle = document.getElementById('notifications-toggle');
+  const notifStatusText = document.getElementById('notif-status-text');
+
+  async function disableNotifications() {
+    try {
+        if (!messaging) await initFirebase();
+        if (!messaging) return;
+
+        const registration = await navigator.serviceWorker.ready;
+        const currentToken = await getToken(messaging, { serviceWorkerRegistration: registration });
+        
+        if (currentToken) {
+            await fetch('/remove_fcm_token', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({token: currentToken})
+            });
+            console.log("Token removed from server.");
+        }
+        // We do not delete the token from the browser/firebase client itself, 
+        // as deleteToken() is often unreliable or not what we want (we might re-enable later).
+        // Removing from server stops the notifications.
+    } catch(e) {
+        console.error("Error disabling notifications:", e);
     }
   }
-  window.enableNotifications = enableNotifications;
+
+  function updateToggleState() {
+    if (!('Notification' in window)) {
+        if(notifToggle) notifToggle.disabled = true;
+        if(notifStatusText) notifStatusText.textContent = "Notifications not supported";
+        return;
+    }
+
+    const localEnabled = localStorage.getItem('notifications_enabled') === 'true';
+
+    if (Notification.permission === 'granted') {
+        if (localEnabled) {
+            if(notifToggle) notifToggle.checked = true;
+            if(notifStatusText) notifStatusText.textContent = "Notifications Enabled";
+        } else {
+            // Permission granted but user disabled in app (or hasn't enabled yet in this session logic)
+            // We treat this as disabled.
+            if(notifToggle) notifToggle.checked = false;
+            if(notifStatusText) notifStatusText.textContent = "Enable Notifications";
+        }
+    } else if (Notification.permission === 'denied') {
+        if(notifToggle) {
+            notifToggle.checked = false;
+            notifToggle.disabled = true;
+        }
+        if(notifStatusText) notifStatusText.textContent = "Notifications Denied (Check Browser Settings)";
+        localStorage.setItem('notifications_enabled', 'false'); // Force false
+    } else {
+        // Default / Prompt state
+        if(notifToggle) notifToggle.checked = false;
+        if(notifStatusText) notifStatusText.textContent = "Enable Notifications";
+        localStorage.setItem('notifications_enabled', 'false'); // Force false
+    }
+  }
+
+  if (notifToggle) {
+      notifToggle.addEventListener('change', async (e) => {
+        if (e.target.checked) {
+            const granted = await requestPushPermission();
+            if (granted) {
+                notifStatusText.textContent = "Notifications Enabled";
+                localStorage.setItem('notifications_enabled', 'true');
+            } else {
+                e.target.checked = false;
+                updateToggleState(); // Re-evaluate state
+            }
+        } else {
+            // User disabling via toggle
+            await disableNotifications();
+            localStorage.setItem('notifications_enabled', 'false');
+            notifStatusText.textContent = "Enable Notifications";
+        }
+      });
+  }
 
   async function deleteReminder(id) {
     if (!confirm("Delete this reminder?")) return;
@@ -253,6 +330,7 @@
   document.addEventListener('DOMContentLoaded', () => {
       initFirebase();
       loadReminders();
+      updateToggleState();
   });
 </script>
 <script>

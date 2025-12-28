@@ -869,6 +869,25 @@ def save_fcm_token_route():
     return flask.jsonify({"success": False, "error": "Database save failed"}), 500
 
 
+@app.route("/remove_fcm_token", methods=["POST"])
+@flask_login.login_required
+def remove_fcm_token_route():
+  """Removes an FCM token for the user."""
+  data = flask.request.json
+  token = data.get("token")
+  if not token:
+    return flask.jsonify({"success": False, "error": "Missing token"}), 400
+
+  try:
+    db = utils.get_db_client()
+    user_ref = db.collection("users").document(flask_login.current_user.id)
+    user_ref.update({"fcm_tokens": firestore.ArrayRemove([token])})
+    return flask.jsonify({"success": True})
+  except Exception as e:
+    app.logger.error("Failed to remove FCM token: %s", e)
+    return flask.jsonify({"success": False, "error": "Database update failed"}), 500
+
+
 @app.route("/add_reminder", methods=["POST"])
 @flask_login.login_required
 def add_reminder_route():
