@@ -45,13 +45,23 @@
       </div>
     </div>
 
-    <div id="phone-input-container" style="margin-bottom: 10px; display: none;">
-        <label for="phone_number">Phone Number:</label><br>
-        <input type="tel" id="phone_number" name="phone_number" placeholder="e.g. +15551234567" class="form-input">
+    <button type="submit" class="button">Set Reminder</button>
+  </form>
+</div>
+
+<div class="card">
+  <h2>Notification Settings</h2>
+  <form id="contact-info-form">
+    <div style="margin-bottom: 10px;">
+        <label for="notification_email">Notification Email (if different from login):</label><br>
+        <input type="email" id="notification_email" name="notification_email" value="{{ current_user.notification_email or '' }}" placeholder="{{ current_user.email }}" class="form-input">
+    </div>
+    <div style="margin-bottom: 10px;">
+        <label for="phone_number">Phone Number (for SMS):</label><br>
+        <input type="tel" id="phone_number" name="phone_number" value="{{ current_user.phone_number or '' }}" placeholder="e.g. +15551234567" class="form-input">
         <p style="font-size: 0.8em; color: #7f8c8d;">Standard messaging rates apply.</p>
     </div>
-
-    <button type="submit" class="button">Set Reminder</button>
+    <button type="submit" class="button" style="background-color: #3498db;">Save Contact Info</button>
   </form>
 </div>
 
@@ -65,13 +75,7 @@
 
 {% block extra_js %}
 const remindersList = document.getElementById('reminders-list');
-const smsCheckbox = document.getElementById('method-sms');
 const pushCheckbox = document.getElementById('method-push');
-const phoneContainer = document.getElementById('phone-input-container');
-
-smsCheckbox.addEventListener('change', () => {
-    phoneContainer.style.display = smsCheckbox.checked ? 'block' : 'none';
-});
 
 async function requestPushPermission() {
     if (!('Notification' in window)) {
@@ -166,7 +170,6 @@ document.getElementById('reminder-form').addEventListener('submit', async (e) =>
         time: formData.get('time'),
         devotion: formData.get('devotion'),
         methods: methods,
-        phone_number: formData.get('phone_number'),
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
     };
 
@@ -179,10 +182,35 @@ document.getElementById('reminder-form').addEventListener('submit', async (e) =>
         const result = await response.json();
         if (result.success) {
             e.target.reset();
-            phoneContainer.style.display = 'none';
             loadReminders();
         } else {
             alert("Error: " + result.error);
+        }
+    } catch(e) {
+        console.error(e);
+        alert("An error occurred.");
+    }
+});
+
+document.getElementById('contact-info-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = {
+        notification_email: formData.get('notification_email'),
+        phone_number: formData.get('phone_number')
+    };
+    
+    try {
+        const response = await fetch('/save_contact_info', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+        const result = await response.json();
+        if (result.success) {
+            alert("Contact info saved.");
+        } else {
+            alert("Error saving contact info.");
         }
     } catch(e) {
         console.error(e);

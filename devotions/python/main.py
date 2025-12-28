@@ -77,6 +77,8 @@ class User(flask_login.UserMixin):
       dark_mode=None,
       font_size_level=None,
       favorites=None,
+      phone_number=None,
+      notification_email=None,
   ):
     self.id = user_id
     self.email = email
@@ -85,6 +87,8 @@ class User(flask_login.UserMixin):
     self.dark_mode = dark_mode
     self.font_size_level = font_size_level
     self.favorites = favorites or []
+    self.phone_number = phone_number
+    self.notification_email = notification_email
 
   @staticmethod
   def get(user_id):
@@ -102,6 +106,8 @@ class User(flask_login.UserMixin):
           dark_mode=data.get("dark_mode"),
           font_size_level=data.get("font_size_level"),
           favorites=data.get("favorites", []),
+          phone_number=data.get("phone_number"),
+          notification_email=data.get("notification_email"),
       )
     return None
 
@@ -824,18 +830,47 @@ def reminders_route():
   return flask.render_template("reminders.html")
 
 
+@app.route("/save_contact_info", methods=["POST"])
+@flask_login.login_required
+def save_contact_info_route():
+  """Saves user contact info for reminders."""
+  data = flask.request.json
+  phone_number = data.get("phone_number")
+  notification_email = data.get("notification_email")
+
+  try:
+    db = utils.get_db_client()
+    user_ref = db.collection("users").document(flask_login.current_user.id)
+    update_data = {}
+    if phone_number is not None:
+      update_data["phone_number"] = phone_number
+    if notification_email is not None:
+      update_data["notification_email"] = notification_email
+    
+    if update_data:
+      user_ref.set(update_data, merge=True)
+    return flask.jsonify({"success": True})
+  except Exception as e:
+    app.logger.error("Failed to save contact info: %s", e)
+    return flask.jsonify({"success": False, "error": "Database save failed"}), 500
+
+
 @app.route("/add_reminder", methods=["POST"])
 @flask_login.login_required
 def add_reminder_route():
   """Adds a prayer reminder."""
   data = flask.request.json
+  # We no longer strictly need phone_number passed here if it's in the profile,
+  # but we can accept it if the frontend sends it to update/verify.
+  # For now, let's assume the frontend calls /save_contact_info separately 
+  # or we pass it through.
+  
   success, error = reminders.add_reminder(
       flask_login.current_user.id,
       data.get("time"),
       data.get("devotion"),
       data.get("methods"),
       data.get("timezone"),
-      data.get("phone_number"),
   )
   if success:
     return flask.jsonify({"success": True})

@@ -46,13 +46,10 @@ def calculate_next_run(time_str, timezone_str):
   return candidate.astimezone(pytz.UTC)
 
 
-def add_reminder(user_id, time_str, devotion, methods, timezone, phone_number):
+def add_reminder(user_id, time_str, devotion, methods, timezone):
   """Adds a new reminder for a user."""
   if not user_id or not time_str or not devotion or not methods:
     return False, "Missing required fields."
-
-  if "sms" in methods and not phone_number:
-    return False, "Phone number required for SMS reminders."
 
   # Basic validation of time format HH:MM
   try:
@@ -75,8 +72,6 @@ def add_reminder(user_id, time_str, devotion, methods, timezone, phone_number):
       "created_at": datetime.datetime.now(datetime.timezone.utc),
       "next_run_utc": next_run_utc
   }
-  if phone_number:
-    reminder_data["phone_number"] = phone_number
 
   # Using a subcollection. To query across all users, we'll use a Collection Group query.
   # This requires an index on 'next_run_utc' for the 'reminders' collection group.
@@ -108,7 +103,7 @@ def delete_reminder(user_id, reminder_id):
   return True
 
 
-def send_notification(method, reminder_data, devotion_url):
+def send_notification(method, reminder_data, user_data, devotion_url):
   """Mocks sending a notification."""
   user_id = reminder_data.get("user_id")
   devotion_name = DEVOTION_NAMES.get(reminder_data.get("devotion"))
@@ -118,14 +113,19 @@ def send_notification(method, reminder_data, devotion_url):
     print(f"[PUSH] Sending to user {user_id}: {message}")
     # Integration with Web Push API would go here
   elif method == "email":
-    # In real app, fetch email from user object if not in reminder_data
-    # email = ... 
-    print(f"[EMAIL] Sending reminder to user {user_id}: {message}")
-    # Integration with SendGrid/Mailgun would go here
+    email = user_data.get("notification_email") or user_data.get("email")
+    if email:
+        print(f"[EMAIL] Sending reminder to {email}: {message}")
+        # Integration with SendGrid/Mailgun would go here
+    else:
+        print(f"[EMAIL] Skipped: No email found for user {user_id}")
   elif method == "sms":
-    phone = reminder_data.get("phone_number")
-    print(f"[SMS] Sending to {phone}: {message}")
-    # Integration with Twilio would go here
+    phone = user_data.get("phone_number")
+    if phone:
+        print(f"[SMS] Sending to {phone}: {message}")
+        # Integration with Twilio would go here
+    else:
+        print(f"[SMS] Skipped: No phone number found for user {user_id}")
 
 
 def send_due_reminders():
@@ -145,13 +145,22 @@ def send_due_reminders():
     data = doc.to_dict()
     methods = data.get("methods", [])
     devotion_key = data.get("devotion")
+    user_id = data.get("user_id")
+    
+    # Fetch user data for contact info
+    user_doc = db.collection("users").document(user_id).get()
+    if not user_doc.exists:
+        print(f"User {user_id} not found, skipping reminder {doc.id}")
+        continue
+    user_data = user_doc.to_dict()
+
     base_url = "https://www.lcmsprayer.com"
     devotion_path = DEVOTION_URLS.get(devotion_key, "/")
     full_url = f"{base_url}{devotion_path}"
     
     for method in methods:
       try:
-        send_notification(method, data, full_url)
+        send_notification(method, data, user_data, full_url)
       except Exception as e:
         print(f"Error sending {method} notification for reminder {doc.id}: {e}")
         
