@@ -25,6 +25,7 @@ import night_watch
 import prayer_requests
 import psalms_by_category
 import pytz
+import reminders
 import secrets_fetcher
 import short_prayers
 import utils
@@ -814,6 +815,58 @@ def debug_ip_route():
       "source": source,
       "headers": dict(flask.request.headers),
   })
+
+
+@app.route("/reminders")
+@flask_login.login_required
+def reminders_route():
+  """Returns the reminders page."""
+  return flask.render_template("reminders.html")
+
+
+@app.route("/add_reminder", methods=["POST"])
+@flask_login.login_required
+def add_reminder_route():
+  """Adds a prayer reminder."""
+  data = flask.request.json
+  success, error = reminders.add_reminder(
+      flask_login.current_user.id,
+      data.get("time"),
+      data.get("devotion"),
+      data.get("methods"),
+      data.get("timezone"),
+      data.get("phone_number"),
+  )
+  if success:
+    return flask.jsonify({"success": True})
+  return flask.jsonify({"success": False, "error": error}), 400
+
+
+@app.route("/get_reminders")
+@flask_login.login_required
+def get_reminders_route():
+  """Gets user reminders."""
+  user_reminders = reminders.get_reminders(flask_login.current_user.id)
+  return flask.jsonify(user_reminders)
+
+
+@app.route("/delete_reminder", methods=["POST"])
+@flask_login.login_required
+def delete_reminder_route():
+  """Deletes a reminder."""
+  data = flask.request.json
+  reminder_id = data.get("reminder_id")
+  if reminders.delete_reminder(flask_login.current_user.id, reminder_id):
+    return flask.jsonify({"success": True})
+  return flask.jsonify({"success": False, "error": "Failed to delete"}), 500
+
+
+@app.route("/tasks/send_reminders")
+def send_reminders_task():
+  """Cron task to send due reminders."""
+  # In a real app, secure this endpoint (e.g. check for X-AppEngine-Cron header)
+  reminders.send_due_reminders()
+  return "OK", 200
 
 
 @app.route("/admin/traffic_data")

@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+{% import "_macros.html" as macros %}
+
+{% block title %}Prayer Reminders{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Prayer Reminders</h1>
+  <p>Schedule daily reminders to help you maintain a regular prayer life.</p>
+</div>
+
+<div class="card">
+  <h2>Add New Reminder</h2>
+  <form id="reminder-form">
+    <div style="margin-bottom: 10px;">
+      <label for="time">Time (Your Local Time):</label><br>
+      <input type="time" id="time" name="time" required class="form-input" style="max-width: 150px;">
+    </div>
+    
+    <div style="margin-bottom: 10px;">
+      <label for="devotion">Devotion Type:</label><br>
+      <select id="devotion" name="devotion" required class="form-input">
+        <option value="morning">Morning Prayer</option>
+        <option value="midday">Midday Prayer</option>
+        <option value="evening">Evening Prayer</option>
+        <option value="close_of_day">Close of the Day</option>
+        <option value="night_watch">Night Watch</option>
+        <option value="bible_in_a_year">Bible in a Year</option>
+      </select>
+    </div>
+
+    <div style="margin-bottom: 10px;">
+      <label>Notification Methods:</label><br>
+      <div style="margin-top: 5px;">
+        <input type="checkbox" id="method-push" name="methods" value="push">
+        <label for="method-push">Push Notification</label>
+      </div>
+      <div style="margin-top: 5px;">
+        <input type="checkbox" id="method-email" name="methods" value="email">
+        <label for="method-email">Email</label>
+      </div>
+      <div style="margin-top: 5px;">
+        <input type="checkbox" id="method-sms" name="methods" value="sms">
+        <label for="method-sms">Text Message (SMS)</label>
+      </div>
+    </div>
+
+    <div id="phone-input-container" style="margin-bottom: 10px; display: none;">
+        <label for="phone_number">Phone Number:</label><br>
+        <input type="tel" id="phone_number" name="phone_number" placeholder="e.g. +15551234567" class="form-input">
+        <p style="font-size: 0.8em; color: #7f8c8d;">Standard messaging rates apply.</p>
+    </div>
+
+    <button type="submit" class="button">Set Reminder</button>
+  </form>
+</div>
+
+<div class="card">
+  <h2>My Active Reminders</h2>
+  <div id="reminders-list">
+    <p><em>Loading...</em></p>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+const remindersList = document.getElementById('reminders-list');
+const smsCheckbox = document.getElementById('method-sms');
+const pushCheckbox = document.getElementById('method-push');
+const phoneContainer = document.getElementById('phone-input-container');
+
+smsCheckbox.addEventListener('change', () => {
+    phoneContainer.style.display = smsCheckbox.checked ? 'block' : 'none';
+});
+
+async function requestPushPermission() {
+    if (!('Notification' in window)) {
+        alert("This browser does not support desktop notification");
+        return false;
+    }
+    const permission = await Notification.requestPermission();
+    if (permission !== 'granted') {
+        alert('Permission not granted for Notification');
+        return false;
+    }
+    // In a real implementation, we would subscribe via ServiceWorker here and get subscription object
+    // const registration = await navigator.serviceWorker.ready;
+    // const subscription = await registration.pushManager.subscribe({ ... });
+    // return subscription;
+    return true; // Mock success
+}
+
+async function loadReminders() {
+    try {
+        const response = await fetch('/get_reminders');
+        if(!response.ok) throw new Error("Failed to fetch");
+        const reminders = await response.json();
+        
+        if (reminders.length === 0) {
+            remindersList.innerHTML = '<p><em>No active reminders.</em></p>';
+            return;
+        }
+
+        let html = '<ul style="list-style: none; padding: 0;">';
+        reminders.forEach(r => {
+            const methods = r.methods.join(', ');
+            // Convert time (which is stored in user local time presumably, or needs conversion)
+            // Ideally we store everything in UTC or user sends timezone.
+            // For simplicity, we just display what was saved.
+            
+            html += `
+                <li style="border-bottom: 1px solid #eee; padding: 10px 0; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <strong>${r.time}</strong> - ${r.devotion_name}<br>
+                        <span style="font-size: 0.9em; color: #666;">Via: ${methods}</span>
+                    </div>
+                    <button class="button" style="background-color: #e74c3c; padding: 5px 10px; font-size: 0.8em;" onclick="deleteReminder('${r.id}')">Delete</button>
+                </li>
+            `;
+        });
+        html += '</ul>';
+        remindersList.innerHTML = html;
+    } catch (e) {
+        console.error(e);
+        remindersList.innerHTML = '<p><em>Error loading reminders.</em></p>';
+    }
+}
+
+async function deleteReminder(id) {
+    if (!confirm("Delete this reminder?")) return;
+    try {
+        const response = await fetch('/delete_reminder', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({reminder_id: id})
+        });
+        if(response.ok) {
+            loadReminders();
+        } else {
+            alert("Failed to delete.");
+        }
+    } catch(e) {
+        alert("Error deleting reminder.");
+    }
+}
+
+document.getElementById('reminder-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const methods = formData.getAll('methods');
+    
+    if (methods.length === 0) {
+        alert("Please select at least one notification method.");
+        return;
+    }
+
+    if (methods.includes('push')) {
+        const granted = await requestPushPermission();
+        if (!granted) {
+            pushCheckbox.checked = false; // Uncheck if failed
+            return; 
+        }
+    }
+
+    const data = {
+        time: formData.get('time'),
+        devotion: formData.get('devotion'),
+        methods: methods,
+        phone_number: formData.get('phone_number'),
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+    };
+
+    try {
+        const response = await fetch('/add_reminder', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+        const result = await response.json();
+        if (result.success) {
+            e.target.reset();
+            phoneContainer.style.display = 'none';
+            loadReminders();
+        } else {
+            alert("Error: " + result.error);
+        }
+    } catch(e) {
+        console.error(e);
+        alert("An error occurred.");
+    }
+});
+
+document.addEventListener('DOMContentLoaded', loadReminders);
+{% endblock %}

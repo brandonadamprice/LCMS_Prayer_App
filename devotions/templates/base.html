@@ -183,6 +183,9 @@
           </div>
           <div class="app-menu-section">
             <strong>Settings</strong>
+            {% if current_user.is_authenticated %}
+            <a href="/reminders" class="button menu-button-full">Prayer Reminders</a>
+            {% endif %}
             <div class="menu-item">
                 <label for="dark-mode-toggle">Dark Mode</label>
                 <label class="switch">
