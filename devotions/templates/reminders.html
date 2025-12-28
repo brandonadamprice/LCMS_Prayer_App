@@ -57,10 +57,42 @@
 {% endblock %}
 
 {% block extra_js %}
-const remindersList = document.getElementById('reminders-list');
-const pushCheckbox = document.getElementById('method-push');
+</script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+  import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging.js";
 
-async function requestPushPermission() {
+  const remindersList = document.getElementById('reminders-list');
+  const pushCheckbox = document.getElementById('method-push');
+  let messaging = null;
+  let cachedConfig = null;
+
+  async function initFirebase() {
+    try {
+      const response = await fetch('/firebase_config');
+      if (!response.ok) throw new Error("Failed to fetch config");
+      cachedConfig = await response.json();
+      
+      const app = initializeApp(cachedConfig);
+      messaging = getMessaging(app);
+      
+      // Handle foreground messages
+      onMessage(messaging, (payload) => {
+        console.log('Message received. ', payload);
+        const notificationTitle = payload.notification.title;
+        const notificationOptions = {
+          body: payload.notification.body,
+          icon: '/static/favicon.svg'
+        };
+        new Notification(notificationTitle, notificationOptions);
+      });
+      console.log("Firebase initialized");
+    } catch(e) {
+      console.error("Firebase Init Error", e);
+    }
+  }
+
+  async function requestPushPermission() {
     if (!('Notification' in window)) {
         alert("This browser does not support desktop notification");
         return false;
@@ -70,14 +102,39 @@ async function requestPushPermission() {
         alert('Permission not granted for Notification');
         return false;
     }
-    // In a real implementation, we would subscribe via ServiceWorker here and get subscription object
-    // const registration = await navigator.serviceWorker.ready;
-    // const subscription = await registration.pushManager.subscribe({ ... });
-    // return subscription;
-    return true; // Mock success
-}
+    
+    if (!messaging) await initFirebase();
+    if (!messaging) return false;
 
-async function loadReminders() {
+    try {
+        const registration = await navigator.serviceWorker.ready;
+        const options = {
+            serviceWorkerRegistration: registration
+        };
+        if (cachedConfig && cachedConfig.vapidKey) {
+            options.vapidKey = cachedConfig.vapidKey;
+        }
+
+        const currentToken = await getToken(messaging, options);
+        if (currentToken) {
+            await fetch('/save_fcm_token', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({token: currentToken})
+            });
+            console.log("FCM Token saved");
+            return true; 
+        } else {
+            console.log('No registration token available.');
+            return false;
+        }
+    } catch (err) {
+        console.log('An error occurred while retrieving token. ', err);
+        return false;
+    }
+  }
+
+  async function loadReminders() {
     try {
         const response = await fetch('/get_reminders');
         if(!response.ok) throw new Error("Failed to fetch");
@@ -91,10 +148,6 @@ async function loadReminders() {
         let html = '<ul style="list-style: none; padding: 0;">';
         reminders.forEach(r => {
             const methods = r.methods.join(', ');
-            // Convert time (which is stored in user local time presumably, or needs conversion)
-            // Ideally we store everything in UTC or user sends timezone.
-            // For simplicity, we just display what was saved.
-            
             html += `
                 <li style="border-bottom: 1px solid #eee; padding: 10px 0; display: flex; justify-content: space-between; align-items: center;">
                     <div>
@@ -111,9 +164,9 @@ async function loadReminders() {
         console.error(e);
         remindersList.innerHTML = '<p><em>Error loading reminders.</em></p>';
     }
-}
+  }
 
-async function deleteReminder(id) {
+  async function deleteReminder(id) {
     if (!confirm("Delete this reminder?")) return;
     try {
         const response = await fetch('/delete_reminder', {
@@ -129,9 +182,12 @@ async function deleteReminder(id) {
     } catch(e) {
         alert("Error deleting reminder.");
     }
-}
+  }
+  
+  // Expose to global scope for HTML onclick
+  window.deleteReminder = deleteReminder;
 
-document.getElementById('reminder-form').addEventListener('submit', async (e) => {
+  document.getElementById('reminder-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const methods = formData.getAll('methods');
@@ -144,8 +200,8 @@ document.getElementById('reminder-form').addEventListener('submit', async (e) =>
     if (methods.includes('push')) {
         const granted = await requestPushPermission();
         if (!granted) {
-            pushCheckbox.checked = false; // Uncheck if failed
-            return; 
+            pushCheckbox.checked = false; 
+            if(methods.length === 1) return;
         }
     }
 
@@ -173,9 +229,12 @@ document.getElementById('reminder-form').addEventListener('submit', async (e) =>
         console.error(e);
         alert("An error occurred.");
     }
-});
+  });
 
-
-
-document.addEventListener('DOMContentLoaded', loadReminders);
+  document.addEventListener('DOMContentLoaded', () => {
+      initFirebase();
+      loadReminders();
+  });
+</script>
+<script>
 {% endblock %}

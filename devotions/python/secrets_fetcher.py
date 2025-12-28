@@ -53,4 +53,24 @@ def get_brandon_user_id():
   return _get_secret("BRANDON_USER_ID", "BRANDON_USER_ID")
 
 
+def get_firebase_api_key():
+  """Fetches the Firebase API Key."""
+  return _get_secret("FIREBASE_API_KEY", "FIREBASE_API_KEY")
+
+
+def get_firebase_messaging_sender_id():
+  """Fetches the Firebase Messaging Sender ID."""
+  return _get_secret("FIREBASE_MESSAGING_SENDER_ID", "FIREBASE_MESSAGING_SENDER_ID")
+
+
+def get_firebase_app_id():
+  """Fetches the Firebase App ID."""
+  return _get_secret("FIREBASE_APP_ID", "FIREBASE_APP_ID")
+
+
+def get_firebase_vapid_key():
+  """Fetches the Firebase VAPID Key."""
+  return _get_secret("FIREBASE_VAPID_KEY", "FIREBASE_VAPID_KEY")
+
+
 

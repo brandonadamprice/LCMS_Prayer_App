@@ -831,6 +831,25 @@ def reminders_route():
 
 
 
+@app.route("/firebase_config")
+@flask_login.login_required
+def firebase_config_route():
+  """Returns Firebase configuration."""
+  try:
+    return flask.jsonify({
+        "apiKey": secrets_fetcher.get_firebase_api_key(),
+        "authDomain": "lcms-prayer-app.firebaseapp.com",
+        "projectId": "lcms-prayer-app",
+        "storageBucket": "lcms-prayer-app.firebasestorage.app",
+        "messagingSenderId": secrets_fetcher.get_firebase_messaging_sender_id(),
+        "appId": secrets_fetcher.get_firebase_app_id(),
+        "vapidKey": secrets_fetcher.get_firebase_vapid_key(),
+    })
+  except Exception as e:
+    app.logger.error("Failed to fetch Firebase config: %s", e)
+    return flask.jsonify({"error": "Failed to fetch config"}), 500
+
+
 @app.route("/save_fcm_token", methods=["POST"])
 @flask_login.login_required
 def save_fcm_token_route():
