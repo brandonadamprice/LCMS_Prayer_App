@@ -78,7 +78,7 @@ class User(flask_login.UserMixin):
       font_size_level=None,
       favorites=None,
       phone_number=None,
-      notification_email=None,
+      fcm_tokens=None,
   ):
     self.id = user_id
     self.email = email
@@ -87,8 +87,7 @@ class User(flask_login.UserMixin):
     self.dark_mode = dark_mode
     self.font_size_level = font_size_level
     self.favorites = favorites or []
-    self.phone_number = phone_number
-    self.notification_email = notification_email
+    self.fcm_tokens = fcm_tokens or []
 
   @staticmethod
   def get(user_id):
@@ -106,8 +105,7 @@ class User(flask_login.UserMixin):
           dark_mode=data.get("dark_mode"),
           font_size_level=data.get("font_size_level"),
           favorites=data.get("favorites", []),
-          phone_number=data.get("phone_number"),
-          notification_email=data.get("notification_email"),
+          fcm_tokens=data.get("fcm_tokens", []),
       )
     return None
 
@@ -830,28 +828,25 @@ def reminders_route():
   return flask.render_template("reminders.html")
 
 
-@app.route("/save_contact_info", methods=["POST"])
+
+
+
+@app.route("/save_fcm_token", methods=["POST"])
 @flask_login.login_required
-def save_contact_info_route():
-  """Saves user contact info for reminders."""
+def save_fcm_token_route():
+  """Saves an FCM token for the user."""
   data = flask.request.json
-  phone_number = data.get("phone_number")
-  notification_email = data.get("notification_email")
+  token = data.get("token")
+  if not token:
+    return flask.jsonify({"success": False, "error": "Missing token"}), 400
 
   try:
     db = utils.get_db_client()
     user_ref = db.collection("users").document(flask_login.current_user.id)
-    update_data = {}
-    if phone_number is not None:
-      update_data["phone_number"] = phone_number
-    if notification_email is not None:
-      update_data["notification_email"] = notification_email
-    
-    if update_data:
-      user_ref.set(update_data, merge=True)
+    user_ref.update({"fcm_tokens": firestore.ArrayUnion([token])})
     return flask.jsonify({"success": True})
   except Exception as e:
-    app.logger.error("Failed to save contact info: %s", e)
+    app.logger.error("Failed to save FCM token: %s", e)
     return flask.jsonify({"success": False, "error": "Database save failed"}), 500
 
 
