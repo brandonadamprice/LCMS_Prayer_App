@@ -28,7 +28,7 @@
 
                 {% for week in calendar_data %}
                     {% for day in week %}
-                        <div class="calendar-day {{ day.color }} {% if day.is_today %}today{% endif %} {% if not day.is_current_month %}other-month{% endif %}">
+                        <div class="calendar-day {{ day.color }} {% if day.is_today %}today{% endif %} {% if not day.is_current_month %}other-month{% endif %}" onclick="openDayModal('{{ day.date_obj.strftime('%A, %B %d, %Y') }}', '{{ day.full_name|replace("'", "\\'") }}', '{{ day.color_name }}', '{{ day.season }}')">
                             <span class="day-number">{{ day.day }}</span>
                             {% if day.key != day.day ~ " " ~ month_name[:3] and day.key != (day.day < 10 and "0" ~ day.day or day.day) ~ " " ~ month_name[:3] %}
                                 <div class="feast-name">{{ day.key }}</div>
@@ -49,4 +49,39 @@
             <span class="legend-item black"><span class="liturgical-color-dot"></span> Black</span>
         </div>
     </div>
+
+    <!-- Day Details Modal -->
+    <div id="day-modal" class="modal" onclick="closeDayModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <span class="close-modal" onclick="closeDayModal()">&times;</span>
+            <h2 id="modal-date" style="margin-top: 0;"></h2>
+            <p id="modal-feast" style="font-size: 1.2em; font-weight: bold; margin: 15px 0;"></p>
+            <p><strong>Season:</strong> <span id="modal-season"></span></p>
+            <p><strong>Color:</strong> <span id="modal-color"></span></p>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+function openDayModal(dateStr, feastName, colorName, seasonName) {
+    document.getElementById('modal-date').textContent = dateStr;
+    
+    // If the feast name looks like a date (e.g. "05 Jan" or "5 Jan"), display something generic or nothing
+    // We check if it matches D MMM or DD MMM format approximately.
+    // Actually, in the template we suppress it if it matches day + month[:3].
+    // Here we can just display it. If it's just "05 Jan", the user sees that.
+    // Or we can check if feastName contains the date.
+    
+    // Simple heuristic: if feastName is very short and contains digits, it might be just a date label.
+    // However, keeping it simple is better. The python code sets key to display_name which defaults to date key if no feast.
+    document.getElementById('modal-feast').textContent = feastName;
+    
+    document.getElementById('modal-season').textContent = seasonName;
+    document.getElementById('modal-color').textContent = colorName;
+    document.getElementById('day-modal').classList.add('visible');
+}
+
+function closeDayModal(event) {
+    document.getElementById('day-modal').classList.remove('visible');
+}
 {% endblock %}

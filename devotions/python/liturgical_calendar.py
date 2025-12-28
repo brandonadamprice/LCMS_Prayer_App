@@ -364,6 +364,7 @@ def generate_calendar_data(year, month):
           "day": day.day,
           "date_obj": day,
           "key": display_name,
+          "full_name": display_name if display_name else key,
           "color": color.lower(),
           "color_name": color,
           "season": season,
