@@ -132,11 +132,11 @@ def _send_push(user_data, title, body, url):
     return
 
   message = messaging.MulticastMessage(
-      notification=messaging.Notification(
-          title=title,
-          body=body,
-      ),
-      data={"url": url},
+      data={
+          "title": title,
+          "body": body,
+          "url": url,
+      },
       tokens=tokens,
   )
   try:

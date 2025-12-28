@@ -10,6 +10,12 @@
 </div>
 
 <div class="card">
+  <h2>Device Setup</h2>
+  <p>To receive notifications on this device, please enable them below. This is required even if you have enabled them on other devices.</p>
+  <button class="button" onclick="enableNotifications()">Enable Notifications on this Device</button>
+</div>
+
+<div class="card">
   <h2>Add New Reminder</h2>
   <form id="reminder-form">
     <div style="margin-bottom: 10px;">
@@ -104,7 +110,10 @@
     }
     
     if (!messaging) await initFirebase();
-    if (!messaging) return false;
+    if (!messaging) {
+        alert("Failed to initialize notification service. Please refresh and try again.");
+        return false;
+    }
 
     try {
         const registration = await navigator.serviceWorker.ready;
@@ -165,6 +174,16 @@
         remindersList.innerHTML = '<p><em>Error loading reminders.</em></p>';
     }
   }
+
+  async function enableNotifications() {
+    const granted = await requestPushPermission();
+    if (granted) {
+        alert("Notifications enabled for this device!");
+    } else {
+        // requestPushPermission handles its own alerts for permission denied / auth failed
+    }
+  }
+  window.enableNotifications = enableNotifications;
 
   async function deleteReminder(id) {
     if (!confirm("Delete this reminder?")) return;
