@@ -91,12 +91,25 @@
       // Handle foreground messages
       onMessage(messaging, (payload) => {
         console.log('Message received. ', payload);
-        const notificationTitle = payload.notification.title;
+        let title = 'Prayer Reminder';
+        let body = '';
+        let url = '/';
+
+        if (payload.notification) {
+            title = payload.notification.title || title;
+            body = payload.notification.body;
+        } else if (payload.data) {
+            title = payload.data.title || title;
+            body = payload.data.body;
+            if(payload.data.url) url = payload.data.url;
+        }
+
         const notificationOptions = {
-          body: payload.notification.body,
-          icon: '/static/favicon.svg'
+          body: body,
+          icon: '/static/favicon.svg',
+          data: { url: url }
         };
-        new Notification(notificationTitle, notificationOptions);
+        new Notification(title, notificationOptions);
       });
       console.log("Firebase initialized");
     } catch(e) {

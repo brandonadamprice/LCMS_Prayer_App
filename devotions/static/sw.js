@@ -55,17 +55,23 @@ self.addEventListener('fetch', (event) => {
 
 self.addEventListener('push', function(event) {
   if (event.data) {
-    const data = event.data.json();
+    const payload = event.data.json();
+    // payload.data contains the custom fields sent from the server
+    const data = payload.data || {}; 
+    const title = data.title || "Prayer Reminder";
+    const body = data.body || "It's time for prayer.";
+    const url = data.url || "/";
+
     const options = {
-      body: data.body,
+      body: body,
       icon: '/static/favicon.svg',
       badge: '/static/favicon.svg',
       data: {
-        url: data.url
+        url: url
       }
     };
     event.waitUntil(
-      self.registration.showNotification(data.title, options)
+      self.registration.showNotification(title, options)
     );
   }
 });
