@@ -36,9 +36,9 @@
         <label for="method-push">Push Notification</label>
       </div>
 
-      <div style="margin-top: 5px;">
-        <input type="checkbox" id="method-sms" name="methods" value="sms">
-        <label for="method-sms">Text Message (SMS)</label>
+      <div style="margin-top: 5px; color: #7f8c8d;">
+        <input type="checkbox" id="method-sms" name="methods" value="sms" disabled>
+        <label for="method-sms">Text Message (SMS) - <em>Coming Soon</em></label>
       </div>
     </div>
 
@@ -46,32 +46,7 @@
   </form>
 </div>
 
-<div class="card">
-  <h2>Notification Settings</h2>
-  <form id="contact-info-form">
 
-    <div style="margin-bottom: 10px;">
-        <label for="phone_number">Phone Number (for SMS):</label><br>
-        <input type="tel" id="phone_number" name="phone_number" value="{{ current_user.phone_number or '' }}" placeholder="e.g. 5551234567" class="form-input">
-        <p style="font-size: 0.8em; color: #7f8c8d;">Standard messaging rates apply.</p>
-    </div>
-    <div style="margin-bottom: 10px;">
-        <label for="carrier">Mobile Carrier:</label><br>
-        <select id="carrier" name="carrier" class="form-input">
-            <option value="">-- Select Carrier --</option>
-            <option value="verizon" {% if current_user.carrier == 'verizon' %}selected{% endif %}>Verizon</option>
-            <option value="att" {% if current_user.carrier == 'att' %}selected{% endif %}>AT&T</option>
-            <option value="tmobile" {% if current_user.carrier == 'tmobile' %}selected{% endif %}>T-Mobile</option>
-            <option value="sprint" {% if current_user.carrier == 'sprint' %}selected{% endif %}>Sprint</option>
-            <option value="uscellular" {% if current_user.carrier == 'uscellular' %}selected{% endif %}>US Cellular</option>
-            <option value="cricket" {% if current_user.carrier == 'cricket' %}selected{% endif %}>Cricket</option>
-            <option value="boost" {% if current_user.carrier == 'boost' %}selected{% endif %}>Boost Mobile</option>
-        </select>
-        <p style="font-size: 0.8em; color: #7f8c8d;">Required for free SMS delivery via email gateway.</p>
-    </div>
-    <button type="submit" class="button" style="background-color: #3498db;">Save Contact Info</button>
-  </form>
-</div>
 
 <div class="card">
   <h2>My Active Reminders</h2>
@@ -200,31 +175,7 @@ document.getElementById('reminder-form').addEventListener('submit', async (e) =>
     }
 });
 
-document.getElementById('contact-info-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const data = {
-        phone_number: formData.get('phone_number'),
-        carrier: formData.get('carrier')
-    };
-    
-    try {
-        const response = await fetch('/save_contact_info', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(data)
-        });
-        const result = await response.json();
-        if (result.success) {
-            alert("Contact info saved.");
-        } else {
-            alert("Error saving contact info.");
-        }
-    } catch(e) {
-        console.error(e);
-        alert("An error occurred.");
-    }
-});
+
 
 document.addEventListener('DOMContentLoaded', loadReminders);
 {% endblock %}
