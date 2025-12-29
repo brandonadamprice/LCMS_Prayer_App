@@ -192,30 +192,34 @@ def _send_push(user_data, title, body, url):
     current_app.logger.warning(f"[PUSH] No tokens found for user.")
     return
 
-  message = messaging.MulticastMessage(
-      data={
-          "title": title,
-          "body": body,
-          "url": url,
-      },
-      tokens=tokens,
-  )
-  try:
-    response = messaging.send_multicast(message)
-    current_app.logger.info(f"[PUSH] Sent {response.success_count} messages.")
-    if response.failure_count > 0:
-      responses = response.responses
-      failed_tokens = []
-      for idx, resp in enumerate(responses):
-        if not resp.success:
-          # The order of responses corresponds to the order of the registration tokens.
-          failed_tokens.append(tokens[idx])
-      current_app.logger.warning(
-          f"[PUSH] List of tokens that caused failures: {failed_tokens}"
+  success_count = 0
+  failure_count = 0
+  failed_tokens = []
+
+  # We send individually to avoid 404 errors with the /batch endpoint
+  # that send_multicast uses, which can occur in some environments.
+  for token in tokens:
+    try:
+      message = messaging.Message(
+          data={
+              "title": title,
+              "body": body,
+              "url": url,
+          },
+          token=token,
       )
-      # In a real app, remove invalid tokens here
-  except Exception as e:
-    current_app.logger.error(f"[PUSH] Error sending message: {e}")
+      messaging.send(message)
+      success_count += 1
+    except Exception as e:
+      failure_count += 1
+      failed_tokens.append(token)
+      current_app.logger.warning(f"[PUSH] Failed to send to token {token}: {e}")
+
+  current_app.logger.info(
+      f"[PUSH] Sent {success_count} messages. Failed: {failure_count}"
+  )
+  if failed_tokens:
+    current_app.logger.warning(f"[PUSH] Failed tokens: {failed_tokens}")
 
 
 def send_notification(method, reminder_data, user_data, devotion_url):
