@@ -112,6 +112,7 @@ def get_reminders(user_id):
 
 def delete_reminder(user_id, reminder_id):
   """Deletes a reminder."""
+  print(f"[REMINDER] Deleting reminder {reminder_id} for user {user_id}")
   db = utils.get_db_client()
   ref = (
       db.collection("users")
@@ -122,6 +123,61 @@ def delete_reminder(user_id, reminder_id):
   # Verify ownership implicitly by path
   ref.delete()
   return True
+
+
+def _process_reminder_notification(reminder_data, user_data, reminder_id=None):
+  """Helper to process and send a single reminder notification."""
+  methods = reminder_data.get("methods", [])
+  devotion_key = reminder_data.get("devotion")
+
+  base_url = "https://www.lcmsprayer.com"
+  devotion_path = DEVOTION_URLS.get(devotion_key, "/")
+  full_url = f"{base_url}{devotion_path}"
+
+  print(
+      f"[REMINDER] Processing reminder {reminder_id} for devotion"
+      f" '{devotion_key}' via {methods}"
+  )
+
+  success_count = 0
+  for method in methods:
+    try:
+      print(
+          f"[REMINDER] Sending {method} notification to user"
+          f" {user_data.get('email', 'unknown')}"
+      )
+      send_notification(method, reminder_data, user_data, full_url)
+      success_count += 1
+    except Exception as e:
+      print(
+          f"[REMINDER] Error sending {method} notification for reminder"
+          f" {reminder_id}: {e}"
+      )
+  return success_count
+
+
+def force_send_reminders_for_user(user_id):
+  """Forces sending all reminders for a specific user for debugging."""
+  print(f"[REMINDER] Force sending reminders for user {user_id}")
+  reminders_list = get_reminders(user_id)
+
+  if not reminders_list:
+    print("[REMINDER] No reminders found for user.")
+    return False, "No reminders found."
+
+  db = utils.get_db_client()
+  user_doc = db.collection("users").document(user_id).get()
+  if not user_doc.exists:
+    print(f"[REMINDER] User {user_id} not found.")
+    return False, "User not found."
+  user_data = user_doc.to_dict()
+
+  count = 0
+  for r in reminders_list:
+    count += _process_reminder_notification(r, user_data, r.get("id"))
+
+  print(f"[REMINDER] Force sent {count} notifications.")
+  return True, f"Sent {count} notifications."
 
 
 def _send_push(user_data, title, body, url):
@@ -166,7 +222,7 @@ def send_notification(method, reminder_data, user_data, devotion_url):
 
 def send_due_reminders():
   """Checks for reminders due at the current time and sends them."""
-  print("Checking for due prayer reminders...")
+  print("[REMINDER] Checking for due prayer reminders...")
   db = utils.get_db_client()
   now_utc = datetime.datetime.now(datetime.timezone.utc)
 
@@ -177,30 +233,20 @@ def send_due_reminders():
   )
 
   docs = list(query.stream())
-  print(f"Found {len(docs)} due reminders.")
+  print(f"[REMINDER] Found {len(docs)} due reminders.")
 
   for doc in docs:
     data = doc.to_dict()
-    methods = data.get("methods", [])
-    devotion_key = data.get("devotion")
     user_id = data.get("user_id")
 
     # Fetch user data for contact info
     user_doc = db.collection("users").document(user_id).get()
     if not user_doc.exists:
-      print(f"User {user_id} not found, skipping reminder {doc.id}")
+      print(f"[REMINDER] User {user_id} not found, skipping reminder {doc.id}")
       continue
     user_data = user_doc.to_dict()
 
-    base_url = "https://www.lcmsprayer.com"
-    devotion_path = DEVOTION_URLS.get(devotion_key, "/")
-    full_url = f"{base_url}{devotion_path}"
-
-    for method in methods:
-      try:
-        send_notification(method, data, user_data, full_url)
-      except Exception as e:
-        print(f"Error sending {method} notification for reminder {doc.id}: {e}")
+    _process_reminder_notification(data, user_data, doc.id)
 
     # Schedule next run
     try:
@@ -208,8 +254,9 @@ def send_due_reminders():
       # or from now if we want to reset base.
       # Better to recalculate from "now" to ensure it's in the future.
       next_run = calculate_next_run(data.get("time"), data.get("timezone"))
+      print(f"[REMINDER] Rescheduling reminder {doc.id} to {next_run}")
       doc.reference.update({"next_run_utc": next_run})
     except Exception as e:
-      print(f"Error rescheduling reminder {doc.id}: {e}")
+      print(f"[REMINDER] Error rescheduling reminder {doc.id}: {e}")
 
   return True

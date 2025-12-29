@@ -66,6 +66,30 @@
     <p><em>Loading...</em></p>
   </div>
 </div>
+
+{% if current_user.id == config['ADMIN_USER_ID'] %}
+<div class="card" style="border-color: red;">
+    <h2>Admin Debug</h2>
+    <p>This button will force <strong>all</strong> of your reminders to fire immediately, regardless of their scheduled time. Use this to test push notifications on your device.</p>
+    <button class="button" onclick="forceReminders()" style="background-color: #e74c3c;">Force Send All My Reminders</button>
+</div>
+<script>
+async function forceReminders() {
+    if(!confirm("Are you sure? This will send all your reminders now.")) return;
+    try {
+        const response = await fetch('/debug/force_reminders', {method: 'POST'});
+        const data = await response.json();
+        if (data.success) {
+            alert(data.message);
+        } else {
+            alert("Error: " + data.error);
+        }
+    } catch(e) {
+        alert("Error: " + e);
+    }
+}
+</script>
+{% endif %}
 {% endblock %}
 
 {% block extra_js %}

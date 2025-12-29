@@ -937,6 +937,21 @@ def send_reminders_task():
   return "OK", 200
 
 
+@app.route("/debug/force_reminders", methods=["POST"])
+@flask_login.login_required
+def force_reminders_route():
+  if flask_login.current_user.id != app.config.get("ADMIN_USER_ID"):
+    return flask.abort(403)
+
+  success, msg = reminders.force_send_reminders_for_user(
+      flask_login.current_user.id
+  )
+  if success:
+    return flask.jsonify({"success": True, "message": msg})
+  else:
+    return flask.jsonify({"success": False, "error": msg}), 400
+
+
 @app.route("/admin/traffic_data")
 @flask_login.login_required
 def traffic_data_route():
