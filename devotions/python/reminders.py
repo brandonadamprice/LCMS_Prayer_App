@@ -61,7 +61,12 @@ def add_reminder(user_id, time_str, devotion, methods, timezone):
 
   # Basic validation of time format HH:MM
   try:
-    datetime.datetime.strptime(time_str, "%H:%M")
+    dt = datetime.datetime.strptime(time_str, "%H:%M")
+    if dt.minute % 15 != 0:
+      return (
+          False,
+          "Time must be in 15-minute increments (e.g. :00, :15, :30, :45).",
+      )
   except ValueError:
     return False, "Invalid time format."
 
