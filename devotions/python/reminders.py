@@ -1,7 +1,6 @@
 """Functions for managing prayer reminders."""
 
 import datetime
-
 import uuid
 import firebase_admin
 from firebase_admin import messaging
@@ -11,7 +10,8 @@ import utils
 
 # Initialize Firebase Admin if not already initialized
 if not firebase_admin._apps:
-    firebase_admin.initialize_app()
+  # Explicitly set project ID to ensure correct FCM endpoint usage
+  firebase_admin.initialize_app(options={"projectId": "lcms-prayer-app"})
 
 REMINDERS_COLLECTION = "reminders"
 
