@@ -239,6 +239,18 @@ def send_notification(method, reminder_data, user_data, devotion_url):
 def send_due_reminders():
   """Checks for reminders due at the current time and sends them."""
   current_app.logger.info("[REMINDER] Checking for due prayer reminders...")
+
+  # Run daily analytics cleanup if needed
+  try:
+    if utils.check_and_run_analytics_cleanup():
+      current_app.logger.info(
+          "[ANALYTICS] Automatic daily cleanup completed."
+      )
+  except Exception as e:
+    current_app.logger.error(
+        f"[ANALYTICS] Error during automatic cleanup: {e}"
+    )
+
   db = utils.get_db_client()
   now_utc = datetime.datetime.now(datetime.timezone.utc)
 

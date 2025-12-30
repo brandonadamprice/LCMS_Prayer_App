@@ -952,6 +952,24 @@ def force_reminders_route():
     return flask.jsonify({"success": False, "error": msg}), 400
 
 
+@app.route("/admin/cleanup_analytics", methods=["POST"])
+@flask_login.login_required
+def cleanup_analytics_route():
+  if not app.config.get(
+      "ADMIN_USER_ID"
+  ) or flask_login.current_user.id != app.config.get("ADMIN_USER_ID"):
+    return flask.jsonify({"error": "Forbidden"}), 403
+
+  try:
+    deleted_count = utils.cleanup_analytics()
+    return flask.jsonify(
+        {"success": True, "message": f"Deleted {deleted_count} stale users."}
+    )
+  except Exception as e:
+    app.logger.error("Cleanup analytics failed: %s", e)
+    return flask.jsonify({"success": False, "error": str(e)}), 500
+
+
 @app.route("/admin/traffic_data")
 @flask_login.login_required
 def traffic_data_route():
@@ -1048,6 +1066,9 @@ def traffic_data_route():
 @app.after_request
 def track_visitor(response):
   """Tracks unique visitors using a cookie and IP address."""
+  if flask.request.path == "/tasks/send_reminders":
+    return response
+
   if response.status_code == 200 and response.mimetype == "text/html":
     try:
       # 1. Get/Set Visitor ID Cookie

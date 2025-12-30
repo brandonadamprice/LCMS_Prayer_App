@@ -848,3 +848,103 @@ def get_analytics_user(db, visitor_id, ip_hash, current_user):
     user_ref.update({"last_seen": firestore.SERVER_TIMESTAMP})
 
   return user_id
+
+
+def cleanup_analytics():
+  """Cleans up old analytics data and untracked paths."""
+  db = get_db_client()
+  today = datetime.date.today()
+  cutoff_date = today - datetime.timedelta(days=30)
+
+  # 1. Delete old daily_analytics
+  docs = db.collection("daily_analytics").stream()
+  active_users = set()
+
+  for doc in docs:
+    try:
+      doc_date = datetime.datetime.strptime(doc.id, "%Y-%m-%d").date()
+    except ValueError:
+      # Skip malformed IDs or handle as needed
+      continue
+
+    if doc_date < cutoff_date:
+      doc.reference.delete()
+      continue
+
+    # 2. Filter paths
+    data = doc.to_dict()
+    visits = data.get("visits", {})
+    modified = False
+    uids_to_remove = []
+
+    for uid, visit_data in visits.items():
+      paths = visit_data.get("paths", [])
+      timestamps = visit_data.get("timestamps", [])
+
+      new_paths = []
+      new_timestamps = []
+
+      # Assume paths and timestamps are parallel arrays
+      for i in range(len(paths)):
+        if i < len(timestamps):
+          p = paths[i]
+          t = timestamps[i]
+          if p != "/tasks/send_reminders":
+            new_paths.append(p)
+            new_timestamps.append(t)
+
+      if len(new_paths) != len(paths):
+        modified = True
+        if not new_paths:
+          uids_to_remove.append(uid)
+        else:
+          visits[uid]["paths"] = new_paths
+          visits[uid]["timestamps"] = new_timestamps
+          active_users.add(uid)
+      else:
+        # No change, user is active if they have paths
+        if paths:
+          active_users.add(uid)
+        else:
+          uids_to_remove.append(uid)
+          modified = True
+
+    for uid in uids_to_remove:
+      del visits[uid]
+      modified = True
+
+    if modified:
+      doc.reference.update({"visits": visits})
+
+  # 3. Cleanup users
+  users_ref = db.collection("analytics_users")
+  user_docs = users_ref.stream()
+  deleted_users_count = 0
+
+  for user_doc in user_docs:
+    if user_doc.id not in active_users:
+      user_doc.reference.delete()
+      deleted_users_count += 1
+
+  return deleted_users_count
+
+
+def check_and_run_analytics_cleanup():
+  """Runs analytics cleanup if it hasn't been run today.
+
+  Returns:
+      bool: True if cleanup was run, False otherwise.
+  """
+  db = get_db_client()
+  today_str = datetime.date.today().isoformat()
+  metadata_ref = db.collection("system_metadata").document("analytics_cleanup")
+
+  snapshot = metadata_ref.get()
+  if snapshot.exists:
+    data = snapshot.to_dict()
+    if data and data.get("last_run_date") == today_str:
+      return False
+
+  cleanup_analytics()
+  metadata_ref.set({"last_run_date": today_str})
+  return True
