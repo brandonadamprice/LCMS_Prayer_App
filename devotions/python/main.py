@@ -8,6 +8,7 @@ import uuid
 import advent
 from authlib.integrations.flask_client import OAuth
 import bible_in_a_year
+import daily_lectionary_page
 import childrens_devotion
 import close_of_day
 import evening
@@ -365,6 +366,12 @@ def bible_in_a_year_route():
     if doc.exists:
       bia_progress = doc.to_dict().get("bia_progress")
   return bible_in_a_year.generate_bible_in_a_year_page(bia_progress)
+
+
+@app.route("/daily_lectionary")
+def daily_lectionary_route():
+  """Returns Daily Lectionary page."""
+  return daily_lectionary_page.generate_daily_lectionary_page()
 
 
 @app.route("/save_bia_progress", methods=["POST"])

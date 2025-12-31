@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% import "_macros.html" as macros %}
+
+{% block title %}Daily Lectionary{% endblock %}
+
+{% block content %}
+    <div class="page-header">
+      <h1>Daily Lectionary</h1>
+      <p>
+        {{ date_str }}<br />
+        <span style="color: #7f8c8d">Lectionary Day: {{ key }}</span>
+      </p>
+    </div>
+
+    {% call macros.card('Old Testament Reading') %}
+        <span class="ref">{{ ot_ref }}</span>
+        <p>{{ ot_text|safe }}</p>
+    {% endcall %}
+
+    {% call macros.card('New Testament Reading') %}
+        <span class="ref">{{ nt_ref }}</span>
+        <p>{{ nt_text|safe }}</p>
+    {% endcall %}
+
+{% endblock %}
