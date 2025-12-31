@@ -55,13 +55,61 @@
     {% call macros.card('Reading') %}
         <span class="ref" id="ref-reading">{{ reading_ref }}</span>
         <p id="text-reading">{{ reading_text|safe }}</p>
-        <button class="button picker-toggle-button" onclick="togglePicker(this, 'reading')">Select Reading</button>
+        
+        <div style="margin-top: 10px;">
+            <button id="btn-toggle-lectionary" class="button" onclick="toggleLectionaryReadings()" style="background-color: #2980b9;">Switch to Daily Lectionary</button>
+            <button class="button picker-toggle-button" onclick="togglePicker(this, 'reading')">Select Reading</button>
+        </div>
+
         <div id="picker-reading" class="item-picker">
+            <!-- Populated by JS or server initially -->
             {% for r in reading_options %}
             <button class="button picker-select-button" onclick="selectRef('{{ r }}', 'reading')">{{ r }}</button>
             {% endfor %}
         </div>
     {% endcall %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let isLectionaryMode = false;
+    const officeReadingRef = "{{ reading_ref }}";
+    const officeOptions = {{ reading_options|tojson }};
+    const lectionaryOptions = {{ daily_lectionary_readings|tojson }};
+
+    function updatePicker(options) {
+        const picker = document.getElementById('picker-reading');
+        picker.innerHTML = '';
+        options.forEach(r => {
+            const btn = document.createElement('button');
+            btn.className = 'button picker-select-button';
+            btn.textContent = r;
+            btn.onclick = () => selectRef(r, 'reading');
+            picker.appendChild(btn);
+        });
+    }
+
+    function toggleLectionaryReadings() {
+       const btn = document.getElementById('btn-toggle-lectionary');
+       if (isLectionaryMode) {
+           // Swap back to Office
+           selectRef(officeReadingRef, 'reading');
+           btn.innerText = "Switch to Daily Lectionary";
+           isLectionaryMode = false;
+           updatePicker(officeOptions);
+       } else {
+           // Swap to Lectionary
+           if(lectionaryOptions.length > 0) {
+               selectRef(lectionaryOptions[0], 'reading');
+               btn.innerText = "Back to Office Reading";
+               isLectionaryMode = true;
+               updatePicker(lectionaryOptions);
+           } else {
+               alert("No Daily Lectionary readings available for today.");
+           }
+       }
+    }
+</script>
 
     {% call macros.card('Creed') %}
         {{ macros.format_prayer(config['OTHER_PRAYERS']['apostles_creed']) }}

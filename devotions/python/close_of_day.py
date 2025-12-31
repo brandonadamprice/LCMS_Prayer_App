@@ -23,8 +23,20 @@ def generate_close_of_day_devotion():
   weekly_prayer_data = utils.get_weekly_prayer_for_day(now)
   concluding_prayer = utils.OTHER_PRAYERS["close_of_day_prayers"]
 
+  # Daily Lectionary
+  lectionary_data = utils.load_lectionary(utils.LECTIONARY_JSON_PATH)
+  l_readings = lectionary_data.get(
+      key, {"OT": "Reading not found", "NT": "Reading not found"}
+  )
+  daily_lectionary_readings = [
+      r
+      for r in [l_readings["OT"], l_readings["NT"]]
+      if r != "Reading not found"
+  ]
+
   template_data = {
       "date_str": now.strftime("%A, %B %d, %Y"),
+      "daily_lectionary_readings": daily_lectionary_readings,
       "key": key,
       "psalm_ref": psalm_ref,
       "psalm_options": psalm_options,
