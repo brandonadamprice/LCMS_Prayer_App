@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% import "_macros.html" as macros %}
+{% block title %}Devotion for the New Year{% endblock %}
+{% block content %}
+    <div class="page-header">
+      <h1>Devotion for the New Year</h1>
+      <h2>In the Name of Jesus</h2>
+      <p>{{ date_str }}</p>
+    </div>
+
+    {% call macros.card('Invocation') %}
+        <p>In the name of the Father and of the † Son and of the Holy Ghost. <strong>Amen.</strong></p>
+    {% endcall %}
+
+    {% call macros.card('Psalmody: Psalm 90') %}
+        <p>{{ psalm_text|safe }}</p>
+    {% endcall %}
+
+    {% call macros.card('The Gospel Reading: Luke 2:21') %}
+        <p>{{ gospel_text|safe }}</p>
+    {% endcall %}
+
+    {% call macros.card('Meditation') %}
+        <p>As we stand at the threshold of a new year, the world looks inward, making resolutions based on human strength to improve the self. The Church, however, looks to Christ. Historically, the church celebrates January 1st not merely as the start of a calendar year, but as the Festival of the Circumcision and the Name of Jesus.</p>
+        <p>On the eighth day of his life, our Lord first shed his blood for us. He placed himself under the Law to redeem those who were under the Law. He received the name Jesus, which means "The Lord Saves." As we face an unknown year, we do not know what joys or sorrows await us. But we do know that we enter this year bearing the name of Him who is "from everlasting".</p>
+        <p>As you number your days, do not place your confidence in the changing times or your own resolve, but in the name of Jesus. As the Introit for this day proclaims: "O Lord, our Lord, how excellent is Thy name in all the earth: who hast set Thy glory above the heavens".</p>
+    {% endcall %}
+
+    {% call macros.card('Hymn Stanza') %}
+        <p>
+            Help us, O Lord! Behold, we enter<br>
+            Upon another year today;<br>
+            In Thee our hopes and thoughts now center,<br>
+            Renew our courage for the way.<br>
+            New life, new strength, new happiness,<br>
+            We ask of Thee, — oh, hear and bless!
+        </p>
+    {% endcall %}
+
+    {% call macros.card('The Prayer') %}
+        <p>Almighty and everlasting God, from whom cometh down every good and perfect gift, we give Thee thanks for all Thy benefits, temporal and spiritual, bestowed upon us in the year past. We beseech Thee of Thy goodness, grant us a favorable and joyful year, defend us from all dangers and adversities, and send upon us the fullness of Thy blessing; through Jesus Christ, Thy Son, our Lord, who liveth and reigneth with Thee and the Holy Ghost, ever one God, world without end. <strong>Amen.</strong></p>
+    {% endcall %}
+{% endblock %}

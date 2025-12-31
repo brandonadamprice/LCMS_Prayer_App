@@ -8,9 +8,9 @@ import uuid
 import advent
 from authlib.integrations.flask_client import OAuth
 import bible_in_a_year
-import daily_lectionary_page
 import childrens_devotion
 import close_of_day
+import daily_lectionary_page
 import evening
 import extended_evening
 import flask
@@ -22,6 +22,7 @@ import memory
 import mid_week
 import midday
 import morning
+import new_year
 import night_watch
 import prayer_requests
 import psalms_by_category
@@ -123,6 +124,9 @@ def inject_globals():
   eastern_timezone = pytz.timezone("America/New_York")
   now = datetime.datetime.now(eastern_timezone)
   is_advent = now.month == 12 and 1 <= now.day <= 25
+  is_new_year = (now.month == 12 and now.day == 31) or (
+      now.month == 1 and now.day == 1
+  )
 
   user_favorites = []
   if flask_login.current_user.is_authenticated:
@@ -137,7 +141,7 @@ def inject_globals():
     # Actually, let's update User class to include favorites.
     pass
 
-  return dict(is_advent=is_advent)
+  return dict(is_advent=is_advent, is_new_year=is_new_year)
 
 
 def create_or_update_google_user(user_info):
@@ -182,9 +186,13 @@ def index_route():
   eastern_timezone = pytz.timezone("America/New_York")
   now = datetime.datetime.now(eastern_timezone)
   is_advent = now.month == 12 and 1 <= now.day <= 25
+  is_new_year = (now.month == 12 and now.day == 31) or (
+      now.month == 1 and now.day == 1
+  )
   return flask.render_template(
       "index.html",
       is_advent=is_advent,
+      is_new_year=is_new_year,
       admin_user_id=app.config.get("ADMIN_USER_ID"),
   )
 
@@ -286,6 +294,12 @@ def mid_week_devotion_route():
 def advent_devotion_route():
   """Returns the generated devotion HTML."""
   return advent.generate_advent_devotion()
+
+
+@app.route("/new_year_devotion")
+def new_year_devotion_route():
+  """Returns the generated devotion HTML."""
+  return new_year.generate_new_year_devotion()
 
 
 @app.route("/childrens_devotion")
@@ -835,9 +849,6 @@ def reminders_route():
   return flask.render_template("reminders.html")
 
 
-
-
-
 @app.route("/firebase_config")
 @flask_login.login_required
 def firebase_config_route():
@@ -873,7 +884,10 @@ def save_fcm_token_route():
     return flask.jsonify({"success": True})
   except Exception as e:
     app.logger.error("Failed to save FCM token: %s", e)
-    return flask.jsonify({"success": False, "error": "Database save failed"}), 500
+    return (
+        flask.jsonify({"success": False, "error": "Database save failed"}),
+        500,
+    )
 
 
 @app.route("/remove_fcm_token", methods=["POST"])
@@ -892,7 +906,10 @@ def remove_fcm_token_route():
     return flask.jsonify({"success": True})
   except Exception as e:
     app.logger.error("Failed to remove FCM token: %s", e)
-    return flask.jsonify({"success": False, "error": "Database update failed"}), 500
+    return (
+        flask.jsonify({"success": False, "error": "Database update failed"}),
+        500,
+    )
 
 
 @app.route("/add_reminder", methods=["POST"])
@@ -902,9 +919,9 @@ def add_reminder_route():
   data = flask.request.json
   # We no longer strictly need phone_number passed here if it's in the profile,
   # but we can accept it if the frontend sends it to update/verify.
-  # For now, let's assume the frontend calls /save_contact_info separately 
+  # For now, let's assume the frontend calls /save_contact_info separately
   # or we pass it through.
-  
+
   success, error = reminders.add_reminder(
       flask_login.current_user.id,
       data.get("time"),

@@ -52,6 +52,9 @@
             {% if is_advent %}
             <a href="/advent_devotion">Advent</a>
             {% endif %}
+            {% if is_new_year %}
+            <a href="/new_year_devotion">New Year's</a>
+            {% endif %}
             <a href="/childrens_devotion">Children's</a>
             <a href="/litany">The Litany</a>
             <a href="/extended_evening_devotion">Extended Evening</a>
@@ -130,6 +133,11 @@
                <a href="/advent_devotion" class="menu-sub-link">Advent Family Devotional</a>
                {% else %}
                <span class="menu-sub-link disabled">Advent (Seasonal)</span>
+               {% endif %}
+               {% if is_new_year %}
+               <a href="/new_year_devotion" class="menu-sub-link">New Year's Devotion</a>
+               {% else %}
+               <span class="menu-sub-link disabled">New Year's (Seasonal)</span>
                {% endif %}
             </div>
 
