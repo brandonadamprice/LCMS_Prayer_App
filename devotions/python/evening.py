@@ -19,10 +19,6 @@ def generate_evening_devotion():
   psalm_options = utils.OFFICE_READINGS.get("evening_psalms", [])
   psalm_ref = random.choice(psalm_options)
 
-  reading_text, psalm_text = utils.fetch_passages([reading_ref, psalm_ref])
-  concluding_prayer = utils.OTHER_PRAYERS["evening_prayers"]
-  all_personal_prayers = utils.get_all_personal_prayers_for_user()
-
   # Daily Lectionary
   lectionary_data = utils.load_lectionary(utils.LECTIONARY_JSON_PATH)
   l_readings = lectionary_data.get(
@@ -34,9 +30,19 @@ def generate_evening_devotion():
       if r != "Reading not found"
   ]
 
+  all_refs = [reading_ref, psalm_ref] + daily_lectionary_readings
+  all_texts = utils.fetch_passages(all_refs)
+  reading_text = all_texts[0]
+  psalm_text = all_texts[1]
+  lectionary_texts = all_texts[2:]
+
+  concluding_prayer = utils.OTHER_PRAYERS["evening_prayers"]
+  all_personal_prayers = utils.get_all_personal_prayers_for_user()
+
   template_data = {
       "date_str": now.strftime("%A, %B %d, %Y"),
       "daily_lectionary_readings": daily_lectionary_readings,
+      "lectionary_texts": lectionary_texts,
       "key": key,
       "reading_ref": reading_ref,
       "reading_options": utils.OFFICE_READINGS["evening_readings"],

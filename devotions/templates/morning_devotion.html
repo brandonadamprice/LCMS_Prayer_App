@@ -53,19 +53,35 @@
     {% endcall %}
 
     {% call macros.card('Reading') %}
-        <span class="ref" id="ref-reading">{{ reading_ref }}</span>
-        <p id="text-reading">{{ reading_text|safe }}</p>
-        
-        <div style="margin-top: 10px;">
-            <button id="btn-toggle-lectionary" class="button" onclick="toggleLectionaryReadings()" style="background-color: #2980b9;">Switch to Daily Lectionary</button>
-            <button class="button picker-toggle-button" onclick="togglePicker(this, 'reading')">Select Reading</button>
+        <div id="office-reading-container">
+            <span class="ref" id="ref-reading">{{ reading_ref }}</span>
+            <p id="text-reading">{{ reading_text|safe }}</p>
+            <button class="button picker-toggle-button" id="office-picker-btn" onclick="togglePicker(this, 'reading')">Select Reading</button>
+            <div id="picker-reading" class="item-picker">
+                {% for r in reading_options %}
+                <button class="button picker-select-button" onclick="selectRef('{{ r }}', 'reading')">{{ r }}</button>
+                {% endfor %}
+            </div>
         </div>
 
-        <div id="picker-reading" class="item-picker">
-            <!-- Populated by JS or server initially -->
-            {% for r in reading_options %}
-            <button class="button picker-select-button" onclick="selectRef('{{ r }}', 'reading')">{{ r }}</button>
-            {% endfor %}
+        <div id="lectionary-reading-container" style="display: none;">
+            {% if daily_lectionary_readings %}
+                <p class="subheader"><strong>Old Testament Reading</strong></p>
+                <span class="ref">{{ daily_lectionary_readings[0] }}</span>
+                <p>{{ lectionary_texts[0]|safe }}</p>
+                {% if daily_lectionary_readings|length > 1 %}
+                    <hr>
+                    <p class="subheader"><strong>New Testament Reading</strong></p>
+                    <span class="ref">{{ daily_lectionary_readings[1] }}</span>
+                    <p>{{ lectionary_texts[1]|safe }}</p>
+                {% endif %}
+            {% else %}
+                <p><em>No Daily Lectionary readings available for today.</em></p>
+            {% endif %}
+        </div>
+
+        <div style="margin-top: 10px;">
+            <button id="btn-toggle-lectionary" class="button" onclick="toggleLectionaryReadings()" style="background-color: #2980b9;">Switch to Daily Lectionary</button>
         </div>
     {% endcall %}
 
@@ -96,40 +112,31 @@
 
 {% block extra_js %}
     let isLectionaryMode = false;
-    const officeReadingRef = "{{ reading_ref }}";
-    const officeOptions = {{ reading_options|tojson }};
-    const lectionaryOptions = {{ daily_lectionary_readings|tojson }};
-
-    function updatePicker(options) {
-        const picker = document.getElementById('picker-reading');
-        picker.innerHTML = '';
-        options.forEach(r => {
-            const btn = document.createElement('button');
-            btn.className = 'button picker-select-button';
-            btn.textContent = r;
-            btn.onclick = () => selectRef(r, 'reading');
-            picker.appendChild(btn);
-        });
-    }
 
     function toggleLectionaryReadings() {
        const btn = document.getElementById('btn-toggle-lectionary');
+       const officeContainer = document.getElementById('office-reading-container');
+       const lectionaryContainer = document.getElementById('lectionary-reading-container');
+       const picker = document.getElementById('picker-reading');
+       const pickerBtn = document.getElementById('office-picker-btn');
+
        if (isLectionaryMode) {
            // Swap back to Office
-           selectRef(officeReadingRef, 'reading');
+           officeContainer.style.display = 'block';
+           lectionaryContainer.style.display = 'none';
            btn.innerText = "Switch to Daily Lectionary";
            isLectionaryMode = false;
-           updatePicker(officeOptions);
        } else {
            // Swap to Lectionary
-           if(lectionaryOptions.length > 0) {
-               selectRef(lectionaryOptions[0], 'reading');
-               btn.innerText = "Back to Office Reading";
-               isLectionaryMode = true;
-               updatePicker(lectionaryOptions);
-           } else {
-               alert("No Daily Lectionary readings available for today.");
+           // Close picker if open to reset state
+           if (picker.classList.contains('visible')) {
+               togglePicker(pickerBtn, 'reading');
            }
+           
+           officeContainer.style.display = 'none';
+           lectionaryContainer.style.display = 'block';
+           btn.innerText = "Back to Office Reading";
+           isLectionaryMode = true;
        }
     }
 {% endblock %}

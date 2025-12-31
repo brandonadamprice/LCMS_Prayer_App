@@ -18,11 +18,6 @@ def generate_close_of_day_devotion():
   psalm_options = utils.OFFICE_READINGS.get("close_of_day_psalms", [])
   psalm_ref = random.choice(psalm_options)
 
-  reading_text, psalm_text = utils.fetch_passages([reading_ref, psalm_ref])
-
-  weekly_prayer_data = utils.get_weekly_prayer_for_day(now)
-  concluding_prayer = utils.OTHER_PRAYERS["close_of_day_prayers"]
-
   # Daily Lectionary
   lectionary_data = utils.load_lectionary(utils.LECTIONARY_JSON_PATH)
   l_readings = lectionary_data.get(
@@ -34,9 +29,19 @@ def generate_close_of_day_devotion():
       if r != "Reading not found"
   ]
 
+  all_refs = [reading_ref, psalm_ref] + daily_lectionary_readings
+  all_texts = utils.fetch_passages(all_refs)
+  reading_text = all_texts[0]
+  psalm_text = all_texts[1]
+  lectionary_texts = all_texts[2:]
+
+  weekly_prayer_data = utils.get_weekly_prayer_for_day(now)
+  concluding_prayer = utils.OTHER_PRAYERS["close_of_day_prayers"]
+
   template_data = {
       "date_str": now.strftime("%A, %B %d, %Y"),
       "daily_lectionary_readings": daily_lectionary_readings,
+      "lectionary_texts": lectionary_texts,
       "key": key,
       "psalm_ref": psalm_ref,
       "psalm_options": psalm_options,

@@ -13,10 +13,6 @@ def generate_night_watch_devotion():
   now = datetime.datetime.now(eastern_timezone)
   psalm_ref = random.choice(utils.OFFICE_READINGS["night_watch_psalms"])
   reading_ref = random.choice(utils.OFFICE_READINGS["night_watch_readings"])
-  psalm_text, reading_text = utils.fetch_passages([psalm_ref, reading_ref])
-  protection_prayer = utils.OTHER_PRAYERS["night_watch_protection_prayers"]
-  concluding_prayer = utils.OTHER_PRAYERS["night_watch_concluding_prayers"]
-
   # Daily Lectionary
   lectionary_data = utils.load_lectionary(utils.LECTIONARY_JSON_PATH)
   # Night Watch uses specific readings too, but user asked for "nightwatch devotional" too.
@@ -31,9 +27,19 @@ def generate_night_watch_devotion():
       if r != "Reading not found"
   ]
 
+  all_refs = [psalm_ref, reading_ref] + daily_lectionary_readings
+  all_texts = utils.fetch_passages(all_refs)
+  psalm_text = all_texts[0]
+  reading_text = all_texts[1]
+  lectionary_texts = all_texts[2:]
+
+  protection_prayer = utils.OTHER_PRAYERS["night_watch_protection_prayers"]
+  concluding_prayer = utils.OTHER_PRAYERS["night_watch_concluding_prayers"]
+
   template_data = {
       "date_str": now.strftime("%A, %B %d, %Y"),
       "daily_lectionary_readings": daily_lectionary_readings,
+      "lectionary_texts": lectionary_texts,
       "psalm_ref": psalm_ref,
       "psalm_text": psalm_text,
       "psalm_options": utils.OFFICE_READINGS["night_watch_psalms"],
