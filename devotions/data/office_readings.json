@@ -44,6 +44,49 @@
     "2 Corinthians 4:16-18",
     "Revelation 21:22-22:5"
   ],
+  "morning_psalms": [
+    "Psalm 1",
+    "Psalm 5",
+    "Psalm 16",
+    "Psalm 23",
+    "Psalm 27",
+    "Psalm 46",
+    "Psalm 51",
+    "Psalm 63",
+    "Psalm 84",
+    "Psalm 95",
+    "Psalm 103",
+    "Psalm 119",
+    "Psalm 121",
+    "Psalm 130",
+    "Psalm 148",
+    "Psalm 150"
+  ],
+  "midday_psalms": [
+    "Psalm 4",
+    "Psalm 7",
+    "Psalm 19",
+    "Psalm 104",
+    "Psalm 121"
+  ],
+  "evening_psalms": [
+    "Psalm 3",
+    "Psalm 4",
+    "Psalm 8",
+    "Psalm 91",
+    "Psalm 104",
+    "Psalm 127",
+    "Psalm 134",
+    "Psalm 139",
+    "Psalm 141"
+  ],
+  "close_of_day_psalms": [
+    "Psalm 4",
+    "Psalm 6",
+    "Psalm 91",
+    "Psalm 92",
+    "Psalm 134"
+  ],
   "night_watch_psalms": [
     "Psalm 130",
     "Psalm 51",

@@ -39,8 +39,16 @@
     {% endcall %}
 
     {% call macros.card('Psalmody') %}
-        <span class="ref">{{ psalm_ref }}</span>
-        <p>{{ psalm_text|safe }}</p>
+        <span class="ref" id="ref-psalm">{{ psalm_ref }}</span>
+        <p id="text-psalm">{{ psalm_text|safe }}</p>
+        {% if psalm_options %}
+        <button class="button picker-toggle-button" onclick="togglePicker(this, 'psalm')">Select Psalm</button>
+        <div id="picker-psalm" class="item-picker">
+            {% for p in psalm_options %}
+            <button class="button picker-select-button" onclick="selectRef('{{ p }}', 'psalm')">{{ p }}</button>
+            {% endfor %}
+        </div>
+        {% endif %}
         {{ macros.format_prayer(config['OTHER_PRAYERS']['gloria_patri']) }}
     {% endcall %}
 

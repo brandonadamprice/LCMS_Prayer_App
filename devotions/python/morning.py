@@ -15,8 +15,8 @@ def generate_morning_devotion():
   key = cy.get_liturgical_key(now)
 
   reading_ref = random.choice(utils.OFFICE_READINGS["morning_readings"])
-  psalm_num = random.randint(1, 150)
-  psalm_ref = f"Psalm {psalm_num}"
+  psalm_options = utils.OFFICE_READINGS.get("morning_psalms", [])
+  psalm_ref = random.choice(psalm_options)
 
   reading_text, psalm_text = utils.fetch_passages([reading_ref, psalm_ref])
   concluding_prayer = utils.OTHER_PRAYERS["morning_prayers"]
@@ -29,6 +29,7 @@ def generate_morning_devotion():
       "reading_options": utils.OFFICE_READINGS["morning_readings"],
       "reading_text": reading_text,
       "psalm_ref": psalm_ref,
+      "psalm_options": psalm_options,
       "psalm_text": psalm_text,
       "concluding_prayer": concluding_prayer,
       "luthers_morning_prayer": utils.OTHER_PRAYERS["luthers_morning_prayer"],

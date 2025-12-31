@@ -15,7 +15,10 @@ def generate_close_of_day_devotion():
   key = cy.get_liturgical_key(now)
 
   reading_ref = random.choice(utils.OFFICE_READINGS["close_of_day_readings"])
-  reading_text = utils.fetch_passages([reading_ref])[0]
+  psalm_options = utils.OFFICE_READINGS.get("close_of_day_psalms", [])
+  psalm_ref = random.choice(psalm_options)
+
+  reading_text, psalm_text = utils.fetch_passages([reading_ref, psalm_ref])
 
   weekly_prayer_data = utils.get_weekly_prayer_for_day(now)
   concluding_prayer = utils.OTHER_PRAYERS["close_of_day_prayers"]
@@ -23,6 +26,9 @@ def generate_close_of_day_devotion():
   template_data = {
       "date_str": now.strftime("%A, %B %d, %Y"),
       "key": key,
+      "psalm_ref": psalm_ref,
+      "psalm_options": psalm_options,
+      "psalm_text": psalm_text,
       "reading_ref": reading_ref,
       "reading_options": utils.OFFICE_READINGS["close_of_day_readings"],
       "reading_text": reading_text,
