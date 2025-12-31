@@ -62,46 +62,6 @@
             {% endfor %}
         </div>
     {% endcall %}
-{% endblock %}
-
-{% block extra_js %}
-<script>
-    let isLectionaryMode = false;
-    const officeReadingRef = "{{ reading_ref }}";
-    const officeOptions = {{ reading_options|tojson }};
-    const lectionaryOptions = {{ daily_lectionary_readings|tojson }};
-
-    function updatePicker(options) {
-        const picker = document.getElementById('picker-reading');
-        picker.innerHTML = '';
-        options.forEach(r => {
-            const btn = document.createElement('button');
-            btn.className = 'button picker-select-button';
-            btn.textContent = r;
-            btn.onclick = () => selectRef(r, 'reading');
-            picker.appendChild(btn);
-        });
-    }
-
-    function toggleLectionaryReadings() {
-       const btn = document.getElementById('btn-toggle-lectionary');
-       if (isLectionaryMode) {
-           selectRef(officeReadingRef, 'reading');
-           btn.innerText = "Switch to Daily Lectionary";
-           isLectionaryMode = false;
-           updatePicker(officeOptions);
-       } else {
-           if(lectionaryOptions.length > 0) {
-               selectRef(lectionaryOptions[0], 'reading');
-               btn.innerText = "Back to Office Reading";
-               isLectionaryMode = true;
-               updatePicker(lectionaryOptions);
-           } else {
-               alert("No Daily Lectionary readings available for today.");
-           }
-       }
-    }
-</script>
 
     {% call macros.card('Creed') %}
         {{ macros.format_prayer(config['OTHER_PRAYERS']['apostles_creed']) }}
@@ -142,4 +102,42 @@
         </p>
         <p><span class="rubric">Then go to sleep at once and in good cheer.</span></p>
     {% endcall %}
+{% endblock %}
+
+{% block extra_js %}
+    let isLectionaryMode = false;
+    const officeReadingRef = "{{ reading_ref }}";
+    const officeOptions = {{ reading_options|tojson }};
+    const lectionaryOptions = {{ daily_lectionary_readings|tojson }};
+
+    function updatePicker(options) {
+        const picker = document.getElementById('picker-reading');
+        picker.innerHTML = '';
+        options.forEach(r => {
+            const btn = document.createElement('button');
+            btn.className = 'button picker-select-button';
+            btn.textContent = r;
+            btn.onclick = () => selectRef(r, 'reading');
+            picker.appendChild(btn);
+        });
+    }
+
+    function toggleLectionaryReadings() {
+       const btn = document.getElementById('btn-toggle-lectionary');
+       if (isLectionaryMode) {
+           selectRef(officeReadingRef, 'reading');
+           btn.innerText = "Switch to Daily Lectionary";
+           isLectionaryMode = false;
+           updatePicker(officeOptions);
+       } else {
+           if(lectionaryOptions.length > 0) {
+               selectRef(lectionaryOptions[0], 'reading');
+               btn.innerText = "Back to Office Reading";
+               isLectionaryMode = true;
+               updatePicker(lectionaryOptions);
+           } else {
+               alert("No Daily Lectionary readings available for today.");
+           }
+       }
+    }
 {% endblock %}

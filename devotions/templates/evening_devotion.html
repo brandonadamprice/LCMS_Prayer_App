@@ -68,10 +68,42 @@
             {% endfor %}
         </div>
     {% endcall %}
+
+    {% if catechism_enabled %}
+    {% call macros.card('Catechism: ' ~ catechism_title) %}
+        {% if catechism_text %}
+          <p>{{ catechism_text|safe }}</p>
+        {% endif %}
+        {% for qa in questions_and_answers %}
+          <div class="catechism-qa">
+            <p><strong>{{ qa.question }}</strong></p>
+            <p>{{ qa.answer|safe }}</p>
+          </div>
+        {% endfor %}
+        <p><strong>Prayer:</strong> {{ catechism_prayer|safe }}</p>
+        <span class="versicle-ref">Catechism source: <a href="https://bookofconcord.org/small-catechism/" target="_blank">bookofconcord.org</a></span>
+    {% endcall %}
+    {% endif %}
+
+    {% call macros.card('Prayers') %}
+        {{ macros.format_prayer(config['OTHER_PRAYERS']['lords_prayer']) }}
+        <hr />
+        <p><em>(You may offer your own prayers at this time)</em></p>
+        {{ macros.personal_prayers_toggle(all_personal_prayers) }}
+        <hr />
+        <p class="subheader"><strong>Concluding Prayer</strong></p>
+        {{ macros.format_prayer(concluding_prayer) }}
+    {% endcall %}
+
+    {% call macros.card('Conclusion') %}
+        <p>
+          Let us bless the Lord.<br />
+          <strong>Thanks be to God.</strong>
+        </p>
+    {% endcall %}
 {% endblock %}
 
 {% block extra_js %}
-<script>
     let isLectionaryMode = false;
     const officeReadingRef = "{{ reading_ref }}";
     const officeOptions = {{ reading_options|tojson }};
@@ -107,38 +139,4 @@
            }
        }
     }
-</script>
-
-    {% if catechism_enabled %}
-    {% call macros.card('Catechism: ' ~ catechism_title) %}
-        {% if catechism_text %}
-          <p>{{ catechism_text|safe }}</p>
-        {% endif %}
-        {% for qa in questions_and_answers %}
-          <div class="catechism-qa">
-            <p><strong>{{ qa.question }}</strong></p>
-            <p>{{ qa.answer|safe }}</p>
-          </div>
-        {% endfor %}
-        <p><strong>Prayer:</strong> {{ catechism_prayer|safe }}</p>
-        <span class="versicle-ref">Catechism source: <a href="https://bookofconcord.org/small-catechism/" target="_blank">bookofconcord.org</a></span>
-    {% endcall %}
-    {% endif %}
-
-    {% call macros.card('Prayers') %}
-        {{ macros.format_prayer(config['OTHER_PRAYERS']['lords_prayer']) }}
-        <hr />
-        <p><em>(You may offer your own prayers at this time)</em></p>
-        {{ macros.personal_prayers_toggle(all_personal_prayers) }}
-        <hr />
-        <p class="subheader"><strong>Concluding Prayer</strong></p>
-        {{ macros.format_prayer(concluding_prayer) }}
-    {% endcall %}
-
-    {% call macros.card('Conclusion') %}
-        <p>
-          Let us bless the Lord.<br />
-          <strong>Thanks be to God.</strong>
-        </p>
-    {% endcall %}
 {% endblock %}

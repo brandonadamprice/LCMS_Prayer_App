@@ -68,10 +68,33 @@
             {% endfor %}
         </div>
     {% endcall %}
+
+    {% call macros.card('Creed') %}
+        {{ macros.format_prayer(config['OTHER_PRAYERS']['apostles_creed']) }}
+    {% endcall %}
+
+    {% call macros.card('Prayers') %}
+        {{ macros.format_prayer(config['OTHER_PRAYERS']['lords_prayer']) }}
+        <hr />
+        <p><em>(You may offer your own prayers at this time)</em></p>
+        {{ macros.personal_prayers_toggle(all_personal_prayers) }}
+        <hr />
+        <p class="subheader"><strong>Concluding Prayer</strong></p>
+        {{ macros.format_prayer(concluding_prayer) }}
+        <hr />
+        {{ macros.format_prayer(luthers_morning_prayer) }}
+    {% endcall %}
+
+    {% call macros.card('Conclusion') %}
+        <p>
+          Let us bless the Lord.<br />
+          <strong>Thanks be to God.</strong>
+        </p>
+        <p><span class="rubric">Then go joyfully to your work.</span></p>
+    {% endcall %}
 {% endblock %}
 
 {% block extra_js %}
-<script>
     let isLectionaryMode = false;
     const officeReadingRef = "{{ reading_ref }}";
     const officeOptions = {{ reading_options|tojson }};
@@ -109,29 +132,4 @@
            }
        }
     }
-</script>
-
-    {% call macros.card('Creed') %}
-        {{ macros.format_prayer(config['OTHER_PRAYERS']['apostles_creed']) }}
-    {% endcall %}
-
-    {% call macros.card('Prayers') %}
-        {{ macros.format_prayer(config['OTHER_PRAYERS']['lords_prayer']) }}
-        <hr />
-        <p><em>(You may offer your own prayers at this time)</em></p>
-        {{ macros.personal_prayers_toggle(all_personal_prayers) }}
-        <hr />
-        <p class="subheader"><strong>Concluding Prayer</strong></p>
-        {{ macros.format_prayer(concluding_prayer) }}
-        <hr />
-        {{ macros.format_prayer(luthers_morning_prayer) }}
-    {% endcall %}
-
-    {% call macros.card('Conclusion') %}
-        <p>
-          Let us bless the Lord.<br />
-          <strong>Thanks be to God.</strong>
-        </p>
-        <p><span class="rubric">Then go joyfully to your work.</span></p>
-    {% endcall %}
 {% endblock %}

@@ -65,10 +65,32 @@
             {% endfor %}
         </div>
     {% endcall %}
+
+    {% call macros.card('Prayers') %}
+        <p>
+          O Lord, <strong>have mercy upon us.</strong><br />
+          O Christ, <strong>have mercy upon us.</strong><br />
+          O Lord, <strong>have mercy upon us.</strong>
+        </p>
+        <hr />
+        {{ macros.format_prayer(config['OTHER_PRAYERS']['lords_prayer']) }}
+        <hr />
+        <p><em>(You may offer your own prayers at this time)</em></p>
+        {{ macros.personal_prayers_toggle(all_personal_prayers) }}
+        <hr />
+        <p class="subheader"><strong>Concluding Prayer</strong></p>
+        {{ macros.format_prayer(concluding_prayer) }}
+    {% endcall %}
+
+    {% call macros.card('Conclusion') %}
+        <p>
+          Let us bless the Lord.<br />
+          <strong>Thanks be to God.</strong>
+        </p>
+    {% endcall %}
 {% endblock %}
 
 {% block extra_js %}
-<script>
     let isLectionaryMode = false;
     const officeReadingRef = "{{ reading_ref }}";
     const officeOptions = {{ reading_options|tojson }};
@@ -104,28 +126,4 @@
            }
        }
     }
-</script>
-
-    {% call macros.card('Prayers') %}
-        <p>
-          O Lord, <strong>have mercy upon us.</strong><br />
-          O Christ, <strong>have mercy upon us.</strong><br />
-          O Lord, <strong>have mercy upon us.</strong>
-        </p>
-        <hr />
-        {{ macros.format_prayer(config['OTHER_PRAYERS']['lords_prayer']) }}
-        <hr />
-        <p><em>(You may offer your own prayers at this time)</em></p>
-        {{ macros.personal_prayers_toggle(all_personal_prayers) }}
-        <hr />
-        <p class="subheader"><strong>Concluding Prayer</strong></p>
-        {{ macros.format_prayer(concluding_prayer) }}
-    {% endcall %}
-
-    {% call macros.card('Conclusion') %}
-        <p>
-          Let us bless the Lord.<br />
-          <strong>Thanks be to God.</strong>
-        </p>
-    {% endcall %}
 {% endblock %}

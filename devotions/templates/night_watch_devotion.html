@@ -42,10 +42,30 @@
             {% endfor %}
         </div>
     {% endcall %}
+
+    {% call macros.card('Prayers') %}
+        <p class="subheader"><strong>Kyrie</strong></p>
+        <p>O Lord, <strong>have mercy upon us.</strong><br />
+           O Christ, <strong>have mercy upon us.</strong><br />
+           O Lord, <strong>have mercy upon us.</strong></p>
+        <hr />
+        {{ macros.format_prayer(config['OTHER_PRAYERS']['lords_prayer']) }}
+        <hr />
+        <p class="subheader"><strong>Prayer for Protection and Rest</strong></p>
+        {{ macros.format_prayer(protection_prayer) }}
+        <hr />
+        <p class="subheader"><strong>Concluding Prayer</strong></p>
+        {{ macros.format_prayer(concluding_prayer) }}
+    {% endcall %}
+
+    {% call macros.card('Closing') %}
+        {{ macros.format_prayer(config['OTHER_PRAYERS']['nunc_dimittis']) }}
+        <p>Bless we the Lord.<br /><strong>Thanks be to God.</strong></p>
+        <p><span class="rubric">Then go to sleep at once and in good cheer.</span></p>
+    {% endcall %}
 {% endblock %}
 
 {% block extra_js %}
-<script>
     let isLectionaryMode = false;
     const officeReadingRef = "{{ reading_ref }}";
     const officeOptions = {{ reading_options|tojson }};
@@ -81,26 +101,4 @@
            }
        }
     }
-</script>
-
-    {% call macros.card('Prayers') %}
-        <p class="subheader"><strong>Kyrie</strong></p>
-        <p>O Lord, <strong>have mercy upon us.</strong><br />
-           O Christ, <strong>have mercy upon us.</strong><br />
-           O Lord, <strong>have mercy upon us.</strong></p>
-        <hr />
-        {{ macros.format_prayer(config['OTHER_PRAYERS']['lords_prayer']) }}
-        <hr />
-        <p class="subheader"><strong>Prayer for Protection and Rest</strong></p>
-        {{ macros.format_prayer(protection_prayer) }}
-        <hr />
-        <p class="subheader"><strong>Concluding Prayer</strong></p>
-        {{ macros.format_prayer(concluding_prayer) }}
-    {% endcall %}
-
-    {% call macros.card('Closing') %}
-        {{ macros.format_prayer(config['OTHER_PRAYERS']['nunc_dimittis']) }}
-        <p>Bless we the Lord.<br /><strong>Thanks be to God.</strong></p>
-        <p><span class="rubric">Then go to sleep at once and in good cheer.</span></p>
-    {% endcall %}
 {% endblock %}
