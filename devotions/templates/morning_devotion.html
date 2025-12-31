@@ -45,8 +45,14 @@
     {% endcall %}
 
     {% call macros.card('Reading') %}
-        <span class="ref">{{ reading_ref }}</span>
-        <p>{{ reading_text|safe }}</p>
+        <span class="ref" id="ref-reading">{{ reading_ref }}</span>
+        <p id="text-reading">{{ reading_text|safe }}</p>
+        <button class="button picker-toggle-button" onclick="togglePicker(this, 'reading')">Select Reading</button>
+        <div id="picker-reading" class="item-picker">
+            {% for r in reading_options %}
+            <button class="button picker-select-button" onclick="selectRef('{{ r }}', 'reading')">{{ r }}</button>
+            {% endfor %}
+        </div>
     {% endcall %}
 
     {% call macros.card('Creed') %}

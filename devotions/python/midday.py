@@ -26,6 +26,7 @@ def generate_midday_devotion():
       "date_str": now.strftime("%A, %B %d, %Y"),
       "key": key,
       "reading_ref": reading_ref,
+      "reading_options": utils.OFFICE_READINGS["midday_readings"],
       "reading_text": reading_text,
       "psalm_ref": psalm_ref,
       "psalm_text": psalm_text,

@@ -24,6 +24,7 @@ def generate_close_of_day_devotion():
       "date_str": now.strftime("%A, %B %d, %Y"),
       "key": key,
       "reading_ref": reading_ref,
+      "reading_options": utils.OFFICE_READINGS["close_of_day_readings"],
       "reading_text": reading_text,
       "concluding_prayer": concluding_prayer,
       "luthers_evening_prayer": utils.OTHER_PRAYERS["luthers_evening_prayer"],

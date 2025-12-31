@@ -21,8 +21,10 @@ def generate_night_watch_devotion():
       "date_str": now.strftime("%A, %B %d, %Y"),
       "psalm_ref": psalm_ref,
       "psalm_text": psalm_text,
+      "psalm_options": utils.OFFICE_READINGS["night_watch_psalms"],
       "reading_ref": reading_ref,
       "reading_text": reading_text,
+      "reading_options": utils.OFFICE_READINGS["night_watch_readings"],
       "protection_prayer": protection_prayer,
       "concluding_prayer": concluding_prayer,
   }
