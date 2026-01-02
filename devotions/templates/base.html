@@ -234,7 +234,7 @@
         <h2>Welcome!</h2>
         <p>Did you know? You can log in to save preferences, sync data across devices, and access features like My Prayers!</p>
         <div style="text-align: center; margin-top: 20px;">
-            <a href="/login" class="button">Log In / Sign Up</a>
+            <a href="/login" class="button" id="modal-login-btn">Log In / Sign Up</a>
         </div>
       </div>
     </div>
@@ -487,7 +487,7 @@
       const closeLoginModal = document.getElementById('login-modal-close');
       const LOGIN_MSG_KEY = 'loginMessageShown';
 
-      if (!isLoggedIn && !localStorage.getItem(LOGIN_MSG_KEY)) {
+      if (!isLoggedIn && !localStorage.getItem(LOGIN_MSG_KEY) && !window.location.pathname.startsWith('/login')) {
           // Show with a slight delay for better UX
           setTimeout(() => {
               if (loginModal) loginModal.classList.add('visible');
@@ -501,6 +501,11 @@
 
       if(closeLoginModal) {
           closeLoginModal.addEventListener('click', dismissLoginModal);
+      }
+
+      const modalLoginBtn = document.getElementById('modal-login-btn');
+      if (modalLoginBtn) {
+          modalLoginBtn.addEventListener('click', dismissLoginModal);
       }
       
       // Close if clicking outside content
