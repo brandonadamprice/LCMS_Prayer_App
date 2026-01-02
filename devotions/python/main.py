@@ -233,6 +233,12 @@ def copyright_route():
 
 @app.route("/login")
 def login():
+  """Renders the sign-in page."""
+  return flask.render_template("signin.html")
+
+
+@app.route("/login/google")
+def google_login():
   """Redirects to Google OAuth login."""
   redirect_uri = flask.url_for("authorize", _external=True)
   nonce = secrets.token_urlsafe()
