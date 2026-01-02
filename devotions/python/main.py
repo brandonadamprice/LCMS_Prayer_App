@@ -118,6 +118,16 @@ def load_user(user_id):
   return User.get(user_id)
 
 
+@app.before_request
+def redirect_to_new_domain():
+  """Redirects requests from lcmsprayer.com to asimplewaytopray.com."""
+  if "lcmsprayer.com" in flask.request.host:
+    new_url = flask.request.url.replace(
+        "lcmsprayer.com", "asimplewaytopray.com"
+    )
+    return flask.redirect(new_url, code=301)
+
+
 @app.context_processor
 def inject_globals():
   """Injects global variables into all templates."""
