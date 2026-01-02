@@ -228,9 +228,15 @@
       </footer>
     </main>
 
-    <div id="login-popup" class="hidden">
-      <button id="login-popup-close" aria-label="Close">&times;</button>
-      <p>Did you know? You can log in via the menu (☰) to save preferences and access features like My Prayers!</p>
+    <div id="login-modal" class="modal">
+      <div class="modal-content">
+        <span class="close-modal" id="login-modal-close">&times;</span>
+        <h2>Welcome!</h2>
+        <p>Did you know? You can log in to save preferences, sync data across devices, and access features like My Prayers!</p>
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="/login" class="button">Log In / Sign Up</a>
+        </div>
+      </div>
     </div>
     {% block body_scripts %}{% endblock %}
     <script>
@@ -476,21 +482,33 @@
         }
       });
 
-      // Login prompt popup
-      const loginPopup = document.getElementById('login-popup');
-      const closeLoginPopup = document.getElementById('login-popup-close');
+      // Login prompt modal
+      const loginModal = document.getElementById('login-modal');
+      const closeLoginModal = document.getElementById('login-modal-close');
       const LOGIN_MSG_KEY = 'loginMessageShown';
 
       if (!isLoggedIn && !localStorage.getItem(LOGIN_MSG_KEY)) {
-          loginPopup.classList.remove('hidden');
+          // Show with a slight delay for better UX
+          setTimeout(() => {
+              if (loginModal) loginModal.classList.add('visible');
+          }, 1000);
       }
 
-      if(closeLoginPopup) {
-          closeLoginPopup.addEventListener('click', () => {
-              loginPopup.classList.add('hidden');
-              localStorage.setItem(LOGIN_MSG_KEY, 'true');
-          });
+      function dismissLoginModal() {
+          if (loginModal) loginModal.classList.remove('visible');
+          localStorage.setItem(LOGIN_MSG_KEY, 'true');
       }
+
+      if(closeLoginModal) {
+          closeLoginModal.addEventListener('click', dismissLoginModal);
+      }
+      
+      // Close if clicking outside content
+      window.addEventListener('click', function(event) {
+          if (event.target == loginModal) {
+              dismissLoginModal();
+          }
+      });
       {% block extra_js %}{% endblock %}
 
       if ('serviceWorker' in navigator) {
