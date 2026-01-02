@@ -31,6 +31,7 @@ import reminders
 import secrets_fetcher
 import short_prayers
 import utils
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 
 TEMPLATE_DIR = os.path.abspath(
@@ -42,6 +43,7 @@ app = flask.Flask(
     template_folder=TEMPLATE_DIR,
     static_folder=STATIC_DIR,
 )
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 app.secret_key = secrets_fetcher.get_flask_secret_key()
 app.config["PERMANENT_SESSION_LIFETIME"] = datetime.timedelta(days=31)
 app.config["REMEMBER_COOKIE_DURATION"] = datetime.timedelta(days=31)
@@ -52,6 +54,9 @@ except:
   app.config["ADMIN_USER_ID"] = None
 
 # OAuth and Flask-Login Setup
+if app.debug:
+  os.environ["AUTHLIB_INSECURE_TRANSPORT"] = "1"
+
 oauth = OAuth(app)
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
