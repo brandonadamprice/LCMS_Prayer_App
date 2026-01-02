@@ -138,7 +138,7 @@ def _process_reminder_notification(reminder_data, user_data, reminder_id=None):
   methods = reminder_data.get("methods", [])
   devotion_key = reminder_data.get("devotion")
 
-  base_url = "https://www.lcmsprayer.com"
+  base_url = "https://www.asimplewaytopray.com"
   devotion_path = DEVOTION_URLS.get(devotion_key, "/")
   full_url = f"{base_url}{devotion_path}"
 

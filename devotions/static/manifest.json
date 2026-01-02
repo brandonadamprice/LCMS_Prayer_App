@@ -1,7 +1,7 @@
 {
   "id": "/",
-  "name": "Prayer & Scripture Companion",
-  "short_name": "Prayer App",
+  "name": "A Simple Way to Pray",
+  "short_name": "Simple Prayer",
   "description": "Daily devotions, prayers, and scripture readings according to the LCMS tradition.",
   "start_url": "/",
   "scope": "/",
