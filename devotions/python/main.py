@@ -66,6 +66,18 @@ google = oauth.register(
     client_kwargs={"scope": "openid email profile"},
 )
 
+facebook = oauth.register(
+    name="facebook",
+    client_id=secrets_fetcher.get_facebook_client_id(),
+    client_secret=secrets_fetcher.get_facebook_client_secret(),
+    access_token_url="https://graph.facebook.com/oauth/access_token",
+    access_token_params=None,
+    authorize_url="https://www.facebook.com/dialog/oauth",
+    authorize_params=None,
+    api_base_url="https://graph.facebook.com/",
+    client_kwargs={"scope": "email public_profile"},
+)
+
 
 class User(flask_login.UserMixin):
   """User class for Flask-Login."""
@@ -154,21 +166,44 @@ def inject_globals():
   return dict(is_advent=is_advent, is_new_year=is_new_year)
 
 
-def create_or_update_google_user(user_info):
-  """Creates or updates a user in Firestore based on Google profile info."""
+def create_or_update_oauth_user(user_info, provider):
+  """Creates or updates a user in Firestore based on OAuth profile info."""
   db = utils.get_db_client()
-  user_id = user_info["sub"]
+
+  if provider == "google":
+    # Maintain backward compatibility for existing Google users (no prefix)
+    user_id = user_info["sub"]
+    data = {
+        "google_id": user_id,
+        "email": user_info.get("email"),
+        "name": user_info.get("name"),
+        "profile_pic": user_info.get("picture"),
+    }
+  elif provider == "facebook":
+    # Prefix Facebook users to avoid collision
+    facebook_id = user_info["id"]
+    user_id = f"facebook_{facebook_id}"
+    picture_url = None
+    if (
+        "picture" in user_info
+        and "data" in user_info["picture"]
+        and "url" in user_info["picture"]["data"]
+    ):
+      picture_url = user_info["picture"]["data"]["url"]
+
+    data = {
+        "facebook_id": facebook_id,
+        "email": user_info.get("email"),
+        "name": user_info.get("name"),
+        "profile_pic": picture_url,
+    }
+  else:
+    raise ValueError(f"Unsupported provider: {provider}")
+
+  data["last_login"] = datetime.datetime.now(datetime.timezone.utc)
+
   user_ref = db.collection("users").document(user_id)
-  user_ref.set(
-      {
-          "google_id": user_id,
-          "email": user_info.get("email"),
-          "name": user_info.get("name"),
-          "profile_pic": user_info.get("picture"),
-          "last_login": datetime.datetime.now(datetime.timezone.utc),
-      },
-      merge=True,
-  )
+  user_ref.set(data, merge=True)
   return User.get(user_id)
 
 
@@ -231,6 +266,12 @@ def copyright_route():
   return flask.render_template("copyright.html")
 
 
+@app.route("/privacy")
+def privacy_route():
+  """Returns the privacy policy page HTML."""
+  return flask.render_template("privacy.html")
+
+
 @app.route("/login")
 def login():
   """Renders the sign-in page."""
@@ -246,6 +287,13 @@ def google_login():
   return google.authorize_redirect(redirect_uri, nonce=nonce)
 
 
+@app.route("/login/facebook")
+def facebook_login():
+  """Redirects to Facebook OAuth login."""
+  redirect_uri = flask.url_for("authorize_facebook", _external=True)
+  return facebook.authorize_redirect(redirect_uri)
+
+
 @app.route("/authorize")
 def authorize():
   """Callback route for Google OAuth."""
@@ -253,12 +301,30 @@ def authorize():
     token = google.authorize_access_token()
     nonce = flask.session.pop("nonce", None)
     user_info = google.parse_id_token(token, nonce=nonce)
-    user = create_or_update_google_user(user_info)
+    user = create_or_update_oauth_user(user_info, "google")
     flask_login.login_user(user, remember=True)
     flask.session.permanent = True
     return flask.redirect("/")
   except Exception as e:
-    app.logger.warning("OAuth Error: %s", e)
+    app.logger.warning("Google OAuth Error: %s", e)
+    return "Authentication failed.", 400
+
+
+@app.route("/authorize/facebook")
+def authorize_facebook():
+  """Callback route for Facebook OAuth."""
+  try:
+    facebook.authorize_access_token()
+    resp = facebook.get(
+        "https://graph.facebook.com/me?fields=id,name,email,picture.type(large)"
+    )
+    user_info = resp.json()
+    user = create_or_update_oauth_user(user_info, "facebook")
+    flask_login.login_user(user, remember=True)
+    flask.session.permanent = True
+    return flask.redirect("/")
+  except Exception as e:
+    app.logger.warning("Facebook OAuth Error: %s", e)
     return "Authentication failed.", 400
 
 

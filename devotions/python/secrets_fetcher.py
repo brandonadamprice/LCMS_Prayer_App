@@ -73,4 +73,14 @@ def get_firebase_vapid_key():
   return _get_secret("FIREBASE_VAPID_KEY", "FIREBASE_VAPID_KEY")
 
 
+def get_facebook_client_id():
+  """Fetches the Facebook App ID."""
+  return _get_secret("FACEBOOK_CLIENT_ID", "FACEBOOK_CLIENT_ID")
+
+
+def get_facebook_client_secret():
+  """Fetches the Facebook App Secret."""
+  return _get_secret("FACEBOOK_CLIENT_SECRET", "FACEBOOK_CLIENT_SECRET")
+
+
 
