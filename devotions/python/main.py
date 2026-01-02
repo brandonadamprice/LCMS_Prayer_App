@@ -166,23 +166,18 @@ def inject_globals():
   return dict(is_advent=is_advent, is_new_year=is_new_year)
 
 
-def create_or_update_oauth_user(user_info, provider):
-  """Creates or updates a user in Firestore based on OAuth profile info."""
-  db = utils.get_db_client()
-
+def get_oauth_user_data(user_info, provider):
+  """Extracts standard user data from OAuth info."""
+  data = {}
   if provider == "google":
-    # Maintain backward compatibility for existing Google users (no prefix)
-    user_id = user_info["sub"]
-    data = {
-        "google_id": user_id,
-        "email": user_info.get("email"),
-        "name": user_info.get("name"),
-        "profile_pic": user_info.get("picture"),
-    }
+    data["google_id"] = user_info["sub"]
+    data["email"] = user_info.get("email")
+    data["name"] = user_info.get("name")
+    data["profile_pic"] = user_info.get("picture")
   elif provider == "facebook":
-    # Prefix Facebook users to avoid collision
-    facebook_id = user_info["id"]
-    user_id = f"facebook_{facebook_id}"
+    data["facebook_id"] = user_info["id"]
+    data["email"] = user_info.get("email")
+    data["name"] = user_info.get("name")
     picture_url = None
     if (
         "picture" in user_info
@@ -190,21 +185,66 @@ def create_or_update_oauth_user(user_info, provider):
         and "url" in user_info["picture"]["data"]
     ):
       picture_url = user_info["picture"]["data"]["url"]
+    data["profile_pic"] = picture_url
+  return data
 
-    data = {
-        "facebook_id": facebook_id,
-        "email": user_info.get("email"),
-        "name": user_info.get("name"),
-        "profile_pic": picture_url,
-    }
+
+def create_new_user_doc(user_data, provider):
+  """Creates a new user document."""
+  db = utils.get_db_client()
+  if provider == "google":
+    # Maintain backward compatibility: Google users use sub as doc ID
+    user_id = user_data["google_id"]
   else:
-    raise ValueError(f"Unsupported provider: {provider}")
+    # Prefix others to avoid collision if IDs overlap (unlikely but safe)
+    user_id = f"{provider}_{user_data[f'{provider}_id']}"
 
-  data["last_login"] = datetime.datetime.now(datetime.timezone.utc)
-
-  user_ref = db.collection("users").document(user_id)
-  user_ref.set(data, merge=True)
+  user_data["last_login"] = datetime.datetime.now(datetime.timezone.utc)
+  db.collection("users").document(user_id).set(user_data, merge=True)
   return User.get(user_id)
+
+
+def update_existing_user_doc(user_id, user_data):
+  """Updates an existing user document."""
+  db = utils.get_db_client()
+  user_data["last_login"] = datetime.datetime.now(datetime.timezone.utc)
+  db.collection("users").document(user_id).set(user_data, merge=True)
+  return User.get(user_id)
+
+
+def handle_oauth_login(user_info, provider):
+  """Handles the login logic including merge detection."""
+  user_data = get_oauth_user_data(user_info, provider)
+  email = user_data.get("email")
+  provider_id_field = f"{provider}_id"
+  provider_id_value = user_data[provider_id_field]
+
+  db = utils.get_db_client()
+  users_ref = db.collection("users")
+
+  # 1. Check if user exists by this provider ID
+  query = users_ref.where(provider_id_field, "==", provider_id_value).limit(1)
+  results = list(query.stream())
+
+  if results:
+    # Found existing linked user
+    user_doc = results[0]
+    return update_existing_user_doc(user_doc.id, user_data)
+
+  # 2. Check by email for merge opportunity
+  if email:
+    query_email = users_ref.where("email", "==", email).limit(1)
+    email_results = list(query_email.stream())
+    if email_results:
+      # Found conflict/merge opportunity
+      # Store info in session and redirect to merge prompt
+      # We return a special signal (None, redirect_url)
+      flask.session["pending_user_data"] = user_data
+      flask.session["pending_provider"] = provider
+      return None
+
+  # 3. New user
+  return create_new_user_doc(user_data, provider)
 
 
 INDEX_HTML_PATH = os.path.join(utils.SCRIPT_DIR, "..", "html", "index.html")
@@ -301,7 +341,12 @@ def authorize():
     token = google.authorize_access_token()
     nonce = flask.session.pop("nonce", None)
     user_info = google.parse_id_token(token, nonce=nonce)
-    user = create_or_update_oauth_user(user_info, "google")
+    
+    result = handle_oauth_login(user_info, "google")
+    if result is None:
+       return flask.redirect("/login/merge")
+    
+    user = result
     flask_login.login_user(user, remember=True)
     flask.session.permanent = True
     return flask.redirect("/")
@@ -319,13 +364,73 @@ def authorize_facebook():
         "https://graph.facebook.com/me?fields=id,name,email,picture.type(large)"
     )
     user_info = resp.json()
-    user = create_or_update_oauth_user(user_info, "facebook")
+    
+    result = handle_oauth_login(user_info, "facebook")
+    if result is None:
+       return flask.redirect("/login/merge")
+
+    user = result
     flask_login.login_user(user, remember=True)
     flask.session.permanent = True
     return flask.redirect("/")
   except Exception as e:
     app.logger.warning("Facebook OAuth Error: %s", e)
     return "Authentication failed.", 400
+
+
+@app.route("/login/merge")
+def merge_account_route():
+  """Prompts user to merge accounts."""
+  user_data = flask.session.get("pending_user_data")
+  provider = flask.session.get("pending_provider")
+  if not user_data or not provider:
+    return flask.redirect("/login")
+  
+  return flask.render_template(
+      "merge_account.html", 
+      email=user_data.get("email"),
+      provider=provider
+  )
+
+
+@app.route("/login/merge/confirm", methods=["POST"])
+def merge_account_confirm_route():
+  """Merges the pending account into the existing one."""
+  user_data = flask.session.get("pending_user_data")
+  # provider = flask.session.get("pending_provider") # Unused variable
+  if not user_data:
+    return flask.redirect("/login")
+
+  email = user_data.get("email")
+  db = utils.get_db_client()
+  users_ref = db.collection("users")
+  
+  # Find the existing user again to be safe
+  query_email = users_ref.where("email", "==", email).limit(1)
+  email_results = list(query_email.stream())
+  
+  if not email_results:
+     # Should not happen if flow is correct, but fallback to create new
+     flask.flash("Could not find account to merge. Creating new one.", "warning")
+     # We don't have provider handy to call create_new_user_doc cleanly without logic duplication
+     # easier to just redirect to login or handle error. 
+     # Actually, let's just error out safely.
+     return flask.redirect("/login")
+
+  existing_doc = email_results[0]
+  
+  # Merge data: add the new provider ID and update other fields if desired
+  # We trust update_existing_user_doc to merge fields
+  user = update_existing_user_doc(existing_doc.id, user_data)
+  
+  flask_login.login_user(user, remember=True)
+  flask.session.permanent = True
+  
+  # Clean up session
+  flask.session.pop("pending_user_data", None)
+  flask.session.pop("pending_provider", None)
+  
+  return flask.redirect("/")
 
 
 @app.route("/logout")

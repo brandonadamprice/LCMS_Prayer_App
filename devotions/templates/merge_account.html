@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Link Account{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Link Account</h1>
+</div>
+
+<div class="card">
+  <h2>Account Found</h2>
+  <p>
+    We found an existing account associated with <strong>{{ email }}</strong>.
+  </p>
+  <p>
+    Do you want to link your <strong>{{ provider|capitalize }}</strong> account to your existing account?
+  </p>
+  <p>
+    This will allow you to sign in with either Google or Facebook and access the same data (My Prayers, Favorites, etc.).
+  </p>
+
+  <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: center;">
+    <form action="/login/merge/confirm" method="post">
+        <button type="submit" class="button" style="background-color: #27ae60;">Yes, Link Accounts</button>
+    </form>
+    <a href="/login" class="button" style="background-color: #95a5a6;">Cancel</a>
+  </div>
+</div>
+{% endblock %}
