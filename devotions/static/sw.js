@@ -1,10 +1,11 @@
-const CACHE_NAME = 'prayer-app-v5';
+const CACHE_NAME = 'prayer-app-v6';
 const ASSETS_TO_CACHE =
     ['/static/styles.css', '/static/favicon.svg', '/static/banner.jpg'];
 
 // Install event: Cache static assets
 self.addEventListener('install', (event) => {
-  self.skipWaiting();  // Activate worker immediately
+  // Force the waiting service worker to become the active service worker.
+  self.skipWaiting();
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => {
     return cache.addAll(ASSETS_TO_CACHE);
   }));
