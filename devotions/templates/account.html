@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Account Settings{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Account Settings</h1>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="card">
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}" style="color: {% if category == 'error' %}red{% else %}green{% endif %}; margin-bottom: 10px;">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<div class="card">
+  <h2>Profile Information</h2>
+  <form action="/account/update_profile" method="post">
+    <div style="margin-bottom: 15px;">
+      <label for="name">Name:</label><br>
+      <input type="text" id="name" name="name" value="{{ current_user.name }}" class="form-input" required>
+    </div>
+    <div style="margin-bottom: 15px;">
+      <label for="email">Email:</label><br>
+      <input type="email" id="email" name="email" value="{{ current_user.email }}" class="form-input" required>
+    </div>
+    <button type="submit" class="button">Save Changes</button>
+  </form>
+</div>
+
+<div class="card">
+  <h2>Profile Picture</h2>
+  <div style="text-align: center; margin-bottom: 20px;">
+      <img src="{{ current_user.profile_pic }}" alt="Current Profile" style="width: 100px; height: 100px; border-radius: 50%; border: 3px solid #eee;">
+      <p>Current Picture</p>
+  </div>
+
+  <form action="/account/update_picture" method="post">
+    <div style="margin-bottom: 15px;">
+        <p><strong>Choose Source:</strong></p>
+        
+        {% if current_user.google_profile_pic %}
+        <div style="margin-bottom: 10px;">
+            <input type="radio" id="src_google" name="pic_source" value="google" {% if current_user.selected_pic_source == 'google' %}checked{% endif %}>
+            <label for="src_google">
+                <img src="{{ current_user.google_profile_pic }}" style="width: 30px; height: 30px; border-radius: 50%; vertical-align: middle; margin-right: 5px;">
+                Use Google Profile Picture
+            </label>
+        </div>
+        {% endif %}
+
+        {% if current_user.facebook_profile_pic %}
+        <div style="margin-bottom: 10px;">
+            <input type="radio" id="src_facebook" name="pic_source" value="facebook" {% if current_user.selected_pic_source == 'facebook' %}checked{% endif %}>
+            <label for="src_facebook">
+                <img src="{{ current_user.facebook_profile_pic }}" style="width: 30px; height: 30px; border-radius: 50%; vertical-align: middle; margin-right: 5px;">
+                Use Facebook Profile Picture
+            </label>
+        </div>
+        {% endif %}
+
+        <div style="margin-bottom: 10px;">
+            <input type="radio" id="src_custom" name="pic_source" value="custom" {% if current_user.selected_pic_source == 'custom' %}checked{% endif %}>
+            <label for="src_custom">Use Custom URL (or Upload)</label>
+            <div id="custom-url-input" style="margin-top: 5px; margin-left: 20px; {% if current_user.selected_pic_source != 'custom' %}display: none;{% endif %}">
+                <input type="url" name="custom_pic_url" placeholder="https://example.com/my-pic.jpg" class="form-input" value="{% if current_user.selected_pic_source == 'custom' %}{{ current_user.profile_pic }}{% endif %}">
+                <p style="font-size: 0.8em; color: #666;">Enter a direct link to an image.</p>
+            </div>
+        </div>
+    </div>
+    <button type="submit" class="button">Update Picture</button>
+  </form>
+</div>
+
+<div class="card">
+    <h2>Account Actions</h2>
+    <a href="/logout" class="button" style="background-color: #95a5a6;">Log Out</a>
+</div>
+
+<script>
+    const radios = document.querySelectorAll('input[name="pic_source"]');
+    const customInputDiv = document.getElementById('custom-url-input');
+
+    radios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.value === 'custom') {
+                customInputDiv.style.display = 'block';
+            } else {
+                customInputDiv.style.display = 'none';
+            }
+        });
+    });
+</script>
+{% endblock %}

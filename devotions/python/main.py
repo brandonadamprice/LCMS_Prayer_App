@@ -112,6 +112,9 @@ class User(flask_login.UserMixin):
       font_size_level=None,
       favorites=None,
       fcm_tokens=None,
+      google_profile_pic=None,
+      facebook_profile_pic=None,
+      selected_pic_source=None,
   ):
     self.id = user_id
     self.email = email
@@ -121,6 +124,9 @@ class User(flask_login.UserMixin):
     self.font_size_level = font_size_level
     self.favorites = favorites or []
     self.fcm_tokens = fcm_tokens or []
+    self.google_profile_pic = google_profile_pic
+    self.facebook_profile_pic = facebook_profile_pic
+    self.selected_pic_source = selected_pic_source
 
   @staticmethod
   def get(user_id):
@@ -139,6 +145,9 @@ class User(flask_login.UserMixin):
           font_size_level=data.get("font_size_level"),
           favorites=data.get("favorites", []),
           fcm_tokens=data.get("fcm_tokens", []),
+          google_profile_pic=data.get("google_profile_pic"),
+          facebook_profile_pic=data.get("facebook_profile_pic"),
+          selected_pic_source=data.get("selected_pic_source"),
       )
     return None
 
@@ -190,6 +199,7 @@ def get_oauth_user_data(user_info, provider):
     data["email"] = user_info.get("email")
     data["name"] = user_info.get("name")
     data["profile_pic"] = user_info.get("picture")
+    data["google_profile_pic"] = user_info.get("picture")
   elif provider == "facebook":
     data["facebook_id"] = user_info["id"]
     data["email"] = user_info.get("email")
@@ -202,6 +212,7 @@ def get_oauth_user_data(user_info, provider):
     ):
       picture_url = user_info["picture"]["data"]["url"]
     data["profile_pic"] = picture_url
+    data["facebook_profile_pic"] = picture_url
   return data
 
 
@@ -224,6 +235,48 @@ def update_existing_user_doc(user_id, user_data):
   """Updates an existing user document."""
   db = utils.get_db_client()
   user_data["last_login"] = datetime.datetime.now(datetime.timezone.utc)
+  
+  # If user has explicitly selected a source, don't overwrite the main profile_pic
+  # with the one from this login, unless it's the same source.
+  # However, we DO want to update google_profile_pic/facebook_profile_pic.
+  
+  user_ref = db.collection("users").document(user_id)
+  current_doc = user_ref.get()
+  if current_doc.exists:
+      current_data = current_doc.to_dict()
+      selected_source = current_data.get("selected_pic_source")
+      
+      # If a specific source is selected and it's not the current provider (implied by this login),
+      # keep the existing profile_pic.
+      # Note: user_data['profile_pic'] currently holds the provider's pic.
+      
+      if selected_source and selected_source != "provider_default":
+          # We are updating from a login. 
+          # If the user has a custom selection, or a selection from a different provider, 
+          # we might want to preserve the *current* main profile_pic.
+          # But we definitely want to update the provider-specific field.
+          
+          # Let's just remove 'profile_pic' from user_data so it doesn't overwrite
+          # the existing one in the set(merge=True) call.
+          # Exception: if the selected source IS this provider (e.g. they selected 'google' 
+          # and are logging in with google), we should update it to the latest.
+          
+          # Since we don't easily know "which provider" called this function without parsing user_data keys,
+          # we can check:
+          is_google = "google_profile_pic" in user_data
+          is_facebook = "facebook_profile_pic" in user_data
+          
+          if (selected_source == "google" and is_google) or \
+             (selected_source == "facebook" and is_facebook):
+              pass # Let it update
+          elif selected_source == "custom":
+              if "profile_pic" in user_data:
+                  del user_data["profile_pic"]
+          elif (selected_source == "google" and not is_google) or \
+               (selected_source == "facebook" and not is_facebook):
+               if "profile_pic" in user_data:
+                  del user_data["profile_pic"]
+
   db.collection("users").document(user_id).set(user_data, merge=True)
   return User.get(user_id)
 
@@ -331,9 +384,76 @@ def privacy_route():
 @app.route("/login")
 def login():
   """Renders the sign-in page."""
+  if flask_login.current_user.is_authenticated:
+      return flask.redirect("/account")
   return flask.render_template(
       "signin.html", facebook_app_id=secrets_fetcher.get_facebook_client_id()
   )
+
+@app.route("/account")
+@flask_login.login_required
+def account():
+    """Renders the account settings page."""
+    return flask.render_template("account.html")
+
+@app.route("/account/update_profile", methods=["POST"])
+@flask_login.login_required
+def update_profile():
+    """Updates user name and email."""
+    name = flask.request.form.get("name")
+    email = flask.request.form.get("email")
+    
+    if not name or not email:
+        flask.flash("Name and Email are required.", "error")
+        return flask.redirect("/account")
+        
+    try:
+        db = utils.get_db_client()
+        user_ref = db.collection("users").document(flask_login.current_user.id)
+        user_ref.update({
+            "name": name,
+            "email": email
+        })
+        flask.flash("Profile updated successfully.", "success")
+    except Exception as e:
+        app.logger.error("Failed to update profile: %s", e)
+        flask.flash("An error occurred while updating profile.", "error")
+        
+    return flask.redirect("/account")
+
+@app.route("/account/update_picture", methods=["POST"])
+@flask_login.login_required
+def update_picture():
+    """Updates selected profile picture."""
+    source = flask.request.form.get("pic_source")
+    custom_url = flask.request.form.get("custom_pic_url")
+    
+    updates = {}
+    
+    if source == "google":
+        if flask_login.current_user.google_profile_pic:
+            updates["profile_pic"] = flask_login.current_user.google_profile_pic
+            updates["selected_pic_source"] = "google"
+    elif source == "facebook":
+        if flask_login.current_user.facebook_profile_pic:
+            updates["profile_pic"] = flask_login.current_user.facebook_profile_pic
+            updates["selected_pic_source"] = "facebook"
+    elif source == "custom":
+        if custom_url:
+            updates["profile_pic"] = custom_url
+            updates["selected_pic_source"] = "custom"
+            
+    if updates:
+        try:
+            db = utils.get_db_client()
+            user_ref = db.collection("users").document(flask_login.current_user.id)
+            user_ref.update(updates)
+            flask.flash("Profile picture updated.", "success")
+        except Exception as e:
+            app.logger.error("Failed to update picture: %s", e)
+            flask.flash("Error updating picture.", "error")
+            
+    return flask.redirect("/account")
 
 
 @app.route("/login/google")
