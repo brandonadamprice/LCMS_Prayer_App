@@ -44,9 +44,10 @@ app = flask.Flask(
     static_folder=STATIC_DIR,
 )
 app.wsgi_app = werkzeug.middleware.proxy_fix.ProxyFix(
-    app.wsgi_app, x_proto=1, x_host=1
+    app.wsgi_app, x_proto=1, x_host=1, x_for=1, x_prefix=1
 )
 app.secret_key = secrets_fetcher.get_flask_secret_key()
+app.config["PREFERRED_URL_SCHEME"] = "https"
 app.config["PERMANENT_SESSION_LIFETIME"] = datetime.timedelta(days=31)
 app.config["REMEMBER_COOKIE_DURATION"] = datetime.timedelta(days=31)
 app.config["SESSION_COOKIE_SECURE"] = True
@@ -328,6 +329,7 @@ def google_login():
 def facebook_login():
   """Redirects to Facebook OAuth login."""
   redirect_uri = flask.url_for("authorize_facebook", _external=True)
+  app.logger.info(f"Initiating Facebook login with redirect_uri: {redirect_uri}")
   return facebook.authorize_redirect(redirect_uri)
 
 
