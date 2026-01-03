@@ -22,17 +22,49 @@
   <p style="text-align: center; margin-top: 20px; font-size: 0.9em; color: #7f8c8d;">
     More sign-in options coming soon.
   </p>
+  
+  <!-- Debug Log Container -->
+  <div id="debug-log" style="margin-top: 20px; padding: 10px; background: #f0f0f0; border: 1px solid #ccc; font-family: monospace; font-size: 0.8em; max-height: 200px; overflow-y: auto; display: none;">
+    <strong>Debug Log:</strong><br>
+  </div>
+  <div style="text-align: center; margin-top: 10px;">
+      <button class="button" style="font-size: 0.8em; padding: 5px 10px; background-color: #95a5a6;" onclick="toggleDebug()">Toggle Debug Log</button>
+  </div>
 </div>
 
 <script>
+  function log(msg) {
+      console.log(msg);
+      const debugDiv = document.getElementById('debug-log');
+      if (debugDiv) {
+          debugDiv.innerHTML += msg + '<br>';
+          debugDiv.scrollTop = debugDiv.scrollHeight;
+      }
+  }
+
+  function toggleDebug() {
+      const debugDiv = document.getElementById('debug-log');
+      if (debugDiv.style.display === 'none') {
+          debugDiv.style.display = 'block';
+      } else {
+          debugDiv.style.display = 'none';
+      }
+  }
+
   window.fbAsyncInit = function() {
-    FB.init({
-      appId      : '{{ facebook_app_id }}', // Your App ID
-      cookie     : true,
-      xfbml      : true,
-      version    : 'v18.0'
-    });
-    FB.AppEvents.logPageView();   
+    log("FB SDK Initializing...");
+    try {
+        FB.init({
+          appId      : '{{ facebook_app_id }}', // Your App ID
+          cookie     : true,
+          xfbml      : true,
+          version    : 'v18.0'
+        });
+        log("FB.init completed.");
+        FB.AppEvents.logPageView();
+    } catch (e) {
+        log("Error in FB.init: " + e.message);
+    }
   };
 
   (function(d, s, id){
@@ -44,9 +76,19 @@
    }(document, 'script', 'facebook-jssdk'));
 
   function fbLogin() {
+    log("fbLogin clicked. Calling FB.login...");
+    if (location.protocol !== 'https:') {
+        log("WARNING: Page is not HTTPS. Facebook Login requires HTTPS.");
+    }
+    
     FB.login(function(response) {
+        log("FB.login callback received.");
+        log("Response status: " + response.status);
+        
         if (response.authResponse) {
-            console.log('Welcome!  Fetching your information.... ');
+            log("Auth success. Token length: " + response.authResponse.accessToken.length);
+            log("Sending token to server...");
+            
             // Send the access token to the server
             fetch('/login/facebook/token', {
                 method: 'POST',
@@ -55,23 +97,31 @@
                 },
                 body: JSON.stringify({ accessToken: response.authResponse.accessToken }),
             })
-            .then(response => response.json())
+            .then(response => {
+                log("Server response received. Status: " + response.status);
+                return response.json();
+            })
             .then(data => {
+                log("Server data: " + JSON.stringify(data));
                 if (data.redirect) {
+                    log("Redirecting to: " + data.redirect);
                     window.location.href = data.redirect;
                 } else if (data.success) {
+                    log("Login success! Redirecting home.");
                     window.location.href = "/";
                 } else {
-                    console.error('Login failed on server');
-                    alert('Login failed. Please try again.');
+                    log("Server reported failure: " + (data.error || "Unknown"));
+                    alert('Login failed: ' + (data.error || "Please try again."));
                 }
             })
             .catch((error) => {
+                log("Fetch error: " + error.message);
                 console.error('Error:', error);
                 alert('An error occurred during login.');
             });
         } else {
-            console.log('User cancelled login or did not fully authorize.');
+            log("User cancelled login or did not fully authorize.");
+            log("Full response: " + JSON.stringify(response));
         }
     }, {scope: 'email,public_profile'});
   }
