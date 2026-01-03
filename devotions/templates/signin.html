@@ -29,6 +29,20 @@
   </div>
   <div style="text-align: center; margin-top: 10px;">
       <button class="button" style="font-size: 0.8em; padding: 5px 10px; background-color: #95a5a6;" onclick="toggleDebug()">Toggle Debug Log</button>
+      <button class="button" style="font-size: 0.8em; padding: 5px 10px; background-color: #e67e22;" onclick="showTroubleshoot()">Troubleshoot</button>
+  </div>
+  
+  <div id="troubleshoot-info" style="display: none; margin-top: 15px; text-align: left; background: #fff3cd; padding: 10px; border: 1px solid #ffeeba; border-radius: 5px; font-size: 0.9em;">
+      <strong>Facebook Login Setup:</strong><br>
+      If you see "URL Blocked", you must add this exact URL to your Facebook App Settings:<br>
+      <code id="redirect-uri-display" style="background: #eee; padding: 2px 5px; display: block; margin: 5px 0; word-break: break-all;"></code>
+      <ol style="padding-left: 20px; margin-top: 5px;">
+          <li>Go to <a href="https://developers.facebook.com/apps/" target="_blank">Facebook Developers</a></li>
+          <li>Select your App</li>
+          <li>Go to <strong>Facebook Login > Settings</strong> (sidebar)</li>
+          <li>Find <strong>Valid OAuth Redirect URIs</strong></li>
+          <li>Paste the URL above and click <strong>Save Changes</strong></li>
+      </ol>
   </div>
 </div>
 
@@ -48,6 +62,21 @@
           debugDiv.style.display = 'block';
       } else {
           debugDiv.style.display = 'none';
+      }
+  }
+
+  function showTroubleshoot() {
+      const tsDiv = document.getElementById('troubleshoot-info');
+      const uriDisplay = document.getElementById('redirect-uri-display');
+      
+      // Calculate exact current URI including protocol and www/non-www
+      const currentUri = window.location.origin + window.location.pathname;
+      uriDisplay.textContent = currentUri;
+      
+      if (tsDiv.style.display === 'none') {
+          tsDiv.style.display = 'block';
+      } else {
+          tsDiv.style.display = 'none';
       }
   }
 
@@ -75,8 +104,27 @@
      fjs.parentNode.insertBefore(js, fjs);
    }(document, 'script', 'facebook-jssdk'));
 
+  function isMobile() {
+      return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  }
+
   function fbLogin() {
-    log("fbLogin clicked. Calling FB.login...");
+    const appId = '{{ facebook_app_id }}';
+    // Ensure we use the exact current location base, handling www vs non-www
+    const redirectUri = window.location.origin + window.location.pathname; 
+    
+    // On mobile, bypass the popup entirely and use the redirect flow
+    if (isMobile()) {
+        log("Mobile device detected. Using Redirect Flow.");
+        log("Redirect URI to Whitelist: " + redirectUri);
+        
+        const scope = 'email,public_profile';
+        const authUrl = `https://www.facebook.com/v18.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=${encodeURIComponent(scope)}`;
+        window.location.href = authUrl;
+        return;
+    }
+
+    log("Desktop detected. Calling FB.login (Popup Flow)...");
     if (location.protocol !== 'https:') {
         log("WARNING: Page is not HTTPS. Facebook Login requires HTTPS.");
     }
@@ -86,62 +134,52 @@
         log("Response status: " + response.status);
         
         if (response.authResponse) {
-            log("Auth success. Token length: " + response.authResponse.accessToken.length);
-            log("Sending token to server...");
-            
-            // Send the access token to the server
-            fetch('/login/facebook/token', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ accessToken: response.authResponse.accessToken }),
-            })
-            .then(response => {
-                log("Server response received. Status: " + response.status);
-                return response.json();
-            })
-            .then(data => {
-                log("Server data: " + JSON.stringify(data));
-                if (data.redirect) {
-                    log("Redirecting to: " + data.redirect);
-                    window.location.href = data.redirect;
-                } else if (data.success) {
-                    log("Login success! Redirecting home.");
-                    window.location.href = "/";
-                } else {
-                    log("Server reported failure: " + (data.error || "Unknown"));
-                    alert('Login failed: ' + (data.error || "Please try again."));
-                }
-            })
-            .catch((error) => {
-                log("Fetch error: " + error.message);
-                console.error('Error:', error);
-                alert('An error occurred during login.');
-            });
+            handleAuthResponse(response.authResponse.accessToken);
         } else {
             log("User cancelled login or did not fully authorize.");
             log("Full response: " + JSON.stringify(response));
 
             if (response.status === 'unknown') {
-               log("Status is unknown. This often happens on mobile if cookies are blocked.");
-               log("Attempting fallback to Manual Redirect Flow...");
-               
-               const appId = '{{ facebook_app_id }}';
-               // Use current origin + /login. Ensure no double slashes.
-               const redirectUri = window.location.origin + '/login'; 
-               log("REQUIRED WHITELIST URL: " + redirectUri);
-               log("If you see 'URL Blocked', add the above URL to Facebook App > Facebook Login > Settings > Valid OAuth Redirect URIs");
-
-               const scope = 'email,public_profile';
-               const authUrl = `https://www.facebook.com/v18.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=${encodeURIComponent(scope)}`;
-               
-               if (confirm("Popup login failed (common on mobile). Attempt to login via full page redirect?")) {
-                   window.location.href = authUrl;
-               }
+               log("Status is unknown. Popups blocked?");
+               alert("Login popup was blocked or closed. Please try again or use a different browser.");
             }
         }
     }, {scope: 'email,public_profile'});
+  }
+
+  function handleAuthResponse(accessToken) {
+      log("Auth success. Token length: " + accessToken.length);
+      log("Sending token to server...");
+      
+      fetch('/login/facebook/token', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ accessToken: accessToken }),
+      })
+      .then(response => {
+          log("Server response received. Status: " + response.status);
+          return response.json();
+      })
+      .then(data => {
+          log("Server data: " + JSON.stringify(data));
+          if (data.redirect) {
+              log("Redirecting to: " + data.redirect);
+              window.location.href = data.redirect;
+          } else if (data.success) {
+              log("Login success! Redirecting home.");
+              window.location.href = "/";
+          } else {
+              log("Server reported failure: " + (data.error || "Unknown"));
+              alert('Login failed: ' + (data.error || "Please try again."));
+          }
+      })
+      .catch((error) => {
+          log("Fetch error: " + error.message);
+          console.error('Error:', error);
+          alert('An error occurred during login.');
+      });
   }
 
   // Check for access token in URL hash (returned from Facebook Manual Flow fallback)
