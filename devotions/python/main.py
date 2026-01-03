@@ -86,19 +86,6 @@ google = oauth.register(
     client_kwargs={"scope": "openid email profile"},
 )
 
-facebook = oauth.register(
-    name="facebook",
-    client_id=secrets_fetcher.get_facebook_client_id(),
-    client_secret=secrets_fetcher.get_facebook_client_secret(),
-    access_token_url="https://graph.facebook.com/oauth/access_token",
-    access_token_params=None,
-    authorize_url="https://www.facebook.com/dialog/oauth",
-    authorize_params=None,
-    api_base_url="https://graph.facebook.com/",
-    client_kwargs={"scope": "email public_profile"},
-)
-
-
 class User(flask_login.UserMixin):
   """User class for Flask-Login."""
 
@@ -113,7 +100,6 @@ class User(flask_login.UserMixin):
       favorites=None,
       fcm_tokens=None,
       google_profile_pic=None,
-      facebook_profile_pic=None,
       selected_pic_source=None,
   ):
     self.id = user_id
@@ -125,7 +111,6 @@ class User(flask_login.UserMixin):
     self.favorites = favorites or []
     self.fcm_tokens = fcm_tokens or []
     self.google_profile_pic = google_profile_pic
-    self.facebook_profile_pic = facebook_profile_pic
     self.selected_pic_source = selected_pic_source
 
   @staticmethod
@@ -146,7 +131,6 @@ class User(flask_login.UserMixin):
           favorites=data.get("favorites", []),
           fcm_tokens=data.get("fcm_tokens", []),
           google_profile_pic=data.get("google_profile_pic"),
-          facebook_profile_pic=data.get("facebook_profile_pic"),
           selected_pic_source=data.get("selected_pic_source"),
       )
     return None
@@ -164,8 +148,6 @@ def log_request_info():
   app.logger.info(
       f"Incoming Request: {flask.request.method} {flask.request.url}"
   )
-  if "authorize/facebook" in flask.request.path:
-    app.logger.info(f"Cookies: {flask.request.cookies}")
 
 
 @app.before_request
@@ -200,19 +182,6 @@ def get_oauth_user_data(user_info, provider):
     data["name"] = user_info.get("name")
     data["profile_pic"] = user_info.get("picture")
     data["google_profile_pic"] = user_info.get("picture")
-  elif provider == "facebook":
-    data["facebook_id"] = user_info["id"]
-    data["email"] = user_info.get("email")
-    data["name"] = user_info.get("name")
-    picture_url = None
-    if (
-        "picture" in user_info
-        and "data" in user_info["picture"]
-        and "url" in user_info["picture"]["data"]
-    ):
-      picture_url = user_info["picture"]["data"]["url"]
-    data["profile_pic"] = picture_url
-    data["facebook_profile_pic"] = picture_url
   return data
 
 
@@ -264,16 +233,13 @@ def update_existing_user_doc(user_id, user_data):
           # Since we don't easily know "which provider" called this function without parsing user_data keys,
           # we can check:
           is_google = "google_profile_pic" in user_data
-          is_facebook = "facebook_profile_pic" in user_data
           
-          if (selected_source == "google" and is_google) or \
-             (selected_source == "facebook" and is_facebook):
+          if (selected_source == "google" and is_google):
               pass # Let it update
           elif selected_source == "custom":
               if "profile_pic" in user_data:
                   del user_data["profile_pic"]
-          elif (selected_source == "google" and not is_google) or \
-               (selected_source == "facebook" and not is_facebook):
+          elif (selected_source == "google" and not is_google):
                if "profile_pic" in user_data:
                   del user_data["profile_pic"]
 
@@ -386,9 +352,7 @@ def login():
   """Renders the sign-in page."""
   if flask_login.current_user.is_authenticated:
       return flask.redirect("/account")
-  return flask.render_template(
-      "signin.html", facebook_app_id=secrets_fetcher.get_facebook_client_id()
-  )
+  return flask.render_template("signin.html")
 
 @app.route("/account")
 @flask_login.login_required
@@ -434,10 +398,6 @@ def update_picture():
         if flask_login.current_user.google_profile_pic:
             updates["profile_pic"] = flask_login.current_user.google_profile_pic
             updates["selected_pic_source"] = "google"
-    elif source == "facebook":
-        if flask_login.current_user.facebook_profile_pic:
-            updates["profile_pic"] = flask_login.current_user.facebook_profile_pic
-            updates["selected_pic_source"] = "facebook"
     elif source == "custom":
         if custom_url:
             updates["profile_pic"] = custom_url
@@ -465,42 +425,7 @@ def google_login():
   return google.authorize_redirect(redirect_uri, nonce=nonce)
 
 
-@app.route("/login/facebook/token", methods=["POST"])
-def facebook_login_token():
-  """Handles Facebook login via client-side token."""
-  data = flask.request.json
-  access_token = data.get("accessToken")
-  if not access_token:
-    return flask.jsonify({"error": "Missing access token"}), 400
 
-  # Verify token with Facebook Graph API
-  try:
-    resp = requests.get(
-        "https://graph.facebook.com/me",
-        params={
-            "fields": "id,name,email,picture.type(large)",
-            "access_token": access_token,
-        },
-        timeout=10,
-    )
-    resp.raise_for_status()
-    user_info = resp.json()
-
-    result = handle_oauth_login(user_info, "facebook")
-    if result is None:
-      # Signal to frontend to redirect to merge page
-      # Ideally we send JSON response, but redirect works if fetch follows it
-      # Actually, better to return JSON with redirect URL
-      return flask.jsonify({"redirect": "/login/merge"})
-
-    user = result
-    flask_login.login_user(user, remember=True)
-    flask.session.permanent = True
-    return flask.jsonify({"success": True})
-
-  except Exception as e:
-    app.logger.error("Facebook token verification failed: %s", e)
-    return flask.jsonify({"error": "Authentication failed"}), 400
 
 
 @app.route("/authorize")

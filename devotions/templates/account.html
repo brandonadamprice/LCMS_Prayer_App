@@ -53,15 +53,7 @@
         </div>
         {% endif %}
 
-        {% if current_user.facebook_profile_pic %}
-        <div style="margin-bottom: 10px;">
-            <input type="radio" id="src_facebook" name="pic_source" value="facebook" {% if current_user.selected_pic_source == 'facebook' %}checked{% endif %}>
-            <label for="src_facebook">
-                <img src="{{ current_user.facebook_profile_pic }}" style="width: 30px; height: 30px; border-radius: 50%; vertical-align: middle; margin-right: 5px;">
-                Use Facebook Profile Picture
-            </label>
-        </div>
-        {% endif %}
+
 
         <div style="margin-bottom: 10px;">
             <input type="radio" id="src_custom" name="pic_source" value="custom" {% if current_user.selected_pic_source == 'custom' %}checked{% endif %}>
