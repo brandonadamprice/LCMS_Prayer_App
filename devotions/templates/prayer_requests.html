@@ -18,6 +18,7 @@
             type="text"
             id="name"
             name="name"
+            value="{% if current_user.is_authenticated %}{{ current_user.name }}{% endif %}"
             required
             maxlength="100"
             class="form-input"

@@ -360,6 +360,12 @@ def account():
     """Renders the account settings page."""
     return flask.render_template("account.html")
 
+
+@app.route("/settings")
+def settings_route():
+    """Renders the dedicated settings page."""
+    return flask.render_template("settings.html")
+
 @app.route("/account/update_profile", methods=["POST"])
 @flask_login.login_required
 def update_profile():

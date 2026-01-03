@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Settings</h1>
+  <p>Customize your experience.</p>
+</div>
+
+<div class="card">
+  <h2>Appearance</h2>
+  
+  <div style="margin-bottom: 20px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <label for="settings-dark-mode-toggle" style="font-size: 1.1em; font-weight: bold;">Dark Mode</label>
+        <label class="switch">
+            <input type="checkbox" id="settings-dark-mode-toggle">
+            <span class="slider"></span>
+        </label>
+      </div>
+      <p style="color: #7f8c8d; font-size: 0.9em; margin-top: 0;">Switch between light and dark themes.</p>
+  </div>
+
+  <hr>
+
+  <div style="margin-top: 20px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <span style="font-size: 1.1em; font-weight: bold;">Font Size</span>
+        <div class="font-controls">
+            <button id="settings-decrease-font" aria-label="Decrease font size">-</button>
+            <button id="settings-reset-font" aria-label="Reset font size" style="width: auto; padding: 0 10px;">1x</button>
+            <button id="settings-increase-font" aria-label="Increase font size">+</button>
+        </div>
+      </div>
+      <p style="color: #7f8c8d; font-size: 0.9em; margin-top: 0;">Adjust the text size for better readability.</p>
+  </div>
+</div>
+
+<div class="card">
+    <h2>Account</h2>
+    {% if current_user.is_authenticated %}
+        <p>You are logged in as <strong>{{ current_user.name }}</strong>.</p>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <a href="/account" class="button" style="background-color: #2980b9;">Account Profile</a>
+            <a href="/logout" class="button">Log Out</a>
+        </div>
+    {% else %}
+        <p>Log in to sync your settings and data across devices.</p>
+        <a href="/login" class="button" style="background-color: #2980b9;">Log In / Sign Up</a>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h2>Notifications</h2>
+    <p>Manage your prayer reminders.</p>
+    {% if current_user.is_authenticated %}
+    <a href="/reminders" class="button">Manage Reminders</a>
+    {% else %}
+    <p><em>Please log in to manage reminders.</em></p>
+    {% endif %}
+</div>
+{% endblock %}

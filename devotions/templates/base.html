@@ -194,6 +194,7 @@
           </div>
           <div class="app-menu-section">
             <strong>Settings</strong>
+            <a href="/settings" class="button menu-button-full" style="margin-bottom: 5px;">All Settings</a>
             {% if current_user.is_authenticated %}
             <a href="/reminders" class="button menu-button-full">Prayer Reminders</a>
             {% endif %}
@@ -370,10 +371,22 @@
       // Settings and Dark Mode
       const menuButton = document.getElementById('menu-button');
       const appMenu = document.getElementById('app-menu');
-      const darkModeToggle = document.getElementById('dark-mode-toggle');
+      
       const isLoggedIn = {{ current_user.is_authenticated|tojson }};
       const userDarkMode = {% if current_user.is_authenticated %}{{ current_user.dark_mode|tojson }}{% else %}null{% endif %};
       const userFontSizeLevel = {% if current_user.is_authenticated and current_user.font_size_level is not none %}{{ current_user.font_size_level }}{% else %}null{% endif %};
+
+      // Control references
+      const darkModeToggleSidebar = document.getElementById('dark-mode-toggle');
+      const darkModeToggleSettings = document.getElementById('settings-dark-mode-toggle');
+      
+      const decreaseFontSidebar = document.getElementById('decrease-font');
+      const increaseFontSidebar = document.getElementById('increase-font');
+      const resetFontSidebar = document.getElementById('reset-font');
+      
+      const decreaseFontSettings = document.getElementById('settings-decrease-font');
+      const increaseFontSettings = document.getElementById('settings-increase-font');
+      const resetFontSettings = document.getElementById('settings-reset-font');
 
       // Font size settings
       const FONT_SIZES = [0.8, 0.9, 1.0, 1.1, 1.2, 1.3]; // em
@@ -382,8 +395,14 @@
       function applyFontSize(index) {
           currentFontSizeIndex = Math.max(0, Math.min(index, FONT_SIZES.length - 1));
           document.body.style.fontSize = FONT_SIZES[currentFontSizeIndex] + 'em';
-          document.getElementById('decrease-font').disabled = currentFontSizeIndex === 0;
-          document.getElementById('increase-font').disabled = currentFontSizeIndex === FONT_SIZES.length - 1;
+          
+          const isMin = currentFontSizeIndex === 0;
+          const isMax = currentFontSizeIndex === FONT_SIZES.length - 1;
+
+          if(decreaseFontSidebar) decreaseFontSidebar.disabled = isMin;
+          if(increaseFontSidebar) increaseFontSidebar.disabled = isMax;
+          if(decreaseFontSettings) decreaseFontSettings.disabled = isMin;
+          if(increaseFontSettings) increaseFontSettings.disabled = isMax;
       }
 
       async function saveFontSizePreference(index) {
@@ -401,33 +420,42 @@
           }
       }
 
-      document.getElementById('increase-font').addEventListener('click', () => {
+      function handleIncreaseFont() {
           if(currentFontSizeIndex < FONT_SIZES.length - 1) {
               applyFontSize(currentFontSizeIndex + 1);
               saveFontSizePreference(currentFontSizeIndex);
           }
-      });
-      document.getElementById('decrease-font').addEventListener('click', () => {
+      }
+      function handleDecreaseFont() {
           if(currentFontSizeIndex > 0) {
               applyFontSize(currentFontSizeIndex - 1);
               saveFontSizePreference(currentFontSizeIndex);
           }
-      });
-      document.getElementById('reset-font').addEventListener('click', () => {
+      }
+      function handleResetFont() {
           applyFontSize(2);
           saveFontSizePreference(2);
-      });
+      }
+
+      if(increaseFontSidebar) increaseFontSidebar.addEventListener('click', handleIncreaseFont);
+      if(decreaseFontSidebar) decreaseFontSidebar.addEventListener('click', handleDecreaseFont);
+      if(resetFontSidebar) resetFontSidebar.addEventListener('click', handleResetFont);
+
+      if(increaseFontSettings) increaseFontSettings.addEventListener('click', handleIncreaseFont);
+      if(decreaseFontSettings) decreaseFontSettings.addEventListener('click', handleDecreaseFont);
+      if(resetFontSettings) resetFontSettings.addEventListener('click', handleResetFont);
 
       function applyDarkMode(isDark) {
         if (isDark) {
           document.body.classList.add('dark-mode');
-          darkModeToggle.checked = true;
           localStorage.setItem('darkMode', 'enabled');
         } else {
           document.body.classList.remove('dark-mode');
-          darkModeToggle.checked = false;
           localStorage.setItem('darkMode', 'disabled');
         }
+        // Sync toggles
+        if(darkModeToggleSidebar) darkModeToggleSidebar.checked = isDark;
+        if(darkModeToggleSettings) darkModeToggleSettings.checked = isDark;
       }
 
       async function saveDarkModePreference(isDark) {
@@ -464,11 +492,14 @@
           }
       }
 
-      // Toggle dark mode
-      darkModeToggle.addEventListener('change', function() {
-        applyDarkMode(this.checked);
-        saveDarkModePreference(this.checked);
-      });
+      // Toggle dark mode listener
+      function handleDarkModeToggle(e) {
+          applyDarkMode(e.target.checked);
+          saveDarkModePreference(e.target.checked);
+      }
+
+      if(darkModeToggleSidebar) darkModeToggleSidebar.addEventListener('change', handleDarkModeToggle);
+      if(darkModeToggleSettings) darkModeToggleSettings.addEventListener('change', handleDarkModeToggle);
 
       // Toggle app menu
       menuButton.addEventListener('click', function(event) {
