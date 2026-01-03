@@ -2,6 +2,7 @@
 
 import datetime
 import hashlib
+import logging
 import os
 import secrets
 import uuid
@@ -51,9 +52,9 @@ app.config["PREFERRED_URL_SCHEME"] = "https"
 app.config["PERMANENT_SESSION_LIFETIME"] = datetime.timedelta(days=31)
 app.config["REMEMBER_COOKIE_DURATION"] = datetime.timedelta(days=31)
 app.config["SESSION_COOKIE_SECURE"] = True
-app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+app.config["SESSION_COOKIE_SAMESITE"] = "None"
 app.config["REMEMBER_COOKIE_SECURE"] = True
-app.config["REMEMBER_COOKIE_SAMESITE"] = "Lax"
+app.config["REMEMBER_COOKIE_SAMESITE"] = "None"
 app.config["OTHER_PRAYERS"] = utils.get_other_prayers()
 try:
   app.config["ADMIN_USER_ID"] = secrets_fetcher.get_brandon_user_id()
@@ -63,6 +64,11 @@ except:
 # OAuth and Flask-Login Setup
 if app.debug:
   os.environ["AUTHLIB_INSECURE_TRANSPORT"] = "1"
+else:
+  # Wire up Gunicorn logging to Flask's logger in production
+  gunicorn_logger = logging.getLogger("gunicorn.error")
+  app.logger.handlers = gunicorn_logger.handlers
+  app.logger.setLevel(gunicorn_logger.level)
 
 oauth = OAuth(app)
 login_manager = flask_login.LoginManager()
@@ -328,17 +334,14 @@ def google_login():
 @app.route("/login/facebook")
 def facebook_login():
   """Redirects to Facebook OAuth login."""
-  app.logger.info("Initiating Facebook login")
+  app.logger.info("Entering facebook_login route")
   redirect_uri = flask.url_for("authorize_facebook", _external=True)
   # Force HTTPS if not present (common issue behind proxies)
   if redirect_uri.startswith("http://"):
     redirect_uri = redirect_uri.replace("http://", "https://", 1)
 
-  app.logger.info(
-      f"Initiating Facebook login with redirect_uri: {redirect_uri}"
-  )
-  # Try forcing popup display to see if it prevents app switching/issues
-  return facebook.authorize_redirect(redirect_uri, display="popup")
+  app.logger.info(f"Initiating Facebook login with redirect_uri: {redirect_uri}")
+  return facebook.authorize_redirect(redirect_uri)
 
 
 @app.route("/authorize")
