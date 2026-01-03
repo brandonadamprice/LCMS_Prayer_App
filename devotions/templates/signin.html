@@ -122,8 +122,65 @@
         } else {
             log("User cancelled login or did not fully authorize.");
             log("Full response: " + JSON.stringify(response));
+
+            if (response.status === 'unknown') {
+               log("Status is unknown. This often happens on mobile if cookies are blocked.");
+               log("Attempting fallback to Manual Redirect Flow...");
+               
+               const appId = '{{ facebook_app_id }}';
+               // Use current origin + /login. Ensure no double slashes.
+               const redirectUri = window.location.origin + '/login'; 
+               log("REQUIRED WHITELIST URL: " + redirectUri);
+               log("If you see 'URL Blocked', add the above URL to Facebook App > Facebook Login > Settings > Valid OAuth Redirect URIs");
+
+               const scope = 'email,public_profile';
+               const authUrl = `https://www.facebook.com/v18.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=${encodeURIComponent(scope)}`;
+               
+               if (confirm("Popup login failed (common on mobile). Attempt to login via full page redirect?")) {
+                   window.location.href = authUrl;
+               }
+            }
         }
     }, {scope: 'email,public_profile'});
   }
+
+  // Check for access token in URL hash (returned from Facebook Manual Flow fallback)
+  window.addEventListener('load', function() {
+      const hash = window.location.hash;
+      if (hash && hash.includes('access_token=')) {
+          log("Found access_token in URL hash. Processing manual flow...");
+          const params = new URLSearchParams(hash.substring(1)); // remove #
+          const accessToken = params.get('access_token');
+          
+          if (accessToken) {
+              log("Got access token from hash, verifying with server...");
+              // Clear hash to clean up URL
+              history.replaceState(null, null, ' ');
+
+              fetch('/login/facebook/token', {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({ accessToken: accessToken }),
+              })
+              .then(response => response.json())
+              .then(data => {
+                  if (data.redirect) {
+                      window.location.href = data.redirect;
+                  } else if (data.success) {
+                      window.location.href = "/";
+                  } else {
+                      log('Login failed on server: ' + data.error);
+                      alert('Login failed. Please try again.');
+                  }
+              })
+              .catch((error) => {
+                  log('Error: ' + error);
+                  alert('An error occurred during login.');
+              });
+          }
+      }
+  });
 </script>
 {% endblock %}
