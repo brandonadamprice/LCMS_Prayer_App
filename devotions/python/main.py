@@ -149,6 +149,16 @@ def load_user(user_id):
 
 
 @app.before_request
+def log_request_info():
+  """Logs details about the incoming request for debugging."""
+  app.logger.info(
+      f"Incoming Request: {flask.request.method} {flask.request.url}"
+  )
+  if "authorize/facebook" in flask.request.path:
+    app.logger.info(f"Cookies: {flask.request.cookies}")
+
+
+@app.before_request
 def redirect_to_new_domain():
   """Redirects requests from lcmsprayer.com to asimplewaytopray.com."""
   if "lcmsprayer.com" in flask.request.host:
