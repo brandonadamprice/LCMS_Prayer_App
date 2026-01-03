@@ -50,9 +50,9 @@ app.secret_key = secrets_fetcher.get_flask_secret_key()
 app.config["PERMANENT_SESSION_LIFETIME"] = datetime.timedelta(days=31)
 app.config["REMEMBER_COOKIE_DURATION"] = datetime.timedelta(days=31)
 app.config["SESSION_COOKIE_SECURE"] = True
-app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+app.config["SESSION_COOKIE_SAMESITE"] = "None"
 app.config["REMEMBER_COOKIE_SECURE"] = True
-app.config["REMEMBER_COOKIE_SAMESITE"] = "Lax"
+app.config["REMEMBER_COOKIE_SAMESITE"] = "None"
 app.config["OTHER_PRAYERS"] = utils.get_other_prayers()
 try:
   app.config["ADMIN_USER_ID"] = secrets_fetcher.get_brandon_user_id()
@@ -355,6 +355,7 @@ def authorize():
 @app.route("/authorize/facebook")
 def authorize_facebook():
   """Callback route for Facebook OAuth."""
+  app.logger.info("Processing Facebook callback")
   try:
     facebook.authorize_access_token()
     resp = facebook.get(
