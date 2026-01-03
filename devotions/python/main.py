@@ -31,7 +31,7 @@ import reminders
 import secrets_fetcher
 import short_prayers
 import utils
-from werkzeug.middleware.proxy_fix import ProxyFix
+import werkzeug.middleware.proxy_fix
 
 
 TEMPLATE_DIR = os.path.abspath(
@@ -43,7 +43,9 @@ app = flask.Flask(
     template_folder=TEMPLATE_DIR,
     static_folder=STATIC_DIR,
 )
-app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+app.wsgi_app = werkzeug.middleware.proxy_fix.ProxyFix(
+    app.wsgi_app, x_proto=1, x_host=1
+)
 app.secret_key = secrets_fetcher.get_flask_secret_key()
 app.config["PERMANENT_SESSION_LIFETIME"] = datetime.timedelta(days=31)
 app.config["REMEMBER_COOKIE_DURATION"] = datetime.timedelta(days=31)
@@ -100,7 +102,6 @@ class User(flask_login.UserMixin):
       dark_mode=None,
       font_size_level=None,
       favorites=None,
-      phone_number=None,
       fcm_tokens=None,
   ):
     self.id = user_id
@@ -158,19 +159,6 @@ def inject_globals():
   is_new_year = (now.month == 12 and now.day == 31) or (
       now.month == 1 and now.day == 1
   )
-
-  user_favorites = []
-  if flask_login.current_user.is_authenticated:
-    # We fetch favorites here to make them available in the navbar/menu everywhere
-    # Optimally this should be cached or part of the User object loaded by flask_login
-    # For now, let's fetch from User object which might need to load it
-    # Ideally load_user should load this.
-    # Let's rely on a property or method we will add to User or fetch here.
-    # Since User.get() loads data, let's make sure it loads favorites.
-    # But User class definition is above. Let's update User class first or fetch here.
-    # To avoid modifying User class too much in this block, let's fetch directly if not present.
-    # Actually, let's update User class to include favorites.
-    pass
 
   return dict(is_advent=is_advent, is_new_year=is_new_year)
 
@@ -350,11 +338,11 @@ def authorize():
     token = google.authorize_access_token()
     nonce = flask.session.pop("nonce", None)
     user_info = google.parse_id_token(token, nonce=nonce)
-    
+
     result = handle_oauth_login(user_info, "google")
     if result is None:
-       return flask.redirect("/login/merge")
-    
+      return flask.redirect("/login/merge")
+
     user = result
     flask_login.login_user(user, remember=True)
     flask.session.permanent = True
@@ -373,10 +361,10 @@ def authorize_facebook():
         "https://graph.facebook.com/me?fields=id,name,email,picture.type(large)"
     )
     user_info = resp.json()
-    
+
     result = handle_oauth_login(user_info, "facebook")
     if result is None:
-       return flask.redirect("/login/merge")
+      return flask.redirect("/login/merge")
 
     user = result
     flask_login.login_user(user, remember=True)
@@ -394,11 +382,9 @@ def merge_account_route():
   provider = flask.session.get("pending_provider")
   if not user_data or not provider:
     return flask.redirect("/login")
-  
+
   return flask.render_template(
-      "merge_account.html", 
-      email=user_data.get("email"),
-      provider=provider
+      "merge_account.html", email=user_data.get("email"), provider=provider
   )
 
 
@@ -413,32 +399,32 @@ def merge_account_confirm_route():
   email = user_data.get("email")
   db = utils.get_db_client()
   users_ref = db.collection("users")
-  
+
   # Find the existing user again to be safe
   query_email = users_ref.where("email", "==", email).limit(1)
   email_results = list(query_email.stream())
-  
+
   if not email_results:
-     # Should not happen if flow is correct, but fallback to create new
-     flask.flash("Could not find account to merge. Creating new one.", "warning")
-     # We don't have provider handy to call create_new_user_doc cleanly without logic duplication
-     # easier to just redirect to login or handle error. 
-     # Actually, let's just error out safely.
-     return flask.redirect("/login")
+    # Should not happen if flow is correct, but fallback to create new
+    flask.flash("Could not find account to merge. Creating new one.", "warning")
+    # We don't have provider handy to call create_new_user_doc cleanly without logic duplication
+    # easier to just redirect to login or handle error.
+    # Actually, let's just error out safely.
+    return flask.redirect("/login")
 
   existing_doc = email_results[0]
-  
+
   # Merge data: add the new provider ID and update other fields if desired
   # We trust update_existing_user_doc to merge fields
   user = update_existing_user_doc(existing_doc.id, user_data)
-  
+
   flask_login.login_user(user, remember=True)
   flask.session.permanent = True
-  
+
   # Clean up session
   flask.session.pop("pending_user_data", None)
   flask.session.pop("pending_provider", None)
-  
+
   return flask.redirect("/")
 
 
@@ -795,7 +781,6 @@ def toggle_favorite_route():
         (i for i, f in enumerate(favorites) if f["path"] == path), -1
     )
 
-    is_favorite = False
     if existing_index >= 0:
       # Remove
       favorites.pop(existing_index)

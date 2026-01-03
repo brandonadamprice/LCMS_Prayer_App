@@ -4,12 +4,14 @@ import datetime
 import uuid
 import firebase_admin
 from firebase_admin import messaging
-from flask import current_app
+import flask
 import pytz
 import utils
 
 # Initialize Firebase Admin if not already initialized
-if not firebase_admin._apps:
+try:
+  firebase_admin.get_app()
+except ValueError:
   # Explicitly set project ID to ensure correct FCM endpoint usage
   firebase_admin.initialize_app(options={"projectId": "lcms-prayer-app"})
 
@@ -118,7 +120,7 @@ def get_reminders(user_id):
 
 def delete_reminder(user_id, reminder_id):
   """Deletes a reminder."""
-  current_app.logger.info(
+  flask.current_app.logger.info(
       f"[REMINDER] Deleting reminder {reminder_id} for user {user_id}"
   )
   db = utils.get_db_client()
@@ -142,7 +144,7 @@ def _process_reminder_notification(reminder_data, user_data, reminder_id=None):
   devotion_path = DEVOTION_URLS.get(devotion_key, "/")
   full_url = f"{base_url}{devotion_path}"
 
-  current_app.logger.info(
+  flask.current_app.logger.info(
       f"[REMINDER] Processing reminder {reminder_id} for devotion"
       f" '{devotion_key}' via {methods}"
   )
@@ -150,14 +152,14 @@ def _process_reminder_notification(reminder_data, user_data, reminder_id=None):
   success_count = 0
   for method in methods:
     try:
-      current_app.logger.info(
+      flask.current_app.logger.info(
           f"[REMINDER] Sending {method} notification to user"
           f" {user_data.get('email', 'unknown')}"
       )
       send_notification(method, reminder_data, user_data, full_url)
       success_count += 1
     except Exception as e:
-      current_app.logger.error(
+      flask.current_app.logger.error(
           f"[REMINDER] Error sending {method} notification for reminder"
           f" {reminder_id}: {e}"
       )
@@ -166,19 +168,19 @@ def _process_reminder_notification(reminder_data, user_data, reminder_id=None):
 
 def force_send_reminders_for_user(user_id):
   """Forces sending all reminders for a specific user for debugging."""
-  current_app.logger.info(
+  flask.current_app.logger.info(
       f"[REMINDER] Force sending reminders for user {user_id}"
   )
   reminders_list = get_reminders(user_id)
 
   if not reminders_list:
-    current_app.logger.info("[REMINDER] No reminders found for user.")
+    flask.current_app.logger.info("[REMINDER] No reminders found for user.")
     return False, "No reminders found."
 
   db = utils.get_db_client()
   user_doc = db.collection("users").document(user_id).get()
   if not user_doc.exists:
-    current_app.logger.warning(f"[REMINDER] User {user_id} not found.")
+    flask.current_app.logger.warning(f"[REMINDER] User {user_id} not found.")
     return False, "User not found."
   user_data = user_doc.to_dict()
 
@@ -186,7 +188,7 @@ def force_send_reminders_for_user(user_id):
   for r in reminders_list:
     count += _process_reminder_notification(r, user_data, r.get("id"))
 
-  current_app.logger.info(f"[REMINDER] Force sent {count} notifications.")
+  flask.current_app.logger.info(f"[REMINDER] Force sent {count} notifications.")
   return True, f"Sent {count} notifications."
 
 
@@ -194,7 +196,7 @@ def _send_push(user_data, title, body, url):
   """Sends a push notification using Firebase Cloud Messaging."""
   tokens = user_data.get("fcm_tokens", [])
   if not tokens:
-    current_app.logger.warning(f"[PUSH] No tokens found for user.")
+    flask.current_app.logger.warning(f"[PUSH] No tokens found for user.")
     return
 
   success_count = 0
@@ -218,13 +220,15 @@ def _send_push(user_data, title, body, url):
     except Exception as e:
       failure_count += 1
       failed_tokens.append(token)
-      current_app.logger.warning(f"[PUSH] Failed to send to token {token}: {e}")
+      flask.current_app.logger.warning(
+          f"[PUSH] Failed to send to token {token}: {e}"
+      )
 
-  current_app.logger.info(
+  flask.current_app.logger.info(
       f"[PUSH] Sent {success_count} messages. Failed: {failure_count}"
   )
   if failed_tokens:
-    current_app.logger.warning(f"[PUSH] Failed tokens: {failed_tokens}")
+    flask.current_app.logger.warning(f"[PUSH] Failed tokens: {failed_tokens}")
 
 
 def send_notification(method, reminder_data, user_data, devotion_url):
@@ -238,16 +242,18 @@ def send_notification(method, reminder_data, user_data, devotion_url):
 
 def send_due_reminders():
   """Checks for reminders due at the current time and sends them."""
-  current_app.logger.info("[REMINDER] Checking for due prayer reminders...")
+  flask.current_app.logger.info(
+      "[REMINDER] Checking for due prayer reminders..."
+  )
 
   # Run daily analytics cleanup if needed
   try:
     if utils.check_and_run_analytics_cleanup():
-      current_app.logger.info(
+      flask.current_app.logger.info(
           "[ANALYTICS] Automatic daily cleanup completed."
       )
   except Exception as e:
-    current_app.logger.error(
+    flask.current_app.logger.error(
         f"[ANALYTICS] Error during automatic cleanup: {e}"
     )
 
@@ -261,7 +267,7 @@ def send_due_reminders():
   )
 
   docs = list(query.stream())
-  current_app.logger.info(f"[REMINDER] Found {len(docs)} due reminders.")
+  flask.current_app.logger.info(f"[REMINDER] Found {len(docs)} due reminders.")
 
   for doc in docs:
     data = doc.to_dict()
@@ -270,7 +276,7 @@ def send_due_reminders():
     # Fetch user data for contact info
     user_doc = db.collection("users").document(user_id).get()
     if not user_doc.exists:
-      current_app.logger.warning(
+      flask.current_app.logger.warning(
           f"[REMINDER] User {user_id} not found, skipping reminder {doc.id}"
       )
       continue
@@ -284,12 +290,12 @@ def send_due_reminders():
       # or from now if we want to reset base.
       # Better to recalculate from "now" to ensure it's in the future.
       next_run = calculate_next_run(data.get("time"), data.get("timezone"))
-      current_app.logger.info(
+      flask.current_app.logger.info(
           f"[REMINDER] Rescheduling reminder {doc.id} to {next_run}"
       )
       doc.reference.update({"next_run_utc": next_run})
     except Exception as e:
-      current_app.logger.error(
+      flask.current_app.logger.error(
           f"[REMINDER] Error rescheduling reminder {doc.id}: {e}"
       )
 
