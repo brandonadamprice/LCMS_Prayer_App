@@ -27,6 +27,14 @@ self.addEventListener('activate', (event) => {
 
 // Fetch event: Serve from cache if available, otherwise fetch from network
 self.addEventListener('fetch', (event) => {
+  const url = new URL(event.request.url);
+
+  // Exclude authentication routes from service worker interception.
+  // This allows the browser to handle redirects and cookies for OAuth natively.
+  if (url.pathname.startsWith('/login') || url.pathname.startsWith('/authorize')) {
+    return;
+  }
+
   // For navigation requests (HTML pages), try network first, then cache
   // This ensures users get the latest daily devotion content if online
   if (event.request.mode === 'navigate') {
