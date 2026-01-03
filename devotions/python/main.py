@@ -68,7 +68,8 @@ else:
   # Wire up Gunicorn logging to Flask's logger in production
   gunicorn_logger = logging.getLogger("gunicorn.error")
   app.logger.handlers = gunicorn_logger.handlers
-  app.logger.setLevel(gunicorn_logger.level)
+  # Force INFO level to ensure we see our auth logs
+  app.logger.setLevel(logging.INFO)
 
 oauth = OAuth(app)
 login_manager = flask_login.LoginManager()
@@ -334,13 +335,19 @@ def google_login():
 @app.route("/login/facebook")
 def facebook_login():
   """Redirects to Facebook OAuth login."""
+  # Use print as fallback to ensure visibility in Cloud Run logs
+  print("DEBUG: Entering facebook_login route")
   app.logger.info("Entering facebook_login route")
+  
   redirect_uri = flask.url_for("authorize_facebook", _external=True)
+  
   # Force HTTPS if not present (common issue behind proxies)
   if redirect_uri.startswith("http://"):
     redirect_uri = redirect_uri.replace("http://", "https://", 1)
 
+  print(f"DEBUG: Initiating Facebook login with redirect_uri: {redirect_uri}")
   app.logger.info(f"Initiating Facebook login with redirect_uri: {redirect_uri}")
+  
   return facebook.authorize_redirect(redirect_uri)
 
 
