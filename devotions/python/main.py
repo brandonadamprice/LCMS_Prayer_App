@@ -47,6 +47,10 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 app.secret_key = secrets_fetcher.get_flask_secret_key()
 app.config["PERMANENT_SESSION_LIFETIME"] = datetime.timedelta(days=31)
 app.config["REMEMBER_COOKIE_DURATION"] = datetime.timedelta(days=31)
+app.config["SESSION_COOKIE_SECURE"] = True
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+app.config["REMEMBER_COOKIE_SECURE"] = True
+app.config["REMEMBER_COOKIE_SAMESITE"] = "Lax"
 app.config["OTHER_PRAYERS"] = utils.get_other_prayers()
 try:
   app.config["ADMIN_USER_ID"] = secrets_fetcher.get_brandon_user_id()
