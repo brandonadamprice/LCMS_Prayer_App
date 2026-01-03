@@ -331,7 +331,9 @@ def privacy_route():
 @app.route("/login")
 def login():
   """Renders the sign-in page."""
-  return flask.render_template("signin.html")
+  return flask.render_template(
+      "signin.html", facebook_app_id=secrets_fetcher.get_facebook_client_id()
+  )
 
 
 @app.route("/login/google")
