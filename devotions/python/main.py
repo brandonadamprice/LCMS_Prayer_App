@@ -1080,7 +1080,33 @@ def admin_traffic_route():
       "ADMIN_USER_ID"
   ) or flask_login.current_user.id != app.config.get("ADMIN_USER_ID"):
     return flask.abort(403)
-  return flask.render_template("admin_traffic.html")
+
+  db = utils.get_db_client()
+  users_ref = db.collection("users")
+  users_docs = users_ref.order_by(
+      "last_login", direction=firestore.Query.DESCENDING
+  ).stream()
+
+  users_list = []
+  eastern = pytz.timezone("America/New_York")
+  for doc in users_docs:
+    data = doc.to_dict()
+    last_login = data.get("last_login")
+    last_login_str = "Never"
+    if last_login:
+      if isinstance(last_login, datetime.datetime):
+        last_login_est = last_login.astimezone(eastern)
+        last_login_str = last_login_est.strftime("%Y-%m-%d %I:%M %p")
+      else:
+        last_login_str = str(last_login)
+
+    users_list.append({
+        "name": data.get("name", "Unknown"),
+        "email": data.get("email", "Unknown"),
+        "last_login": last_login_str,
+    })
+
+  return flask.render_template("admin_traffic.html", users=users_list)
 
 
 @app.route("/debug_ip")
@@ -1270,7 +1296,7 @@ def traffic_data_route():
     start_date = datetime.date(2025, 12, 11)
 
     date_strs = []
-    for i in range(30):
+    for i in range(14):
       current_date = today - datetime.timedelta(days=i)
       if current_date >= start_date:
         date_strs.append(current_date.strftime("%Y-%m-%d"))

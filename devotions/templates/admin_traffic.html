@@ -15,7 +15,31 @@
     </div>
 
     <div class="card">
-      <h2>Unique Daily Visits - Last 30 Days</h2>
+        <h2>Registered Users</h2>
+        <div style="max-height: 400px; overflow-y: auto;">
+        <table class="analytics-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th style="text-align: right;">Last Visit (EST)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.name }}</td>
+                    <td>{{ user.email }}</td>
+                    <td style="text-align: right;">{{ user.last_login }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    </div>
+
+    <div class="card">
+      <h2>Unique Daily Visits - Last 14 Days</h2>
       <div id="traffic-section" style="margin-top: 20px;">
         <canvas id="traffic-chart"></canvas>
         <table id="traffic-table" class="analytics-table">
@@ -51,7 +75,7 @@
     </div>
 
     <div class="card">
-        <h2>User Retention: Visit Frequency (Last 30 Days)</h2>
+        <h2>User Retention: Visit Frequency (Last 14 Days)</h2>
         <canvas id="frequency-chart"></canvas>
     </div>
 
@@ -83,7 +107,7 @@ async function loadTrafficData() {
         const data = await response.json();
 
         if (!data || data.length === 0) {
-            document.querySelector('#traffic-table tbody').innerHTML = '<tr><td colspan="2"><em>No traffic data to display for the last 30 days since tracking began.</em></td></tr>';
+            document.querySelector('#traffic-table tbody').innerHTML = '<tr><td colspan="2"><em>No traffic data to display for the last 14 days since tracking began.</em></td></tr>';
             document.getElementById('traffic-chart').style.display = 'none';
             return;
         }
