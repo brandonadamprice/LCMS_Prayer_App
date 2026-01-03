@@ -5,6 +5,20 @@
       <p style="font-style: italic; margin-top: 10px;">"Never think that you are kneeling or standing alone, rather think that the whole of Christendom, all devout Christians, are standing there beside you and you are standing among them in a common, united petition which God cannot disdain" — Martin Luther</p>
     </div>
 
+    <style>
+      .card-header-custom {
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        border-bottom: 1px solid #f0f0f0; 
+        margin-bottom: 10px; 
+        padding-bottom: 10px;
+      }
+      body.dark-mode .card-header-custom {
+        border-bottom-color: #555;
+      }
+    </style>
+
     {% if current_user.is_authenticated and current_user.favorites %}
     <div class="card">
       <h2>Favorites</h2>
@@ -15,7 +29,12 @@
     {% endif %}
 
     <div class="card">
-      <h2>Daily Prayer</h2>
+      <div class="card-header-custom">
+        <h2 style="border-bottom: none; padding-bottom: 0; margin: 0;">Daily Prayer</h2>
+        {% if current_user.is_authenticated %}
+        <a href="/reminders" class="button" style="margin: 0; padding: 5px 10px; font-size: 0.8em; background-color: #2980b9;">Reminders</a>
+        {% endif %}
+      </div>
       <a href="/morning_devotion" class="button">Morning</a>
       <a href="/midday_devotion" class="button">Midday</a>
       <a href="/evening_devotion" class="button">Evening</a>

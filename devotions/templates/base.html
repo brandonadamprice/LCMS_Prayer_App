@@ -44,6 +44,9 @@
             <a href="/evening_devotion">Evening</a>
             <a href="/close_of_day_devotion">Close of Day</a>
             <a href="/night_watch_devotion">Night Watch</a>
+            {% if current_user.is_authenticated %}
+            <a href="/reminders" style="border-top: 1px solid #eee;">Prayer Reminders</a>
+            {% endif %}
           </div>
         </div>
         <div class="dropdown">
@@ -193,29 +196,10 @@
             </div>
           </div>
           <div class="app-menu-section">
-            <strong>Settings</strong>
-            <a href="/settings" class="button menu-button-full" style="margin-bottom: 5px;">All Settings</a>
-            {% if current_user.is_authenticated %}
-            <a href="/reminders" class="button menu-button-full">Prayer Reminders</a>
+            <a href="/settings" class="button menu-button-full" style="margin-bottom: 5px;">Settings</a>
+            {% if current_user.is_authenticated and config['ADMIN_USER_ID'] and current_user.id == config['ADMIN_USER_ID'] %}
+            <a href="/admin/traffic" class="button menu-button-full">Traffic Analytics</a>
             {% endif %}
-            <div class="menu-item">
-                <label for="dark-mode-toggle">Dark Mode</label>
-                <label class="switch">
-                    <input type="checkbox" id="dark-mode-toggle">
-                    <span class="slider"></span>
-                </label>
-            </div>
-            <div class="menu-item">
-              <span>Font Size</span>
-              <div class="font-controls">
-                  <button id="decrease-font" aria-label="Decrease font size">-</button>
-                  <button id="reset-font" aria-label="Reset font size">1x</button>
-                  <button id="increase-font" aria-label="Increase font size">+</button>
-              </div>
-          </div>
-          {% if current_user.is_authenticated and config['ADMIN_USER_ID'] and current_user.id == config['ADMIN_USER_ID'] %}
-          <a href="/admin/traffic" class="button menu-button-full">Traffic Analytics</a>
-          {% endif %}
           </div>
         </div>
       </div>
