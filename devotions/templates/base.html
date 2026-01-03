@@ -118,6 +118,12 @@
               <a href="/login" class="button menu-button-full">Login</a>
             {% endif %}
           </div>
+          <div class="app-menu-section">
+            <a href="/settings" class="button menu-button-full" style="margin-bottom: 5px;">Settings</a>
+            {% if current_user.is_authenticated and config['ADMIN_USER_ID'] and current_user.id == config['ADMIN_USER_ID'] %}
+            <a href="/admin/traffic" class="button menu-button-full">Traffic Analytics</a>
+            {% endif %}
+          </div>
           <div class="app-menu-section mobile-nav">
             <strong>Navigation</strong>
             <a href="/" class="button menu-button-full">Home</a>
@@ -194,12 +200,6 @@
             <div class="menu-panel">
                 <a href="/feedback" class="menu-sub-link">Submit Feedback</a>
             </div>
-          </div>
-          <div class="app-menu-section">
-            <a href="/settings" class="button menu-button-full" style="margin-bottom: 5px;">Settings</a>
-            {% if current_user.is_authenticated and config['ADMIN_USER_ID'] and current_user.id == config['ADMIN_USER_ID'] %}
-            <a href="/admin/traffic" class="button menu-button-full">Traffic Analytics</a>
-            {% endif %}
           </div>
         </div>
       </div>
@@ -378,7 +378,8 @@
 
       function applyFontSize(index) {
           currentFontSizeIndex = Math.max(0, Math.min(index, FONT_SIZES.length - 1));
-          document.body.style.fontSize = FONT_SIZES[currentFontSizeIndex] + 'em';
+          const sizeEm = FONT_SIZES[currentFontSizeIndex];
+          document.body.style.fontSize = sizeEm + 'em';
           
           const isMin = currentFontSizeIndex === 0;
           const isMax = currentFontSizeIndex === FONT_SIZES.length - 1;
@@ -387,6 +388,12 @@
           if(increaseFontSidebar) increaseFontSidebar.disabled = isMax;
           if(decreaseFontSettings) decreaseFontSettings.disabled = isMin;
           if(increaseFontSettings) increaseFontSettings.disabled = isMax;
+          
+          const display = document.getElementById('font-size-display');
+          if (display) {
+              const pct = Math.round(sizeEm * 100);
+              display.textContent = `(${pct}%)`;
+          }
       }
 
       async function saveFontSizePreference(index) {
