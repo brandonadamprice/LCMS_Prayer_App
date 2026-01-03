@@ -44,6 +44,13 @@
           <li>Paste the URL above and click <strong>Save Changes</strong></li>
       </ol>
   </div>
+  
+  <!-- Loading Overlay -->
+  <div id="loading-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 9999; text-align: center; padding-top: 200px;">
+      <div style="font-size: 2em; margin-bottom: 20px;">⏳</div>
+      <h2 style="border: none;">Logging in...</h2>
+      <p>Please wait while we verify your account.</p>
+  </div>
 </div>
 
 <script>
@@ -54,6 +61,14 @@
           debugDiv.innerHTML += msg + '<br>';
           debugDiv.scrollTop = debugDiv.scrollHeight;
       }
+  }
+
+  function showLoading() {
+      document.getElementById('loading-overlay').style.display = 'block';
+  }
+
+  function hideLoading() {
+      document.getElementById('loading-overlay').style.display = 'none';
   }
 
   function toggleDebug() {
@@ -69,7 +84,6 @@
       const tsDiv = document.getElementById('troubleshoot-info');
       const uriDisplay = document.getElementById('redirect-uri-display');
       
-      // Calculate exact current URI including protocol and www/non-www
       const currentUri = window.location.origin + window.location.pathname;
       uriDisplay.textContent = currentUri;
       
@@ -80,11 +94,20 @@
       }
   }
 
+  // Detect if we are in the middle of a redirect flow (hash present)
+  // If so, we delay or skip the SDK init to avoid conflicts and just handle the token.
+  const hasAuthHash = window.location.hash && window.location.hash.includes('access_token=');
+
   window.fbAsyncInit = function() {
+    if (hasAuthHash) {
+        log("Auth hash detected. Skipping SDK Init to prevent conflicts.");
+        return; 
+    }
+
     log("FB SDK Initializing...");
     try {
         FB.init({
-          appId      : '{{ facebook_app_id }}', // Your App ID
+          appId      : '{{ facebook_app_id }}', 
           cookie     : true,
           xfbml      : true,
           version    : 'v18.0'
@@ -110,14 +133,15 @@
 
   function fbLogin() {
     const appId = '{{ facebook_app_id }}';
-    // Ensure we use the exact current location base, handling www vs non-www
     const redirectUri = window.location.origin + window.location.pathname; 
     
-    // On mobile, bypass the popup entirely and use the redirect flow
     if (isMobile()) {
         log("Mobile device detected. Using Redirect Flow.");
         log("Redirect URI to Whitelist: " + redirectUri);
         
+        // Show loading immediately to give feedback
+        showLoading();
+
         const scope = 'email,public_profile';
         const authUrl = `https://www.facebook.com/v18.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=${encodeURIComponent(scope)}`;
         window.location.href = authUrl;
@@ -125,31 +149,23 @@
     }
 
     log("Desktop detected. Calling FB.login (Popup Flow)...");
-    if (location.protocol !== 'https:') {
-        log("WARNING: Page is not HTTPS. Facebook Login requires HTTPS.");
-    }
     
     FB.login(function(response) {
         log("FB.login callback received.");
-        log("Response status: " + response.status);
-        
         if (response.authResponse) {
             handleAuthResponse(response.authResponse.accessToken);
         } else {
             log("User cancelled login or did not fully authorize.");
-            log("Full response: " + JSON.stringify(response));
-
             if (response.status === 'unknown') {
-               log("Status is unknown. Popups blocked?");
-               alert("Login popup was blocked or closed. Please try again or use a different browser.");
+               alert("Login popup was blocked or closed. Please try again.");
             }
         }
     }, {scope: 'email,public_profile'});
   }
 
   function handleAuthResponse(accessToken) {
-      log("Auth success. Token length: " + accessToken.length);
-      log("Sending token to server...");
+      log("Auth success. Sending token to server...");
+      showLoading(); // Show loading during server verification
       
       fetch('/login/facebook/token', {
           method: 'POST',
@@ -163,62 +179,43 @@
           return response.json();
       })
       .then(data => {
-          log("Server data: " + JSON.stringify(data));
           if (data.redirect) {
-              log("Redirecting to: " + data.redirect);
               window.location.href = data.redirect;
           } else if (data.success) {
-              log("Login success! Redirecting home.");
               window.location.href = "/";
           } else {
+              hideLoading();
               log("Server reported failure: " + (data.error || "Unknown"));
               alert('Login failed: ' + (data.error || "Please try again."));
           }
       })
       .catch((error) => {
+          hideLoading();
           log("Fetch error: " + error.message);
-          console.error('Error:', error);
           alert('An error occurred during login.');
       });
   }
 
-  // Check for access token in URL hash (returned from Facebook Manual Flow fallback)
-  window.addEventListener('load', function() {
-      const hash = window.location.hash;
-      if (hash && hash.includes('access_token=')) {
+  // Handle Manual Flow Return
+  if (hasAuthHash) {
+      window.addEventListener('load', function() {
+          showLoading(); // Show immediately on load
           log("Found access_token in URL hash. Processing manual flow...");
-          const params = new URLSearchParams(hash.substring(1)); // remove #
+          
+          const hash = window.location.hash;
+          const params = new URLSearchParams(hash.substring(1)); 
           const accessToken = params.get('access_token');
           
           if (accessToken) {
-              log("Got access token from hash, verifying with server...");
+              log("Got access token from hash.");
               // Clear hash to clean up URL
               history.replaceState(null, null, ' ');
-
-              fetch('/login/facebook/token', {
-                  method: 'POST',
-                  headers: {
-                      'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify({ accessToken: accessToken }),
-              })
-              .then(response => response.json())
-              .then(data => {
-                  if (data.redirect) {
-                      window.location.href = data.redirect;
-                  } else if (data.success) {
-                      window.location.href = "/";
-                  } else {
-                      log('Login failed on server: ' + data.error);
-                      alert('Login failed. Please try again.');
-                  }
-              })
-              .catch((error) => {
-                  log('Error: ' + error);
-                  alert('An error occurred during login.');
-              });
+              handleAuthResponse(accessToken);
+          } else {
+              hideLoading();
+              log("Access token missing in hash.");
           }
-      }
-  });
+      });
+  }
 </script>
 {% endblock %}
