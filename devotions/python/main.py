@@ -355,8 +355,11 @@ def facebook_login():
   app.logger.info(
       f"Initiating Facebook login with redirect_uri: {redirect_uri}"
   )
+  resp = facebook.authorize_redirect(redirect_uri)
 
-  return facebook.authorize_redirect(redirect_uri)
+  # Ensure COOP header allows popups/redirects for OAuth
+  resp.headers["Cross-Origin-Opener-Policy"] = "same-origin-allow-popups"
+  return resp
 
 
 @app.route("/authorize")
