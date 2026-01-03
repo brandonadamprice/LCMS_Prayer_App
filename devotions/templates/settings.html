@@ -58,4 +58,12 @@
     <p><em>Please log in to manage reminders.</em></p>
     {% endif %}
 </div>
+
+{% if current_user.is_authenticated %}
+<div class="card">
+    <h2>Data Management</h2>
+    <p>Download a copy of your personal data.</p>
+    <a href="/account/export_data" class="button" target="_blank" style="background-color: #27ae60;">Export My Prayers</a>
+</div>
+{% endif %}
 {% endblock %}
