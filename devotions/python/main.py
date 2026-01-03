@@ -328,12 +328,15 @@ def google_login():
 @app.route("/login/facebook")
 def facebook_login():
   """Redirects to Facebook OAuth login."""
+  app.logger.info("Initiating Facebook login")
   redirect_uri = flask.url_for("authorize_facebook", _external=True)
   # Force HTTPS if not present (common issue behind proxies)
   if redirect_uri.startswith("http://"):
     redirect_uri = redirect_uri.replace("http://", "https://", 1)
 
-  app.logger.info(f"Initiating Facebook login with redirect_uri: {redirect_uri}")
+  app.logger.info(
+      f"Initiating Facebook login with redirect_uri: {redirect_uri}"
+  )
   # Try forcing popup display to see if it prevents app switching/issues
   return facebook.authorize_redirect(redirect_uri, display="popup")
 
