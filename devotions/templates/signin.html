@@ -16,58 +16,64 @@
       Sign in with Facebook
     </button>
   </div>
+  <p style="text-align: center; margin-top: 10px; font-size: 0.9em; color: #e74c3c;">
+    <strong>Note:</strong> Sign in with Facebook is currently experiencing issues on mobile devices. We are attempting to get it working as soon as possible.
+  </p>
   <p style="text-align: center; margin-top: 20px; font-size: 0.9em; color: #7f8c8d;">
     More sign-in options coming soon.
   </p>
 </div>
 
 <script>
-  // Facebook Login - Manual Implicit Flow to avoid Popups on Mobile
+  window.fbAsyncInit = function() {
+    FB.init({
+      appId      : '{{ facebook_app_id }}', // Your App ID
+      cookie     : true,
+      xfbml      : true,
+      version    : 'v18.0'
+    });
+    FB.AppEvents.logPageView();   
+  };
+
+  (function(d, s, id){
+     var js, fjs = d.getElementsByTagName(s)[0];
+     if (d.getElementById(id)) {return;}
+     js = d.createElement(s); js.id = id;
+     js.src = "https://connect.facebook.net/en_US/sdk.js";
+     fjs.parentNode.insertBefore(js, fjs);
+   }(document, 'script', 'facebook-jssdk'));
+
   function fbLogin() {
-      const appId = '{{ facebook_app_id }}';
-      const redirectUri = window.location.origin + '/login'; 
-      const scope = 'email,public_profile';
-      const authUrl = `https://www.facebook.com/v18.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=${encodeURIComponent(scope)}`;
-      
-      window.location.href = authUrl;
+    FB.login(function(response) {
+        if (response.authResponse) {
+            console.log('Welcome!  Fetching your information.... ');
+            // Send the access token to the server
+            fetch('/login/facebook/token', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ accessToken: response.authResponse.accessToken }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                } else if (data.success) {
+                    window.location.href = "/";
+                } else {
+                    console.error('Login failed on server');
+                    alert('Login failed. Please try again.');
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                alert('An error occurred during login.');
+            });
+        } else {
+            console.log('User cancelled login or did not fully authorize.');
+        }
+    }, {scope: 'email,public_profile'});
   }
-
-  // Check for access token in URL hash (returned from Facebook)
-  window.addEventListener('load', function() {
-      const hash = window.location.hash;
-      if (hash && hash.includes('access_token=')) {
-          const params = new URLSearchParams(hash.substring(1)); // remove #
-          const accessToken = params.get('access_token');
-          
-          if (accessToken) {
-              console.log('Got access token, verifying with server...');
-              // Clear hash to clean up URL
-              history.replaceState(null, null, ' ');
-
-              fetch('/login/facebook/token', {
-                  method: 'POST',
-                  headers: {
-                      'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify({ accessToken: accessToken }),
-              })
-              .then(response => response.json())
-              .then(data => {
-                  if (data.redirect) {
-                      window.location.href = data.redirect;
-                  } else if (data.success) {
-                      window.location.href = "/";
-                  } else {
-                      console.error('Login failed on server:', data.error);
-                      alert('Login failed. Please try again.');
-                  }
-              })
-              .catch((error) => {
-                  console.error('Error:', error);
-                  alert('An error occurred during login.');
-              });
-          }
-      }
-  });
 </script>
 {% endblock %}
