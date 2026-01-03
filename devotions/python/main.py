@@ -51,9 +51,9 @@ app.config["PREFERRED_URL_SCHEME"] = "https"
 app.config["PERMANENT_SESSION_LIFETIME"] = datetime.timedelta(days=31)
 app.config["REMEMBER_COOKIE_DURATION"] = datetime.timedelta(days=31)
 app.config["SESSION_COOKIE_SECURE"] = True
-app.config["SESSION_COOKIE_SAMESITE"] = "None"
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 app.config["REMEMBER_COOKIE_SECURE"] = True
-app.config["REMEMBER_COOKIE_SAMESITE"] = "None"
+app.config["REMEMBER_COOKIE_SAMESITE"] = "Lax"
 app.config["OTHER_PRAYERS"] = utils.get_other_prayers()
 try:
   app.config["ADMIN_USER_ID"] = secrets_fetcher.get_brandon_user_id()
@@ -334,7 +334,8 @@ def facebook_login():
     redirect_uri = redirect_uri.replace("http://", "https://", 1)
 
   app.logger.info(f"Initiating Facebook login with redirect_uri: {redirect_uri}")
-  return facebook.authorize_redirect(redirect_uri)
+  # Try forcing popup display to see if it prevents app switching/issues
+  return facebook.authorize_redirect(redirect_uri, display="popup")
 
 
 @app.route("/authorize")
