@@ -29,6 +29,7 @@ import prayer_requests
 import psalms_by_category
 import pytz
 import reminders
+import requests
 import secrets_fetcher
 import short_prayers
 import utils
@@ -342,24 +343,42 @@ def google_login():
   return google.authorize_redirect(redirect_uri, nonce=nonce)
 
 
-@app.route("/login/facebook")
-def facebook_login():
-  """Redirects to Facebook OAuth login."""
-  app.logger.info("Entering facebook_login route")
-  redirect_uri = flask.url_for("authorize_facebook", _external=True)
+@app.route("/login/facebook/token", methods=["POST"])
+def facebook_login_token():
+  """Handles Facebook login via client-side token."""
+  data = flask.request.json
+  access_token = data.get("accessToken")
+  if not access_token:
+    return flask.jsonify({"error": "Missing access token"}), 400
 
-  # Force HTTPS if not present (common issue behind proxies)
-  if redirect_uri.startswith("http://"):
-    redirect_uri = redirect_uri.replace("http://", "https://", 1)
+  # Verify token with Facebook Graph API
+  try:
+    resp = requests.get(
+        "https://graph.facebook.com/me",
+        params={
+            "fields": "id,name,email,picture.type(large)",
+            "access_token": access_token,
+        },
+        timeout=10,
+    )
+    resp.raise_for_status()
+    user_info = resp.json()
 
-  app.logger.info(
-      f"Initiating Facebook login with redirect_uri: {redirect_uri}"
-  )
-  resp = facebook.authorize_redirect(redirect_uri)
+    result = handle_oauth_login(user_info, "facebook")
+    if result is None:
+      # Signal to frontend to redirect to merge page
+      # Ideally we send JSON response, but redirect works if fetch follows it
+      # Actually, better to return JSON with redirect URL
+      return flask.jsonify({"redirect": "/login/merge"})
 
-  # Ensure COOP header allows popups/redirects for OAuth
-  resp.headers["Cross-Origin-Opener-Policy"] = "same-origin-allow-popups"
-  return resp
+    user = result
+    flask_login.login_user(user, remember=True)
+    flask.session.permanent = True
+    return flask.jsonify({"success": True})
+
+  except Exception as e:
+    app.logger.error("Facebook token verification failed: %s", e)
+    return flask.jsonify({"error": "Authentication failed"}), 400
 
 
 @app.route("/authorize")
@@ -380,30 +399,6 @@ def authorize():
     return flask.redirect("/")
   except Exception as e:
     app.logger.warning("Google OAuth Error: %s", e)
-    return "Authentication failed.", 400
-
-
-@app.route("/authorize/facebook")
-def authorize_facebook():
-  """Callback route for Facebook OAuth."""
-  app.logger.info("Processing Facebook callback")
-  try:
-    facebook.authorize_access_token()
-    resp = facebook.get(
-        "https://graph.facebook.com/me?fields=id,name,email,picture.type(large)"
-    )
-    user_info = resp.json()
-
-    result = handle_oauth_login(user_info, "facebook")
-    if result is None:
-      return flask.redirect("/login/merge")
-
-    user = result
-    flask_login.login_user(user, remember=True)
-    flask.session.permanent = True
-    return flask.redirect("/")
-  except Exception as e:
-    app.logger.warning("Facebook OAuth Error: %s", e)
     return "Authentication failed.", 400
 
 
