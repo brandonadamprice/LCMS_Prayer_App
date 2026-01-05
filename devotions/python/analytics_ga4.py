@@ -7,19 +7,44 @@ from google.analytics.data_v1beta.types import Dimension
 from google.analytics.data_v1beta.types import Metric
 from google.analytics.data_v1beta.types import RunReportRequest
 import google.auth
+import google.auth.transport.requests
+import requests
 
 logger = logging.getLogger(__name__)
 
 
 def get_service_account_email():
-  """Attempts to retrieve the current service account email."""
+  """Attempts to retrieve the current authenticated email."""
   try:
     credentials, project_id = google.auth.default()
-    if hasattr(credentials, "service_account_email"):
+
+    # Try to refresh credentials to ensure we have a token
+    if not credentials.valid:
+      request = google.auth.transport.requests.Request()
+      credentials.refresh(request)
+
+    # If it's a service account with an email attribute, return it
+    if (
+        hasattr(credentials, "service_account_email")
+        and credentials.service_account_email
+    ):
       return credentials.service_account_email
-    return "Unknown (Using default credentials, check Cloud Console)"
+
+    # If not, or if we want to be sure, query the token info endpoint
+    if credentials.token:
+      resp = requests.get(
+          f"https://www.googleapis.com/oauth2/v3/tokeninfo?access_token={credentials.token}",
+          timeout=5,
+      )
+      if resp.status_code == 200:
+        data = resp.json()
+        # 'email' is present for user credentials and some SAs
+        if "email" in data:
+          return data["email"]
+
+    return "Unknown (Could not determine authenticated email)"
   except Exception as e:
-    logger.error(f"Error fetching credentials: {e}")
+    logger.error(f"Error fetching credentials email: {e}")
     return "Error fetching credentials"
 
 
