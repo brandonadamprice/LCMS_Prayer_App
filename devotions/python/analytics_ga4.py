@@ -57,12 +57,12 @@ def fetch_traffic_stats(property_id):
   try:
     client = BetaAnalyticsDataClient()
 
-    # 1. Daily Trend (Last 21 days)
+    # 1. Daily Trend (Last 30 days)
     request = RunReportRequest(
         property=f"properties/{property_id}",
         dimensions=[Dimension(name="date"), Dimension(name="dayOfWeekName")],
         metrics=[Metric(name="activeUsers"), Metric(name="screenPageViews")],
-        date_ranges=[DateRange(start_date="21daysAgo", end_date="today")],
+        date_ranges=[DateRange(start_date="30daysAgo", end_date="today")],
         order_bys=[{"dimension": {"dimension_name": "date"}}],
     )
     response = client.run_report(request)
@@ -108,12 +108,12 @@ def fetch_traffic_stats(property_id):
     if realtime_response.rows:
       realtime_users = realtime_response.rows[0].metric_values[0].value
 
-    # 4. User Retention (New vs Returning) - Last 28 Days
+    # 4. User Retention (New vs Returning) - Last 30 Days
     retention_request = RunReportRequest(
         property=f"properties/{property_id}",
         dimensions=[Dimension(name="newVsReturning")],
         metrics=[Metric(name="activeUsers")],
-        date_ranges=[DateRange(start_date="28daysAgo", end_date="today")],
+        date_ranges=[DateRange(start_date="30daysAgo", end_date="today")],
     )
     retention_response = client.run_report(retention_request)
     retention_data = {"new": 0, "returning": 0}
