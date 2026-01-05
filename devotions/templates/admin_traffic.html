@@ -10,6 +10,38 @@
   <p>Data pulled directly from Google Analytics 4.</p>
 </div>
 
+<div class="card">
+    <h2>Total Registered Users</h2>
+    <p style="font-size: 2em; font-weight: bold; color: #2980b9; margin: 10px 0;">
+        {{ registered_user_count }}
+    </p>
+    <p style="color: #7f8c8d; font-size: 0.9em;">Users who have signed in at least once.</p>
+</div>
+
+<div class="card">
+    <h2>Registered Users List</h2>
+    <div style="max-height: 300px; overflow-y: auto; border: 1px solid #eee; border-radius: 4px;">
+        <table class="analytics-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th style="text-align: right;">Last Login (EST)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in registered_users %}
+                <tr>
+                    <td>{{ user.name }}</td>
+                    <td>{{ user.email }}</td>
+                    <td style="text-align: right;">{{ user.last_login }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
 {% if error %}
 <div class="card" style="border-left: 5px solid #e74c3c;">
     <h2>Connection Error</h2>

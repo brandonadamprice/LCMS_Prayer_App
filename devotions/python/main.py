@@ -1106,9 +1106,55 @@ def admin_traffic_route():
   ) or flask_login.current_user.id != app.config.get("ADMIN_USER_ID"):
     return flask.abort(403)
 
+  # Fetch registered users from Firestore
+  registered_users = []
+  registered_user_count = 0
+  try:
+    db = utils.get_db_client()
+    users_ref = db.collection("users")
+    # Fetch all users
+    docs = users_ref.stream()
+
+    eastern_timezone = pytz.timezone("America/New_York")
+
+    for doc in docs:
+      data = doc.to_dict()
+      last_login = data.get("last_login")
+      last_login_val = datetime.datetime.min.replace(
+          tzinfo=datetime.timezone.utc
+      )
+      last_login_str = "Never"
+
+      if last_login:
+        if isinstance(last_login, datetime.datetime):
+          # Ensure aware
+          if last_login.tzinfo is None:
+            last_login = last_login.replace(tzinfo=datetime.timezone.utc)
+          last_login_est = last_login.astimezone(eastern_timezone)
+          last_login_str = last_login_est.strftime("%Y-%m-%d %I:%M %p")
+          last_login_val = last_login
+        else:
+          last_login_str = str(last_login)
+
+      registered_users.append({
+          "name": data.get("name", "Unknown"),
+          "email": data.get("email", "Unknown"),
+          "last_login": last_login_str,
+          "_sort_key": last_login_val,
+      })
+
+    # Sort in memory by last login descending
+    registered_users.sort(key=lambda x: x["_sort_key"], reverse=True)
+    registered_user_count = len(registered_users)
+
+  except Exception as e:
+    app.logger.error(f"Error fetching users: {e}")
+
   try:
     property_id = secrets_fetcher.get_ga4_property_id()
     data = analytics_ga4.fetch_traffic_stats(property_id)
+    data["registered_user_count"] = registered_user_count
+    data["registered_users"] = registered_users
     return flask.render_template("admin_traffic.html", **data)
   except Exception as e:
     # If fetch fails (e.g. secret not set), return error info
@@ -1116,6 +1162,8 @@ def admin_traffic_route():
         "admin_traffic.html",
         error=str(e),
         service_email=analytics_ga4.get_service_account_email(),
+        registered_user_count=registered_user_count,
+        registered_users=registered_users,
     )
 
 
