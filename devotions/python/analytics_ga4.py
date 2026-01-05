@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 def get_service_account_email():
   """Attempts to retrieve the current authenticated email."""
   try:
-    credentials, project_id = google.auth.default()
+    credentials, _ = google.auth.default()
 
     # Try to refresh credentials to ensure we have a token
     if not credentials.valid:

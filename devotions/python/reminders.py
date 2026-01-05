@@ -246,17 +246,6 @@ def send_due_reminders():
       "[REMINDER] Checking for due prayer reminders..."
   )
 
-  # Run daily analytics cleanup if needed
-  try:
-    if utils.check_and_run_analytics_cleanup():
-      flask.current_app.logger.info(
-          "[ANALYTICS] Automatic daily cleanup completed."
-      )
-  except Exception as e:
-    flask.current_app.logger.error(
-        f"[ANALYTICS] Error during automatic cleanup: {e}"
-    )
-
   db = utils.get_db_client()
   now_utc = datetime.datetime.now(datetime.timezone.utc)
 

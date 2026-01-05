@@ -1,11 +1,9 @@
 """Main Flask application for serving devotions."""
 
 import datetime
-import hashlib
 import logging
 import os
 import secrets
-import uuid
 import advent
 import analytics_ga4
 from authlib.integrations.flask_client import OAuth
@@ -30,7 +28,6 @@ import prayer_requests
 import psalms_by_category
 import pytz
 import reminders
-import requests
 import secrets_fetcher
 import short_prayers
 import utils
@@ -707,7 +704,7 @@ def prayer_wall_route():
     prayer_requests.remove_expired_requests()
   except Exception as e:
     app.logger.error(f"Error removing expired prayer requests: {e}")
-  requests = prayer_requests.get_prayer_wall_requests(limit=10)
+  active_requests = prayer_requests.get_prayer_wall_requests(limit=10)
   prayed_request_ids = []
   if flask_login.current_user.is_authenticated:
     db = utils.get_db_client()
@@ -729,7 +726,7 @@ def prayer_wall_route():
 
   return flask.render_template(
       "prayer_wall.html",
-      prayer_requests=requests,
+      prayer_requests=active_requests,
       prayed_request_ids=prayed_request_ids,
   )
 
