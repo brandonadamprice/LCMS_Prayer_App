@@ -7,7 +7,6 @@ import os
 import secrets
 import uuid
 import advent
-import analytics_helper
 from authlib.integrations.flask_client import OAuth
 import bible_in_a_year
 import childrens_devotion
@@ -1100,58 +1099,13 @@ def edit_prayer_request_route(request_id):
 @app.route("/admin/traffic")
 @flask_login.login_required
 def admin_traffic_route():
-  """Renders the admin traffic analytics page."""
+  """Redirects to Google Analytics."""
   if not app.config.get(
       "ADMIN_USER_ID"
   ) or flask_login.current_user.id != app.config.get("ADMIN_USER_ID"):
     return flask.abort(403)
-
-  db = utils.get_db_client()
-  users_ref = db.collection("users")
-  users_docs = users_ref.order_by(
-      "last_login", direction=firestore.Query.DESCENDING
-  ).stream()
-
-  users_list = []
-  eastern = pytz.timezone("America/New_York")
-  for doc in users_docs:
-    data = doc.to_dict()
-    last_login = data.get("last_login")
-    last_login_str = "Never"
-    if last_login:
-      if isinstance(last_login, datetime.datetime):
-        last_login_est = last_login.astimezone(eastern)
-        last_login_str = last_login_est.strftime("%Y-%m-%d %I:%M %p")
-      else:
-        last_login_str = str(last_login)
-
-    users_list.append({
-        "name": data.get("name", "Unknown"),
-        "email": data.get("email", "Unknown"),
-        "last_login": last_login_str,
-    })
-
-  return flask.render_template("admin_traffic.html", users=users_list)
-
-
-@app.route("/debug_ip")
-def debug_ip_route():
-  """Debug route to show visitor IP and hash."""
-  if "HTTP_X_FORWARDED_FOR" in flask.request.environ:
-    ip = flask.request.environ["HTTP_X_FORWARDED_FOR"].split(",")[0].strip()
-    source = "HTTP_X_FORWARDED_FOR"
-  else:
-    ip = flask.request.remote_addr
-    source = "remote_addr"
-
-  ip_hash = hashlib.sha256(ip.encode()).hexdigest()
-
-  return flask.jsonify({
-      "ip": ip,
-      "hash": ip_hash,
-      "source": source,
-      "headers": dict(flask.request.headers),
-  })
+  
+  return flask.redirect("https://analytics.google.com/")
 
 
 @app.route("/reminders")
@@ -1288,106 +1242,7 @@ def force_reminders_route():
     return flask.jsonify({"success": False, "error": msg}), 400
 
 
-@app.route("/admin/cleanup_analytics", methods=["POST"])
-@flask_login.login_required
-def cleanup_analytics_route():
-  if not app.config.get(
-      "ADMIN_USER_ID"
-  ) or flask_login.current_user.id != app.config.get("ADMIN_USER_ID"):
-    return flask.jsonify({"error": "Forbidden"}), 403
 
-  try:
-    deleted_count = utils.cleanup_analytics()
-    return flask.jsonify(
-        {"success": True, "message": f"Deleted {deleted_count} stale users."}
-    )
-  except Exception as e:
-    app.logger.error("Cleanup analytics failed: %s", e)
-    return flask.jsonify({"success": False, "error": str(e)}), 500
-
-
-@app.route("/admin/traffic_data")
-@flask_login.login_required
-def traffic_data_route():
-  if not app.config.get(
-      "ADMIN_USER_ID"
-  ) or flask_login.current_user.id != app.config.get("ADMIN_USER_ID"):
-    return flask.jsonify({"error": "Forbidden"}), 403
-
-  try:
-    db = utils.get_db_client()
-    data = analytics_helper.get_analytics_data(db)
-    return flask.jsonify(data)
-  except Exception as e:
-    app.logger.error(f"Error in traffic_data_route: {e}", exc_info=True)
-    return flask.jsonify({"error": "Internal server error"}), 500
-
-
-@app.after_request
-def track_visitor(response):
-  """Tracks unique visitors using a cookie and IP address."""
-  if flask.request.path == "/tasks/send_reminders":
-    return response
-
-  if response.status_code == 200 and response.mimetype == "text/html":
-    try:
-      # 1. Get/Set Visitor ID Cookie
-      visitor_id = flask.request.cookies.get("visitor_id")
-      if not visitor_id:
-        visitor_id = str(uuid.uuid4())
-        # Set cookie for 1 year
-        expire_date = datetime.datetime.now() + datetime.timedelta(days=365)
-        response.set_cookie(
-            "visitor_id",
-            visitor_id,
-            expires=expire_date,
-            httponly=True,
-            samesite="Lax",
-        )
-
-      # 2. Get IP Info
-      if "HTTP_X_FORWARDED_FOR" in flask.request.environ:
-        ip = flask.request.environ["HTTP_X_FORWARDED_FOR"].split(",")[0].strip()
-      else:
-        ip = flask.request.remote_addr
-      ip_hash = hashlib.sha256(ip.encode()).hexdigest()
-
-      # 3. Analytics Logic
-      eastern_timezone = pytz.timezone("America/New_York")
-      current_time = datetime.datetime.now(eastern_timezone)
-      date_str = current_time.strftime("%Y-%m-%d")
-      timestamp = current_time.isoformat()
-      path = flask.request.path
-      user_agent = flask.request.headers.get("User-Agent", "Unknown")
-      db = utils.get_db_client()
-
-      # Get or Create User
-      analytics_user_id = utils.get_analytics_user(
-          db, visitor_id, ip_hash, flask_login.current_user
-      )
-
-      if not analytics_user_id:
-        app.logger.error("Failed to get analytics_user_id")
-        return response
-
-      # Record Visit
-      doc_ref = db.collection("daily_analytics").document(date_str)
-      doc_ref.set(
-          {
-              "visits": {
-                  analytics_user_id: {
-                      "paths": firestore.ArrayUnion([path]),
-                      "timestamps": firestore.ArrayUnion([timestamp]),
-                      "user_agent": user_agent,
-                  }
-              }
-          },
-          merge=True,
-      )
-
-    except Exception as e:
-      app.logger.error(f"Error tracking visitor: {e}")
-  return response
 
 
 if __name__ == "__main__":

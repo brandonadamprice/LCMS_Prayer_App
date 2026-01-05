@@ -1,6 +1,15 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-N46CBBTKNE"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-N46CBBTKNE');
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     {% set page_title %}{% block title %}A Simple Way to Pray{% endblock %}{% endset %}
@@ -120,9 +129,6 @@
           </div>
           <div class="app-menu-section">
             <a href="/settings" class="button menu-button-full" style="margin-bottom: 5px;">Settings</a>
-            {% if current_user.is_authenticated and config['ADMIN_USER_ID'] and current_user.id == config['ADMIN_USER_ID'] %}
-            <a href="/admin/traffic" class="button menu-button-full">Traffic Analytics</a>
-            {% endif %}
           </div>
           <div class="app-menu-section mobile-nav">
             <strong>Navigation</strong>
