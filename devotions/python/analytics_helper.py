@@ -120,15 +120,18 @@ def get_analytics_data(db):
       if ts_list:
         ts_list = sorted(ts_list)
 
+      created_at_val = row["created_at"]
+      created_at_str = None
+      if pd.notnull(created_at_val) and hasattr(created_at_val, "isoformat"):
+        created_at_str = created_at_val.isoformat()
+
       visitors_list.append({
           "email": u_info.get("email"),
           "hashes": sorted(u_info.get("ip_hashes", [])),
           "paths": sorted(row["paths"]),
           "timestamps": ts_list,
           "user_agent": row["user_agent"],
-          "created_at": (
-              row["created_at"].isoformat() if row["created_at"] else None
-          ),
+          "created_at": created_at_str,
       })
 
     daily_traffic.append({
@@ -152,9 +155,12 @@ def get_analytics_data(db):
 
   # C. Device Breakdown
   def classify_device(ua):
-    if not ua:
+    if not ua or pd.isnull(ua):
       return "Unknown"
-    ua_lower = ua.lower()
+    try:
+      ua_lower = str(ua).lower()
+    except Exception:
+      return "Unknown"
     if "mobi" in ua_lower or "android" in ua_lower:
       return "Mobile"
     if ua == "Unknown":
@@ -214,17 +220,23 @@ def get_analytics_data(db):
     new_cnt = 0
     ret_cnt = 0
     for _, row in day_df.iterrows():
-      if row["created_at"]:
+      created_at_val = row["created_at"]
+      if pd.notnull(created_at_val) and hasattr(
+          created_at_val, "astimezone"
+      ):
         # created_at is datetime with timezone
         # date_str is YYYY-MM-DD
         # Convert created_at to date string in similar timezone context
         # Assuming created_at stored with timezone info
-        created_date_str = (
-            row["created_at"].astimezone(eastern_timezone).strftime("%Y-%m-%d")
-        )
-        if created_date_str == date_str:
-          new_cnt += 1
-        else:
+        try:
+          created_date_str = (
+              created_at_val.astimezone(eastern_timezone).strftime("%Y-%m-%d")
+          )
+          if created_date_str == date_str:
+            new_cnt += 1
+          else:
+            ret_cnt += 1
+        except Exception:
           ret_cnt += 1
       else:
         ret_cnt += 1
