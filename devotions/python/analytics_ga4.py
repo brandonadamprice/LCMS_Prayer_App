@@ -57,12 +57,12 @@ def fetch_traffic_stats(property_id):
   try:
     client = BetaAnalyticsDataClient()
 
-    # 1. Daily Trend (Last 14 days)
+    # 1. Daily Trend (Last 21 days)
     request = RunReportRequest(
         property=f"properties/{property_id}",
         dimensions=[Dimension(name="date"), Dimension(name="dayOfWeekName")],
         metrics=[Metric(name="activeUsers"), Metric(name="screenPageViews")],
-        date_ranges=[DateRange(start_date="14daysAgo", end_date="today")],
+        date_ranges=[DateRange(start_date="21daysAgo", end_date="today")],
         order_bys=[{"dimension": {"dimension_name": "date"}}],
     )
     response = client.run_report(request)
