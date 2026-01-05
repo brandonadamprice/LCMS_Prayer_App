@@ -57,8 +57,19 @@ def get_analytics_data(db):
       if not isinstance(visit_data, dict):
         continue
       user_ids.add(uid)
-      paths = visit_data.get("paths", [])
-      timestamps = visit_data.get("timestamps", [])
+      
+      paths = visit_data.get("paths")
+      if paths is None:
+        paths = []
+      elif not isinstance(paths, list):
+        paths = [str(paths)]
+        
+      timestamps = visit_data.get("timestamps")
+      if timestamps is None:
+        timestamps = []
+      elif not isinstance(timestamps, list):
+        timestamps = [str(timestamps)]
+
       ua = visit_data.get("user_agent", "")
 
       # Record for Pandas (one row per user per day is enough for most stats,
@@ -196,25 +207,34 @@ def get_analytics_data(db):
       device_counts[k] = 0
 
   # D. Time of Day
-  # Flatten timestamps
-  all_timestamps = []
-  for ts_list in df["timestamps"]:
-    all_timestamps.extend(ts_list)
-
   hour_counts = [0] * 24
-  if all_timestamps:
-    try:
+  try:
+    # Flatten timestamps
+    all_timestamps = []
+    for ts_list in df["timestamps"]:
+      if isinstance(ts_list, list):
+        all_timestamps.extend(ts_list)
+    
+    if all_timestamps:
       # Strings to datetime, coerce errors to NaT
       ts_series = pd.to_datetime(all_timestamps, errors="coerce")
       ts_series = ts_series.dropna()
 
+      # Convert to Eastern Time if possible (assuming UTC/ISO)
+      # If they are tz-aware (from ISO), this converts.
+      # If they are naive, we might need to localize first, but main.py saves as ISO with offset (Eastern).
+      # So they should be tz-aware.
       if not ts_series.empty:
+        # Check if tz-aware
+        if ts_series.dt.tz is not None:
+           ts_series = ts_series.dt.convert_timezone(eastern_timezone)
+        
         hours = ts_series.dt.hour
         h_counts = hours.value_counts().sort_index()
         for h, count in h_counts.items():
           hour_counts[int(h)] = int(count)
-    except Exception:
-      pass
+  except Exception as e:
+    print(f"Error calculating Time of Day: {e}")
 
   # E. Frequency (Retention)
   # Count days per user
@@ -231,37 +251,41 @@ def get_analytics_data(db):
       freq_buckets["11+ Days"] += 1
 
   # F. New vs Returning
-  # New if created_at date == date
   new_users_daily = []
   returning_users_daily = []
-
-  for date_str in date_strs:
-    day_df = df[df["date"] == date_str]
-    new_cnt = 0
-    ret_cnt = 0
-    for _, row in day_df.iterrows():
-      created_at_val = row["created_at"]
-      if pd.notnull(created_at_val) and hasattr(
-          created_at_val, "astimezone"
-      ):
-        # created_at is datetime with timezone
-        # date_str is YYYY-MM-DD
-        # Convert created_at to date string in similar timezone context
-        # Assuming created_at stored with timezone info
-        try:
-          created_date_str = (
-              created_at_val.astimezone(eastern_timezone).strftime("%Y-%m-%d")
-          )
-          if created_date_str == date_str:
-            new_cnt += 1
-          else:
+  try:
+    for date_str in date_strs:
+      day_df = df[df["date"] == date_str]
+      new_cnt = 0
+      ret_cnt = 0
+      for _, row in day_df.iterrows():
+        created_at_val = row["created_at"]
+        if pd.notnull(created_at_val) and hasattr(
+            created_at_val, "astimezone"
+        ):
+          try:
+            created_date_str = (
+                created_at_val.astimezone(eastern_timezone).strftime("%Y-%m-%d")
+            )
+            if created_date_str == date_str:
+              new_cnt += 1
+            else:
+              ret_cnt += 1
+          except Exception:
             ret_cnt += 1
-        except Exception:
+        else:
+          # Fallback: if created_at is missing, count as returning or new?
+          # If we don't know, returning is safer for retention stats, 
+          # but new is safer for "visits from unknown".
+          # Let's assume returning for stability.
           ret_cnt += 1
-      else:
-        ret_cnt += 1
-    new_users_daily.append(new_cnt)
-    returning_users_daily.append(ret_cnt)
+      new_users_daily.append(new_cnt)
+      returning_users_daily.append(ret_cnt)
+  except Exception as e:
+    print(f"Error calculating New vs Returning: {e}")
+    # Fill with zeros if failed
+    new_users_daily = [0] * len(date_strs)
+    returning_users_daily = [0] * len(date_strs)
 
   return {
       "daily_traffic": daily_traffic,
