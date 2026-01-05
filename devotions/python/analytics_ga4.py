@@ -5,6 +5,7 @@ from google.analytics.data_v1beta import BetaAnalyticsDataClient
 from google.analytics.data_v1beta.types import DateRange
 from google.analytics.data_v1beta.types import Dimension
 from google.analytics.data_v1beta.types import Metric
+from google.analytics.data_v1beta.types import RunRealtimeReportRequest
 from google.analytics.data_v1beta.types import RunReportRequest
 import google.auth
 import google.auth.transport.requests
@@ -97,9 +98,58 @@ def fetch_traffic_stats(property_id):
           "views": row.metric_values[0].value,
       })
 
+    # 3. Realtime (Last 30 minutes)
+    realtime_request = RunRealtimeReportRequest(
+        property=f"properties/{property_id}",
+        metrics=[Metric(name="activeUsers")],
+    )
+    realtime_response = client.run_realtime_report(realtime_request)
+    realtime_users = "0"
+    if realtime_response.rows:
+      realtime_users = realtime_response.rows[0].metric_values[0].value
+
+    # 4. User Retention (New vs Returning) - Last 28 Days
+    retention_request = RunReportRequest(
+        property=f"properties/{property_id}",
+        dimensions=[Dimension(name="newVsReturning")],
+        metrics=[Metric(name="activeUsers")],
+        date_ranges=[DateRange(start_date="28daysAgo", end_date="today")],
+    )
+    retention_response = client.run_report(retention_request)
+    retention_data = {"new": 0, "returning": 0}
+    for row in retention_response.rows:
+      key = row.dimension_values[0].value.lower()  # 'new' or 'returning'
+      if "new" in key:
+        retention_data["new"] = int(row.metric_values[0].value)
+      elif "returning" in key:
+        retention_data["returning"] = int(row.metric_values[0].value)
+
+    # 5. Time of Day (Hourly) - Last 30 Days
+    hourly_request = RunReportRequest(
+        property=f"properties/{property_id}",
+        dimensions=[Dimension(name="hour")],
+        metrics=[Metric(name="activeUsers")],
+        date_ranges=[DateRange(start_date="30daysAgo", end_date="today")],
+        order_bys=[{"dimension": {"dimension_name": "hour"}}],
+    )
+    hourly_response = client.run_report(hourly_request)
+    
+    # Initialize 0-23 hours with 0
+    hourly_counts = [0] * 24
+    for row in hourly_response.rows:
+      try:
+        h = int(row.dimension_values[0].value)
+        if 0 <= h < 24:
+          hourly_counts[h] = int(row.metric_values[0].value)
+      except ValueError:
+        pass
+
     return {
         "daily_traffic": daily_data,
         "top_pages": top_pages,
+        "realtime_users": realtime_users,
+        "retention_data": retention_data,
+        "hourly_data": hourly_counts,
         "service_email": get_service_account_email(),
     }
 

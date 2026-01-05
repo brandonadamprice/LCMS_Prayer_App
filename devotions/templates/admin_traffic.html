@@ -19,6 +19,14 @@
 </div>
 
 <div class="card">
+    <h2>Active Users (Last 30 Minutes)</h2>
+    <p style="font-size: 2em; font-weight: bold; color: #27ae60; margin: 10px 0;">
+        {{ realtime_users }}
+    </p>
+    <p style="color: #7f8c8d; font-size: 0.9em;">Real-time active users on the site.</p>
+</div>
+
+<div class="card">
     <h2>Registered Users List</h2>
     <div style="max-height: 300px; overflow-y: auto; border: 1px solid #eee; border-radius: 4px;">
         <table class="analytics-table">
@@ -68,6 +76,19 @@
     <canvas id="traffic-chart" style="max-height: 400px;"></canvas>
 </div>
 
+<div style="display: flex; gap: 20px; flex-wrap: wrap;">
+    <div class="card" style="flex: 1; min-width: 300px;">
+        <h2>User Retention (Last 28 Days)</h2>
+        <div style="max-width: 300px; margin: 0 auto;">
+            <canvas id="retention-chart"></canvas>
+        </div>
+    </div>
+    <div class="card" style="flex: 1; min-width: 300px;">
+        <h2>Time of Day (Last 30 Days)</h2>
+        <canvas id="hourly-chart"></canvas>
+    </div>
+</div>
+
 <div class="card">
     <h2>Top Pages (Last 30 Days)</h2>
     <table class="analytics-table">
@@ -92,16 +113,18 @@
 
 <script>
     const trafficData = {{ daily_traffic|tojson }};
+    const retentionData = {{ retention_data|tojson }};
+    const hourlyData = {{ hourly_data|tojson }};
     
+    const isDarkMode = document.body.classList.contains('dark-mode');
+    const textColor = isDarkMode ? '#ccc' : '#4a4a4a';
+    const gridColor = isDarkMode ? '#555' : '#eee';
+
     if (trafficData && trafficData.length > 0) {
         const ctx = document.getElementById('traffic-chart').getContext('2d');
         const labels = trafficData.map(d => d.date);
         const users = trafficData.map(d => d.users);
         const views = trafficData.map(d => d.views);
-
-        const isDarkMode = document.body.classList.contains('dark-mode');
-        const textColor = isDarkMode ? '#ccc' : '#4a4a4a';
-        const gridColor = isDarkMode ? '#555' : '#eee';
 
         new Chart(ctx, {
             type: 'line',
@@ -142,6 +165,59 @@
                 },
                 plugins: {
                     legend: { labels: { color: textColor } }
+                }
+            }
+        });
+    }
+
+    if (retentionData) {
+        const ctxRet = document.getElementById('retention-chart').getContext('2d');
+        new Chart(ctxRet, {
+            type: 'pie',
+            data: {
+                labels: ['New Users', 'Returning Users'],
+                datasets: [{
+                    data: [retentionData.new || 0, retentionData.returning || 0],
+                    backgroundColor: ['#27ae60', '#2980b9'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: { labels: { color: textColor } }
+                }
+            }
+        });
+    }
+
+    if (hourlyData) {
+        const ctxHr = document.getElementById('hourly-chart').getContext('2d');
+        const hourLabels = Array.from({length: 24}, (_, i) => i + ":00");
+        new Chart(ctxHr, {
+            type: 'bar',
+            data: {
+                labels: hourLabels,
+                datasets: [{
+                    label: 'Users by Time of Day',
+                    data: hourlyData,
+                    backgroundColor: '#f1c40f',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { color: textColor },
+                        grid: { color: gridColor }
+                    },
+                    x: {
+                        ticks: { color: textColor },
+                        grid: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
                 }
             }
         });
