@@ -83,4 +83,9 @@ def get_facebook_client_secret():
   return _get_secret("FACEBOOK_CLIENT_SECRET", "FACEBOOK_CLIENT_SECRET")
 
 
+def get_ga4_property_id():
+  """Fetches the Google Analytics 4 Property ID."""
+  return _get_secret("GA4_PROPERTY_ID", "GA4_PROPERTY_ID")
+
+
 

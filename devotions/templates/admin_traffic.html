@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}Traffic Analytics (GA4){% endblock %}
+{% block body_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Website Traffic (GA4)</h1>
+  <p>Data pulled directly from Google Analytics 4.</p>
+</div>
+
+{% if error %}
+<div class="card" style="border-left: 5px solid #e74c3c;">
+    <h2>Connection Error</h2>
+    <p>Could not fetch data from Google Analytics.</p>
+    <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; font-family: monospace; font-size: 0.9em; overflow-x: auto;">
+        {{ error }}
+    </div>
+    <hr>
+    <h3>How to Fix:</h3>
+    <ol>
+        <li>Go to <strong>Google Analytics Admin</strong> > <strong>Property Settings</strong> > <strong>Property Access Management</strong>.</li>
+        <li>Click <strong>+</strong> then <strong>Add users</strong>.</li>
+        <li>Add this Service Account email with <strong>Viewer</strong> role:</li>
+    </ol>
+    <div style="background: #e8f6f3; padding: 10px; border: 1px solid #27ae60; border-radius: 4px; font-weight: bold; text-align: center;">
+        {{ service_email }}
+    </div>
+    <p style="margin-top: 10px;">Also ensure the <code>GA4_PROPERTY_ID</code> secret is set correctly in Secret Manager.</p>
+</div>
+{% else %}
+
+<div class="card">
+    <h2>Traffic Overview (Last 14 Days)</h2>
+    <canvas id="traffic-chart" style="max-height: 400px;"></canvas>
+</div>
+
+<div class="card">
+    <h2>Top Pages (Last 30 Days)</h2>
+    <table class="analytics-table">
+        <thead>
+            <tr>
+                <th>Page Title</th>
+                <th>Path</th>
+                <th style="text-align: right;">Views</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for page in top_pages %}
+            <tr>
+                <td>{{ page.title }}</td>
+                <td><a href="{{ page.path }}" target="_blank">{{ page.path }}</a></td>
+                <td style="text-align: right;">{{ page.views }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    const trafficData = {{ daily_traffic|tojson }};
+    
+    if (trafficData && trafficData.length > 0) {
+        const ctx = document.getElementById('traffic-chart').getContext('2d');
+        const labels = trafficData.map(d => d.date);
+        const users = trafficData.map(d => d.users);
+        const views = trafficData.map(d => d.views);
+
+        const isDarkMode = document.body.classList.contains('dark-mode');
+        const textColor = isDarkMode ? '#ccc' : '#4a4a4a';
+        const gridColor = isDarkMode ? '#555' : '#eee';
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Active Users',
+                        data: users,
+                        borderColor: '#2980b9',
+                        backgroundColor: 'rgba(41, 128, 185, 0.2)',
+                        tension: 0.3,
+                        fill: true
+                    },
+                    {
+                        label: 'Page Views',
+                        data: views,
+                        borderColor: '#27ae60',
+                        backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                        tension: 0.3,
+                        borderDash: [5, 5]
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                interaction: { mode: 'index', intersect: false },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { color: textColor },
+                        grid: { color: gridColor }
+                    },
+                    x: {
+                        ticks: { color: textColor },
+                        grid: { color: gridColor }
+                    }
+                },
+                plugins: {
+                    legend: { labels: { color: textColor } }
+                }
+            }
+        });
+    }
+</script>
+{% endif %}
+
+<div class="card">
+    <p style="text-align: center;">
+        <a href="https://analytics.google.com/" target="_blank" class="button">Open Full GA4 Dashboard</a>
+    </p>
+</div>
+{% endblock %}

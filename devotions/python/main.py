@@ -7,6 +7,7 @@ import os
 import secrets
 import uuid
 import advent
+import analytics_ga4
 from authlib.integrations.flask_client import OAuth
 import bible_in_a_year
 import childrens_devotion
@@ -1099,13 +1100,23 @@ def edit_prayer_request_route(request_id):
 @app.route("/admin/traffic")
 @flask_login.login_required
 def admin_traffic_route():
-  """Redirects to Google Analytics."""
+  """Renders the GA4 traffic analytics page."""
   if not app.config.get(
       "ADMIN_USER_ID"
   ) or flask_login.current_user.id != app.config.get("ADMIN_USER_ID"):
     return flask.abort(403)
-  
-  return flask.redirect("https://analytics.google.com/")
+
+  try:
+    property_id = secrets_fetcher.get_ga4_property_id()
+    data = analytics_ga4.fetch_traffic_stats(property_id)
+    return flask.render_template("admin_traffic.html", **data)
+  except Exception as e:
+    # If fetch fails (e.g. secret not set), return error info
+    return flask.render_template(
+        "admin_traffic.html",
+        error=str(e),
+        service_email=analytics_ga4.get_service_account_email(),
+    )
 
 
 @app.route("/reminders")

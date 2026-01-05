@@ -10,3 +10,4 @@ Flask-Login==0.6.3
 cryptography
 requests
 pandas
+google-analytics-data==0.18.2
