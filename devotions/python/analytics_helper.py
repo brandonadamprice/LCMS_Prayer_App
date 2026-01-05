@@ -50,8 +50,12 @@ def get_analytics_data(db):
     date_str = snap.id
     data = snap.to_dict()
     visits = data.get("visits", {})
+    if not isinstance(visits, dict):
+      continue
 
     for uid, visit_data in visits.items():
+      if not isinstance(visit_data, dict):
+        continue
       user_ids.add(uid)
       paths = visit_data.get("paths", [])
       timestamps = visit_data.get("timestamps", [])
@@ -125,10 +129,26 @@ def get_analytics_data(db):
       if pd.notnull(created_at_val) and hasattr(created_at_val, "isoformat"):
         created_at_str = created_at_val.isoformat()
 
+      # Safe retrieval and sorting for hashes
+      hashes = u_info.get("ip_hashes")
+      if hashes is None:
+        hashes = []
+      elif not isinstance(hashes, list):
+        hashes = [str(hashes)]
+      safe_hashes = sorted([str(h) for h in hashes])
+
+      # Safe retrieval and sorting for paths
+      paths = row["paths"]
+      if paths is None:
+        paths = []
+      elif not isinstance(paths, list):
+        paths = [str(paths)]
+      safe_paths = sorted([str(p) for p in paths])
+
       visitors_list.append({
           "email": u_info.get("email"),
-          "hashes": sorted(u_info.get("ip_hashes", [])),
-          "paths": sorted(row["paths"]),
+          "hashes": safe_hashes,
+          "paths": safe_paths,
           "timestamps": ts_list,
           "user_agent": row["user_agent"],
           "created_at": created_at_str,
@@ -183,18 +203,18 @@ def get_analytics_data(db):
 
   hour_counts = [0] * 24
   if all_timestamps:
-    # Strings to datetime
-    # Timestamps stored as ISO strings in Firestore via array union in main.py?
-    # main.py uses: timestamp = current_time.isoformat()
-    ts_series = pd.to_datetime(all_timestamps)
-    # We need them in local time (EST) roughly or as stored (which was EST converted to ISO?)
-    # main.py: current_time = datetime.datetime.now(eastern_timezone)
-    # So the ISO string is offset-aware. pd.to_datetime handles it.
-    # We want the hour.
-    hours = ts_series.dt.hour
-    h_counts = hours.value_counts().sort_index()
-    for h, count in h_counts.items():
-      hour_counts[int(h)] = int(count)
+    try:
+      # Strings to datetime, coerce errors to NaT
+      ts_series = pd.to_datetime(all_timestamps, errors="coerce")
+      ts_series = ts_series.dropna()
+
+      if not ts_series.empty:
+        hours = ts_series.dt.hour
+        h_counts = hours.value_counts().sort_index()
+        for h, count in h_counts.items():
+          hour_counts[int(h)] = int(count)
+    except Exception:
+      pass
 
   # E. Frequency (Retention)
   # Count days per user
