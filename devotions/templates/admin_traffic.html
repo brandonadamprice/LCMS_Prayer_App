@@ -104,9 +104,12 @@ async function loadTrafficData() {
             } catch(e) { /* ignore parse errors */ }
             throw new Error(`Server returned status ${response.status} - ${errorText}`);
         }
-        const data = await response.json();
+        const responseData = await response.json();
+        // Fallback for old/empty structure
+        const dailyTraffic = responseData.daily_traffic || [];
+        const stats = responseData.stats || {};
 
-        if (!data || data.length === 0) {
+        if (!dailyTraffic || dailyTraffic.length === 0) {
             document.querySelector('#traffic-table tbody').innerHTML = '<tr><td colspan="2"><em>No traffic data to display for the last 14 days since tracking began.</em></td></tr>';
             document.getElementById('traffic-chart').style.display = 'none';
             return;
@@ -115,7 +118,7 @@ async function loadTrafficData() {
         // Populate table
         const tableBody = document.querySelector('#traffic-table tbody');
         tableBody.innerHTML = '';
-        data.forEach((item, index) => {
+        dailyTraffic.forEach((item, index) => {
             const row = tableBody.insertRow();
             let detailsHtml = '';
             if (item.visitors && item.visitors.length > 0) {
@@ -141,90 +144,17 @@ async function loadTrafficData() {
             `;
         });
 
-        // Aggregate Top Pages, Devices, Time of Day, Retention
-        const pageCounts = {};
-        const deviceCounts = { Mobile: 0, Desktop: 0, Other: 0 };
-        const hourCounts = new Array(24).fill(0);
-        const userVisitFrequency = {}; // UserHash -> Days Visited Count
-        const dailyNewVsReturning = { dates: [], newUsers: [], returningUsers: [] };
-
-        data.forEach(day => {
-            let dailyNewCount = 0;
-            let dailyReturningCount = 0;
-            
-            dailyNewVsReturning.dates.push(day.date);
-
-            if (day.visitors) {
-                day.visitors.forEach(visitor => {
-                    // Pages
-                    if (visitor.paths) {
-                        visitor.paths.forEach(path => {
-                            if (path !== '/sw.js' && !path.startsWith('/static')) {
-                                pageCounts[path] = (pageCounts[path] || 0) + 1;
-                            }
-                        });
-                    }
-                    // Devices
-                    const ua = visitor.user_agent || "";
-                    if (/Mobi|Android/i.test(ua)) {
-                        deviceCounts.Mobile++;
-                    } else if (ua === "Unknown") {
-                        deviceCounts.Other++;
-                    } else {
-                        deviceCounts.Desktop++;
-                    }
-                    
-                    // Time of Day
-                    if (visitor.timestamps) {
-                        visitor.timestamps.forEach(ts => {
-                            try {
-                                const date = new Date(ts);
-                                hourCounts[date.getHours()]++;
-                            } catch (e) {}
-                        });
-                    }
-
-                    // User Frequency
-                    // Use hash as unique ID (or email if available)
-                    const uid = visitor.email || (visitor.hashes && visitor.hashes.length > 0 ? visitor.hashes[0] : null);
-                    if (uid) {
-                        userVisitFrequency[uid] = (userVisitFrequency[uid] || 0) + 1;
-                    
-                        // New vs Returning Logic
-                        // If created_at is strictly on this day (ignoring time), it's new.
-                        // Otherwise it's returning.
-                        if (visitor.created_at) {
-                            const createdDate = visitor.created_at.split('T')[0];
-                            if (createdDate === day.date) {
-                                dailyNewCount++;
-                            } else {
-                                dailyReturningCount++;
-                            }
-                        } else {
-                            // Fallback if no created_at: assume returning if not first day of data?
-                            // Or just count as 'Unknown/Returning'
-                            dailyReturningCount++;
-                        }
-                    }
-                });
-            }
-            dailyNewVsReturning.newUsers.push(dailyNewCount);
-            dailyNewVsReturning.returningUsers.push(dailyReturningCount);
-        });
-
-        // Prepare Frequency Histogram data
-        const frequencyBuckets = { '1 Day': 0, '2-5 Days': 0, '6-10 Days': 0, '11+ Days': 0 };
-        Object.values(userVisitFrequency).forEach(freq => {
-            if (freq === 1) frequencyBuckets['1 Day']++;
-            else if (freq <= 5) frequencyBuckets['2-5 Days']++;
-            else if (freq <= 10) frequencyBuckets['6-10 Days']++;
-            else frequencyBuckets['11+ Days']++;
-        });
+        // Use Pre-Aggregated Stats from Backend (Pandas)
+        const pageCounts = stats.top_pages || {};
+        const deviceCounts = stats.devices || { Mobile: 0, Desktop: 0, Other: 0 };
+        const hourCounts = stats.time_of_day || new Array(24).fill(0);
+        const frequencyBuckets = stats.frequency || { '1 Day': 0, '2-5 Days': 0, '6-10 Days': 0, '11+ Days': 0 };
+        const dailyNewVsReturning = stats.new_vs_returning || { dates: [], newUsers: [], returningUsers: [] };
 
         // Prepare chart
         const ctx = document.getElementById('traffic-chart').getContext('2d');
-        const labels = data.map(item => item.date);
-        const counts = data.map(item => item.count);
+        const labels = dailyTraffic.map(item => item.date);
+        const counts = dailyTraffic.map(item => item.count);
 
         if (trafficChartInstance) {
             trafficChartInstance.destroy();

@@ -7,6 +7,7 @@ import os
 import secrets
 import uuid
 import advent
+import analytics_helper
 from authlib.integrations.flask_client import OAuth
 import bible_in_a_year
 import childrens_devotion
@@ -1315,84 +1316,8 @@ def traffic_data_route():
 
   try:
     db = utils.get_db_client()
-    eastern_timezone = pytz.timezone("America/New_York")
-    today = datetime.datetime.now(eastern_timezone).date()
-    start_date = datetime.date(2025, 12, 11)
-
-    date_strs = []
-    for i in range(14):
-      current_date = today - datetime.timedelta(days=i)
-      if current_date >= start_date:
-        date_strs.append(current_date.strftime("%Y-%m-%d"))
-      else:
-        break
-
-    if not date_strs:
-      return flask.jsonify([])
-
-    # 1. Fetch Daily Analytics
-    daily_refs = [
-        db.collection("daily_analytics").document(d) for d in date_strs
-    ]
-    daily_snapshots = list(db.get_all(daily_refs))
-
-    # 2. Collect all User IDs involved
-    user_ids_to_fetch = set()
-    daily_data_map = {}  # date -> {user_id: paths}
-
-    for snap in daily_snapshots:
-      if snap.exists:
-        data = snap.to_dict()
-        # New format: visits is a map of user_id -> {paths: []}
-        visits = data.get("visits", {})
-        daily_data_map[snap.id] = visits
-        for uid in visits.keys():
-          user_ids_to_fetch.add(uid)
-      else:
-        daily_data_map[snap.id] = {}
-
-    # 3. Fetch User Details
-    users_info = {}  # user_id -> {email, ip_hashes}
-    if user_ids_to_fetch:
-      # Firestore 'in' query limited to 10 items, so we fetch by ID list or get_all
-      # get_all allows many refs
-      user_refs = [
-          db.collection("analytics_users").document(uid)
-          for uid in user_ids_to_fetch
-      ]
-      # process in chunks if necessary, but get_all handles list
-      user_snapshots = list(db.get_all(user_refs))
-      for snap in user_snapshots:
-        if snap.exists:
-          users_info[snap.id] = snap.to_dict()
-
-    # 4. Assemble Response
-    traffic = []
-    for date_str in date_strs:
-      visits = daily_data_map.get(date_str, {})
-      visitors_list = []
-      for uid, visit_data in visits.items():
-        user_data = users_info.get(uid, {})
-        created_at = user_data.get("created_at")
-        if created_at:
-          created_at = created_at.isoformat()
-        visitors_list.append({
-            "email": user_data.get("email"),
-            "hashes": sorted(user_data.get("ip_hashes", [])),
-            "paths": sorted(visit_data.get("paths", [])),
-            "timestamps": sorted(visit_data.get("timestamps", [])),
-            "user_agent": visit_data.get("user_agent"),
-            "created_at": created_at,
-        })
-
-      traffic.append({
-          "date": date_str,
-          "count": len(visitors_list),
-          "visitors": visitors_list,
-      })
-
-    traffic.sort(key=lambda x: x["date"])
-    return flask.jsonify(traffic)
+    data = analytics_helper.get_analytics_data(db)
+    return flask.jsonify(data)
   except Exception as e:
     app.logger.error(f"Error in traffic_data_route: {e}", exc_info=True)
     return flask.jsonify({"error": "Internal server error"}), 500
