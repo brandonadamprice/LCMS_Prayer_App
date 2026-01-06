@@ -384,23 +384,24 @@ def update_profile():
   # Basic phone validation/cleanup
   if phone:
     import re
+
     cleaned_phone = re.sub(r"[^\d+]", "", phone)
     if cleaned_phone and not cleaned_phone.startswith("+"):
-        if len(cleaned_phone) == 10:
-            cleaned_phone = "+1" + cleaned_phone
-        else:
-            cleaned_phone = "+" + cleaned_phone
+      if len(cleaned_phone) == 10:
+        cleaned_phone = "+1" + cleaned_phone
+      else:
+        cleaned_phone = "+" + cleaned_phone
     phone = cleaned_phone
   else:
-    phone = None # Explicitly set to None if empty string to clear it or handle properly
+    phone = None  # Explicitly set to None if empty string to clear it or handle properly
 
   try:
     db = utils.get_db_client()
     user_ref = db.collection("users").document(flask_login.current_user.id)
     update_data = {"name": name, "email": email}
     if phone is not None:
-        update_data["phone_number"] = phone
-    
+      update_data["phone_number"] = phone
+
     user_ref.update(update_data)
     flask.flash("Profile updated successfully.", "success")
   except Exception as e:
@@ -418,7 +419,7 @@ def save_notification_preferences():
   preferences = data.get("preferences")
 
   if not preferences:
-      return flask.jsonify({"success": False, "error": "No data provided"}), 400
+    return flask.jsonify({"success": False, "error": "No data provided"}), 400
 
   try:
     db = utils.get_db_client()
@@ -779,9 +780,9 @@ def update_pray_count_route():
   operation = data.get("operation")
   if not request_id or operation not in ("increment", "decrement"):
     return flask.jsonify({"success": False, "error": "Invalid request"}), 400
-  
+
   success = prayer_requests.update_pray_count(request_id, operation)
-  
+
   if success:
     # 1. Update current user's prayed history
     if flask_login.current_user.is_authenticated:
@@ -814,14 +815,22 @@ def update_pray_count_route():
           req_data = req_doc.to_dict()
           owner_id = req_data.get("user_id")
           # Don't notify if the user is praying for their own request
-          if owner_id and (not flask_login.current_user.is_authenticated or owner_id != flask_login.current_user.id):
-             reminders.send_generic_notification_to_user(
-                 owner_id,
-                 "Someone prayed for you!",
-                 "Someone just prayed for your request on the Prayer Wall.",
-                 "/prayer_wall", # Link them back to the wall
-                 "prayed_for_me"
-             )
+          if owner_id and (
+              not flask_login.current_user.is_authenticated
+              or owner_id != flask_login.current_user.id
+          ):
+            request_text = req_data.get("request", "")
+            # Truncate request text for notification body
+            if len(request_text) > 100:
+              request_text = request_text[:100] + "..."
+
+            reminders.send_generic_notification_to_user(
+                owner_id,
+                "Someone prayed for you!",
+                f'Someone just prayed for your request: "{request_text}"',
+                "/prayer_wall",  # Link them back to the wall
+                "prayed_for_me",
+            )
       except Exception as e:
         app.logger.error(f"Failed to send prayer notification: {e}")
 
@@ -842,9 +851,9 @@ def add_prayer_request_route():
   days_ttl = flask.request.form.get("days_ttl", "30")
   if not name or not request:
     return flask.redirect("/prayer_requests")
-  
+
   user_id = flask_login.current_user.id
-  
+
   success, error_message = prayer_requests.add_prayer_request(
       name, request, days_ttl, user_id
   )
@@ -1359,9 +1368,6 @@ def force_reminders_route():
     return flask.jsonify({"success": True, "message": msg})
   else:
     return flask.jsonify({"success": False, "error": msg}), 400
-
-
-
 
 
 if __name__ == "__main__":
