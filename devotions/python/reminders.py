@@ -6,6 +6,8 @@ import firebase_admin
 from firebase_admin import messaging
 import flask
 import pytz
+from twilio.rest import Client
+import secrets_fetcher
 import utils
 
 # Initialize Firebase Admin if not already initialized
@@ -295,7 +297,7 @@ def send_notification(method, reminder_data, user_data, devotion_url):
 
 
 def _send_sms(user_data, message):
-  """Sends an SMS notification (Placeholder)."""
+  """Sends an SMS notification via Twilio."""
   phone = user_data.get("phone_number")
   if not phone:
     flask.current_app.logger.warning(
@@ -303,8 +305,22 @@ def _send_sms(user_data, message):
     )
     return
 
-  # TODO: Integrate Twilio or other SMS provider here
-  flask.current_app.logger.info(f"[SMS] Sending SMS to {phone}: {message}")
+  try:
+    sid = secrets_fetcher.get_twilio_account_sid()
+    token = secrets_fetcher.get_twilio_api_key()
+    from_number = secrets_fetcher.get_twilio_phone_number()
+
+    if not (sid and token and from_number):
+      flask.current_app.logger.warning(
+          "[SMS] Missing Twilio credentials (SID, API Key, or Phone Number)."
+      )
+      return
+
+    client = Client(sid, token)
+    msg = client.messages.create(body=message, from_=from_number, to=phone)
+    flask.current_app.logger.info(f"[SMS] Sent SMS to {phone}: {msg.sid}")
+  except Exception as e:
+    flask.current_app.logger.error(f"[SMS] Failed to send SMS: {e}")
 
 
 def send_due_reminders():
