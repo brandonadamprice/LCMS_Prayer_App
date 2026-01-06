@@ -6,8 +6,8 @@ import firebase_admin
 from firebase_admin import messaging
 import flask
 import pytz
-from twilio.rest import Client
 import secrets_fetcher
+from twilio.rest import Client
 import utils
 
 # Initialize Firebase Admin if not already initialized
@@ -185,6 +185,7 @@ def force_send_reminders_for_user(user_id):
     flask.current_app.logger.warning(f"[REMINDER] User {user_id} not found.")
     return False, "User not found."
   user_data = user_doc.to_dict()
+  user_data["id"] = user_id  # Ensure ID is available
 
   count = 0
   for r in reminders_list:
@@ -254,6 +255,7 @@ def send_generic_notification_to_user(
     flask.current_app.logger.warning(f"[NOTIF] User {user_id} not found.")
     return
   user_data = user_doc.to_dict()
+  user_data["id"] = user_id
 
   preferences = user_data.get("notification_preferences", {})
   # Default to True/False for push/sms if not set
@@ -263,7 +265,7 @@ def send_generic_notification_to_user(
     _send_push(user_data, title, body, url)
 
   if type_prefs.get("sms"):
-    _send_sms(user_data, body)
+    _send_sms(user_data, body, notification_type)
 
 
 def send_notification(method, reminder_data, user_data, devotion_url):
@@ -288,7 +290,7 @@ def send_notification(method, reminder_data, user_data, devotion_url):
 
   elif method == "sms":
     if reminder_prefs.get("sms"):
-      _send_sms(user_data, message)
+      _send_sms(user_data, message, "prayer_reminders")
     else:
       flask.current_app.logger.info(
           "[REMINDER] SMS disabled by user preference for user"
@@ -296,8 +298,8 @@ def send_notification(method, reminder_data, user_data, devotion_url):
       )
 
 
-def _send_sms(user_data, message):
-  """Sends an SMS notification via Twilio."""
+def _send_sms(user_data, message, notification_type=None):
+  """Sends an SMS notification via Twilio and updates last_sms_type."""
   phone = user_data.get("phone_number")
   if not phone:
     flask.current_app.logger.warning(
@@ -316,9 +318,20 @@ def _send_sms(user_data, message):
       )
       return
 
+    # Append opt-out instruction
+    full_message = f"{message}\n\nRespond STOP to stop these text messages."
+
     client = Client(sid, token)
-    msg = client.messages.create(body=message, from_=from_number, to=phone)
+    msg = client.messages.create(body=full_message, from_=from_number, to=phone)
     flask.current_app.logger.info(f"[SMS] Sent SMS to {phone}: {msg.sid}")
+
+    # Update user's last_sms_type for STOP handling
+    if notification_type and "id" in user_data:
+      db = utils.get_db_client()
+      db.collection("users").document(user_data["id"]).update(
+          {"last_sms_type": notification_type}
+      )
+
   except Exception as e:
     flask.current_app.logger.error(f"[SMS] Failed to send SMS: {e}")
 
@@ -353,6 +366,7 @@ def send_due_reminders():
       )
       continue
     user_data = user_doc.to_dict()
+    user_data["id"] = user_id
 
     _process_reminder_notification(data, user_data, doc.id)
 

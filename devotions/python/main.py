@@ -1370,5 +1370,73 @@ def force_reminders_route():
     return flask.jsonify({"success": False, "error": msg}), 400
 
 
+@app.route("/twilio/sms_reply", methods=["POST"])
+def twilio_sms_reply():
+  """Handles incoming SMS replies from Twilio."""
+  from twilio.twiml.messaging_response import MessagingResponse
+
+  incoming_msg = flask.request.values.get("Body", "").strip().upper()
+  from_number = flask.request.values.get("From", "")
+
+  resp = MessagingResponse()
+
+  if incoming_msg == "STOP":
+    # Logic to find user and disable SMS for the last sent type
+    try:
+      db = utils.get_db_client()
+      users_ref = db.collection("users")
+      # Query by phone number
+      query = users_ref.where("phone_number", "==", from_number).limit(1)
+      results = list(query.stream())
+
+      if results:
+        user_doc = results[0]
+        user_data = user_doc.to_dict()
+        last_type = user_data.get("last_sms_type")
+
+        if last_type:
+          # Update preference
+          current_prefs = user_data.get("notification_preferences", {})
+          if last_type in current_prefs:
+            current_prefs[last_type]["sms"] = False
+            user_doc.reference.update(
+                {"notification_preferences": current_prefs}
+            )
+            
+            readable_type = last_type.replace("_", " ").title()
+            resp.message(
+                f"You have been unsubscribed from {readable_type} SMS notifications."
+            )
+          else:
+             resp.message("You have been unsubscribed from SMS notifications.")
+        else:
+          # Fallback: Disable all SMS? Or just generic message.
+          # Let's assume generic stop for now if we can't find the type.
+          # Or maybe we shouldn't modify anything if we don't know what to stop,
+          # but Twilio might block us anyway.
+          # Best effort: disable 'prayer_reminders' as default
+          current_prefs = user_data.get("notification_preferences", {})
+          updated = False
+          if "prayer_reminders" in current_prefs:
+             current_prefs["prayer_reminders"]["sms"] = False
+             updated = True
+          
+          if updated:
+             user_doc.reference.update({"notification_preferences": current_prefs})
+             resp.message("You have been unsubscribed from SMS reminders.")
+          else:
+             resp.message("You have been unsubscribed.")
+
+      else:
+        app.logger.warning(f"Twilio STOP received from unknown number: {from_number}")
+        resp.message("You have been unsubscribed.")
+
+    except Exception as e:
+      app.logger.error(f"Error handling Twilio reply: {e}")
+      resp.message("Error processing request.")
+  
+  return str(resp)
+
+
 if __name__ == "__main__":
   app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
