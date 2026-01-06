@@ -33,18 +33,9 @@
       </select>
     </div>
 
-    <div style="margin-bottom: 10px;">
-      <label>Notification Methods:</label><br>
-      <div style="margin-top: 5px;">
-        <input type="checkbox" id="method-push" name="methods" value="push">
-        <label for="method-push">Push Notification</label>
-      </div>
-
-      <div style="margin-top: 5px; color: #7f8c8d;">
-        <input type="checkbox" id="method-sms" name="methods" value="sms" disabled>
-        <label for="method-sms">Text Message (SMS) - <em>Coming Soon</em></label>
-      </div>
-    </div>
+    <p style="font-size: 0.9em; color: #7f8c8d; margin-bottom: 15px;">
+        Notification preferences (Push vs SMS) can be configured in your <a href="/settings">Settings</a>.
+    </p>
 
     <button type="submit" class="button">Set Reminder</button>
   </form>
@@ -91,7 +82,6 @@ async function forceReminders() {
   import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging.js";
 
   const remindersList = document.getElementById('reminders-list');
-  const pushCheckbox = document.getElementById('method-push');
   let messaging = null;
   let cachedConfig = null;
 
@@ -191,21 +181,19 @@ async function forceReminders() {
   document.getElementById('reminder-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
-    const methods = formData.getAll('methods');
     
-    if (methods.length === 0) {
-        alert("Please select at least one notification method.");
-        return;
+    // Check global permission status for awareness, though backend handles the actual sending based on prefs.
+    if (Notification.permission !== 'granted') {
+        // We can just warn or let them proceed. The link at top already directs them.
     }
 
-    if (methods.includes('push')) {
-        if (Notification.permission !== 'granted') {
-            alert("Please enable notifications in your Account Settings to receive push reminders.");
-            // We allow them to proceed, assuming they might enable it later or have it on another device.
-            // But we could also uncheck it.
-            // pushCheckbox.checked = false;
-        }
-    }
+    // We default to 'push' for now in the backend call, but the backend 
+    // now also checks user preferences. We send 'push' as a requested method
+    // to keep the API contract, and 'sms' if we want to support it implicitly 
+    // based on settings, but the previous API expected a list of methods.
+    // Let's send both 'push' and 'sms' as requested methods, 
+    // and let the backend filter based on user preferences.
+    const methods = ['push', 'sms'];
 
     const data = {
         time: formData.get('time'),
