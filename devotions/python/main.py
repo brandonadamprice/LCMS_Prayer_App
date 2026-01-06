@@ -350,15 +350,15 @@ def privacy_route():
 def login():
   """Renders the sign-in page."""
   if flask_login.current_user.is_authenticated:
-    return flask.redirect("/account")
+    return flask.redirect("/settings")
   return flask.render_template("signin.html")
 
 
 @app.route("/account")
 @flask_login.login_required
 def account():
-  """Renders the account settings page."""
-  return flask.render_template("account.html")
+  """Redirects to the settings page."""
+  return flask.redirect("/settings")
 
 
 @app.route("/settings")
@@ -376,7 +376,7 @@ def update_profile():
 
   if not name or not email:
     flask.flash("Name and Email are required.", "error")
-    return flask.redirect("/account")
+    return flask.redirect("/settings")
 
   try:
     db = utils.get_db_client()
@@ -387,7 +387,7 @@ def update_profile():
     app.logger.error("Failed to update profile: %s", e)
     flask.flash("An error occurred while updating profile.", "error")
 
-  return flask.redirect("/account")
+  return flask.redirect("/settings")
 
 
 @app.route("/account/export_data")
@@ -444,7 +444,7 @@ def update_picture():
       app.logger.error("Failed to update picture: %s", e)
       flask.flash("Error updating picture.", "error")
 
-  return flask.redirect("/account")
+  return flask.redirect("/settings")
 
 
 @app.route("/login/google")

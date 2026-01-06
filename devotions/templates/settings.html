@@ -6,6 +6,18 @@
   <p>Customize your experience.</p>
 </div>
 
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="card">
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}" style="color: {% if category == 'error' %}red{% else %}green{% endif %}; margin-bottom: 10px;">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
 <div class="card">
   <h2>Appearance</h2>
   
@@ -35,35 +47,250 @@
   </div>
 </div>
 
-<div class="card">
-    <h2>Account</h2>
-    {% if current_user.is_authenticated %}
-        <p>You are logged in as <strong>{{ current_user.name }}</strong>.</p>
-        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-            <a href="/account" class="button" style="background-color: #2980b9;">Account Profile</a>
-            <a href="/logout" class="button">Log Out</a>
-        </div>
-    {% else %}
-        <p>Log in to sync your settings and data across devices.</p>
-        <a href="/login" class="button" style="background-color: #2980b9;">Log In / Sign Up</a>
-    {% endif %}
-</div>
-
-<div class="card">
-    <h2>Notifications</h2>
-    <p>Manage your prayer reminders.</p>
-    {% if current_user.is_authenticated %}
-    <a href="/reminders" class="button">Manage Reminders</a>
-    {% else %}
-    <p><em>Please log in to manage reminders.</em></p>
-    {% endif %}
-</div>
-
 {% if current_user.is_authenticated %}
+<div class="card">
+  <h2>Profile Information</h2>
+  <form action="/account/update_profile" method="post">
+    <div style="margin-bottom: 15px;">
+      <label for="name">Name:</label><br>
+      <input type="text" id="name" name="name" value="{{ current_user.name }}" class="form-input" required>
+    </div>
+    <div style="margin-bottom: 15px;">
+      <label for="email">Email:</label><br>
+      <input type="email" id="email" name="email" value="{{ current_user.email }}" class="form-input" required>
+    </div>
+    <button type="submit" class="button">Save Changes</button>
+  </form>
+</div>
+
+<div class="card">
+  <h2>Profile Picture</h2>
+  <div style="text-align: center; margin-bottom: 20px;">
+      <img src="{{ current_user.profile_pic }}" alt="Current Profile" style="width: 100px; height: 100px; border-radius: 50%; border: 3px solid #eee;">
+      <p>Current Picture</p>
+  </div>
+
+  <form action="/account/update_picture" method="post">
+    <div style="margin-bottom: 15px;">
+        <p><strong>Choose Source:</strong></p>
+        
+        {% if current_user.google_profile_pic %}
+        <div style="margin-bottom: 10px;">
+            <input type="radio" id="src_google" name="pic_source" value="google" {% if current_user.selected_pic_source == 'google' %}checked{% endif %}>
+            <label for="src_google">
+                <img src="{{ current_user.google_profile_pic }}" style="width: 30px; height: 30px; border-radius: 50%; vertical-align: middle; margin-right: 5px;">
+                Use Google Profile Picture
+            </label>
+        </div>
+        {% endif %}
+
+        <div style="margin-bottom: 10px;">
+            <input type="radio" id="src_custom" name="pic_source" value="custom" {% if current_user.selected_pic_source == 'custom' %}checked{% endif %}>
+            <label for="src_custom">Use Custom URL (or Upload)</label>
+            <div id="custom-url-input" style="margin-top: 5px; margin-left: 20px; {% if current_user.selected_pic_source != 'custom' %}display: none;{% endif %}">
+                <input type="url" name="custom_pic_url" placeholder="https://example.com/my-pic.jpg" class="form-input" value="{% if current_user.selected_pic_source == 'custom' %}{{ current_user.profile_pic }}{% endif %}">
+                <p style="font-size: 0.8em; color: #666;">Enter a direct link to an image.</p>
+            </div>
+        </div>
+    </div>
+    <button type="submit" class="button">Update Picture</button>
+  </form>
+</div>
+
+<div class="card">
+  <h2>Notification Settings</h2>
+  <p>To receive notifications on this device, please enable them below. This is required even if you have enabled them on other devices.</p>
+  <div style="display: flex; align-items: center; gap: 15px; margin-top: 15px;">
+    <label class="switch">
+        <input type="checkbox" id="notifications-toggle">
+        <span class="slider"></span>
+    </label>
+    <span id="notif-status-text" style="font-weight: bold;">Enable Notifications</span>
+  </div>
+</div>
+
+<div class="card">
+    <h2>Prayer Reminders</h2>
+    <p>Manage your prayer reminders.</p>
+    <a href="/reminders" class="button">Manage Reminders</a>
+</div>
+
 <div class="card">
     <h2>Data Management</h2>
     <p>Download a copy of your personal data.</p>
     <a href="/account/export_data" class="button" target="_blank" style="background-color: #27ae60;">Export My Prayers</a>
+</div>
+
+<div class="card">
+    <h2>Account Actions</h2>
+    <a href="/logout" class="button" style="background-color: #95a5a6;">Log Out</a>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+  import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging.js";
+
+  const notifToggle = document.getElementById('notifications-toggle');
+  const notifStatusText = document.getElementById('notif-status-text');
+  let messaging = null;
+  let cachedConfig = null;
+
+  async function initFirebase() {
+    try {
+      const response = await fetch('/firebase_config');
+      if (!response.ok) throw new Error("Failed to fetch config");
+      cachedConfig = await response.json();
+      
+      const app = initializeApp(cachedConfig);
+      messaging = getMessaging(app);
+      
+      console.log("Firebase initialized");
+    } catch(e) {
+      console.error("Firebase Init Error", e);
+    }
+  }
+
+  async function requestPushPermission() {
+    if (!('Notification' in window)) {
+        alert("This browser does not support desktop notification");
+        return false;
+    }
+    const permission = await Notification.requestPermission();
+    if (permission !== 'granted') {
+        alert('Permission not granted for Notification');
+        return false;
+    }
+    
+    if (!messaging) await initFirebase();
+    if (!messaging) {
+        alert("Failed to initialize notification service. Please refresh and try again.");
+        return false;
+    }
+
+    try {
+        const registration = await navigator.serviceWorker.ready;
+        const options = {
+            serviceWorkerRegistration: registration
+        };
+        if (cachedConfig && cachedConfig.vapidKey) {
+            options.vapidKey = cachedConfig.vapidKey;
+        }
+
+        const currentToken = await getToken(messaging, options);
+        if (currentToken) {
+            await fetch('/save_fcm_token', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({token: currentToken})
+            });
+            console.log("FCM Token saved");
+            return true; 
+        } else {
+            console.log('No registration token available.');
+            return false;
+        }
+    } catch (err) {
+        console.log('An error occurred while retrieving token. ', err);
+        return false;
+    }
+  }
+
+  async function disableNotifications() {
+    try {
+        if (!messaging) await initFirebase();
+        if (!messaging) return;
+
+        const registration = await navigator.serviceWorker.ready;
+        const currentToken = await getToken(messaging, { serviceWorkerRegistration: registration });
+        
+        if (currentToken) {
+            await fetch('/remove_fcm_token', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({token: currentToken})
+            });
+            console.log("Token removed from server.");
+        }
+    } catch(e) {
+        console.error("Error disabling notifications:", e);
+    }
+  }
+
+  function updateToggleState() {
+    if (!('Notification' in window)) {
+        if(notifToggle) notifToggle.disabled = true;
+        if(notifStatusText) notifStatusText.textContent = "Notifications not supported";
+        return;
+    }
+
+    const localEnabled = localStorage.getItem('notifications_enabled') === 'true';
+
+    if (Notification.permission === 'granted') {
+        if (localEnabled) {
+            if(notifToggle) notifToggle.checked = true;
+            if(notifStatusText) notifStatusText.textContent = "Notifications Enabled";
+        } else {
+            if(notifToggle) notifToggle.checked = false;
+            if(notifStatusText) notifStatusText.textContent = "Enable Notifications";
+        }
+    } else if (Notification.permission === 'denied') {
+        if(notifToggle) {
+            notifToggle.checked = false;
+            notifToggle.disabled = true;
+        }
+        if(notifStatusText) notifStatusText.textContent = "Notifications Denied (Check Browser Settings)";
+        localStorage.setItem('notifications_enabled', 'false');
+    } else {
+        if(notifToggle) notifToggle.checked = false;
+        if(notifStatusText) notifStatusText.textContent = "Enable Notifications";
+        localStorage.setItem('notifications_enabled', 'false');
+    }
+  }
+
+  if (notifToggle) {
+      notifToggle.addEventListener('change', async (e) => {
+        if (e.target.checked) {
+            const granted = await requestPushPermission();
+            if (granted) {
+                notifStatusText.textContent = "Notifications Enabled";
+                localStorage.setItem('notifications_enabled', 'true');
+            } else {
+                e.target.checked = false;
+                updateToggleState();
+            }
+        } else {
+            await disableNotifications();
+            localStorage.setItem('notifications_enabled', 'false');
+            notifStatusText.textContent = "Enable Notifications";
+        }
+      });
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+      initFirebase();
+      updateToggleState();
+  });
+</script>
+
+<script>
+    const radios = document.querySelectorAll('input[name="pic_source"]');
+    const customInputDiv = document.getElementById('custom-url-input');
+
+    radios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.value === 'custom') {
+                customInputDiv.style.display = 'block';
+            } else {
+                customInputDiv.style.display = 'none';
+            }
+        });
+    });
+</script>
+{% else %}
+<div class="card">
+    <h2>Account</h2>
+    <p>Log in to sync your settings, data, and receive reminders across devices.</p>
+    <a href="/login" class="button" style="background-color: #2980b9;">Log In / Sign Up</a>
 </div>
 {% endif %}
 {% endblock %}
