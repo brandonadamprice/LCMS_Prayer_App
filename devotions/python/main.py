@@ -354,20 +354,13 @@ def login():
   return flask.render_template("signin.html")
 
 
-@app.route("/account")
-@flask_login.login_required
-def account():
-  """Redirects to the settings page."""
-  return flask.redirect("/settings")
-
-
 @app.route("/settings")
 def settings_route():
   """Renders the dedicated settings page."""
   return flask.render_template("settings.html")
 
 
-@app.route("/account/update_profile", methods=["POST"])
+@app.route("/settings/update_profile", methods=["POST"])
 @flask_login.login_required
 def update_profile():
   """Updates user name and email."""
@@ -390,7 +383,7 @@ def update_profile():
   return flask.redirect("/settings")
 
 
-@app.route("/account/export_data")
+@app.route("/settings/export_data")
 @flask_login.login_required
 def export_data_route():
   """Exports user's personal prayers as JSON."""
@@ -416,7 +409,7 @@ def export_data_route():
     return "Failed to export data", 500
 
 
-@app.route("/account/update_picture", methods=["POST"])
+@app.route("/settings/update_picture", methods=["POST"])
 @flask_login.login_required
 def update_picture():
   """Updates selected profile picture."""
