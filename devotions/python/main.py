@@ -372,55 +372,40 @@ def settings_route():
 @app.route("/settings/update_profile", methods=["POST"])
 @flask_login.login_required
 def update_profile():
-  """Updates user name and email."""
+  """Updates user profile (name, email, phone)."""
   name = flask.request.form.get("name")
   email = flask.request.form.get("email")
+  phone = flask.request.form.get("phone")
 
   if not name or not email:
     flask.flash("Name and Email are required.", "error")
     return flask.redirect("/settings")
 
-  try:
-    db = utils.get_db_client()
-    user_ref = db.collection("users").document(flask_login.current_user.id)
-    user_ref.update({"name": name, "email": email})
-    flask.flash("Profile updated successfully.", "success")
-  except Exception as e:
-    app.logger.error("Failed to update profile: %s", e)
-    flask.flash("An error occurred while updating profile.", "error")
-
-  return flask.redirect("/settings")
-
-
-@app.route("/settings/update_contact", methods=["POST"])
-@flask_login.login_required
-def update_contact():
-  """Updates user phone number."""
-  phone = flask.request.form.get("phone")
-
-  # Basic validation/cleanup (could be more robust)
+  # Basic phone validation/cleanup
   if phone:
-    # Keep only digits and +
     import re
     cleaned_phone = re.sub(r"[^\d+]", "", phone)
-    # Ensure it starts with + if not empty
     if cleaned_phone and not cleaned_phone.startswith("+"):
-        # Assume US for now if no code provided? Or force user to add.
-        # Let's just prepend +1 if 10 digits, otherwise leave as is for user to fix
         if len(cleaned_phone) == 10:
             cleaned_phone = "+1" + cleaned_phone
         else:
             cleaned_phone = "+" + cleaned_phone
     phone = cleaned_phone
+  else:
+    phone = None # Explicitly set to None if empty string to clear it or handle properly
 
   try:
     db = utils.get_db_client()
     user_ref = db.collection("users").document(flask_login.current_user.id)
-    user_ref.update({"phone_number": phone})
-    flask.flash("Contact info updated successfully.", "success")
+    update_data = {"name": name, "email": email}
+    if phone is not None:
+        update_data["phone_number"] = phone
+    
+    user_ref.update(update_data)
+    flask.flash("Profile updated successfully.", "success")
   except Exception as e:
-    app.logger.error("Failed to update contact info: %s", e)
-    flask.flash("An error occurred while updating contact info.", "error")
+    app.logger.error("Failed to update profile: %s", e)
+    flask.flash("An error occurred while updating profile.", "error")
 
   return flask.redirect("/settings")
 

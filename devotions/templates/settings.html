@@ -66,15 +66,17 @@
       <p id="notif-status-text" style="font-size: 0.8em; margin-top: 5px; font-weight: bold;">Enable Notifications</p>
   </div>
 
-  <!-- Contact Info -->
-  <form action="/settings/update_contact" method="post" style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #eee;">
-      <label for="phone"><strong>Mobile Phone Number</strong> (for SMS - <em>Coming Soon</em>):</label>
-      <div style="display: flex; gap: 10px; margin-top: 5px;">
-          <input type="tel" id="phone" name="phone" value="{{ current_user.phone_number or '' }}" placeholder="+1234567890" class="form-input">
-          <button type="submit" class="button" style="margin: 0; padding: 8px 15px;">Save</button>
-      </div>
-      <p style="font-size: 0.8em; color: #7f8c8d;">Format: +1234567890. Standard message rates apply. <strong>Note: SMS notifications are currently disabled.</strong></p>
-  </form>
+  <!-- Contact Info Display -->
+  <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #eee;">
+      <p><strong>Mobile Phone Number:</strong></p>
+      {% if current_user.phone_number %}
+        <p style="margin-top: 5px;">{{ current_user.phone_number }}</p>
+        <p style="font-size: 0.9em; color: #7f8c8d;">(To edit, see <a href="#profile-section">Profile Information</a> below)</p>
+      {% else %}
+        <p style="color: #7f8c8d; font-style: italic;">No phone number set.</p>
+        <p style="font-size: 0.9em;"><a href="#profile-section">Add a phone number</a> in your profile to enable SMS options.</p>
+      {% endif %}
+  </div>
 
   <!-- Preferences -->
   <form id="notification-preferences-form">
@@ -114,7 +116,7 @@
   </form>
 </div>
 
-<div class="card">
+<div class="card" id="profile-section">
   <h2>Profile Information</h2>
   <form action="/settings/update_profile" method="post">
     <div style="margin-bottom: 15px;">
@@ -124,6 +126,11 @@
     <div style="margin-bottom: 15px;">
       <label for="email">Email:</label><br>
       <input type="email" id="email" name="email" value="{{ current_user.email }}" class="form-input" required>
+    </div>
+    <div style="margin-bottom: 15px;">
+      <label for="phone">Mobile Phone Number (Optional):</label><br>
+      <input type="tel" id="phone" name="phone" value="{{ current_user.phone_number or '' }}" placeholder="+1234567890" class="form-input">
+      <p style="font-size: 0.8em; color: #7f8c8d;">Format: +1234567890. Required for SMS notifications (Coming Soon).</p>
     </div>
     <button type="submit" class="button">Save Changes</button>
   </form>
