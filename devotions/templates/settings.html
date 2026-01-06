@@ -63,7 +63,6 @@
             <span class="slider"></span>
         </label>
       </div>
-      <p id="notif-status-text" style="font-size: 0.8em; margin-top: 5px; font-weight: bold;">Enable Notifications</p>
   </div>
 
   <!-- Contact Info Display -->
@@ -312,7 +311,7 @@
         if (e.target.checked) {
             const granted = await requestPushPermission();
             if (granted) {
-                notifStatusText.textContent = "Notifications Enabled";
+                if (notifStatusText) notifStatusText.textContent = "Notifications Enabled";
                 localStorage.setItem('notifications_enabled', 'true');
             } else {
                 e.target.checked = false;
@@ -321,7 +320,7 @@
         } else {
             await disableNotifications();
             localStorage.setItem('notifications_enabled', 'false');
-            notifStatusText.textContent = "Enable Notifications";
+            if (notifStatusText) notifStatusText.textContent = "Enable Notifications";
         }
       });
   }
