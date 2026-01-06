@@ -118,56 +118,55 @@
 
 <div class="card" id="profile-section">
   <h2>Profile Information</h2>
-  <form action="/settings/update_profile" method="post">
-    <div style="margin-bottom: 15px;">
-      <label for="name">Name:</label><br>
-      <input type="text" id="name" name="name" value="{{ current_user.name }}" class="form-input" required>
-    </div>
-    <div style="margin-bottom: 15px;">
-      <label for="email">Email:</label><br>
-      <input type="email" id="email" name="email" value="{{ current_user.email }}" class="form-input" required>
-    </div>
-    <div style="margin-bottom: 15px;">
-      <label for="phone">Mobile Phone Number (Optional):</label><br>
-      <input type="tel" id="phone" name="phone" value="{{ current_user.phone_number or '' }}" placeholder="+1234567890" class="form-input">
-      <p style="font-size: 0.8em; color: #7f8c8d;">Format: +1234567890. Required for SMS notifications (Coming Soon).</p>
-    </div>
-    <button type="submit" class="button">Save Changes</button>
-  </form>
-</div>
-
-<div class="card">
-  <h2>Profile Picture</h2>
-  <div style="text-align: center; margin-bottom: 20px;">
-      <img src="{{ current_user.profile_pic }}" alt="Current Profile" style="width: 100px; height: 100px; border-radius: 50%; border: 3px solid #eee;">
-      <p>Current Picture</p>
-  </div>
-
-  <form action="/settings/update_picture" method="post">
-    <div style="margin-bottom: 15px;">
-        <p><strong>Choose Source:</strong></p>
-        
-        {% if current_user.google_profile_pic %}
-        <div style="margin-bottom: 10px;">
-            <input type="radio" id="src_google" name="pic_source" value="google" {% if current_user.selected_pic_source == 'google' %}checked{% endif %}>
-            <label for="src_google">
-                <img src="{{ current_user.google_profile_pic }}" style="width: 30px; height: 30px; border-radius: 50%; vertical-align: middle; margin-right: 5px;">
-                Use Google Profile Picture
-            </label>
+  <form action="/settings/update_profile" method="post" style="display: flex; gap: 20px; flex-wrap: wrap;">
+    <div style="flex: 1 1 300px;">
+        <div style="margin-bottom: 15px;">
+          <label for="name">Name:</label><br>
+          <input type="text" id="name" name="name" value="{{ current_user.name }}" class="form-input" required>
         </div>
-        {% endif %}
+        <div style="margin-bottom: 15px;">
+          <label for="email">Email:</label><br>
+          <input type="email" id="email" name="email" value="{{ current_user.email }}" class="form-input" required>
+        </div>
+        <div style="margin-bottom: 15px;">
+          <label for="phone">Mobile Phone Number (Optional):</label><br>
+          <input type="tel" id="phone" name="phone" value="{{ current_user.phone_number or '' }}" placeholder="+1234567890" class="form-input">
+          <p style="font-size: 0.8em; color: #7f8c8d;">Format: +1234567890. Required for SMS notifications (Coming Soon).</p>
+        </div>
+        <button type="submit" class="button">Save Profile Changes</button>
+    </div>
+  </form>
 
-        <div style="margin-bottom: 10px;">
-            <input type="radio" id="src_custom" name="pic_source" value="custom" {% if current_user.selected_pic_source == 'custom' %}checked{% endif %}>
-            <label for="src_custom">Use Custom URL (or Upload)</label>
-            <div id="custom-url-input" style="margin-top: 5px; margin-left: 20px; {% if current_user.selected_pic_source != 'custom' %}display: none;{% endif %}">
-                <input type="url" name="custom_pic_url" placeholder="https://example.com/my-pic.jpg" class="form-input" value="{% if current_user.selected_pic_source == 'custom' %}{{ current_user.profile_pic }}{% endif %}">
-                <p style="font-size: 0.8em; color: #666;">Enter a direct link to an image.</p>
+  <hr>
+
+  <h3>Profile Picture</h3>
+  <div style="display: flex; align-items: flex-start; gap: 20px;">
+      <div style="text-align: center;">
+          <img src="{{ current_user.profile_pic }}" alt="Current Profile" style="width: 80px; height: 80px; border-radius: 50%; border: 3px solid #eee;">
+      </div>
+      <div style="flex-grow: 1;">
+          <form action="/settings/update_picture" method="post">
+            <div style="margin-bottom: 10px;">
+                {% if current_user.google_profile_pic %}
+                <div style="margin-bottom: 5px;">
+                    <input type="radio" id="src_google" name="pic_source" value="google" {% if current_user.selected_pic_source == 'google' %}checked{% endif %}>
+                    <label for="src_google">Use Google Profile Picture</label>
+                </div>
+                {% endif %}
+
+                <div style="margin-bottom: 5px;">
+                    <input type="radio" id="src_custom" name="pic_source" value="custom" {% if current_user.selected_pic_source == 'custom' %}checked{% endif %}>
+                    <label for="src_custom">Use Custom URL</label>
+                </div>
+                
+                <div id="custom-url-input" style="margin-top: 5px; {% if current_user.selected_pic_source != 'custom' %}display: none;{% endif %}">
+                    <input type="url" name="custom_pic_url" placeholder="https://example.com/my-pic.jpg" class="form-input" value="{% if current_user.selected_pic_source == 'custom' %}{{ current_user.profile_pic }}{% endif %}">
+                </div>
             </div>
-        </div>
-    </div>
-    <button type="submit" class="button">Update Picture</button>
-  </form>
+            <button type="submit" class="button" style="padding: 5px 10px; font-size: 0.8em;">Update Picture</button>
+          </form>
+      </div>
+  </div>
 </div>
 
 <div class="card">
