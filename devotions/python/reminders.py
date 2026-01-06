@@ -242,6 +242,28 @@ def send_generic_push_to_user(user_id, title, body, url):
   _send_push(user_data, title, body, url)
 
 
+def send_generic_notification_to_user(
+    user_id, title, body, url, notification_type
+):
+  """Sends a generic notification to a user by ID, checking preferences."""
+  db = utils.get_db_client()
+  user_doc = db.collection("users").document(user_id).get()
+  if not user_doc.exists:
+    flask.current_app.logger.warning(f"[NOTIF] User {user_id} not found.")
+    return
+  user_data = user_doc.to_dict()
+
+  preferences = user_data.get("notification_preferences", {})
+  # Default to True/False for push/sms if not set
+  type_prefs = preferences.get(notification_type, {"push": True, "sms": False})
+
+  if type_prefs.get("push"):
+    _send_push(user_data, title, body, url)
+
+  if type_prefs.get("sms"):
+    _send_sms(user_data, body)
+
+
 def send_notification(method, reminder_data, user_data, devotion_url):
   """Sends a notification via the specified method."""
   devotion_name = DEVOTION_NAMES.get(reminder_data.get("devotion"))
