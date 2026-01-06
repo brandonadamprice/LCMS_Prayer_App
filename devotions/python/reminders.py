@@ -247,8 +247,31 @@ def send_notification(method, reminder_data, user_data, devotion_url):
   devotion_name = DEVOTION_NAMES.get(reminder_data.get("devotion"))
   message = f"Time for {devotion_name}! Read here: {devotion_url}"
 
+  # Check user preferences
+  preferences = user_data.get("notification_preferences", {})
+  reminder_prefs = preferences.get("prayer_reminders", {"push": True, "sms": False})
+
   if method == "push":
-    _send_push(user_data, "Prayer Reminder", message, devotion_url)
+    if reminder_prefs.get("push"):
+        _send_push(user_data, "Prayer Reminder", message, devotion_url)
+    else:
+        flask.current_app.logger.info(f"[REMINDER] Push disabled by user preference for user {user_data.get('email')}")
+  
+  elif method == "sms":
+    if reminder_prefs.get("sms"):
+        _send_sms(user_data, message)
+    else:
+        flask.current_app.logger.info(f"[REMINDER] SMS disabled by user preference for user {user_data.get('email')}")
+
+def _send_sms(user_data, message):
+    """Sends an SMS notification (Placeholder)."""
+    phone = user_data.get("phone_number")
+    if not phone:
+        flask.current_app.logger.warning(f"[SMS] No phone number for user {user_data.get('email')}")
+        return
+
+    # TODO: Integrate Twilio or other SMS provider here
+    flask.current_app.logger.info(f"[SMS] Sending SMS to {phone}: {message}")
 
 
 def send_due_reminders():

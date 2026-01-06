@@ -100,6 +100,8 @@ class User(flask_login.UserMixin):
       fcm_tokens=None,
       google_profile_pic=None,
       selected_pic_source=None,
+      phone_number=None,
+      notification_preferences=None,
   ):
     self.id = user_id
     self.email = email
@@ -111,6 +113,11 @@ class User(flask_login.UserMixin):
     self.fcm_tokens = fcm_tokens or []
     self.google_profile_pic = google_profile_pic
     self.selected_pic_source = selected_pic_source
+    self.phone_number = phone_number
+    self.notification_preferences = notification_preferences or {
+        "prayer_reminders": {"push": True, "sms": False},
+        "prayed_for_me": {"push": True, "sms": False},
+    }
 
   @staticmethod
   def get(user_id):
@@ -131,6 +138,8 @@ class User(flask_login.UserMixin):
           fcm_tokens=data.get("fcm_tokens", []),
           google_profile_pic=data.get("google_profile_pic"),
           selected_pic_source=data.get("selected_pic_source"),
+          phone_number=data.get("phone_number"),
+          notification_preferences=data.get("notification_preferences"),
       )
     return None
 
@@ -381,6 +390,59 @@ def update_profile():
     flask.flash("An error occurred while updating profile.", "error")
 
   return flask.redirect("/settings")
+
+
+@app.route("/settings/update_contact", methods=["POST"])
+@flask_login.login_required
+def update_contact():
+  """Updates user phone number."""
+  phone = flask.request.form.get("phone")
+
+  # Basic validation/cleanup (could be more robust)
+  if phone:
+    # Keep only digits and +
+    import re
+    cleaned_phone = re.sub(r"[^\d+]", "", phone)
+    # Ensure it starts with + if not empty
+    if cleaned_phone and not cleaned_phone.startswith("+"):
+        # Assume US for now if no code provided? Or force user to add.
+        # Let's just prepend +1 if 10 digits, otherwise leave as is for user to fix
+        if len(cleaned_phone) == 10:
+            cleaned_phone = "+1" + cleaned_phone
+        else:
+            cleaned_phone = "+" + cleaned_phone
+    phone = cleaned_phone
+
+  try:
+    db = utils.get_db_client()
+    user_ref = db.collection("users").document(flask_login.current_user.id)
+    user_ref.update({"phone_number": phone})
+    flask.flash("Contact info updated successfully.", "success")
+  except Exception as e:
+    app.logger.error("Failed to update contact info: %s", e)
+    flask.flash("An error occurred while updating contact info.", "error")
+
+  return flask.redirect("/settings")
+
+
+@app.route("/settings/save_notification_preferences", methods=["POST"])
+@flask_login.login_required
+def save_notification_preferences():
+  """Saves notification preferences."""
+  data = flask.request.json
+  preferences = data.get("preferences")
+
+  if not preferences:
+      return flask.jsonify({"success": False, "error": "No data provided"}), 400
+
+  try:
+    db = utils.get_db_client()
+    user_ref = db.collection("users").document(flask_login.current_user.id)
+    user_ref.update({"notification_preferences": preferences})
+    return flask.jsonify({"success": True})
+  except Exception as e:
+    app.logger.error("Failed to save preferences: %s", e)
+    return flask.jsonify({"success": False, "error": str(e)}), 500
 
 
 @app.route("/settings/export_data")
@@ -769,11 +831,12 @@ def update_pray_count_route():
           owner_id = req_data.get("user_id")
           # Don't notify if the user is praying for their own request
           if owner_id and (not flask_login.current_user.is_authenticated or owner_id != flask_login.current_user.id):
-             reminders.send_generic_push_to_user(
+             reminders.send_generic_notification_to_user(
                  owner_id,
                  "Someone prayed for you!",
                  "Someone just prayed for your request on the Prayer Wall.",
-                 "/prayer_wall" # Link them back to the wall
+                 "/prayer_wall", # Link them back to the wall
+                 "prayed_for_me"
              )
       except Exception as e:
         app.logger.error(f"Failed to send prayer notification: {e}")
