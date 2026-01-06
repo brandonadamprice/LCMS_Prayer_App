@@ -73,19 +73,34 @@
 
 <div class="card">
     <h2>Traffic Overview (Last 30 Days)</h2>
+    {% if daily_traffic and daily_traffic|length > 0 %}
     <canvas id="traffic-chart" style="max-height: 400px;"></canvas>
+    {% else %}
+    <p style="text-align: center; padding: 40px; color: #7f8c8d;">
+        No trend data available yet.<br>
+        <span style="font-size: 0.8em;">Note: Standard reports may take 24-48 hours to process data.</span>
+    </p>
+    {% endif %}
 </div>
 
 <div style="display: flex; gap: 20px; flex-wrap: wrap;">
     <div class="card" style="flex: 1; min-width: 300px;">
         <h2>User Retention (Last 30 Days)</h2>
         <div style="max-width: 300px; margin: 0 auto;">
+            {% if retention_data and (retention_data.new > 0 or retention_data.returning > 0) %}
             <canvas id="retention-chart"></canvas>
+            {% else %}
+            <p style="text-align: center; padding: 40px; color: #7f8c8d;">No retention data available yet.</p>
+            {% endif %}
         </div>
     </div>
     <div class="card" style="flex: 1; min-width: 300px;">
         <h2>Time of Day (Last 30 Days)</h2>
+        {% if hourly_data and hourly_data|sum > 0 %}
         <canvas id="hourly-chart"></canvas>
+        {% else %}
+        <p style="text-align: center; padding: 40px; color: #7f8c8d;">No hourly data available yet.</p>
+        {% endif %}
     </div>
 </div>
 
@@ -121,108 +136,121 @@
     const gridColor = isDarkMode ? '#555' : '#eee';
 
     if (trafficData && trafficData.length > 0) {
-        const ctx = document.getElementById('traffic-chart').getContext('2d');
-        const labels = trafficData.map(d => d.date);
+        const ctxEl = document.getElementById('traffic-chart');
+        if (ctxEl) {
+            const ctx = ctxEl.getContext('2d');
+            const labels = trafficData.map(d => d.date);
+            const users = trafficData.map(d => d.users);
+            const views = trafficData.map(d => d.views);
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Active Users',
+                            data: users,
+                            borderColor: '#2980b9',
+                            backgroundColor: 'rgba(41, 128, 185, 0.2)',
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: 'Page Views',
+                            data: views,
+                            borderColor: '#27ae60',
+                            backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                            tension: 0.3,
+                            borderDash: [5, 5]
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    interaction: { mode: 'index', intersect: false },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: textColor },
+                            grid: { color: gridColor }
+                        },
+                        x: {
+                            ticks: { color: textColor },
+                            grid: { color: gridColor }
+                        }
+                    },
+                    plugins: {
+                        legend: { labels: { color: textColor } }
+                    }
+                }
+            });
+        }
+    }
+
+    if (retentionData && (retentionData.new > 0 || retentionData.returning > 0)) {
+        const ctxRetEl = document.getElementById('retention-chart');
+        if (ctxRetEl) {
+            const ctxRet = ctxRetEl.getContext('2d');
+            new Chart(ctxRet, {
+                type: 'pie',
+                data: {
+                    labels: ['New Users', 'Returning Users'],
+                    datasets: [{
+                        data: [retentionData.new || 0, retentionData.returning || 0],
+                        backgroundColor: ['#27ae60', '#2980b9'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    plugins: {
+                        legend: { labels: { color: textColor } }
+                    }
+                }
+            });
+        }
+    }
+
+    if (hourlyData && hourlyData.reduce((a, b) => a + b, 0) > 0) {
+        const ctxHrEl = document.getElementById('hourly-chart');
+        if (ctxHrEl) {
+            const ctxHr = ctxHrEl.getContext('2d');
+            const hourLabels = Array.from({length: 24}, (_, i) => i + ":00");
+            new Chart(ctxHr, {
+                type: 'bar',
+                data: {
+                    labels: hourLabels,
+                    datasets: [{
+                        label: 'Users by Time of Day',
+                        data: hourlyData,
+                        backgroundColor: '#f1c40f',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: textColor },
+                            grid: { color: gridColor }
+                        },
+                        x: {
+                            ticks: { color: textColor },
+                            grid: { display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+    }
+</script>
         const users = trafficData.map(d => d.users);
         const views = trafficData.map(d => d.views);
 
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [
-                    {
-                        label: 'Active Users',
-                        data: users,
-                        borderColor: '#2980b9',
-                        backgroundColor: 'rgba(41, 128, 185, 0.2)',
-                        tension: 0.3,
-                        fill: true
-                    },
-                    {
-                        label: 'Page Views',
-                        data: views,
-                        borderColor: '#27ae60',
-                        backgroundColor: 'rgba(39, 174, 96, 0.1)',
-                        tension: 0.3,
-                        borderDash: [5, 5]
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                interaction: { mode: 'index', intersect: false },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: { color: textColor },
-                        grid: { color: gridColor }
-                    },
-                    x: {
-                        ticks: { color: textColor },
-                        grid: { color: gridColor }
-                    }
-                },
-                plugins: {
-                    legend: { labels: { color: textColor } }
-                }
-            }
-        });
-    }
 
-    if (retentionData) {
-        const ctxRet = document.getElementById('retention-chart').getContext('2d');
-        new Chart(ctxRet, {
-            type: 'pie',
-            data: {
-                labels: ['New Users', 'Returning Users'],
-                datasets: [{
-                    data: [retentionData.new || 0, retentionData.returning || 0],
-                    backgroundColor: ['#27ae60', '#2980b9'],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                plugins: {
-                    legend: { labels: { color: textColor } }
-                }
-            }
-        });
-    }
-
-    if (hourlyData) {
-        const ctxHr = document.getElementById('hourly-chart').getContext('2d');
-        const hourLabels = Array.from({length: 24}, (_, i) => i + ":00");
-        new Chart(ctxHr, {
-            type: 'bar',
-            data: {
-                labels: hourLabels,
-                datasets: [{
-                    label: 'Users by Time of Day',
-                    data: hourlyData,
-                    backgroundColor: '#f1c40f',
-                    borderRadius: 4
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: { color: textColor },
-                        grid: { color: gridColor }
-                    },
-                    x: {
-                        ticks: { color: textColor },
-                        grid: { display: false }
-                    }
-                },
-                plugins: {
-                    legend: { display: false }
-                }
-            }
-        });
-    }
-</script>
 {% endif %}
 
 <div class="card">
