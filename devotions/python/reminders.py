@@ -231,6 +231,17 @@ def _send_push(user_data, title, body, url):
     flask.current_app.logger.warning(f"[PUSH] Failed tokens: {failed_tokens}")
 
 
+def send_generic_push_to_user(user_id, title, body, url):
+  """Sends a generic push notification to a user by ID."""
+  db = utils.get_db_client()
+  user_doc = db.collection("users").document(user_id).get()
+  if not user_doc.exists:
+    flask.current_app.logger.warning(f"[PUSH] User {user_id} not found.")
+    return
+  user_data = user_doc.to_dict()
+  _send_push(user_data, title, body, url)
+
+
 def send_notification(method, reminder_data, user_data, devotion_url):
   """Sends a notification via the specified method."""
   devotion_name = DEVOTION_NAMES.get(reminder_data.get("devotion"))

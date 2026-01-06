@@ -599,6 +599,7 @@ def night_watch_devotion_route():
 
 
 @app.route("/prayer_requests")
+@flask_login.login_required
 def prayer_requests_route():
   """Returns prayer request submission page."""
   return flask.render_template("prayer_requests.html")
@@ -739,8 +740,11 @@ def update_pray_count_route():
   operation = data.get("operation")
   if not request_id or operation not in ("increment", "decrement"):
     return flask.jsonify({"success": False, "error": "Invalid request"}), 400
+  
   success = prayer_requests.update_pray_count(request_id, operation)
+  
   if success:
+    # 1. Update current user's prayed history
     if flask_login.current_user.is_authenticated:
       try:
         db = utils.get_db_client()
@@ -759,8 +763,28 @@ def update_pray_count_route():
             flask_login.current_user.id,
             e,
         )
-        # We don't fail the whole request if this fails,
-        # just log error. The pray count was updated.
+
+    # 2. Send "Someone prayed for you" notification (on increment only)
+    if operation == "increment":
+      try:
+        # We need to find the owner of the prayer request
+        # Fetching it here directly to avoid circular dependency or adding more to prayer_requests.py
+        db = utils.get_db_client()
+        req_doc = db.collection("prayer-requests").document(request_id).get()
+        if req_doc.exists:
+          req_data = req_doc.to_dict()
+          owner_id = req_data.get("user_id")
+          # Don't notify if the user is praying for their own request
+          if owner_id and (not flask_login.current_user.is_authenticated or owner_id != flask_login.current_user.id):
+             reminders.send_generic_push_to_user(
+                 owner_id,
+                 "Someone prayed for you!",
+                 "Someone just prayed for your request on the Prayer Wall.",
+                 "/prayer_wall" # Link them back to the wall
+             )
+      except Exception as e:
+        app.logger.error(f"Failed to send prayer notification: {e}")
+
     return flask.jsonify({"success": True})
   else:
     return (
@@ -770,6 +794,7 @@ def update_pray_count_route():
 
 
 @app.route("/add_prayer_request", methods=["POST"])
+@flask_login.login_required
 def add_prayer_request_route():
   """Adds a prayer request and returns confirmation or failure page."""
   name = flask.request.form.get("name")
@@ -777,11 +802,9 @@ def add_prayer_request_route():
   days_ttl = flask.request.form.get("days_ttl", "30")
   if not name or not request:
     return flask.redirect("/prayer_requests")
-  user_id = (
-      flask_login.current_user.id
-      if flask_login.current_user.is_authenticated
-      else None
-  )
+  
+  user_id = flask_login.current_user.id
+  
   success, error_message = prayer_requests.add_prayer_request(
       name, request, days_ttl, user_id
   )

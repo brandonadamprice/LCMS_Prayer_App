@@ -36,8 +36,13 @@
       </ul>
     {% endif %}
 
-    <div style="text-align: center">
-      <a href="/prayer_requests" class="button">Submit a Prayer Request</a>
+    <div style="text-align: center; margin-top: 20px;">
+      {% if current_user.is_authenticated %}
+        <a href="/prayer_requests" class="button">Submit a Prayer Request</a>
+      {% else %}
+        <button class="button" disabled style="background-color: #ccc; cursor: not-allowed;">Submit a Prayer Request</button>
+        <p style="font-size: 0.9em; color: #666; margin-top: 10px;"><em>You must be signed in to submit a prayer request.</em></p>
+      {% endif %}
     </div>
 {% endblock %}
 
