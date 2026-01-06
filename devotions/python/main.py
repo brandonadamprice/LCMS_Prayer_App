@@ -639,7 +639,6 @@ def night_watch_devotion_route():
 
 
 @app.route("/prayer_requests")
-@flask_login.login_required
 def prayer_requests_route():
   """Returns prayer request submission page."""
   return flask.render_template("prayer_requests.html")

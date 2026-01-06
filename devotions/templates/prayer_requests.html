@@ -11,6 +11,7 @@
         about yourself or others in your prayer request (e.g. email address, phone number, address,
         etc.).
       </p>
+      {% if current_user.is_authenticated %}
       <form action="/add_prayer_request" method="post">
         <div style="margin-bottom: 10px">
           <label for="name">Name:</label><br />
@@ -18,7 +19,7 @@
             type="text"
             id="name"
             name="name"
-            value="{% if current_user.is_authenticated %}{{ current_user.name }}{% endif %}"
+            value="{{ current_user.name }}"
             required
             maxlength="100"
             class="form-input"
@@ -50,5 +51,25 @@
         </div>
         <button type="submit" class="button">Submit Request</button>
       </form>
+      {% else %}
+        <p style="color: #e74c3c; font-weight: bold;">You must be signed in to submit a prayer request.</p>
+        <div style="margin-bottom: 10px; opacity: 0.6; pointer-events: none;">
+          <div style="margin-bottom: 10px">
+            <label for="name">Name:</label><br />
+            <input type="text" id="name" disabled class="form-input" />
+          </div>
+          <div style="margin-bottom: 10px">
+            <label for="request">Prayer Request:</label><br />
+            <textarea id="request" rows="4" disabled class="form-input"></textarea>
+          </div>
+          <div style="margin-bottom: 10px">
+            <label for="days_ttl">Days to keep request active (1-90):</label><br />
+            <input type="number" id="days_ttl" value="30" disabled class="form-input" />
+          </div>
+        </div>
+        <div style="text-align: center;">
+            <a href="/login" class="button">Sign In</a>
+        </div>
+      {% endif %}
     </div>
 {% endblock %}
