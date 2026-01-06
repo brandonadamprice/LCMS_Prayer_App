@@ -69,9 +69,167 @@
 </div>
 
 <div class="card">
+  <h2>Notification Settings</h2>
+  <p>To receive notifications on this device, please enable them below. This is required even if you have enabled them on other devices.</p>
+  <div style="display: flex; align-items: center; gap: 15px; margin-top: 15px;">
+    <label class="switch">
+        <input type="checkbox" id="notifications-toggle">
+        <span class="slider"></span>
+    </label>
+    <span id="notif-status-text" style="font-weight: bold;">Enable Notifications</span>
+  </div>
+</div>
+
+<div class="card">
     <h2>Account Actions</h2>
     <a href="/logout" class="button" style="background-color: #95a5a6;">Log Out</a>
 </div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+  import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging.js";
+
+  const notifToggle = document.getElementById('notifications-toggle');
+  const notifStatusText = document.getElementById('notif-status-text');
+  let messaging = null;
+  let cachedConfig = null;
+
+  async function initFirebase() {
+    try {
+      const response = await fetch('/firebase_config');
+      if (!response.ok) throw new Error("Failed to fetch config");
+      cachedConfig = await response.json();
+      
+      const app = initializeApp(cachedConfig);
+      messaging = getMessaging(app);
+      
+      console.log("Firebase initialized");
+    } catch(e) {
+      console.error("Firebase Init Error", e);
+    }
+  }
+
+  async function requestPushPermission() {
+    if (!('Notification' in window)) {
+        alert("This browser does not support desktop notification");
+        return false;
+    }
+    const permission = await Notification.requestPermission();
+    if (permission !== 'granted') {
+        alert('Permission not granted for Notification');
+        return false;
+    }
+    
+    if (!messaging) await initFirebase();
+    if (!messaging) {
+        alert("Failed to initialize notification service. Please refresh and try again.");
+        return false;
+    }
+
+    try {
+        const registration = await navigator.serviceWorker.ready;
+        const options = {
+            serviceWorkerRegistration: registration
+        };
+        if (cachedConfig && cachedConfig.vapidKey) {
+            options.vapidKey = cachedConfig.vapidKey;
+        }
+
+        const currentToken = await getToken(messaging, options);
+        if (currentToken) {
+            await fetch('/save_fcm_token', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({token: currentToken})
+            });
+            console.log("FCM Token saved");
+            return true; 
+        } else {
+            console.log('No registration token available.');
+            return false;
+        }
+    } catch (err) {
+        console.log('An error occurred while retrieving token. ', err);
+        return false;
+    }
+  }
+
+  async function disableNotifications() {
+    try {
+        if (!messaging) await initFirebase();
+        if (!messaging) return;
+
+        const registration = await navigator.serviceWorker.ready;
+        const currentToken = await getToken(messaging, { serviceWorkerRegistration: registration });
+        
+        if (currentToken) {
+            await fetch('/remove_fcm_token', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({token: currentToken})
+            });
+            console.log("Token removed from server.");
+        }
+    } catch(e) {
+        console.error("Error disabling notifications:", e);
+    }
+  }
+
+  function updateToggleState() {
+    if (!('Notification' in window)) {
+        if(notifToggle) notifToggle.disabled = true;
+        if(notifStatusText) notifStatusText.textContent = "Notifications not supported";
+        return;
+    }
+
+    const localEnabled = localStorage.getItem('notifications_enabled') === 'true';
+
+    if (Notification.permission === 'granted') {
+        if (localEnabled) {
+            if(notifToggle) notifToggle.checked = true;
+            if(notifStatusText) notifStatusText.textContent = "Notifications Enabled";
+        } else {
+            if(notifToggle) notifToggle.checked = false;
+            if(notifStatusText) notifStatusText.textContent = "Enable Notifications";
+        }
+    } else if (Notification.permission === 'denied') {
+        if(notifToggle) {
+            notifToggle.checked = false;
+            notifToggle.disabled = true;
+        }
+        if(notifStatusText) notifStatusText.textContent = "Notifications Denied (Check Browser Settings)";
+        localStorage.setItem('notifications_enabled', 'false');
+    } else {
+        if(notifToggle) notifToggle.checked = false;
+        if(notifStatusText) notifStatusText.textContent = "Enable Notifications";
+        localStorage.setItem('notifications_enabled', 'false');
+    }
+  }
+
+  if (notifToggle) {
+      notifToggle.addEventListener('change', async (e) => {
+        if (e.target.checked) {
+            const granted = await requestPushPermission();
+            if (granted) {
+                notifStatusText.textContent = "Notifications Enabled";
+                localStorage.setItem('notifications_enabled', 'true');
+            } else {
+                e.target.checked = false;
+                updateToggleState();
+            }
+        } else {
+            await disableNotifications();
+            localStorage.setItem('notifications_enabled', 'false');
+            notifStatusText.textContent = "Enable Notifications";
+        }
+      });
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+      initFirebase();
+      updateToggleState();
+  });
+</script>
 
 <script>
     const radios = document.querySelectorAll('input[name="pic_source"]');
