@@ -105,6 +105,7 @@ class User(flask_login.UserMixin):
       phone_number=None,
       notification_preferences=None,
       password_hash=None,
+      google_id=None,
   ):
     self.id = user_id
     self.email = email
@@ -122,6 +123,7 @@ class User(flask_login.UserMixin):
         "prayed_for_me": {"push": True, "sms": False},
     }
     self.password_hash = password_hash
+    self.google_id = google_id
 
   @staticmethod
   def get(user_id):
@@ -145,6 +147,7 @@ class User(flask_login.UserMixin):
           phone_number=data.get("phone_number"),
           notification_preferences=data.get("notification_preferences"),
           password_hash=data.get("password_hash"),
+          google_id=data.get("google_id"),
       )
     return None
 
@@ -496,6 +499,36 @@ def update_picture():
   return flask.redirect("/settings")
 
 
+@app.route("/settings/update_password", methods=["POST"])
+@flask_login.login_required
+def update_password():
+  """Updates or sets the user's password."""
+  current_password = flask.request.form.get("current_password")
+  new_password = flask.request.form.get("new_password")
+
+  if not new_password:
+    flask.flash("New password is required.", "error")
+    return flask.redirect("/settings")
+
+  user = flask_login.current_user
+  db = utils.get_db_client()
+  user_ref = db.collection("users").document(user.id)
+
+  if user.password_hash:
+    if not current_password:
+      flask.flash("Current password is required.", "error")
+      return flask.redirect("/settings")
+    if not check_password_hash(user.password_hash, current_password):
+      flask.flash("Incorrect current password.", "error")
+      return flask.redirect("/settings")
+
+  hashed_password = generate_password_hash(new_password)
+  user_ref.update({"password_hash": hashed_password})
+
+  flask.flash("Password updated successfully.", "success")
+  return flask.redirect("/settings")
+
+
 @app.route("/login/google")
 def google_login():
   """Redirects to Google OAuth login."""
@@ -512,6 +545,34 @@ def authorize():
     token = google.authorize_access_token()
     nonce = flask.session.pop("nonce", None)
     user_info = google.parse_id_token(token, nonce=nonce)
+
+    if flask_login.current_user.is_authenticated:
+      # Link account logic
+      user_data = get_oauth_user_data(user_info, "google")
+      # Check if this google ID is already used by another user
+      db = utils.get_db_client()
+      users_ref = db.collection("users")
+      query = (
+          users_ref.where("google_id", "==", user_data["google_id"]).limit(1)
+      )
+      results = list(query.stream())
+
+      if results:
+        existing_doc = results[0]
+        if existing_doc.id != flask_login.current_user.id:
+          flask.flash(
+              "This Google account is already linked to another user.", "error"
+          )
+          return flask.redirect("/settings")
+        # If same user, update info
+        update_existing_user_doc(flask_login.current_user.id, user_data)
+        flask.flash("Google account refreshed.", "success")
+        return flask.redirect("/settings")
+      else:
+        # Link it
+        update_existing_user_doc(flask_login.current_user.id, user_data)
+        flask.flash("Google account linked successfully.", "success")
+        return flask.redirect("/settings")
 
     result = handle_oauth_login(user_info, "google")
     if result is None:
