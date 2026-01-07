@@ -1,10 +1,12 @@
 """Main Flask application for serving devotions."""
 
 import datetime
+from email.message import EmailMessage
 import logging
 import os
 import re
 import secrets
+import smtplib
 import uuid
 import advent
 import analytics_ga4
@@ -199,6 +201,46 @@ def validate_password(password):
   if not re.search(r"[^a-zA-Z]", password):
     return "Password must contain at least one number or symbol."
   return None
+
+
+def validate_email(email):
+  """Checks if email format is valid."""
+  if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+    return "Invalid email address format."
+  return None
+
+
+def send_verification_email(email, code):
+  """Sends a verification email using SMTP."""
+  smtp_server = secrets_fetcher.get_smtp_server()
+  smtp_port = secrets_fetcher.get_smtp_port()
+  smtp_user = secrets_fetcher.get_smtp_user()
+  smtp_password = secrets_fetcher.get_smtp_password()
+
+  if not all([smtp_server, smtp_port, smtp_user, smtp_password]):
+    app.logger.warning("Missing SMTP credentials. Logging verification code.")
+    app.logger.info("========== EMAIL VERIFICATION ==========")
+    app.logger.info("To: %s", email)
+    app.logger.info("Code: %s", code)
+    app.logger.info("========================================")
+    return True
+
+  msg = EmailMessage()
+  msg.set_content(f"Your verification code for A Simple Way to Pray is: {code}")
+  msg["Subject"] = "Your Verification Code"
+  msg["From"] = smtp_user
+  msg["To"] = email
+
+  try:
+    with smtplib.SMTP(smtp_server, smtp_port) as server:
+      server.starttls()
+      server.login(smtp_user, smtp_password)
+      server.send_message(msg)
+    app.logger.info("Verification email sent to %s", email)
+    return True
+  except Exception as e:
+    app.logger.error("Failed to send verification email: %s", e)
+    return False
 
 
 def get_oauth_user_data(user_info, provider):
@@ -404,6 +446,11 @@ def update_profile():
     flask.flash("Name and Email are required.", "error")
     return flask.redirect("/settings")
 
+  email_error = validate_email(email)
+  if email_error:
+    flask.flash(email_error, "error")
+    return flask.redirect("/settings")
+
   # Basic phone validation/cleanup
   if phone:
     cleaned_phone = re.sub(r"[^\d+]", "", phone)
@@ -418,6 +465,15 @@ def update_profile():
 
   try:
     db = utils.get_db_client()
+
+    # Check uniqueness if email changed
+    if email != flask_login.current_user.email:
+      users_ref = db.collection("users")
+      query = users_ref.where("email", "==", email).limit(1)
+      if list(query.stream()):
+        flask.flash("Email already in use.", "error")
+        return flask.redirect("/settings")
+
     user_ref = db.collection("users").document(flask_login.current_user.id)
     update_data = {"name": name, "email": email}
     if phone is not None:
@@ -625,6 +681,11 @@ def register():
     flask.flash("All fields are required.", "error")
     return flask.render_template("register.html")
 
+  email_error = validate_email(email)
+  if email_error:
+    flask.flash(email_error, "error")
+    return flask.render_template("register.html")
+
   if password != confirm_password:
     flask.flash("Passwords do not match.", "error")
     return flask.render_template("register.html")
@@ -647,35 +708,77 @@ def register():
 
     # If user exists but has no password (e.g. Google user), allow "merge" by setting password
     if not existing_data.get("password_hash"):
-      hashed_password = generate_password_hash(password)
-      users_ref.document(existing_user_doc.id).update({
-          "password_hash": hashed_password,
-          "name": (
-              name
-          ),  # Optional: update name if they provide a new one? Let's just keep it simple.
-      })
-      user = User.get(existing_user_doc.id)
-      flask_login.login_user(user, remember=True)
-      flask.flash(
-          "Account merged successfully! You can now log in with password.",
-          "success",
-      )
-      return flask.redirect("/")
+      # We still verify email even for merge to ensure ownership
+      pass  # Continue to verification flow
     else:
       flask.flash("Account with this email already exists.", "error")
       return flask.render_template("register.html")
 
-  # New User
+  # Generate verification code
+  verification_code = "".join(
+      [str(secrets.randbelow(10)) for _ in range(6)]
+  )
   hashed_password = generate_password_hash(password)
-  user_data = {
+
+  # Store pending data in session
+  flask.session["pending_registration"] = {
       "name": name,
       "email": email,
       "password_hash": hashed_password,
-      "created_at": datetime.datetime.now(datetime.timezone.utc),
+      "code": verification_code,
+      "is_merge": bool(email_results),
+      "merge_user_id": (
+          email_results[0].id if email_results else None
+      ),
   }
-  user = create_new_user_doc(user_data, "email")
-  flask_login.login_user(user, remember=True)
-  return flask.redirect("/")
+
+  send_verification_email(email, verification_code)
+  return flask.redirect("/register/verify")
+
+
+@app.route("/register/verify", methods=["GET", "POST"])
+def register_verify():
+  """Handles email verification step."""
+  pending_data = flask.session.get("pending_registration")
+  if not pending_data:
+    flask.flash("Registration session expired. Please start over.", "error")
+    return flask.redirect("/register")
+
+  if flask.request.method == "GET":
+    return flask.render_template("verify_email.html", email=pending_data["email"])
+
+  code = flask.request.form.get("code", "").strip()
+  if code == pending_data["code"]:
+    # Verification successful
+    db = utils.get_db_client()
+    users_ref = db.collection("users")
+
+    if pending_data.get("is_merge"):
+      # Merge logic
+      user_id = pending_data["merge_user_id"]
+      users_ref.document(user_id).update({
+          "password_hash": pending_data["password_hash"],
+          "name": pending_data["name"], 
+      })
+      user = User.get(user_id)
+      flask.flash("Account verified and updated!", "success")
+    else:
+      # Create new user
+      user_data = {
+          "name": pending_data["name"],
+          "email": pending_data["email"],
+          "password_hash": pending_data["password_hash"],
+          "created_at": datetime.datetime.now(datetime.timezone.utc),
+      }
+      user = create_new_user_doc(user_data, "email")
+      flask.flash("Account created successfully!", "success")
+
+    flask_login.login_user(user, remember=True)
+    flask.session.pop("pending_registration", None)
+    return flask.redirect("/")
+  else:
+    flask.flash("Invalid verification code. Please try again.", "error")
+    return flask.render_template("verify_email.html", email=pending_data["email"])
 
 
 @app.route("/login/email", methods=["POST"])

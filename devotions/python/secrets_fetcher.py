@@ -20,7 +20,7 @@ def _get_secret(secret_name, environment_variable, version=_SECRET_VERSION):
     return response.payload.data.decode("UTF-8")
   except Exception as e:
     print(f"Failed to fetch secret: {secret_name} - Error: {e}")
-    raise RuntimeError(f"Could not fetch secret {secret_name}") from e
+    return None
 
 
 def get_esv_api_key():
@@ -101,6 +101,26 @@ def get_twilio_api_key():
 def get_twilio_phone_number():
   """Fetches the Twilio From Number."""
   return _get_secret("TWILIO_PHONE_NUMBER", "TWILIO_PHONE_NUMBER")
+
+
+def get_smtp_server():
+  """Returns the SMTP server address."""
+  return "smtp.gmail.com"
+
+
+def get_smtp_port():
+  """Returns the SMTP port."""
+  return 587
+
+
+def get_smtp_user():
+  """Fetches the SMTP username (email address)."""
+  return _get_secret("SMTP_USER", "SMTP_USER")
+
+
+def get_smtp_password():
+  """Fetches the SMTP password (app password)."""
+  return _get_secret("SMTP_PASSWORD", "SMTP_PASSWORD")
 
 
 
