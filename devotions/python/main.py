@@ -31,7 +31,9 @@ import reminders
 import secrets_fetcher
 import short_prayers
 import utils
+import uuid
 import werkzeug.middleware.proxy_fix
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 TEMPLATE_DIR = os.path.abspath(
@@ -102,6 +104,7 @@ class User(flask_login.UserMixin):
       selected_pic_source=None,
       phone_number=None,
       notification_preferences=None,
+      password_hash=None,
   ):
     self.id = user_id
     self.email = email
@@ -118,6 +121,7 @@ class User(flask_login.UserMixin):
         "prayer_reminders": {"push": True, "sms": False},
         "prayed_for_me": {"push": True, "sms": False},
     }
+    self.password_hash = password_hash
 
   @staticmethod
   def get(user_id):
@@ -140,6 +144,7 @@ class User(flask_login.UserMixin):
           selected_pic_source=data.get("selected_pic_source"),
           phone_number=data.get("phone_number"),
           notification_preferences=data.get("notification_preferences"),
+          password_hash=data.get("password_hash"),
       )
     return None
 
@@ -199,6 +204,9 @@ def create_new_user_doc(user_data, provider):
   if provider == "google":
     # Maintain backward compatibility: Google users use sub as doc ID
     user_id = user_data["google_id"]
+  elif provider == "email":
+    # For email users, generate a unique ID
+    user_id = str(uuid.uuid4())
   else:
     # Prefix others to avoid collision if IDs overlap (unlikely but safe)
     user_id = f"{provider}_{user_data[f'{provider}_id']}"
@@ -516,6 +524,94 @@ def authorize():
   except Exception as e:
     app.logger.warning("Google OAuth Error: %s", e)
     return "Authentication failed.", 400
+
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+  """Handles user registration."""
+  if flask_login.current_user.is_authenticated:
+    return flask.redirect("/")
+
+  if flask.request.method == "GET":
+    return flask.render_template("register.html")
+
+  name = flask.request.form.get("name")
+  email = flask.request.form.get("email")
+  password = flask.request.form.get("password")
+
+  if not name or not email or not password:
+    flask.flash("All fields are required.", "error")
+    return flask.render_template("register.html")
+
+  db = utils.get_db_client()
+  users_ref = db.collection("users")
+
+  # Check if email already exists
+  query_email = users_ref.where("email", "==", email).limit(1)
+  email_results = list(query_email.stream())
+
+  if email_results:
+    existing_user_doc = email_results[0]
+    existing_data = existing_user_doc.to_dict()
+
+    # If user exists but has no password (e.g. Google user), allow "merge" by setting password
+    if not existing_data.get("password_hash"):
+      hashed_password = generate_password_hash(password)
+      users_ref.document(existing_user_doc.id).update({
+          "password_hash": hashed_password,
+          "name": name,  # Optional: update name if they provide a new one? Let's just keep it simple.
+      })
+      user = User.get(existing_user_doc.id)
+      flask_login.login_user(user, remember=True)
+      flask.flash("Account merged successfully! You can now log in with password.", "success")
+      return flask.redirect("/")
+    else:
+      flask.flash("Account with this email already exists.", "error")
+      return flask.render_template("register.html")
+
+  # New User
+  hashed_password = generate_password_hash(password)
+  user_data = {
+      "name": name,
+      "email": email,
+      "password_hash": hashed_password,
+      "created_at": datetime.datetime.now(datetime.timezone.utc),
+  }
+  user = create_new_user_doc(user_data, "email")
+  flask_login.login_user(user, remember=True)
+  return flask.redirect("/")
+
+
+@app.route("/login/email", methods=["POST"])
+def email_login():
+  """Handles email/password login."""
+  email = flask.request.form.get("email")
+  password = flask.request.form.get("password")
+
+  if not email or not password:
+    flask.flash("Email and password are required.", "error")
+    return flask.redirect("/login")
+
+  db = utils.get_db_client()
+  users_ref = db.collection("users")
+  query_email = users_ref.where("email", "==", email).limit(1)
+  email_results = list(query_email.stream())
+
+  if not email_results:
+    flask.flash("Invalid email or password.", "error")
+    return flask.redirect("/login")
+
+  user_doc = email_results[0]
+  user_data = user_doc.to_dict()
+  stored_hash = user_data.get("password_hash")
+
+  if not stored_hash or not check_password_hash(stored_hash, password):
+    flask.flash("Invalid email or password.", "error")
+    return flask.redirect("/login")
+
+  user = User.get(user_doc.id)
+  flask_login.login_user(user, remember=True)
+  return flask.redirect("/")
 
 
 @app.route("/login/merge")

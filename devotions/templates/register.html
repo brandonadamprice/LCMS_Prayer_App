@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Sign Up{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Create Account</h1>
+    <p>Join to save your preferences and prayer requests.</p>
+</div>
+
+<div class="card">
+    <h2>Sign Up</h2>
+    <form action="/register" method="POST"
+        style="display: flex; flex-direction: column; gap: 15px; max-width: 400px; margin: 0 auto;">
+        <div>
+            <label for="name" style="display: block; margin-bottom: 5px;">Name</label>
+            <input type="text" id="name" name="name" required
+                style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+        </div>
+        <div>
+            <label for="email" style="display: block; margin-bottom: 5px;">Email</label>
+            <input type="email" id="email" name="email" required
+                style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+        </div>
+        <div>
+            <label for="password" style="display: block; margin-bottom: 5px;">Password</label>
+            <input type="password" id="password" name="password" required
+                style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+        </div>
+        <button type="submit" class="button"
+            style="background-color: #333; color: white; border: none; padding: 10px; font-size: 1em; cursor: pointer;">Sign
+            Up</button>
+    </form>
+    <p style="text-align: center; margin-top: 20px;">
+        Already have an account? <a href="/login">Sign In</a>
+    </p>
+</div>
+{% endblock %}
