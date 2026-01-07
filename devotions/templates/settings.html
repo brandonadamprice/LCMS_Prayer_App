@@ -145,6 +145,13 @@
             <label for="new_password">New Password:</label><br>
             <input type="password" id="new_password" name="new_password" required class="form-input">
         </div>
+        <div style="margin-bottom: 15px;">
+            <label for="confirm_new_password">Confirm New Password:</label><br>
+            <input type="password" id="confirm_new_password" name="confirm_new_password" required class="form-input">
+        </div>
+        <p style="font-size: 0.8em; color: #666; margin-top: 5px; margin-bottom: 15px;">
+            Password must be at least 8 characters long, contain at least one capital letter, and one number or symbol.
+        </p>
         <button type="submit" class="button">Change Password</button>
     </form>
   {% else %}
@@ -154,6 +161,13 @@
             <label for="new_password">New Password:</label><br>
             <input type="password" id="new_password" name="new_password" required class="form-input">
         </div>
+        <div style="margin-bottom: 15px;">
+            <label for="confirm_new_password">Confirm New Password:</label><br>
+            <input type="password" id="confirm_new_password" name="confirm_new_password" required class="form-input">
+        </div>
+        <p style="font-size: 0.8em; color: #666; margin-top: 5px; margin-bottom: 15px;">
+            Password must be at least 8 characters long, contain at least one capital letter, and one number or symbol.
+        </p>
         <button type="submit" class="button">Set Password</button>
     </form>
   {% endif %}

@@ -3,7 +3,9 @@
 import datetime
 import logging
 import os
+import re
 import secrets
+import uuid
 import advent
 import analytics_ga4
 from authlib.integrations.flask_client import OAuth
@@ -31,9 +33,8 @@ import reminders
 import secrets_fetcher
 import short_prayers
 import utils
-import uuid
 import werkzeug.middleware.proxy_fix
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 
 
 TEMPLATE_DIR = os.path.abspath(
@@ -189,12 +190,23 @@ def inject_globals():
   return dict(is_advent=is_advent, is_new_year=is_new_year)
 
 
+def validate_password(password):
+  """Checks password complexity."""
+  if len(password) < 8:
+    return "Password must be at least 8 characters long."
+  if not re.search(r"[A-Z]", password):
+    return "Password must contain at least one capital letter."
+  if not re.search(r"[^a-zA-Z]", password):
+    return "Password must contain at least one number or symbol."
+  return None
+
+
 def get_oauth_user_data(user_info, provider):
   """Extracts standard user data from OAuth info."""
   data = {}
   if provider == "google":
     data["google_id"] = user_info["sub"]
-    data["email"] = user_info.get("email")
+    data["email"] = user_info.get("email", "").lower()
     data["name"] = user_info.get("name")
     data["profile_pic"] = user_info.get("picture")
     data["google_profile_pic"] = user_info.get("picture")
@@ -385,7 +397,7 @@ def settings_route():
 def update_profile():
   """Updates user profile (name, email, phone)."""
   name = flask.request.form.get("name")
-  email = flask.request.form.get("email")
+  email = flask.request.form.get("email", "").strip().lower()
   phone = flask.request.form.get("phone")
 
   if not name or not email:
@@ -394,8 +406,6 @@ def update_profile():
 
   # Basic phone validation/cleanup
   if phone:
-    import re
-
     cleaned_phone = re.sub(r"[^\d+]", "", phone)
     if cleaned_phone and not cleaned_phone.startswith("+"):
       if len(cleaned_phone) == 10:
@@ -505,9 +515,19 @@ def update_password():
   """Updates or sets the user's password."""
   current_password = flask.request.form.get("current_password")
   new_password = flask.request.form.get("new_password")
+  confirm_new_password = flask.request.form.get("confirm_new_password")
 
-  if not new_password:
-    flask.flash("New password is required.", "error")
+  if not new_password or not confirm_new_password:
+    flask.flash("New password and confirmation are required.", "error")
+    return flask.redirect("/settings")
+
+  if new_password != confirm_new_password:
+    flask.flash("New passwords do not match.", "error")
+    return flask.redirect("/settings")
+
+  password_error = validate_password(new_password)
+  if password_error:
+    flask.flash(password_error, "error")
     return flask.redirect("/settings")
 
   user = flask_login.current_user
@@ -552,8 +572,8 @@ def authorize():
       # Check if this google ID is already used by another user
       db = utils.get_db_client()
       users_ref = db.collection("users")
-      query = (
-          users_ref.where("google_id", "==", user_data["google_id"]).limit(1)
+      query = users_ref.where("google_id", "==", user_data["google_id"]).limit(
+          1
       )
       results = list(query.stream())
 
@@ -597,11 +617,21 @@ def register():
     return flask.render_template("register.html")
 
   name = flask.request.form.get("name")
-  email = flask.request.form.get("email")
+  email = flask.request.form.get("email", "").strip().lower()
   password = flask.request.form.get("password")
+  confirm_password = flask.request.form.get("confirm_password")
 
-  if not name or not email or not password:
+  if not name or not email or not password or not confirm_password:
     flask.flash("All fields are required.", "error")
+    return flask.render_template("register.html")
+
+  if password != confirm_password:
+    flask.flash("Passwords do not match.", "error")
+    return flask.render_template("register.html")
+
+  password_error = validate_password(password)
+  if password_error:
+    flask.flash(password_error, "error")
     return flask.render_template("register.html")
 
   db = utils.get_db_client()
@@ -620,11 +650,16 @@ def register():
       hashed_password = generate_password_hash(password)
       users_ref.document(existing_user_doc.id).update({
           "password_hash": hashed_password,
-          "name": name,  # Optional: update name if they provide a new one? Let's just keep it simple.
+          "name": (
+              name
+          ),  # Optional: update name if they provide a new one? Let's just keep it simple.
       })
       user = User.get(existing_user_doc.id)
       flask_login.login_user(user, remember=True)
-      flask.flash("Account merged successfully! You can now log in with password.", "success")
+      flask.flash(
+          "Account merged successfully! You can now log in with password.",
+          "success",
+      )
       return flask.redirect("/")
     else:
       flask.flash("Account with this email already exists.", "error")
@@ -646,7 +681,7 @@ def register():
 @app.route("/login/email", methods=["POST"])
 def email_login():
   """Handles email/password login."""
-  email = flask.request.form.get("email")
+  email = flask.request.form.get("email", "").strip().lower()
   password = flask.request.form.get("password")
 
   if not email or not password:
@@ -1559,13 +1594,14 @@ def twilio_sms_reply():
             user_doc.reference.update(
                 {"notification_preferences": current_prefs}
             )
-            
+
             readable_type = last_type.replace("_", " ").title()
             resp.message(
-                f"You have been unsubscribed from {readable_type} SMS notifications."
+                f"You have been unsubscribed from {readable_type} SMS"
+                " notifications."
             )
           else:
-             resp.message("You have been unsubscribed from SMS notifications.")
+            resp.message("You have been unsubscribed from SMS notifications.")
         else:
           # Fallback: Disable all SMS? Or just generic message.
           # Let's assume generic stop for now if we can't find the type.
@@ -1575,23 +1611,27 @@ def twilio_sms_reply():
           current_prefs = user_data.get("notification_preferences", {})
           updated = False
           if "prayer_reminders" in current_prefs:
-             current_prefs["prayer_reminders"]["sms"] = False
-             updated = True
-          
+            current_prefs["prayer_reminders"]["sms"] = False
+            updated = True
+
           if updated:
-             user_doc.reference.update({"notification_preferences": current_prefs})
-             resp.message("You have been unsubscribed from SMS reminders.")
+            user_doc.reference.update(
+                {"notification_preferences": current_prefs}
+            )
+            resp.message("You have been unsubscribed from SMS reminders.")
           else:
-             resp.message("You have been unsubscribed.")
+            resp.message("You have been unsubscribed.")
 
       else:
-        app.logger.warning(f"Twilio STOP received from unknown number: {from_number}")
+        app.logger.warning(
+            f"Twilio STOP received from unknown number: {from_number}"
+        )
         resp.message("You have been unsubscribed.")
 
     except Exception as e:
       app.logger.error(f"Error handling Twilio reply: {e}")
       resp.message("Error processing request.")
-  
+
   return str(resp)
 
 

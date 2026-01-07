@@ -6,6 +6,18 @@
     <p>Join to save your preferences and prayer requests.</p>
 </div>
 
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="card">
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}" style="color: {% if category == 'error' %}red{% else %}green{% endif %}; margin-bottom: 10px;">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
 <div class="card">
     <h2>Sign Up</h2>
     <form action="/register" method="POST"
@@ -25,6 +37,14 @@
             <input type="password" id="password" name="password" required
                 style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
         </div>
+        <div>
+            <label for="confirm_password" style="display: block; margin-bottom: 5px;">Confirm Password</label>
+            <input type="password" id="confirm_password" name="confirm_password" required
+                style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+        </div>
+        <p style="font-size: 0.8em; color: #666; margin-top: 5px; margin-bottom: 15px;">
+            Password must be at least 8 characters long, contain at least one capital letter, and one number or symbol.
+        </p>
         <button type="submit" class="button"
             style="background-color: #333; color: white; border: none; padding: 10px; font-size: 1em; cursor: pointer;">Sign
             Up</button>
