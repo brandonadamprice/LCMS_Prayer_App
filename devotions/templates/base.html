@@ -143,6 +143,9 @@
               <a href="/evening_devotion" class="menu-sub-link">Evening</a>
               <a href="/close_of_day_devotion" class="menu-sub-link">Close of Day</a>
               <a href="/night_watch_devotion" class="menu-sub-link">Night Watch</a>
+              {% if current_user.is_authenticated %}
+              <a href="/reminders" class="menu-sub-link">Prayer Reminders</a>
+              {% endif %}
             </div>
 
             <button class="menu-accordion">Seasonal Devotions</button>
