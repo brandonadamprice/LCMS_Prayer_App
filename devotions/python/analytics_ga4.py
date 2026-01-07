@@ -76,9 +76,11 @@ def fetch_traffic_stats(property_id):
       daily_data.append({
           "date": formatted_date,
           "day_name": row.dimension_values[1].value,
-          "users": row.metric_values[0].value,
-          "views": row.metric_values[1].value,
+          "users": int(row.metric_values[0].value),
+          "views": int(row.metric_values[1].value),
       })
+
+    logger.info(f"Fetched {len(daily_data)} daily traffic rows.")
 
     # 2. Top Pages (Last 30 days)
     page_request = RunReportRequest(
@@ -95,8 +97,10 @@ def fetch_traffic_stats(property_id):
       top_pages.append({
           "title": row.dimension_values[0].value,
           "path": row.dimension_values[1].value,
-          "views": row.metric_values[0].value,
+          "views": int(row.metric_values[0].value),
       })
+
+    logger.info(f"Fetched {len(top_pages)} top pages.")
 
     # 3. Realtime (Last 30 minutes)
     realtime_request = RunRealtimeReportRequest(
@@ -133,7 +137,7 @@ def fetch_traffic_stats(property_id):
         order_bys=[{"dimension": {"dimension_name": "hour"}}],
     )
     hourly_response = client.run_report(hourly_request)
-    
+
     # Initialize 0-23 hours with 0
     hourly_counts = [0] * 24
     for row in hourly_response.rows:
