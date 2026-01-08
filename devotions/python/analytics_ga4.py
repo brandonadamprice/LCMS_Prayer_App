@@ -58,41 +58,51 @@ def fetch_traffic_stats(property_id):
     client = BetaAnalyticsDataClient()
 
     # 1. Daily Trend (Last 30 days)
-    # Using 'totalUsers' instead of 'activeUsers' to reduce thresholding on low-traffic sites.
-    # We enable keep_empty_rows to ensure we get a full timeline even if some days have 0 traffic.
+    # Reverting to 'activeUsers' per request.
+    # We pre-fill the last 30 days with zeros to ensure the chart always renders
+    # even if the API returns no rows or partial data.
     request = RunReportRequest(
         property=f"properties/{property_id}",
         dimensions=[Dimension(name="date")],
-        metrics=[Metric(name="totalUsers"), Metric(name="screenPageViews")],
+        metrics=[Metric(name="activeUsers"), Metric(name="screenPageViews")],
         date_ranges=[DateRange(start_date="30daysAgo", end_date="today")],
         order_bys=[{"dimension": {"dimension_name": "date"}}],
         keep_empty_rows=True,
     )
     response = client.run_report(request)
 
-    daily_data = []
     import datetime
-
+    
+    # Create a map of date_str (YYYYMMDD) -> data
+    api_data_map = {}
     for row in response.rows:
-      # Date format YYYYMMDD
-      date_str = row.dimension_values[0].value
-      formatted_date = f"{date_str[4:6]}-{date_str[6:8]}"  # MM-DD
+        date_str = row.dimension_values[0].value
+        api_data_map[date_str] = {
+            "users": int(row.metric_values[0].value),
+            "views": int(row.metric_values[1].value)
+        }
 
-      # Calculate day name in Python
-      try:
-        dt = datetime.date(
-            int(date_str[:4]), int(date_str[4:6]), int(date_str[6:8])
-        )
-        day_name = dt.strftime("%A")
-      except ValueError:
-        day_name = ""
+    # Generate last 30 days including today
+    daily_data = []
+    today = datetime.date.today()
+    # We go back 30 days. 
+    # Note: '30daysAgo' in GA4 usually implies start date. 
+    # range(30) covers 0 to 29 days ago.
+    for i in range(29, -1, -1):
+        d = today - datetime.timedelta(days=i)
+        date_key = d.strftime("%Y%m%d")
+        
+        day_data = api_data_map.get(date_key, {"users": 0, "views": 0})
+        
+        formatted_date = d.strftime("%m-%d")
+        day_name = d.strftime("%A")
 
-      daily_data.append({
-          "date": formatted_date,
-          "day_name": day_name,
-          "users": int(row.metric_values[0].value),
-          "views": int(row.metric_values[1].value),
-      })
+        daily_data.append({
+            "date": formatted_date,
+            "day_name": day_name,
+            "users": day_data["users"],
+            "views": day_data["views"],
+        })
 
     logger.info(f"Fetched {len(daily_data)} daily traffic rows.")
 
@@ -127,11 +137,10 @@ def fetch_traffic_stats(property_id):
       realtime_users = realtime_response.rows[0].metric_values[0].value
 
     # 4. User Retention (New vs Returning) - Last 30 Days
-    # Using 'totalUsers' to reduce thresholding
     retention_request = RunReportRequest(
         property=f"properties/{property_id}",
         dimensions=[Dimension(name="newVsReturning")],
-        metrics=[Metric(name="totalUsers")],
+        metrics=[Metric(name="activeUsers")],
         date_ranges=[DateRange(start_date="30daysAgo", end_date="today")],
     )
     retention_response = client.run_report(retention_request)
@@ -144,11 +153,10 @@ def fetch_traffic_stats(property_id):
         retention_data["returning"] = int(row.metric_values[0].value)
 
     # 5. Time of Day (Hourly) - Last 30 Days
-    # Using 'totalUsers' to reduce thresholding
     hourly_request = RunReportRequest(
         property=f"properties/{property_id}",
         dimensions=[Dimension(name="hour")],
-        metrics=[Metric(name="totalUsers")],
+        metrics=[Metric(name="activeUsers")],
         date_ranges=[DateRange(start_date="30daysAgo", end_date="today")],
         order_bys=[{"dimension": {"dimension_name": "hour"}}],
         keep_empty_rows=True,

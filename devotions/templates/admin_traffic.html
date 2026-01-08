@@ -87,20 +87,12 @@
     <div class="card" style="flex: 1; min-width: 300px;">
         <h2>User Retention (Last 30 Days)</h2>
         <div style="max-width: 300px; margin: 0 auto;">
-            {% if retention_data and (retention_data.new > 0 or retention_data.returning > 0) %}
             <canvas id="retention-chart"></canvas>
-            {% else %}
-            <p style="text-align: center; padding: 40px; color: #7f8c8d;">No retention data available yet.</p>
-            {% endif %}
         </div>
     </div>
     <div class="card" style="flex: 1; min-width: 300px;">
         <h2>Time of Day (Last 30 Days)</h2>
-        {% if hourly_data and hourly_data|sum > 0 %}
         <canvas id="hourly-chart"></canvas>
-        {% else %}
-        <p style="text-align: center; padding: 40px; color: #7f8c8d;">No hourly data available yet.</p>
-        {% endif %}
     </div>
 </div>
 
@@ -149,7 +141,7 @@
                     labels: labels,
                     datasets: [
                         {
-                            label: 'Total Users', 
+                            label: 'Active Users', 
                             data: users,
                             borderColor: '#2980b9',
                             backgroundColor: 'rgba(41, 128, 185, 0.2)',
@@ -188,63 +180,65 @@
         }
     }
 
-    if (retentionData && (retentionData.new > 0 || retentionData.returning > 0)) {
-        const ctxRetEl = document.getElementById('retention-chart');
-        if (ctxRetEl) {
-            const ctxRet = ctxRetEl.getContext('2d');
-            new Chart(ctxRet, {
-                type: 'pie',
-                data: {
-                    labels: ['New Users', 'Returning Users'],
-                    datasets: [{
-                        data: [retentionData.new || 0, retentionData.returning || 0],
-                        backgroundColor: ['#27ae60', '#2980b9'],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    plugins: {
-                        legend: { labels: { color: textColor } }
-                    }
+    // Retention Chart
+    const ctxRetEl = document.getElementById('retention-chart');
+    if (ctxRetEl) {
+        const ctxRet = ctxRetEl.getContext('2d');
+        // If data is all zero, the chart might just show empty, which is better than "No data" text if API returns valid 0s.
+        const newData = retentionData ? retentionData.new || 0 : 0;
+        const returningData = retentionData ? retentionData.returning || 0 : 0;
+        
+        new Chart(ctxRet, {
+            type: 'pie',
+            data: {
+                labels: ['New Users', 'Returning Users'],
+                datasets: [{
+                    data: [newData, returningData],
+                    backgroundColor: ['#27ae60', '#2980b9'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: { labels: { color: textColor } }
                 }
-            });
-        }
+            }
+        });
     }
 
-    if (hourlyData && hourlyData.reduce((a, b) => a + b, 0) > 0) {
-        const ctxHrEl = document.getElementById('hourly-chart');
-        if (ctxHrEl) {
-            const ctxHr = ctxHrEl.getContext('2d');
-            const hourLabels = Array.from({length: 24}, (_, i) => i + ":00");
-            new Chart(ctxHr, {
-                type: 'bar',
-                data: {
-                    labels: hourLabels,
-                    datasets: [{
-                        label: 'Users by Time of Day',
-                        data: hourlyData,
-                        backgroundColor: '#f1c40f',
-                        borderRadius: 4
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: { color: textColor },
-                            grid: { color: gridColor }
-                        },
-                        x: {
-                            ticks: { color: textColor },
-                            grid: { display: false }
-                        }
+    // Hourly Chart
+    const ctxHrEl = document.getElementById('hourly-chart');
+    if (ctxHrEl) {
+        const ctxHr = ctxHrEl.getContext('2d');
+        const hourLabels = Array.from({length: 24}, (_, i) => i + ":00");
+        new Chart(ctxHr, {
+            type: 'bar',
+            data: {
+                labels: hourLabels,
+                datasets: [{
+                    label: 'Users by Time of Day',
+                    data: hourlyData,
+                    backgroundColor: '#f1c40f',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { color: textColor },
+                        grid: { color: gridColor }
                     },
-                    plugins: {
-                        legend: { display: false }
+                    x: {
+                        ticks: { color: textColor },
+                        grid: { display: false }
                     }
+                },
+                plugins: {
+                    legend: { display: false }
                 }
-            });
-        }
+            }
+        });
     }
 </script>
 {% endif %}
