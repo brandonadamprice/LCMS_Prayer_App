@@ -2,7 +2,7 @@
 {% import "_macros.html" as macros %}
 {% block title %}Midday Devotion{% endblock %}
 {% block content %}
-    <div class="page-header">
+    <div class="page-header" style="background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('{{ url_for('static', filename='banner_midday.jpg') }}');">
       <h1>Midday Devotion</h1>
       <p>
         {{ date_str }}<br />
