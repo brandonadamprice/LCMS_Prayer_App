@@ -71,30 +71,7 @@
 </div>
 {% else %}
 
-<div class="card">
-    <h2>Traffic Overview (Last 30 Days)</h2>
-    {% if daily_traffic and daily_traffic|length > 0 %}
-    <canvas id="traffic-chart" style="max-height: 400px;"></canvas>
-    {% else %}
-    <p style="text-align: center; padding: 40px; color: #7f8c8d;">
-        No trend data available yet.<br>
-        <span style="font-size: 0.8em;">Note: Standard reports may take 24-48 hours to process data.</span>
-    </p>
-    {% endif %}
-</div>
 
-<div style="display: flex; gap: 20px; flex-wrap: wrap;">
-    <div class="card" style="flex: 1; min-width: 300px;">
-        <h2>User Retention (Last 30 Days)</h2>
-        <div style="max-width: 300px; margin: 0 auto;">
-            <canvas id="retention-chart"></canvas>
-        </div>
-    </div>
-    <div class="card" style="flex: 1; min-width: 300px;">
-        <h2>Time of Day (Last 30 Days)</h2>
-        <canvas id="hourly-chart"></canvas>
-    </div>
-</div>
 
 <div class="card">
     <h2>Top Pages (Last 30 Days)</h2>
@@ -118,134 +95,20 @@
     </table>
 </div>
 
-<script>
-    const trafficData = {{ daily_traffic|tojson }};
-    const retentionData = {{ retention_data|tojson }};
-    const hourlyData = {{ hourly_data|tojson }};
-    
-    const isDarkMode = document.body.classList.contains('dark-mode');
-    const textColor = isDarkMode ? '#ccc' : '#4a4a4a';
-    const gridColor = isDarkMode ? '#555' : '#eee';
 
-    if (trafficData && trafficData.length > 0) {
-        const ctxEl = document.getElementById('traffic-chart');
-        if (ctxEl) {
-            const ctx = ctxEl.getContext('2d');
-            const labels = trafficData.map(d => d.date);
-            const users = trafficData.map(d => d.users); 
-            const views = trafficData.map(d => d.views);
-
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: 'Active Users', 
-                            data: users,
-                            borderColor: '#2980b9',
-                            backgroundColor: 'rgba(41, 128, 185, 0.2)',
-                            tension: 0.3,
-                            fill: true
-                        },
-                        {
-                            label: 'Page Views',
-                            data: views,
-                            borderColor: '#27ae60',
-                            backgroundColor: 'rgba(39, 174, 96, 0.1)',
-                            tension: 0.3,
-                            borderDash: [5, 5]
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    interaction: { mode: 'index', intersect: false },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: { color: textColor },
-                            grid: { color: gridColor }
-                        },
-                        x: {
-                            ticks: { color: textColor },
-                            grid: { color: gridColor }
-                        }
-                    },
-                    plugins: {
-                        legend: { labels: { color: textColor } }
-                    }
-                }
-            });
-        }
-    }
-
-    // Retention Chart
-    const ctxRetEl = document.getElementById('retention-chart');
-    if (ctxRetEl) {
-        const ctxRet = ctxRetEl.getContext('2d');
-        // If data is all zero, the chart might just show empty, which is better than "No data" text if API returns valid 0s.
-        const newData = retentionData ? retentionData.new || 0 : 0;
-        const returningData = retentionData ? retentionData.returning || 0 : 0;
-        
-        new Chart(ctxRet, {
-            type: 'pie',
-            data: {
-                labels: ['New Users', 'Returning Users'],
-                datasets: [{
-                    data: [newData, returningData],
-                    backgroundColor: ['#27ae60', '#2980b9'],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                plugins: {
-                    legend: { labels: { color: textColor } }
-                }
-            }
-        });
-    }
-
-    // Hourly Chart
-    const ctxHrEl = document.getElementById('hourly-chart');
-    if (ctxHrEl) {
-        const ctxHr = ctxHrEl.getContext('2d');
-        const hourLabels = Array.from({length: 24}, (_, i) => i + ":00");
-        new Chart(ctxHr, {
-            type: 'bar',
-            data: {
-                labels: hourLabels,
-                datasets: [{
-                    label: 'Users by Time of Day',
-                    data: hourlyData,
-                    backgroundColor: '#f1c40f',
-                    borderRadius: 4
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: { color: textColor },
-                        grid: { color: gridColor }
-                    },
-                    x: {
-                        ticks: { color: textColor },
-                        grid: { display: false }
-                    }
-                },
-                plugins: {
-                    legend: { display: false }
-                }
-            }
-        });
-    }
-</script>
 {% endif %}
 
 <div class="card">
     <p style="text-align: center;">
         <a href="https://analytics.google.com/" target="_blank" class="button">Open Full GA4 Dashboard</a>
     </p>
+</div>
+
+<div class="card">
+    <h2>Configuration Info</h2>
+    <p style="font-size: 0.9em; color: #666;">If charts are unexpectedly empty, ensure this Service Account is added to your GA4 Property.</p>
+    <div style="background: #f8f9fa; padding: 10px; border-radius: 4px; font-family: monospace; font-size: 0.9em; overflow-x: auto;">
+        <strong>Service Account:</strong> {{ service_email }}
+    </div>
 </div>
 {% endblock %}
