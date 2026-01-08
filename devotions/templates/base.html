@@ -336,7 +336,7 @@
               actionsContainer.appendChild(remindBtn);
           }
 
-          pageHeader.parentNode.insertBefore(actionsContainer, pageHeader.nextSibling);
+          pageHeader.appendChild(actionsContainer);
       }
 
       document.addEventListener('DOMContentLoaded', injectActionButtons);
