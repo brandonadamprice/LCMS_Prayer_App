@@ -58,24 +58,36 @@ def fetch_traffic_stats(property_id):
     client = BetaAnalyticsDataClient()
 
     # 1. Daily Trend (Last 30 days)
+    # Reverted to 'activeUsers' per user request.
+    # We enable keep_empty_rows to ensure we get a full timeline even if some days have 0 traffic.
     request = RunReportRequest(
         property=f"properties/{property_id}",
-        dimensions=[Dimension(name="date"), Dimension(name="dayOfWeekName")],
+        dimensions=[Dimension(name="date")],
         metrics=[Metric(name="activeUsers"), Metric(name="screenPageViews")],
         date_ranges=[DateRange(start_date="30daysAgo", end_date="today")],
         order_bys=[{"dimension": {"dimension_name": "date"}}],
+        keep_empty_rows=True,
     )
     response = client.run_report(request)
 
     daily_data = []
+    import datetime
+    
     for row in response.rows:
       # Date format YYYYMMDD
       date_str = row.dimension_values[0].value
       formatted_date = f"{date_str[4:6]}-{date_str[6:8]}"  # MM-DD
+      
+      # Calculate day name in Python
+      try:
+          dt = datetime.date(int(date_str[:4]), int(date_str[4:6]), int(date_str[6:8]))
+          day_name = dt.strftime("%A")
+      except ValueError:
+          day_name = ""
 
       daily_data.append({
           "date": formatted_date,
-          "day_name": row.dimension_values[1].value,
+          "day_name": day_name,
           "users": int(row.metric_values[0].value),
           "views": int(row.metric_values[1].value),
       })

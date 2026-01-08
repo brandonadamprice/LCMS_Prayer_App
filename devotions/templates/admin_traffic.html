@@ -140,7 +140,7 @@
         if (ctxEl) {
             const ctx = ctxEl.getContext('2d');
             const labels = trafficData.map(d => d.date);
-            const users = trafficData.map(d => d.users);
+            const users = trafficData.map(d => d.users); 
             const views = trafficData.map(d => d.views);
 
             new Chart(ctx, {
@@ -149,7 +149,7 @@
                     labels: labels,
                     datasets: [
                         {
-                            label: 'Active Users',
+                            label: 'Active Users', 
                             data: users,
                             borderColor: '#2980b9',
                             backgroundColor: 'rgba(41, 128, 185, 0.2)',
