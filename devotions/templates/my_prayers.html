@@ -6,6 +6,7 @@
       <p>Manage your personal prayer intentions here. These prayers will appear on daily devotion pages when the prayer topic matches. This content is only visible to you.</p>
     </div>
 
+    {% if current_user.is_authenticated %}
     <div class="card">
       <h2>Add New Prayer</h2>
       <form action="/add_personal_prayer" method="post">
@@ -83,6 +84,15 @@
         </div>
       {% endif %}
     {% endfor %}
+    {% else %}
+    <div class="card" style="text-align: center;">
+      <h2>Start Your Prayer Journey</h2>
+      <p>Log in to create and manage your personal prayer list. Your prayers will be securely stored and integrated into your daily devotions.</p>
+      <div style="text-align: center; margin-top: 20px;">
+          <a href="/login" class="button">Log In / Sign Up</a>
+      </div>
+    </div>
+    {% endif %}
 
 {% endblock %}
 

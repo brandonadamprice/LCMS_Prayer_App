@@ -1268,22 +1268,23 @@ def toggle_favorite_route():
 
 
 @app.route("/my_prayers")
-@flask_login.login_required
 def my_prayers_route():
   """Displays page for managing personal prayers."""
   categories = sorted([d["topic"] for d in utils.WEEKLY_PRAYERS.values()])
   prayers_by_cat = {cat: [] for cat in categories}
-  try:
-    raw_prayers = utils.fetch_personal_prayers(flask_login.current_user.id)
-    for prayer in raw_prayers:
-      if prayer.get("category") in prayers_by_cat:
-        prayer["text"] = utils.decrypt_text(prayer["text"])
-        if prayer.get("for_whom"):
-          prayer["for_whom"] = utils.decrypt_text(prayer["for_whom"])
-        prayers_by_cat[prayer["category"]].append(prayer)
-  except Exception as e:
-    app.logger.error("Failed to fetch personal prayers: %s", e)
-    flask.flash("Could not load personal prayers.", "error")
+
+  if flask_login.current_user.is_authenticated:
+    try:
+      raw_prayers = utils.fetch_personal_prayers(flask_login.current_user.id)
+      for prayer in raw_prayers:
+        if prayer.get("category") in prayers_by_cat:
+          prayer["text"] = utils.decrypt_text(prayer["text"])
+          if prayer.get("for_whom"):
+            prayer["for_whom"] = utils.decrypt_text(prayer["for_whom"])
+          prayers_by_cat[prayer["category"]].append(prayer)
+    except Exception as e:
+      app.logger.error("Failed to fetch personal prayers: %s", e)
+      flask.flash("Could not load personal prayers.", "error")
 
   return flask.render_template(
       "my_prayers.html", prayers_by_cat=prayers_by_cat, categories=categories
