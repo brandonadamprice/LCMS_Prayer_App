@@ -1528,3 +1528,62 @@ body.dark-mode .page-menu-item {
 body.dark-mode .page-menu-item:hover {
     background-color: #555;
 }
+
+/* Header Action Buttons */
+.header-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+    width: 100%;
+}
+
+.action-pill {
+    border: none;
+    border-radius: 20px !important;
+    padding: 8px 20px !important;
+    font-size: 0.9em !important;
+    font-weight: 600 !important;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    text-transform: none !important;
+    font-family: 'Montserrat', sans-serif;
+    line-height: 1;
+    margin: 0 !important;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important;
+}
+
+.action-pill:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3) !important;
+}
+
+.btn-favorite {
+    background-color: rgba(60, 60, 60, 0.6) !important;
+    color: #e0e0e0 !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    backdrop-filter: blur(4px);
+}
+
+.btn-favorite.active {
+    background-color: rgba(255, 215, 0, 0.2) !important;
+    color: #ffd700 !important;
+    border-color: #ffd700 !important;
+}
+
+.btn-favorite span {
+    font-size: 1.2em;
+}
+
+.btn-reminder {
+    background-color: #3498db !important; /* Blue */
+    color: white !important;
+}
+
+/* Hide original menu logic styles if needed, or keep for potential reuse */
+.page-menu-container {
+    display: none; /* Hiding the old kebab menu container */
+}

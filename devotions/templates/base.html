@@ -266,71 +266,57 @@
           '/bible_in_a_year': 'bible_in_a_year'
       };
 
-      function injectPageMenu() {
+      function injectActionButtons() {
           if (!isLoggedIn) return;
           
-          const headerH1 = document.querySelector('.page-header h1');
-          if (!headerH1) return;
+          const pageHeader = document.querySelector('.page-header');
+          if (!pageHeader) return;
 
           const currentPath = window.location.pathname;
           // Blocklist similar to before
-          if (currentPath === '/' || currentPath === '/login' || currentPath === '/logout') return;
+          if (currentPath === '/' || currentPath === '/login' || currentPath === '/logout' || currentPath === '/settings') return;
 
           const devotionKey = PATH_TO_DEVOTION_KEY[currentPath];
           
-          // Container
-          const container = document.createElement('div');
-          container.className = 'page-menu-container';
+          // Container for buttons
+          const actionsContainer = document.createElement('div');
+          actionsContainer.className = 'header-actions';
           
-          // Button
-          const btn = document.createElement('button');
-          btn.className = 'page-menu-btn';
-          btn.innerHTML = '&#8942;'; // Vertical ellipsis
-          btn.title = 'Options';
-          btn.onclick = (e) => {
-              e.stopPropagation();
-              const dropdown = container.querySelector('.page-menu-dropdown');
-              // Close others
-              document.querySelectorAll('.page-menu-dropdown').forEach(d => {
-                  if (d !== dropdown) d.classList.remove('show');
-              });
-              dropdown.classList.toggle('show');
-          };
-
-          // Dropdown
-          const dropdown = document.createElement('div');
-          dropdown.className = 'page-menu-dropdown';
-
-          // 1. Favorite Option
+          // 1. Favorite Button
           let isFav = {% if current_user.is_authenticated %}{{ current_user.favorites|tojson }}{% else %}[]{% endif %}.some(f => f.path === currentPath);
-          const favItem = document.createElement('div');
-          favItem.className = 'page-menu-item';
           
-          function updateFavText(favState) {
-              favItem.innerHTML = favState ? '&#9733; Remove from Favorites' : '&#9734; Add to Favorites';
+          const favBtn = document.createElement('button');
+          favBtn.className = 'action-pill btn-favorite';
+          if (isFav) favBtn.classList.add('active');
+          
+          function updateFavUI(favState) {
+              const icon = favState ? '&#9733;' : '&#9734;'; // filled vs empty star
+              const text = 'Favorite';
+              favBtn.innerHTML = `<span>${icon}</span> ${text}`;
+              if (favState) favBtn.classList.add('active');
+              else favBtn.classList.remove('active');
           }
-          updateFavText(isFav);
+          updateFavUI(isFav);
           
-          let pageTitle = document.title.replace("Prayer & Scripture Companion", "").trim();
-          if (!pageTitle) pageTitle = headerH1.textContent;
-          const titleToSave = headerH1.textContent.trim();
+          // Get title from H1 inside header
+          const headerH1 = pageHeader.querySelector('h1');
+          let titleToSave = document.title;
+          if (headerH1) titleToSave = headerH1.textContent.trim();
 
-          favItem.onclick = () => {
+          favBtn.onclick = () => {
               toggleFavorite(currentPath, titleToSave, (newFavState) => {
                   isFav = newFavState;
-                  updateFavText(isFav);
-                  // Reload strictly to update global menu/favorites list if desired, but local toggle is better UX
-                  // window.location.reload(); 
+                  updateFavUI(isFav);
               });
           };
-          dropdown.appendChild(favItem);
+          actionsContainer.appendChild(favBtn);
 
-          // 2. Reminder Option (Only if mapped)
+          // 2. Reminder Button (Only if mapped)
           if (devotionKey) {
-              const remindItem = document.createElement('div');
-              remindItem.className = 'page-menu-item';
-              remindItem.innerHTML = '&#9200; Set Reminder';
-              remindItem.onclick = () => {
+              const remindBtn = document.createElement('button');
+              remindBtn.className = 'action-pill btn-reminder';
+              remindBtn.innerHTML = 'Set Reminders';
+              remindBtn.onclick = () => {
                   const now = new Date();
                   let minutes = now.getMinutes();
                   
@@ -347,20 +333,13 @@
                   
                   window.location.href = `/reminders?time=${timeStr}&devotion=${devotionKey}`;
               };
-              dropdown.appendChild(remindItem);
+              actionsContainer.appendChild(remindBtn);
           }
 
-          container.appendChild(btn);
-          container.appendChild(dropdown);
-          headerH1.appendChild(container);
-
-          // Close dropdown when clicking outside
-          window.addEventListener('click', () => {
-              dropdown.classList.remove('show');
-          });
+          pageHeader.appendChild(actionsContainer);
       }
 
-      document.addEventListener('DOMContentLoaded', injectPageMenu);
+      document.addEventListener('DOMContentLoaded', injectActionButtons);
 
       function toggleCard(header) {
         const card = header.parentElement;
