@@ -1061,17 +1061,27 @@ body.dark-mode #advent-popup {
     position: relative;
     overflow: hidden;
     z-index: 0;
-    background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url("banner.jpg");
+    color: white; /* for text readability */
+}
+
+.page-header::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), var(--bg-image, url("banner.jpg"));
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    color: white; /* for text readability */
+    transform: scale(1.15);
 }
 
 body.dark-mode .page-header {
     background-color: #33333380; /* Match dark body transparent */
     border: 1px solid #555555;
-    background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url("banner.jpg");
 }
 
 #favorite-icon {
