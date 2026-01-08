@@ -1454,3 +1454,77 @@ body.dark-mode .calendar-day.other-month {
 body.dark-mode .calendar-day.today {
     border-color: #64b5f6;
 }
+
+/* Page Menu (Replacing Favorite Star) */
+.page-menu-container {
+    display: inline-block;
+    position: relative;
+    margin-left: 10px;
+}
+
+.page-menu-btn {
+    background: none;
+    border: none;
+    color: white; /* Matches header text */
+    font-size: 1.2em;
+    cursor: pointer;
+    padding: 0 5px;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+
+.page-menu-btn:hover {
+    opacity: 1;
+}
+
+.page-menu-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background-color: white;
+    min-width: 180px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    z-index: 1005;
+    border-radius: 4px;
+    text-align: left;
+    color: #333;
+}
+
+.page-menu-dropdown.show {
+    display: block;
+}
+
+.page-menu-item {
+    padding: 10px 15px;
+    cursor: pointer;
+    display: block;
+    text-decoration: none;
+    color: #333;
+    font-size: 0.9em;
+    border-bottom: 1px solid #eee;
+}
+
+.page-menu-item:hover {
+    background-color: #f1f1f1;
+    color: #2980b9;
+}
+
+.page-menu-item:last-child {
+    border-bottom: none;
+}
+
+body.dark-mode .page-menu-dropdown {
+    background-color: #444;
+    color: #eee;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+}
+
+body.dark-mode .page-menu-item {
+    color: #eee;
+    border-bottom-color: #555;
+}
+
+body.dark-mode .page-menu-item:hover {
+    background-color: #555;
+}

@@ -224,6 +224,23 @@ async function forceReminders() {
   document.addEventListener('DOMContentLoaded', () => {
       initFirebase();
       loadReminders();
+
+      // Auto-populate from URL params
+      const urlParams = new URLSearchParams(window.location.search);
+      const timeParam = urlParams.get('time');
+      const devotionParam = urlParams.get('devotion');
+      
+      if (timeParam) {
+          const timeInput = document.getElementById('time');
+          if (timeInput) timeInput.value = timeParam;
+      }
+      
+      if (devotionParam) {
+          const devotionSelect = document.getElementById('devotion');
+          if (devotionSelect) {
+              devotionSelect.value = devotionParam;
+          }
+      }
   });
 </script>
 <script>

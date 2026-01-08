@@ -233,13 +233,11 @@
     {% block body_scripts %}{% endblock %}
     <script>
       // Favorites handling
-      async function toggleFavorite(path, title) {
+      async function toggleFavorite(path, title, callback) {
           if (!isLoggedIn) {
               alert("Please log in to favorite pages.");
               return;
           }
-          const icon = document.getElementById('favorite-icon');
-          if (!icon) return;
           
           try {
               const response = await fetch('/toggle_favorite', {
@@ -249,15 +247,7 @@
               });
               const data = await response.json();
               if (data.success) {
-                  if (data.is_favorite) {
-                      icon.classList.add('active');
-                      icon.innerHTML = '★'; // Solid star
-                  } else {
-                      icon.classList.remove('active');
-                      icon.innerHTML = '☆'; // Outline star
-                  }
-                  // Optionally reload to update menu/home, but that disrupts user.
-                  // Just UI update is fine.
+                  if (callback) callback(data.is_favorite);
               } else {
                   console.error('Toggle favorite failed:', data.error);
               }
@@ -266,41 +256,111 @@
           }
       }
 
-      function injectFavoriteButton() {
+      // Devotion path mapping
+      const PATH_TO_DEVOTION_KEY = {
+          '/morning_devotion': 'morning',
+          '/midday_devotion': 'midday',
+          '/evening_devotion': 'evening',
+          '/close_of_day_devotion': 'close_of_day',
+          '/night_watch_devotion': 'night_watch',
+          '/bible_in_a_year': 'bible_in_a_year'
+      };
+
+      function injectPageMenu() {
           if (!isLoggedIn) return;
           
           const headerH1 = document.querySelector('.page-header h1');
-          if (headerH1) {
-              const currentPath = window.location.pathname;
-              // Ignore home, feedback, etc if desired, but user said 'devotions'. 
-              // We can just enable for all non-root pages for simplicity or allow user to favorite anything.
-              if (currentPath === '/' || currentPath === '/login' || currentPath === '/logout') return;
+          if (!headerH1) return;
 
-              const isFav = {% if current_user.is_authenticated %}{{ current_user.favorites|tojson }}{% else %}[]{% endif %}.some(f => f.path === currentPath);
-              
-              const starSpan = document.createElement('span');
-              starSpan.id = 'favorite-icon';
-              starSpan.style.cursor = 'pointer';
-              starSpan.style.marginLeft = '10px';
-              starSpan.style.color = '#f1c40f';
-              starSpan.style.fontSize = '0.8em'; // relative to H1
-              starSpan.title = 'Toggle Favorite';
-              starSpan.innerHTML = isFav ? '★' : '☆';
-              if (isFav) starSpan.classList.add('active');
-              
-              // Use page title, strip newlines/extra spaces
-              let pageTitle = document.title.replace("Prayer & Scripture Companion", "").trim();
-              if (!pageTitle) pageTitle = headerH1.textContent; 
-              // Sometimes document.title has the app name appended or prepended.
-              // Let's use h1 text as default title if reasonable.
-              const titleToSave = headerH1.textContent.trim();
+          const currentPath = window.location.pathname;
+          // Blocklist similar to before
+          if (currentPath === '/' || currentPath === '/login' || currentPath === '/logout') return;
 
-              starSpan.onclick = () => toggleFavorite(currentPath, titleToSave);
-              headerH1.appendChild(starSpan);
+          const devotionKey = PATH_TO_DEVOTION_KEY[currentPath];
+          
+          // Container
+          const container = document.createElement('div');
+          container.className = 'page-menu-container';
+          
+          // Button
+          const btn = document.createElement('button');
+          btn.className = 'page-menu-btn';
+          btn.innerHTML = '&#8942;'; // Vertical ellipsis
+          btn.title = 'Options';
+          btn.onclick = (e) => {
+              e.stopPropagation();
+              const dropdown = container.querySelector('.page-menu-dropdown');
+              // Close others
+              document.querySelectorAll('.page-menu-dropdown').forEach(d => {
+                  if (d !== dropdown) d.classList.remove('show');
+              });
+              dropdown.classList.toggle('show');
+          };
+
+          // Dropdown
+          const dropdown = document.createElement('div');
+          dropdown.className = 'page-menu-dropdown';
+
+          // 1. Favorite Option
+          let isFav = {% if current_user.is_authenticated %}{{ current_user.favorites|tojson }}{% else %}[]{% endif %}.some(f => f.path === currentPath);
+          const favItem = document.createElement('div');
+          favItem.className = 'page-menu-item';
+          
+          function updateFavText(favState) {
+              favItem.innerHTML = favState ? '&#9733; Remove from Favorites' : '&#9734; Add to Favorites';
           }
+          updateFavText(isFav);
+          
+          let pageTitle = document.title.replace("Prayer & Scripture Companion", "").trim();
+          if (!pageTitle) pageTitle = headerH1.textContent;
+          const titleToSave = headerH1.textContent.trim();
+
+          favItem.onclick = () => {
+              toggleFavorite(currentPath, titleToSave, (newFavState) => {
+                  isFav = newFavState;
+                  updateFavText(isFav);
+                  // Reload strictly to update global menu/favorites list if desired, but local toggle is better UX
+                  // window.location.reload(); 
+              });
+          };
+          dropdown.appendChild(favItem);
+
+          // 2. Reminder Option (Only if mapped)
+          if (devotionKey) {
+              const remindItem = document.createElement('div');
+              remindItem.className = 'page-menu-item';
+              remindItem.innerHTML = '&#9200; Set Reminder';
+              remindItem.onclick = () => {
+                  const now = new Date();
+                  let minutes = now.getMinutes();
+                  
+                  // Rounding logic: nearest 15
+                  let roundedMinutes = Math.round(minutes / 15) * 15;
+                  
+                  const d = new Date(now);
+                  d.setMinutes(roundedMinutes);
+                  d.setSeconds(0);
+                  
+                  const h = String(d.getHours()).padStart(2, '0');
+                  const m = String(d.getMinutes()).padStart(2, '0');
+                  const timeStr = `${h}:${m}`;
+                  
+                  window.location.href = `/reminders?time=${timeStr}&devotion=${devotionKey}`;
+              };
+              dropdown.appendChild(remindItem);
+          }
+
+          container.appendChild(btn);
+          container.appendChild(dropdown);
+          headerH1.appendChild(container);
+
+          // Close dropdown when clicking outside
+          window.addEventListener('click', () => {
+              dropdown.classList.remove('show');
+          });
       }
 
-      document.addEventListener('DOMContentLoaded', injectFavoriteButton);
+      document.addEventListener('DOMContentLoaded', injectPageMenu);
 
       function toggleCard(header) {
         const card = header.parentElement;
