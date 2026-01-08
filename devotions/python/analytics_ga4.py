@@ -58,12 +58,12 @@ def fetch_traffic_stats(property_id):
     client = BetaAnalyticsDataClient()
 
     # 1. Daily Trend (Last 30 days)
-    # Reverted to 'activeUsers' per user request.
+    # Using 'totalUsers' instead of 'activeUsers' to reduce thresholding on low-traffic sites.
     # We enable keep_empty_rows to ensure we get a full timeline even if some days have 0 traffic.
     request = RunReportRequest(
         property=f"properties/{property_id}",
         dimensions=[Dimension(name="date")],
-        metrics=[Metric(name="activeUsers"), Metric(name="screenPageViews")],
+        metrics=[Metric(name="totalUsers"), Metric(name="screenPageViews")],
         date_ranges=[DateRange(start_date="30daysAgo", end_date="today")],
         order_bys=[{"dimension": {"dimension_name": "date"}}],
         keep_empty_rows=True,
@@ -72,18 +72,20 @@ def fetch_traffic_stats(property_id):
 
     daily_data = []
     import datetime
-    
+
     for row in response.rows:
       # Date format YYYYMMDD
       date_str = row.dimension_values[0].value
       formatted_date = f"{date_str[4:6]}-{date_str[6:8]}"  # MM-DD
-      
+
       # Calculate day name in Python
       try:
-          dt = datetime.date(int(date_str[:4]), int(date_str[4:6]), int(date_str[6:8]))
-          day_name = dt.strftime("%A")
+        dt = datetime.date(
+            int(date_str[:4]), int(date_str[4:6]), int(date_str[6:8])
+        )
+        day_name = dt.strftime("%A")
       except ValueError:
-          day_name = ""
+        day_name = ""
 
       daily_data.append({
           "date": formatted_date,
@@ -125,10 +127,11 @@ def fetch_traffic_stats(property_id):
       realtime_users = realtime_response.rows[0].metric_values[0].value
 
     # 4. User Retention (New vs Returning) - Last 30 Days
+    # Using 'totalUsers' to reduce thresholding
     retention_request = RunReportRequest(
         property=f"properties/{property_id}",
         dimensions=[Dimension(name="newVsReturning")],
-        metrics=[Metric(name="activeUsers")],
+        metrics=[Metric(name="totalUsers")],
         date_ranges=[DateRange(start_date="30daysAgo", end_date="today")],
     )
     retention_response = client.run_report(retention_request)
@@ -141,12 +144,14 @@ def fetch_traffic_stats(property_id):
         retention_data["returning"] = int(row.metric_values[0].value)
 
     # 5. Time of Day (Hourly) - Last 30 Days
+    # Using 'totalUsers' to reduce thresholding
     hourly_request = RunReportRequest(
         property=f"properties/{property_id}",
         dimensions=[Dimension(name="hour")],
-        metrics=[Metric(name="activeUsers")],
+        metrics=[Metric(name="totalUsers")],
         date_ranges=[DateRange(start_date="30daysAgo", end_date="today")],
         order_bys=[{"dimension": {"dimension_name": "hour"}}],
+        keep_empty_rows=True,
     )
     hourly_response = client.run_report(hourly_request)
 
