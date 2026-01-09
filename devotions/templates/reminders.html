@@ -149,7 +149,6 @@ async function forceReminders() {
 
         let html = '<ul style="list-style: none; padding: 0;">';
         reminders.forEach(r => {
-            const methods = r.methods.join(', ');
             let details = r.devotion_name;
             if (r.reading_type === 'lectionary') {
                 details += ' (Daily Lectionary)';
@@ -160,8 +159,7 @@ async function forceReminders() {
             html += `
                 <li style="border-bottom: 1px solid #eee; padding: 10px 0; display: flex; justify-content: space-between; align-items: center;">
                     <div>
-                        <strong>${r.time}</strong> - ${details}<br>
-                        <span style="font-size: 0.9em; color: #666;">Via: ${methods}</span>
+                        <strong>${r.time}</strong> - ${details}
                     </div>
                     <button class="button" style="background-color: #e74c3c; padding: 5px 10px; font-size: 0.8em;" onclick="deleteReminder('${r.id}')">Delete</button>
                 </li>

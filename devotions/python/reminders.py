@@ -153,7 +153,8 @@ def delete_reminder(user_id, reminder_id):
 
 def _process_reminder_notification(reminder_data, user_data, reminder_id=None):
   """Helper to process and send a single reminder notification."""
-  methods = reminder_data.get("methods", [])
+  # Always check all methods; actual sending depends on user preferences.
+  methods = ["push", "email", "sms"]
   devotion_key = reminder_data.get("devotion")
 
   # Lenten Season Check
