@@ -24,9 +24,12 @@
         {{ macros.format_prayer(config['OTHER_PRAYERS']['lords_prayer']) }}
     {% endcall %}
 
-    {% call macros.card('Reading') %}
-        <span class="ref">{{ reading_ref }}</span>
-        {{ reading_html|safe }}
+    {% call macros.card('Readings') %}
+        <span class="ref">Old Testament: {{ ot_ref }}</span>
+        <p>{{ ot_text|safe }}</p>
+        <hr />
+        <span class="ref">New Testament: {{ nt_ref }}</span>
+        <p>{{ nt_text|safe }}</p>
     {% endcall %}
 
     {% call macros.card('Meditation') %}

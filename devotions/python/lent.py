@@ -44,15 +44,18 @@ def generate_lent_devotion():
     # Fallback to the first one or a generic one if data is missing
     devotion_data = lent_devotions[0] if lent_devotions else {}
 
-  scripture_ref = devotion_data.get("scripture_ref", "Joel 2:12-19")
+  ot_ref = devotion_data.get("OT_ref", "Joel 2:12-19")
+  nt_ref = devotion_data.get("NT_ref", "Matthew 6:16-21")
+
   try:
-    reading_texts = utils.fetch_passages([scripture_ref])
-    reading_text = reading_texts[0]
+    reading_texts = utils.fetch_passages([ot_ref, nt_ref])
+    ot_text = reading_texts[0]
+    nt_text = reading_texts[1]
   except Exception as e:
     print(f"Error fetching passage: {e}")
-    reading_text = "Reading text not available."
+    ot_text = "Reading text not available."
+    nt_text = "Reading text not available."
 
-  reading_html = f"<p>{reading_text}</p>"
   meditation_html = (
       f'<p>{devotion_data.get("meditation", "Meditation not available.")}</p>'
   )
@@ -61,8 +64,10 @@ def generate_lent_devotion():
   template_data = {
       "date_str": now.strftime("%A, %B %d, %Y"),
       "devotion_title": devotion_data.get("title", "Lenten Devotion"),
-      "reading_ref": scripture_ref,
-      "reading_html": reading_html,
+      "ot_ref": ot_ref,
+      "ot_text": ot_text,
+      "nt_ref": nt_ref,
+      "nt_text": nt_text,
       "meditation_html": meditation_html,
       "prayer_html": prayer_html,
   }
