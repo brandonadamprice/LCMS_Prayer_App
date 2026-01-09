@@ -21,6 +21,7 @@ import flask
 import flask_login
 from google.cloud import firestore
 import gospels_by_category
+import lent
 import liturgical_calendar
 import memory
 import mid_week
@@ -188,8 +189,13 @@ def inject_globals():
   is_new_year = (now.month == 12 and now.day == 31) or (
       now.month == 1 and now.day == 1
   )
+  
+  cy = utils.ChurchYear(now.year)
+  ash_wednesday = cy.ash_wednesday
+  easter_sunday = cy.easter_date
+  is_lent = ash_wednesday <= now.date() <= easter_sunday
 
-  return dict(is_advent=is_advent, is_new_year=is_new_year)
+  return dict(is_advent=is_advent, is_new_year=is_new_year, is_lent=is_lent)
 
 
 def validate_password(password):
@@ -914,6 +920,12 @@ def mid_week_devotion_route():
 def advent_devotion_route():
   """Returns the generated devotion HTML."""
   return advent.generate_advent_devotion()
+
+
+@app.route("/lent_devotion")
+def lent_devotion_route():
+  """Returns the generated devotion HTML."""
+  return lent.generate_lent_devotion()
 
 
 @app.route("/new_year_devotion")

@@ -67,6 +67,9 @@
             {% if is_new_year %}
             <a href="/new_year_devotion">New Year's</a>
             {% endif %}
+            {% if is_lent %}
+            <a href="/lent_devotion">Lenten</a>
+            {% endif %}
             <a href="/childrens_devotion">Children's</a>
             <a href="/litany">The Litany</a>
             <a href="/extended_evening_devotion">Extended Evening</a>
@@ -156,6 +159,11 @@
                <a href="/new_year_devotion" class="menu-sub-link">New Year's Devotion</a>
                {% else %}
                <span class="menu-sub-link disabled">New Year's (Seasonal)</span>
+               {% endif %}
+               {% if is_lent %}
+               <a href="/lent_devotion" class="menu-sub-link">Lenten Devotion</a>
+               {% else %}
+               <span class="menu-sub-link disabled">Lenten (Seasonal)</span>
                {% endif %}
             </div>
 

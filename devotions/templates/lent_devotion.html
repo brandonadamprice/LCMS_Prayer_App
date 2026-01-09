@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% import "_macros.html" as macros %}
+{% block title %}Lenten Devotion{% endblock %}
+{% block content %}
+    <div class="page-header" style="--bg-image: url('{{ url_for('static', filename='banner_lent.jpg') }}');">
+      <h1>Lenten Devotion</h1>
+      <h2>{{ devotion_title|safe }}</h2>
+      <p>{{ date_str }}</p>
+    </div>
+
+    {% call macros.card('Invocation') %}
+        <p>
+          <span class="rubric"
+            >The sign of the cross may be made by all in remembrance of their Baptism.</span
+          >
+        </p>
+        <p>
+          In the name of the Father and of the † Son and of the Holy Spirit.<br />
+          <strong>Amen.</strong>
+        </p>
+    {% endcall %}
+
+    {% call macros.card('Prayer') %}
+        {{ macros.format_prayer(config['OTHER_PRAYERS']['lords_prayer']) }}
+    {% endcall %}
+
+    {% call macros.card('Reading') %}
+        <span class="ref">{{ reading_ref }}</span>
+        {{ reading_html|safe }}
+    {% endcall %}
+
+    {% call macros.card('Meditation') %}
+        {{ meditation_html|safe }}
+    {% endcall %}
+
+    {% call macros.card('Prayers') %}
+        <p class="subheader"><strong>Prayer of the Day</strong></p>
+        {{ prayer_html|safe }}
+        <p class="subheader"><strong>Closing Prayer</strong></p>
+        <p>
+          O God, who desires not the death of a sinner, but rather that he should turn from his way
+          and live, graciously accept the repentance of Your people, and grant them Your
+          forgiveness; through Jesus Christ, our Lord. <strong>Amen.</strong>
+        </p>
+    {% endcall %}
+{% endblock %}
