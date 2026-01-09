@@ -1,8 +1,8 @@
-{% extends "base.html" %}
+{% extends parent_template|default("base.html") %}
 {% import "_macros.html" as macros %}
 {% block title %}Midday Devotion{% endblock %}
 {% block content %}
-    <div class="page-header" style="--bg-image: url('{{ url_for('static', filename='banner_midday.jpg') }}');">
+    <div class="page-header" style="--bg-image: url('{{ url_for('static', filename='banner_midday.jpg', _external=True) }}');">
       <h1>Midday Devotion</h1>
       <p>
         {{ date_str }}<br />

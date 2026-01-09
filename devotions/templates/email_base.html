@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{{ page_title|default("Devotion") }}</title>
+    <style>
+        body {
+            font-family: 'Georgia', serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f9f8f4;
+            margin: 0;
+            padding: 20px;
+        }
+        h1, h2 {
+            color: #2c3e50;
+            font-family: sans-serif;
+            margin-bottom: 10px;
+        }
+        h1 {
+            border-bottom: 2px solid #2980b9;
+            padding-bottom: 10px;
+        }
+        h2 {
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: #2980b9;
+            border-bottom: 1px solid #eee;
+        }
+        .page-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .page-header h1 {
+            border: none;
+            margin: 0;
+            color: #2c3e50;
+        }
+        .page-header p {
+            color: #7f8c8d;
+            font-style: italic;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .card-header h2 {
+            margin-top: 0;
+            border-bottom: none;
+        }
+        .toggle-icon {
+            display: none; /* No folding in emails */
+        }
+        .ref {
+            font-weight: bold;
+            color: #7f8c8d;
+            display: block;
+            margin-bottom: 5px;
+            font-family: sans-serif;
+            font-size: 0.9em;
+        }
+        .rubric {
+            color: #a52a2a;
+            font-style: italic;
+            font-size: 0.9em;
+        }
+        .subheader {
+            font-weight: bold;
+            border-bottom: 1px solid #eee;
+            margin-top: 15px;
+            margin-bottom: 5px;
+        }
+        .versicle-ref {
+            font-size: 0.8em;
+            color: #7f8c8d;
+            display: block;
+            text-align: right;
+        }
+        /* Hide UI elements not needed for email */
+        .picker-toggle-button, .item-picker, .button, #btn-toggle-lectionary, #office-picker-btn {
+            display: none !important;
+        }
+        a {
+            color: #2980b9;
+            text-decoration: none;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 0.8em;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    {% block content %}{% endblock %}
+
+    <div class="footer">
+        <p>Sent by A Simple Way to Pray</p>
+        <p>
+            {% if devotion_url %}
+            <a href="{{ devotion_url }}">View in Browser</a> | 
+            {% endif %}
+            <a href="https://www.asimplewaytopray.com">Visit Website</a>
+        </p>
+    </div>
+</body>
+</html>

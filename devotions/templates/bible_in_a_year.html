@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends parent_template|default("base.html") %}
 {% import "_macros.html" as macros %}
 
 {% block title %}Bible in a Year{% endblock %}
@@ -7,7 +7,7 @@
     <div class="page-header">
       <h1>Bible in a Year</h1>
       <h2>A 365-Day reading plan featuring a mix of Old Testament, New Testament, and Psalms & Proverbs.</h2>
-      <p>Readings for Day <span id="day-display">1</span> of 365</p>
+      <p>Readings for Day <span id="day-display">{{ day_number|default(1) }}</span> of 365</p>
       <div>
         <button class="button" onclick="changeDay(-1)">Prev Day</button>
         <label for="day-select">Jump to Day:</label>
@@ -21,18 +21,18 @@
     </div>
 
     {% call macros.card('Old Testament') %}
-        <span class="ref" id="ot-ref"></span>
-        <p id="ot-text"><em>Loading...</em></p>
+        <span class="ref" id="ot-ref">{{ ot_ref }}</span>
+        <p id="ot-text">{% if ot_text %}{{ ot_text|safe }}{% else %}<em>Loading...</em>{% endif %}</p>
     {% endcall %}
 
     {% call macros.card('New Testament') %}
-        <span class="ref" id="nt-ref"></span>
-        <p id="nt-text"><em>Loading...</em></p>
+        <span class="ref" id="nt-ref">{{ nt_ref }}</span>
+        <p id="nt-text">{% if nt_text %}{{ nt_text|safe }}{% else %}<em>Loading...</em>{% endif %}</p>
     {% endcall %}
 
     {% call macros.card('Psalms & Proverbs') %}
-        <span class="ref" id="psp-ref"></span>
-        <p id="psp-text"><em>Loading...</em></p>
+        <span class="ref" id="psp-ref">{{ psp_ref }}</span>
+        <p id="psp-text">{% if psp_text %}{{ psp_text|safe }}{% else %}<em>Loading...</em>{% endif %}</p>
     {% endcall %}
 
 {% endblock %}
