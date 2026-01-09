@@ -60,7 +60,9 @@ def calculate_next_run(time_str, timezone_str):
   return candidate.astimezone(pytz.UTC)
 
 
-def add_reminder(user_id, time_str, devotion, methods, timezone):
+def add_reminder(
+    user_id, time_str, devotion, methods, timezone, reading_type=None
+):
   """Adds a new reminder for a user."""
   if not user_id or not time_str or not devotion or not methods:
     return False, "Missing required fields."
@@ -88,6 +90,7 @@ def add_reminder(user_id, time_str, devotion, methods, timezone):
       "devotion": devotion,
       "methods": methods,
       "timezone": timezone,
+      "reading_type": reading_type,
       "created_at": datetime.datetime.now(datetime.timezone.utc),
       "next_run_utc": next_run_utc,
   }
@@ -160,6 +163,10 @@ def _process_reminder_notification(reminder_data, user_data, reminder_id=None):
   base_url = "https://www.asimplewaytopray.com"
   devotion_path = DEVOTION_URLS.get(devotion_key, "/")
   full_url = f"{base_url}{devotion_path}"
+
+  reading_type = reminder_data.get("reading_type")
+  if reading_type == "lectionary":
+    full_url += "?reading_type=lectionary"
 
   flask.current_app.logger.info(
       f"[REMINDER] Processing reminder {reminder_id} for devotion"

@@ -114,6 +114,13 @@
 {% block extra_js %}
     let isLectionaryMode = false;
 
+    document.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('reading_type') === 'lectionary') {
+            toggleLectionaryReadings();
+        }
+    });
+
     function toggleLectionaryReadings() {
        const btn = document.getElementById('btn-toggle-lectionary');
        const officeContainer = document.getElementById('office-reading-container');
