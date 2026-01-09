@@ -26,6 +26,7 @@ DEVOTION_NAMES = {
     "close_of_day": "Close of the Day",
     "night_watch": "Night Watch",
     "bible_in_a_year": "Bible in a Year",
+    "lent": "Lenten Devotion",
 }
 
 DEVOTION_URLS = {
@@ -35,6 +36,7 @@ DEVOTION_URLS = {
     "close_of_day": "/close_of_day_devotion",
     "night_watch": "/night_watch_devotion",
     "bible_in_a_year": "/bible_in_a_year",
+    "lent": "/lent_devotion",
 }
 
 
@@ -141,6 +143,19 @@ def _process_reminder_notification(reminder_data, user_data, reminder_id=None):
   """Helper to process and send a single reminder notification."""
   methods = reminder_data.get("methods", [])
   devotion_key = reminder_data.get("devotion")
+
+  # Lenten Season Check
+  if devotion_key == "lent":
+    eastern_timezone = pytz.timezone("America/New_York")
+    now = datetime.datetime.now(eastern_timezone)
+    cy = utils.ChurchYear(now.year)
+    # Check if within Lent (Ash Wednesday to Easter Sunday inclusive)
+    if not (cy.ash_wednesday <= now.date() <= cy.easter_date):
+      flask.current_app.logger.info(
+          f"[REMINDER] Skipping Lenten reminder {reminder_id} as it is not"
+          " Lent."
+      )
+      return 0
 
   base_url = "https://www.asimplewaytopray.com"
   devotion_path = DEVOTION_URLS.get(devotion_key, "/")
