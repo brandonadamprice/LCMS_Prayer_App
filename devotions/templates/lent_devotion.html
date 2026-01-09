@@ -2,7 +2,7 @@
 {% import "_macros.html" as macros %}
 {% block title %}Lenten Devotion{% endblock %}
 {% block content %}
-    <div class="page-header" style="--bg-image: url('{{ url_for('static', filename='banner_lent.png') }}');">
+    <div class="page-header" style="--bg-image: url('{{ url_for('static', filename=banner_image) }}');">
       <h1>Lenten Devotion</h1>
       <h2>{{ devotion_title|safe }}</h2>
       <p>{{ date_str }}</p>

@@ -61,6 +61,12 @@ def generate_lent_devotion():
   )
   prayer_html = f'<p>{devotion_data.get("prayer", "Prayer not available.")}</p>'
 
+  banner_image = "banner_lent.png"
+  if day_offset == 44:  # Good Friday
+    banner_image = "banner_good_friday.png"
+  elif day_offset >= 45:  # Holy Saturday and Easter Sunday
+    banner_image = "banner_easter.png"
+
   template_data = {
       "date_str": now.strftime("%A, %B %d, %Y"),
       "devotion_title": devotion_data.get("title", "Lenten Devotion"),
@@ -70,6 +76,7 @@ def generate_lent_devotion():
       "nt_text": nt_text,
       "meditation_html": meditation_html,
       "prayer_html": prayer_html,
+      "banner_image": banner_image,
   }
 
   print("Generated Lent HTML")
