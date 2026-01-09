@@ -87,17 +87,41 @@ self.addEventListener('push', function(event) {
 
 self.addEventListener('notificationclick', function(event) {
   event.notification.close();
+  const urlToOpen = event.notification.data.url;
+
   event.waitUntil(
-    clients.matchAll({type: 'window'}).then( windowClients => {
-        for (var i = 0; i < windowClients.length; i++) {
-            var client = windowClients[i];
-            if (client.url === event.notification.data.url && 'focus' in client) {
-                return client.focus();
-            }
+    clients.matchAll({
+      type: 'window',
+      includeUncontrolled: true
+    }).then((windowClients) => {
+      let matchingClient = null;
+
+      // 1. Prioritize exact URL match
+      for (let i = 0; i < windowClients.length; i++) {
+        const client = windowClients[i];
+        if (client.url === urlToOpen) {
+          matchingClient = client;
+          break;
         }
+      }
+
+      // 2. If no exact match, grab the first available window
+      if (!matchingClient && windowClients.length > 0) {
+        matchingClient = windowClients[0];
+      }
+
+      if (matchingClient) {
+        if (matchingClient.url !== urlToOpen) {
+            return matchingClient.navigate(urlToOpen).then(client => client.focus());
+        } else {
+            return matchingClient.focus();
+        }
+      } else {
+        // 3. If no windows open, open a new one
         if (clients.openWindow) {
-            return clients.openWindow(event.notification.data.url);
+            return clients.openWindow(urlToOpen);
         }
+      }
     })
   );
 });
