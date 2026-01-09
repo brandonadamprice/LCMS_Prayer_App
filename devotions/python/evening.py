@@ -7,8 +7,8 @@ import pytz
 import utils
 
 
-def generate_evening_devotion():
-  """Generates HTML for the evening devotion for the current date."""
+def get_evening_devotion_data(user_id=None):
+  """Generates data for the evening devotion."""
   eastern_timezone = pytz.timezone("America/New_York")
   now = datetime.datetime.now(eastern_timezone)
   cy = utils.ChurchYear(now.year)
@@ -37,7 +37,7 @@ def generate_evening_devotion():
   lectionary_texts = all_texts[2:]
 
   concluding_prayer = utils.OTHER_PRAYERS["evening_prayers"]
-  all_personal_prayers = utils.get_all_personal_prayers_for_user()
+  all_personal_prayers = utils.get_all_personal_prayers_for_user(user_id)
 
   template_data = {
       "date_str": now.strftime("%A, %B %d, %Y"),
@@ -54,6 +54,11 @@ def generate_evening_devotion():
       "all_personal_prayers": all_personal_prayers,
   }
   template_data.update(catechism_data)
+  return template_data
 
+
+def generate_evening_devotion():
+  """Generates HTML for the evening devotion for the current date."""
+  template_data = get_evening_devotion_data()
   print("Generated Evening HTML")
   return flask.render_template("evening_devotion.html", **template_data)

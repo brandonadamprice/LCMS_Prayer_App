@@ -210,7 +210,7 @@ def get_catechism_for_day(
   }
 
 
-def get_weekly_prayer_for_day(now: datetime.datetime) -> dict:
+def get_weekly_prayer_for_day(now: datetime.datetime, user_id=None) -> dict:
   """Returns the weekly prayer topic and text for a given day."""
   weekday_idx = now.weekday()
   prayer_data = WEEKLY_PRAYERS.get(
@@ -218,8 +218,13 @@ def get_weekly_prayer_for_day(now: datetime.datetime) -> dict:
   )
   topic = prayer_data["topic"]
   personal_prayers_list = []
-  if flask_login.current_user.is_authenticated:
-    raw_prayers = fetch_personal_prayers(flask_login.current_user.id)
+
+  target_id = user_id
+  if target_id is None and flask_login.current_user.is_authenticated:
+      target_id = flask_login.current_user.id
+
+  if target_id:
+    raw_prayers = fetch_personal_prayers(target_id)
     for prayer in raw_prayers:
       if prayer.get("category") == topic:
         prayer["text"] = decrypt_text(prayer["text"])
@@ -688,11 +693,16 @@ def fetch_personal_prayers(user_id: str) -> list[dict]:
   return prayers
 
 
-def get_all_personal_prayers_for_user() -> dict:
+def get_all_personal_prayers_for_user(user_id=None) -> dict:
   """Fetches all personal prayers for user, grouped by category."""
   prayers_by_cat_with_prayers = {}
-  if flask_login.current_user.is_authenticated:
-    raw_prayers = fetch_personal_prayers(flask_login.current_user.id)
+  
+  target_id = user_id
+  if target_id is None and flask_login.current_user.is_authenticated:
+      target_id = flask_login.current_user.id
+
+  if target_id:
+    raw_prayers = fetch_personal_prayers(target_id)
     temp_prayers = {}  # category -> list
 
     for prayer in raw_prayers:

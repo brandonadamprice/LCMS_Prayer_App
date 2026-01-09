@@ -7,8 +7,8 @@ import pytz
 import utils
 
 
-def generate_morning_devotion():
-  """Generates HTML for the morning devotion for the current date."""
+def get_morning_devotion_data(user_id=None):
+  """Generates data for the morning devotion."""
   eastern_timezone = pytz.timezone("America/New_York")
   now = datetime.datetime.now(eastern_timezone)
   cy = utils.ChurchYear(now.year)
@@ -36,9 +36,9 @@ def generate_morning_devotion():
   lectionary_texts = all_texts[2:]
 
   concluding_prayer = utils.OTHER_PRAYERS["morning_prayers"]
-  all_personal_prayers = utils.get_all_personal_prayers_for_user()
+  all_personal_prayers = utils.get_all_personal_prayers_for_user(user_id)
 
-  template_data = {
+  return {
       "date_str": now.strftime("%A, %B %d, %Y"),
       "daily_lectionary_readings": daily_lectionary_readings,
       "lectionary_texts": lectionary_texts,
@@ -53,5 +53,10 @@ def generate_morning_devotion():
       "luthers_morning_prayer": utils.OTHER_PRAYERS["luthers_morning_prayer"],
       "all_personal_prayers": all_personal_prayers,
   }
+
+
+def generate_morning_devotion():
+  """Generates HTML for the morning devotion for the current date."""
+  template_data = get_morning_devotion_data()
   print("Generated Morning HTML")
   return flask.render_template("morning_devotion.html", **template_data)

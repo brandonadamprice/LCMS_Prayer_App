@@ -43,7 +43,7 @@
     </div>
 
     <p style="font-size: 0.9em; color: #7f8c8d; margin-bottom: 15px;">
-        Notification preferences (Push vs SMS) can be configured in your <a href="/settings">Settings</a>.
+        Notification preferences (Push, Email, SMS) can be configured in your <a href="/settings">Settings</a>.
     </p>
 
     <button type="submit" class="button">Set Reminder</button>
@@ -221,9 +221,9 @@ async function forceReminders() {
     // now also checks user preferences. We send 'push' as a requested method
     // to keep the API contract, and 'sms' if we want to support it implicitly 
     // based on settings, but the previous API expected a list of methods.
-    // Let's send both 'push' and 'sms' as requested methods, 
+    // Let's send 'push', 'email' and 'sms' as requested methods, 
     // and let the backend filter based on user preferences.
-    const methods = ['push', 'sms'];
+    const methods = ['push', 'email', 'sms'];
 
     const data = {
         time: formData.get('time'),

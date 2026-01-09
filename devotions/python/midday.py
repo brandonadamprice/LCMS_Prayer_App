@@ -7,8 +7,8 @@ import pytz
 import utils
 
 
-def generate_midday_devotion():
-  """Generates HTML for the midday devotion for the current date."""
+def get_midday_devotion_data(user_id=None):
+  """Generates data for the midday devotion."""
   eastern_timezone = pytz.timezone("America/New_York")
   now = datetime.datetime.now(eastern_timezone)
   cy = utils.ChurchYear(now.year)
@@ -36,9 +36,9 @@ def generate_midday_devotion():
   lectionary_texts = all_texts[2:]
 
   concluding_prayer = utils.OTHER_PRAYERS["midday_prayers"]
-  all_personal_prayers = utils.get_all_personal_prayers_for_user()
+  all_personal_prayers = utils.get_all_personal_prayers_for_user(user_id)
 
-  template_data = {
+  return {
       "date_str": now.strftime("%A, %B %d, %Y"),
       "daily_lectionary_readings": daily_lectionary_readings,
       "lectionary_texts": lectionary_texts,
@@ -52,5 +52,10 @@ def generate_midday_devotion():
       "concluding_prayer": concluding_prayer,
       "all_personal_prayers": all_personal_prayers,
   }
+
+
+def generate_midday_devotion():
+  """Generates HTML for the midday devotion for the current date."""
+  template_data = get_midday_devotion_data()
   print("Generated Midday HTML")
   return flask.render_template("midday_devotion.html", **template_data)

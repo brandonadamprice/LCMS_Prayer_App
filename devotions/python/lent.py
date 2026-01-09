@@ -16,8 +16,8 @@ def load_lent_devotions():
     return json.load(f)
 
 
-def generate_lent_devotion():
-  """Generates HTML for the Lenten devotion."""
+def get_lent_devotion_data():
+  """Generates data for the Lenten devotion."""
   eastern_timezone = pytz.timezone("America/New_York")
   now = datetime.datetime.now(eastern_timezone)
   today = now.date()
@@ -67,7 +67,7 @@ def generate_lent_devotion():
   elif day_offset >= 45:  # Holy Saturday and Easter Sunday
     banner_image = "banner_easter.png"
 
-  template_data = {
+  return {
       "date_str": now.strftime("%A, %B %d, %Y"),
       "devotion_title": devotion_data.get("title", "Lenten Devotion"),
       "ot_ref": ot_ref,
@@ -79,5 +79,9 @@ def generate_lent_devotion():
       "banner_image": banner_image,
   }
 
+
+def generate_lent_devotion():
+  """Generates HTML for the Lenten devotion."""
+  template_data = get_lent_devotion_data()
   print("Generated Lent HTML")
   return flask.render_template("lent_devotion.html", **template_data)
