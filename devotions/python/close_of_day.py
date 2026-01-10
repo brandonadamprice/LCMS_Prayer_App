@@ -1,7 +1,6 @@
 """Functions for generating the close of day devotion."""
 
 import datetime
-import random
 import flask
 import pytz
 import utils
@@ -14,9 +13,11 @@ def get_close_of_day_devotion_data(user_id=None):
   cy = utils.ChurchYear(now.year)
   key = cy.get_liturgical_key(now)
 
-  reading_ref = random.choice(utils.OFFICE_READINGS["close_of_day_readings"])
+  reading_ref = utils.get_deterministic_choice(
+      utils.OFFICE_READINGS["close_of_day_readings"], now
+  )
   psalm_options = utils.OFFICE_READINGS.get("close_of_day_psalms", [])
-  psalm_ref = random.choice(psalm_options)
+  psalm_ref = utils.get_deterministic_choice(psalm_options, now)
 
   # Daily Lectionary
   lectionary_data = utils.load_lectionary(utils.LECTIONARY_JSON_PATH)

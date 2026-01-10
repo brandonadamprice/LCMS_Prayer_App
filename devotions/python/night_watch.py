@@ -1,7 +1,6 @@
 """Functions for generating the Night Watch devotion."""
 
 import datetime
-import random
 import flask
 import pytz
 import utils
@@ -11,8 +10,12 @@ def get_night_watch_devotion_data(user_id=None):
   """Generates data for the Night Watch devotion."""
   eastern_timezone = pytz.timezone("America/New_York")
   now = datetime.datetime.now(eastern_timezone)
-  psalm_ref = random.choice(utils.OFFICE_READINGS["night_watch_psalms"])
-  reading_ref = random.choice(utils.OFFICE_READINGS["night_watch_readings"])
+  psalm_ref = utils.get_deterministic_choice(
+      utils.OFFICE_READINGS["night_watch_psalms"], now
+  )
+  reading_ref = utils.get_deterministic_choice(
+      utils.OFFICE_READINGS["night_watch_readings"], now
+  )
   # Daily Lectionary
   lectionary_data = utils.load_lectionary(utils.LECTIONARY_JSON_PATH)
   # Night Watch uses specific readings too, but user asked for "nightwatch devotional" too.

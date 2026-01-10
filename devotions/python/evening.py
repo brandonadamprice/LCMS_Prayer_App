@@ -1,7 +1,6 @@
 """Functions for generating the evening devotion."""
 
 import datetime
-import random
 import flask
 import pytz
 import utils
@@ -15,9 +14,11 @@ def get_evening_devotion_data(user_id=None):
   key = cy.get_liturgical_key(now)
   catechism_data = utils.get_catechism_for_day(now, rotation="daily")
 
-  reading_ref = random.choice(utils.OFFICE_READINGS["evening_readings"])
+  reading_ref = utils.get_deterministic_choice(
+      utils.OFFICE_READINGS["evening_readings"], now
+  )
   psalm_options = utils.OFFICE_READINGS.get("evening_psalms", [])
-  psalm_ref = random.choice(psalm_options)
+  psalm_ref = utils.get_deterministic_choice(psalm_options, now)
 
   # Daily Lectionary
   lectionary_data = utils.load_lectionary(utils.LECTIONARY_JSON_PATH)

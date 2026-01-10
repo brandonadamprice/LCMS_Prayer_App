@@ -5,12 +5,12 @@ import datetime
 import functools
 import json
 import os
-import random
 import re
 from typing import Optional
 
 import cryptography.fernet
 import flask_login
+import pytz
 from google.cloud import firestore
 import requests
 import secrets_fetcher as secrets
@@ -186,6 +186,15 @@ def decrypt_text(token: str) -> str:
     return "[Error decrypting prayer]"
 
 
+def get_deterministic_choice(options: list, date_obj: datetime.datetime) -> any:
+  """Selects an item from options deterministically based on the date."""
+  if not options:
+    return None
+  # Use day of year for deterministic rotation
+  day_of_year = date_obj.timetuple().tm_yday
+  return options[(day_of_year - 1) % len(options)]
+
+
 def get_catechism_for_day(
     now: datetime.datetime, rotation: str = "daily"
 ) -> dict:
@@ -200,7 +209,7 @@ def get_catechism_for_day(
 
   cat_idx = (item_of_year - 1) % len(CATECHISM_SECTIONS)
   catechism = CATECHISM_SECTIONS[cat_idx]
-  prayer = random.choice(catechism["prayers"])
+  prayer = get_deterministic_choice(catechism["prayers"], now)
   return {
       "catechism_enabled": True,
       "catechism_title": catechism["title"],
@@ -242,10 +251,13 @@ def get_weekly_prayer_for_day(now: datetime.datetime, user_id=None) -> dict:
 
 
 def generate_category_page_data(json_path: str) -> list[dict]:
-  """Loads category data from JSON, selects a random verse, and fetches text."""
+  """Loads category data from JSON, selects a deterministic verse, and fetches text."""
+  eastern_timezone = pytz.timezone("America/New_York")
+  now = datetime.datetime.now(eastern_timezone)
+
   with open(json_path, "r", encoding="utf-8") as f:
     categories = json.load(f)
-  refs = [random.choice(cat["verses"]) for cat in categories]
+  refs = [get_deterministic_choice(cat["verses"], now) for cat in categories]
   texts = fetch_passages(refs)
   category_data = []
   for i, cat in enumerate(categories):
