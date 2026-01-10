@@ -170,13 +170,13 @@ def _process_reminder_notification(reminder_data, user_data, reminder_id=None):
       )
       return 0
 
+  # Prepare URLs
   base_url = "https://www.asimplewaytopray.com"
-  devotion_path = DEVOTION_URLS.get(devotion_key, "/")
-  full_url = f"{base_url}{devotion_path}"
+  relative_path = DEVOTION_URLS.get(devotion_key, "/")
 
   reading_type = reminder_data.get("reading_type")
   if reading_type == "lectionary":
-    full_url += "?reading_type=lectionary"
+    relative_path += "?reading_type=lectionary"
 
   flask.current_app.logger.info(
       f"[REMINDER] Processing reminder {reminder_id} for devotion"
@@ -185,12 +185,18 @@ def _process_reminder_notification(reminder_data, user_data, reminder_id=None):
 
   success_count = 0
   for method in methods:
+    # Use relative URL for push (PWA scope), absolute for email/SMS
+    if method == "push":
+      url_to_use = relative_path
+    else:
+      url_to_use = f"{base_url}{relative_path}"
+
     try:
       flask.current_app.logger.info(
           f"[REMINDER] Sending {method} notification to user"
           f" {user_data.get('email', 'unknown')}"
       )
-      send_notification(method, reminder_data, user_data, full_url)
+      send_notification(method, reminder_data, user_data, url_to_use)
       success_count += 1
     except Exception as e:
       flask.current_app.logger.error(

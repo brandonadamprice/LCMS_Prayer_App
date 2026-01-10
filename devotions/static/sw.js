@@ -87,7 +87,10 @@ self.addEventListener('push', function(event) {
 
 self.addEventListener('notificationclick', function(event) {
   event.notification.close();
-  const urlToOpen = event.notification.data.url;
+  // Ensure the URL is absolute relative to the SW's origin to avoid "out of scope" issues (browser header)
+  // and to ensure reliable matching of existing windows.
+  const rawUrl = event.notification.data.url;
+  const urlToOpen = new URL(rawUrl, self.location.origin).href;
 
   event.waitUntil(
     clients.matchAll({
