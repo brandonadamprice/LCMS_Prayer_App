@@ -10,8 +10,8 @@ from typing import Optional
 
 import cryptography.fernet
 import flask_login
-import pytz
 from google.cloud import firestore
+import pytz
 import requests
 import secrets_fetcher as secrets
 
@@ -230,7 +230,7 @@ def get_weekly_prayer_for_day(now: datetime.datetime, user_id=None) -> dict:
 
   target_id = user_id
   if target_id is None and flask_login.current_user.is_authenticated:
-      target_id = flask_login.current_user.id
+    target_id = flask_login.current_user.id
 
   if target_id:
     raw_prayers = fetch_personal_prayers(target_id)
@@ -708,10 +708,10 @@ def fetch_personal_prayers(user_id: str) -> list[dict]:
 def get_all_personal_prayers_for_user(user_id=None) -> dict:
   """Fetches all personal prayers for user, grouped by category."""
   prayers_by_cat_with_prayers = {}
-  
+
   target_id = user_id
   if target_id is None and flask_login.current_user.is_authenticated:
-      target_id = flask_login.current_user.id
+    target_id = flask_login.current_user.id
 
   if target_id:
     raw_prayers = fetch_personal_prayers(target_id)

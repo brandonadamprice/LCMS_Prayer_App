@@ -1,7 +1,6 @@
 """Functions for generating the evening devotion."""
 
 import datetime
-import random
 import flask
 import pytz
 import utils
