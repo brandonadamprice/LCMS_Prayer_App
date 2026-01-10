@@ -3,7 +3,7 @@
   "name": "A Simple Way to Pray",
   "short_name": "Simple Prayer",
   "description": "Daily devotions, prayers, and scripture readings according to the LCMS tradition.",
-  "start_url": "/",
+  "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
   "background_color": "#f9f8f4",
