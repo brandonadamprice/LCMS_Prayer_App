@@ -14,6 +14,13 @@
       <input type="text" id="prayer-search" onkeyup="filterPrayers()" placeholder="Search situations..." style="width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box;">
     </div>
 
+    <!-- Easter Egg -->
+    <div id="packers-egg" style="display: none;">
+      {% call macros.card('A Prayer for the Packers', collapsed=False) %}
+        <p>O Lord, we bring before You our heavy hearts. We confess our pride when being up 21-3 at the half, and we lament the bitterness of losing 31-27 and being eliminated from the playoffs. Grant us the grace to endure this defeat and the patience to wait for next season. Amen.</p>
+      {% endcall %}
+    </div>
+
     <div id="prayer-cards">
     {% for item in situations %}
       {% call macros.card(item.situation, collapsed=True) %}
@@ -29,6 +36,14 @@ function filterPrayers() {
   const filter = input.value.toLowerCase();
   const prayerCardsDiv = document.getElementById('prayer-cards');
   const cards = prayerCardsDiv.getElementsByClassName('card');
+  const packersEgg = document.getElementById('packers-egg');
+
+  // Easter Egg Logic
+  if (filter === 'packers') {
+      if (packersEgg) packersEgg.style.display = 'block';
+  } else {
+      if (packersEgg) packersEgg.style.display = 'none';
+  }
 
   for (let i = 0; i < cards.length; i++) {
     const card = cards[i];
@@ -43,4 +58,21 @@ function filterPrayers() {
     }
   }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    if (window.location.hash === '#packers') {
+        const packersEgg = document.getElementById('packers-egg');
+        const input = document.getElementById('prayer-search');
+        if(packersEgg) {
+            packersEgg.style.display = 'block';
+            // Optionally set the search value so the user knows why it's there
+            // input.value = "Packers"; 
+            // Trigger filter to hide others?
+            // filterPrayers(); 
+            // Actually, if we just arrived, we might want to see the regular list too, 
+            // but focused on the egg.
+            packersEgg.scrollIntoView();
+        }
+    }
+});
 {% endblock %}
