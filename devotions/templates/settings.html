@@ -80,6 +80,18 @@
   <!-- Preferences -->
   <form id="notification-preferences-form">
       <h3 style="margin-top: 0;">Preferences</h3>
+      
+      <div style="margin-bottom: 15px;">
+          <label for="timezone-select"><strong>My Timezone:</strong></label>
+          <select id="timezone-select" name="timezone" class="form-input" style="margin-top: 5px;">
+              <option value="" disabled selected>Select Timezone</option>
+              {% for tz in timezones %}
+              <option value="{{ tz }}" {% if current_user.timezone == tz %}selected{% endif %}>{{ tz }}</option>
+              {% endfor %}
+          </select>
+          <p style="font-size: 0.9em; color: #7f8c8d;">Used for reminder scheduling. Defaults to your device time if not set.</p>
+      </div>
+
       <table style="width: 100%; text-align: left; border-collapse: collapse;">
           <thead>
               <tr>
@@ -408,7 +420,10 @@
               const response = await fetch('/settings/save_notification_preferences', {
                   method: 'POST',
                   headers: {'Content-Type': 'application/json'},
-                  body: JSON.stringify({preferences: preferences})
+                  body: JSON.stringify({
+                      preferences: preferences,
+                      timezone: document.getElementById('timezone-select').value
+                  })
               });
               const result = await response.json();
               if (result.success) {
@@ -426,6 +441,19 @@
   document.addEventListener('DOMContentLoaded', () => {
       initFirebase();
       updateToggleState();
+      
+      // Auto-select timezone if not set
+      const tzSelect = document.getElementById('timezone-select');
+      if (tzSelect && !tzSelect.value) {
+          const browserTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+          // Try to match exact value
+          for(let i=0; i<tzSelect.options.length; i++) {
+              if (tzSelect.options[i].value === browserTz) {
+                  tzSelect.selectedIndex = i;
+                  break;
+              }
+          }
+      }
   });
 </script>
 

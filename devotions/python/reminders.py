@@ -151,6 +151,32 @@ def delete_reminder(user_id, reminder_id):
   return True
 
 
+def update_user_reminders_timezone(user_id, new_timezone):
+  """Updates timezone for all reminders of a user and recalculates next_run_utc."""
+  flask.current_app.logger.info(
+      f"[REMINDER] Updating timezone to {new_timezone} for user {user_id}"
+  )
+  reminders = get_reminders(user_id)
+  db = utils.get_db_client()
+  
+  for r in reminders:
+      try:
+          next_run = calculate_next_run(r['time'], new_timezone)
+          ref = (
+              db.collection("users")
+              .document(user_id)
+              .collection(REMINDERS_COLLECTION)
+              .document(r['id'])
+          )
+          ref.update({
+              "timezone": new_timezone,
+              "next_run_utc": next_run
+          })
+      except Exception as e:
+          flask.current_app.logger.error(f"[REMINDER] Failed to update reminder {r.get('id')}: {e}")
+  return True
+
+
 def _process_reminder_notification(reminder_data, user_data, reminder_id=None):
   """Helper to process and send a single reminder notification."""
   # Always check all methods; actual sending depends on user preferences.

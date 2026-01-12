@@ -110,6 +110,7 @@ class User(flask_login.UserMixin):
       notification_preferences=None,
       password_hash=None,
       google_id=None,
+      timezone=None,
   ):
     self.id = user_id
     self.email = email
@@ -128,6 +129,7 @@ class User(flask_login.UserMixin):
     }
     self.password_hash = password_hash
     self.google_id = google_id
+    self.timezone = timezone
 
   @staticmethod
   def get(user_id):
@@ -152,6 +154,7 @@ class User(flask_login.UserMixin):
           notification_preferences=data.get("notification_preferences"),
           password_hash=data.get("password_hash"),
           google_id=data.get("google_id"),
+          timezone=data.get("timezone"),
       )
     return None
 
@@ -437,7 +440,9 @@ def login():
 @app.route("/settings")
 def settings_route():
   """Renders the dedicated settings page."""
-  return flask.render_template("settings.html")
+  return flask.render_template(
+      "settings.html", timezones=pytz.common_timezones
+  )
 
 
 @app.route("/settings/update_profile", methods=["POST"])
@@ -500,6 +505,7 @@ def save_notification_preferences():
   """Saves notification preferences."""
   data = flask.request.json
   preferences = data.get("preferences")
+  timezone = data.get("timezone")
 
   if not preferences:
     return flask.jsonify({"success": False, "error": "No data provided"}), 400
@@ -507,7 +513,15 @@ def save_notification_preferences():
   try:
     db = utils.get_db_client()
     user_ref = db.collection("users").document(flask_login.current_user.id)
-    user_ref.update({"notification_preferences": preferences})
+    updates = {"notification_preferences": preferences}
+    
+    if timezone:
+        updates["timezone"] = timezone
+        # If timezone changed, update all existing reminders
+        if timezone != flask_login.current_user.timezone:
+            reminders.update_user_reminders_timezone(flask_login.current_user.id, timezone)
+
+    user_ref.update(updates)
     return flask.jsonify({"success": True})
   except Exception as e:
     app.logger.error("Failed to save preferences: %s", e)
