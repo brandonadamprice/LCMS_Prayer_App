@@ -403,25 +403,11 @@ def index_route():
       now.month == 1 and now.day == 1
   )
 
-  # Fallback logic for suggested_devotion in case template is stale
-  hour = now.hour
-  suggested_devotion = {"name": "Morning Prayer", "url": "/morning_devotion"}
-  if 11 <= hour < 15:
-    suggested_devotion = {"name": "Midday Prayer", "url": "/midday_devotion"}
-  elif 15 <= hour < 20:
-    suggested_devotion = {"name": "Evening Prayer", "url": "/evening_devotion"}
-  elif hour >= 20 or hour < 5:
-    suggested_devotion = {
-        "name": "Close of the Day",
-        "url": "/close_of_day_devotion",
-    }
-
   return flask.render_template(
       "index.html",
       is_advent=is_advent,
       is_new_year=is_new_year,
       admin_user_id=app.config.get("ADMIN_USER_ID"),
-      suggested_devotion=suggested_devotion,
   )
 
 
