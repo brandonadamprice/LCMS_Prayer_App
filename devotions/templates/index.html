@@ -32,9 +32,32 @@
       <h2>Suggested for You</h2>
       <div style="text-align: center; padding: 20px 0;">
           <p style="font-size: 1.2em; margin-bottom: 15px; color: #555;">It's time for...</p>
-          <a href="{{ suggested_devotion.url }}" class="button" style="font-size: 1.2em; padding: 15px 30px; background-color: #2980b9;">{{ suggested_devotion.name }}</a>
+          <a id="suggested-devotion-btn" href="#" class="button" style="font-size: 1.2em; padding: 15px 30px; background-color: #2980b9;">Loading...</a>
       </div>
     </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+          const hour = new Date().getHours();
+          let suggestion = {};
+          
+          if (hour >= 5 && hour < 11) {
+              suggestion = {name: "Morning Prayer", url: "/morning_devotion"};
+          } else if (hour >= 11 && hour < 15) {
+              suggestion = {name: "Midday Prayer", url: "/midday_devotion"};
+          } else if (hour >= 15 && hour < 20) {
+              suggestion = {name: "Evening Prayer", url: "/evening_devotion"};
+          } else {
+              suggestion = {name: "Close of the Day", url: "/close_of_day_devotion"};
+          }
+          
+          const btn = document.getElementById('suggested-devotion-btn');
+          if (btn) {
+              btn.href = suggestion.url;
+              btn.textContent = suggestion.name;
+          }
+      });
+    </script>
 
     {% if is_advent or is_lent or is_new_year %}
     <div class="card">
