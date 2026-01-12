@@ -65,12 +65,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const input = document.getElementById('prayer-search');
         if(packersEgg) {
             packersEgg.style.display = 'block';
-            // Optionally set the search value so the user knows why it's there
-            // input.value = "Packers"; 
-            // Trigger filter to hide others?
-            // filterPrayers(); 
-            // Actually, if we just arrived, we might want to see the regular list too, 
-            // but focused on the egg.
+            // Set the search value so the user knows why it's there
+            input.value = "Packers"; 
+            // Trigger filter to hide others
+            filterPrayers(); 
             packersEgg.scrollIntoView();
         }
     }
