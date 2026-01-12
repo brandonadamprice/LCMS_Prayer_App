@@ -1,7 +1,7 @@
 {% extends "base.html" %} {% block title %}A Simple Way to Pray{% endblock %} {% block content %}
     <div class="page-header">
       <h1>A Simple Way to Pray</h1>
-      <p>Select an option below to begin.</p>
+      <p>Daily prayer, scripture, and devotion.</p>
       <p style="font-style: italic; margin-top: 10px;">"Never think that you are kneeling or standing alone, rather think that the whole of Christendom, all devout Christians, are standing there beside you and you are standing among them in a common, united petition which God cannot disdain." — Martin Luther</p>
     </div>
 
@@ -29,57 +29,44 @@
     {% endif %}
 
     <div class="card">
-      <div class="card-header-custom">
-        <h2 style="border-bottom: none; padding-bottom: 0; margin: 0;">Daily Prayer</h2>
-        {% if current_user.is_authenticated %}
-        <a href="/reminders" class="button" style="margin: 0; padding: 5px 10px; font-size: 0.8em; background-color: #2980b9;">Reminders</a>
-        {% endif %}
+      <h2>Suggested for You</h2>
+      <div style="text-align: center; padding: 20px 0;">
+          <p style="font-size: 1.2em; margin-bottom: 15px; color: #555;">It's time for...</p>
+          <a href="{{ suggested_devotion.url }}" class="button" style="font-size: 1.2em; padding: 15px 30px; background-color: #2980b9;">{{ suggested_devotion.name }}</a>
       </div>
-      <a href="/morning_devotion" class="button">Morning</a>
-      <a href="/midday_devotion" class="button">Midday</a>
-      <a href="/evening_devotion" class="button">Evening</a>
-      <a href="/close_of_day_devotion" class="button">Close of Day</a>
-      <a href="/night_watch_devotion" class="button">Night Watch</a>
     </div>
+
+    {% if is_advent or is_lent or is_new_year %}
     <div class="card">
-      <h2>Seasonal Devotions</h2>
-      <button onclick="location.href='/advent_devotion'" class="button" {% if not is_advent %}disabled{% endif %}>Advent Family Devotional</button>
-      <button onclick="location.href='/new_year_devotion'" class="button" {% if not is_new_year %}disabled{% endif %}>New Year's Devotion</button>
-      <button onclick="location.href='/lent_devotion'" class="button" {% if not is_lent %}disabled{% endif %}>Lenten Devotion</button>
+      <h2>Seasonal Devotion</h2>
+      <div style="text-align: center;">
+      {% if is_advent %}<a href="/advent_devotion" class="button">Advent Family Devotional</a>{% endif %}
+      {% if is_new_year %}<a href="/new_year_devotion" class="button">New Year's Devotion</a>{% endif %}
+      {% if is_lent %}<a href="/lent_devotion" class="button">Lenten Devotion</a>{% endif %}
+      </div>
     </div>
+    {% endif %}
+
     <div class="card">
-      <h2>Children's Devotions</h2>
-      <a href="/childrens_devotion" class="button">Children's Daily Devotion</a>
+        <h2>Daily Readings</h2>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+            <a href="/daily_lectionary" class="button" style="flex: 1; min-width: 200px;">Daily Lectionary</a>
+            <a href="/bible_in_a_year" class="button" style="flex: 1; min-width: 200px;">Bible in a Year</a>
+        </div>
     </div>
+
     <div class="card">
-      <h2>Other Devotions</h2>
-      <a href="/litany" class="button">The Litany</a>
-      <a href="/extended_evening_devotion" class="button">Extended Evening Devotion</a>
-      <a href="/mid_week_devotion" class="button">Mid-Week Devotion</a>
-      <a href="/short_prayers" class="button">Short Prayers</a>
+        <h2>Prayer Community</h2>
+        <p>Join others in prayer or submit your own request.</p>
+        <div style="text-align: center;">
+            <a href="/prayer_wall" class="button">Go to Prayer Wall</a>
+        </div>
     </div>
-    <div class="card">
-      <h2>Calendar</h2>
-      <a href="/liturgical_calendar" class="button">Liturgical Calendar</a>
-    </div>
-    <div class="card">
-      <h2>Bible Helps</h2>
-      <a href="/daily_lectionary" class="button">Daily Lectionary</a>
-      <a href="/psalms_by_category" class="button">Psalms</a>
-      <a href="/gospels_by_category" class="button">Gospels</a>
-      <a href="/bible_in_a_year" class="button">Bible in a Year</a>
-      <a href="/memory" class="button">Scripture Memorization</a>
-    </div>
-    <div class="card">
-      <h2>Prayer Requests</h2>
-      <a href="/prayer_requests" class="button">Submit a Prayer Request</a>
-      <a href="/prayer_wall" class="button">Pray for Someone</a>
-      <a href="/my_prayers" class="button">My Personal Prayers</a>
-    </div>
-    <div class="card">
-      <h2>Feedback</h2>
-      <a href="/feedback" class="button">Submit Feedback</a>
-    </div>
+
+    <p class="mobile-nav" style="text-align: center; margin-top: 30px; color: #7f8c8d;">
+        <em>Tap the menu (☰) above to access all devotions, calendar, and settings.</em>
+    </p>
+
     <div style="text-align: center; margin-top: 20px" id="github-link">
       <a
         href="https://github.com/brandonadamprice/LCMS_Prayer_App/tree/main/devotions"
