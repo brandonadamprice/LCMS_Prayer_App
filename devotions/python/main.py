@@ -192,7 +192,7 @@ def inject_globals():
   is_new_year = (now.month == 12 and now.day == 31) or (
       now.month == 1 and now.day == 1
   )
-  
+
   cy = utils.ChurchYear(now.year)
   ash_wednesday = cy.ash_wednesday
   easter_sunday = cy.easter_date
@@ -385,17 +385,43 @@ PRAYER_WALL_HTML_PATH = os.path.join(
 @app.route("/")
 def index_route():
   """Returns the homepage HTML."""
-  eastern_timezone = pytz.timezone("America/New_York")
-  now = datetime.datetime.now(eastern_timezone)
+  timezone_str = "America/New_York"
+  if (
+      flask_login.current_user.is_authenticated
+      and flask_login.current_user.timezone
+  ):
+    timezone_str = flask_login.current_user.timezone
+
+  try:
+    tz = pytz.timezone(timezone_str)
+  except pytz.UnknownTimeZoneError:
+    tz = pytz.timezone("America/New_York")
+
+  now = datetime.datetime.now(tz)
   is_advent = now.month == 12 and 1 <= now.day <= 25
   is_new_year = (now.month == 12 and now.day == 31) or (
       now.month == 1 and now.day == 1
   )
+
+  # Fallback logic for suggested_devotion in case template is stale
+  hour = now.hour
+  suggested_devotion = {"name": "Morning Prayer", "url": "/morning_devotion"}
+  if 11 <= hour < 15:
+    suggested_devotion = {"name": "Midday Prayer", "url": "/midday_devotion"}
+  elif 15 <= hour < 20:
+    suggested_devotion = {"name": "Evening Prayer", "url": "/evening_devotion"}
+  elif hour >= 20 or hour < 5:
+    suggested_devotion = {
+        "name": "Close of the Day",
+        "url": "/close_of_day_devotion",
+    }
+
   return flask.render_template(
       "index.html",
       is_advent=is_advent,
       is_new_year=is_new_year,
       admin_user_id=app.config.get("ADMIN_USER_ID"),
+      suggested_devotion=suggested_devotion,
   )
 
 
@@ -440,9 +466,7 @@ def login():
 @app.route("/settings")
 def settings_route():
   """Renders the dedicated settings page."""
-  return flask.render_template(
-      "settings.html", timezones=pytz.common_timezones
-  )
+  return flask.render_template("settings.html", timezones=pytz.common_timezones)
 
 
 @app.route("/settings/update_profile", methods=["POST"])
@@ -514,12 +538,14 @@ def save_notification_preferences():
     db = utils.get_db_client()
     user_ref = db.collection("users").document(flask_login.current_user.id)
     updates = {"notification_preferences": preferences}
-    
+
     if timezone:
-        updates["timezone"] = timezone
-        # If timezone changed, update all existing reminders
-        if timezone != flask_login.current_user.timezone:
-            reminders.update_user_reminders_timezone(flask_login.current_user.id, timezone)
+      updates["timezone"] = timezone
+      # If timezone changed, update all existing reminders
+      if timezone != flask_login.current_user.timezone:
+        reminders.update_user_reminders_timezone(
+            flask_login.current_user.id, timezone
+        )
 
     user_ref.update(updates)
     return flask.jsonify({"success": True})
@@ -735,9 +761,7 @@ def register():
       return flask.render_template("register.html")
 
   # Generate verification code
-  verification_code = "".join(
-      [str(secrets.randbelow(10)) for _ in range(6)]
-  )
+  verification_code = "".join([str(secrets.randbelow(10)) for _ in range(6)])
   hashed_password = generate_password_hash(password)
 
   # Store pending data in session
@@ -747,9 +771,7 @@ def register():
       "password_hash": hashed_password,
       "code": verification_code,
       "is_merge": bool(email_results),
-      "merge_user_id": (
-          email_results[0].id if email_results else None
-      ),
+      "merge_user_id": email_results[0].id if email_results else None,
   }
 
   send_verification_email(email, verification_code)
@@ -765,7 +787,9 @@ def register_verify():
     return flask.redirect("/register")
 
   if flask.request.method == "GET":
-    return flask.render_template("verify_email.html", email=pending_data["email"])
+    return flask.render_template(
+        "verify_email.html", email=pending_data["email"]
+    )
 
   code = flask.request.form.get("code", "").strip()
   if code == pending_data["code"]:
@@ -778,7 +802,7 @@ def register_verify():
       user_id = pending_data["merge_user_id"]
       users_ref.document(user_id).update({
           "password_hash": pending_data["password_hash"],
-          "name": pending_data["name"], 
+          "name": pending_data["name"],
       })
       user = User.get(user_id)
       flask.flash("Account verified and updated!", "success")
@@ -798,7 +822,9 @@ def register_verify():
     return flask.redirect("/")
   else:
     flask.flash("Invalid verification code. Please try again.", "error")
-    return flask.render_template("verify_email.html", email=pending_data["email"])
+    return flask.render_template(
+        "verify_email.html", email=pending_data["email"]
+    )
 
 
 @app.route("/login/email", methods=["POST"])
