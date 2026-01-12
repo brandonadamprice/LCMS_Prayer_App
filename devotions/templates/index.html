@@ -19,14 +19,20 @@
       }
     </style>
 
-    {% if current_user.is_authenticated and current_user.favorites %}
     <div class="card">
       <h2>Favorites</h2>
-      {% for fav in current_user.favorites %}
-        <a href="{{ fav.path }}" class="button">{{ fav.title }}</a>
-      {% endfor %}
+      {% if current_user.is_authenticated %}
+        {% if current_user.favorites %}
+          {% for fav in current_user.favorites %}
+            <a href="{{ fav.path }}" class="button">{{ fav.title }}</a>
+          {% endfor %}
+        {% else %}
+          <p>Click the favorite button in a devotion to add it to your favorites.</p>
+        {% endif %}
+      {% else %}
+        <p><a href="/login">Sign in</a> or <a href="/register">register</a> to add to your favorites.</p>
+      {% endif %}
     </div>
-    {% endif %}
 
     <div class="card">
       <h2>Suggested Devotions</h2>
