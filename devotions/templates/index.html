@@ -32,19 +32,6 @@
       <h2>Suggested Devotions</h2>
       <div id="suggested-devotions-container" style="text-align: center; padding: 10px 0; display: flex; flex-direction: column; gap: 15px; align-items: center;">
           <p style="font-size: 1.2em; margin-bottom: 5px;">It's time for...</p>
-          
-          <!-- JS will insert time-based devotions here -->
-          
-          <!-- Seasonal (Server-side rendered) -->
-          {% if is_advent %}
-            <a href="/advent_devotion" class="button" style="font-size: 1.2em; padding: 15px 30px; background-color: #8e44ad;">Advent Family Devotional</a>
-          {% endif %}
-          {% if is_new_year %}
-            <a href="/new_year_devotion" class="button" style="font-size: 1.2em; padding: 15px 30px;">New Year's Devotion</a>
-          {% endif %}
-          {% if is_lent %}
-            <a href="/lent_devotion" class="button" style="font-size: 1.2em; padding: 15px 30px; background-color: #8e44ad;">Lenten Devotion</a>
-          {% endif %}
       </div>
     </div>
 
@@ -54,6 +41,11 @@
           const hour = now.getHours();
           const day = now.getDay(); // 0 = Sunday, 3 = Wednesday
           const container = document.getElementById('suggested-devotions-container');
+
+          // Seasonal Flags (Server-side)
+          const isAdvent = {{ is_advent|tojson }};
+          const isNewYear = {{ is_new_year|tojson }};
+          const isLent = {{ is_lent|tojson }};
           
           // Helper to create button
           function createBtn(name, url, style="") {
@@ -64,20 +56,6 @@
               a.textContent = name;
               return a;
           }
-
-          // Insert helper: inserts before the seasonal buttons (which are already in DOM)
-          function insertBtn(btn) {
-              // Insert after the "It's time for..." paragraph
-              const p = container.querySelector('p');
-              if (p && p.nextSibling) {
-                  container.insertBefore(btn, p.nextSibling);
-              } else {
-                  container.appendChild(btn);
-              }
-          }
-
-          // Logic List to prepend in reverse order so they appear correctly
-          const buttonsToAdd = [];
 
           // 1. Primary Time-based Devotion
           let primary = {};
@@ -92,22 +70,42 @@
           } else {
               primary = {name: "Close of the Day", url: "/close_of_day_devotion"};
           }
-          buttonsToAdd.push(createBtn(primary.name, primary.url));
+          const primaryBtn = createBtn(primary.name, primary.url);
+          
+          // 2. Identify Secondary Buttons
+          const secondaryBtns = [];
 
-          // 2. Extended Evening (if Evening or Close of Day)
-          if (primary.name === "Evening Prayer" || primary.name === "Close of the Day") {
-               buttonsToAdd.push(createBtn("Extended Evening", "/extended_evening_devotion", "background-color: #34495e;"));
+          // Seasonal
+          if (isAdvent) {
+              secondaryBtns.push(createBtn("Advent Family Devotional", "/advent_devotion", "background-color: #8e44ad; font-size: 1em; padding: 10px 20px;"));
+          }
+          if (isNewYear) {
+              secondaryBtns.push(createBtn("New Year's Devotion", "/new_year_devotion", "font-size: 1em; padding: 10px 20px;"));
+          }
+          if (isLent) {
+              secondaryBtns.push(createBtn("Lenten Devotion", "/lent_devotion", "background-color: #8e44ad; font-size: 1em; padding: 10px 20px;"));
           }
 
-          // 3. Mid-week Devotion (Wednesday)
+          // Extended Evening (if Evening or Close of Day)
+          if (primary.name === "Evening Prayer" || primary.name === "Close of the Day") {
+               secondaryBtns.push(createBtn("Extended Evening", "/extended_evening_devotion", "background-color: #34495e; font-size: 1em; padding: 10px 20px;"));
+          }
+
+          // Mid-week Devotion (Wednesday)
           if (day === 3) { 
-              buttonsToAdd.push(createBtn("Mid-Week Devotion", "/mid_week_devotion", "background-color: #8e44ad;"));
+              secondaryBtns.push(createBtn("Mid-Week Devotion", "/mid_week_devotion", "background-color: #8e44ad; font-size: 1em; padding: 10px 20px;"));
           }
           
-          const refNode = container.querySelector('p').nextSibling;
-          buttonsToAdd.forEach(btn => {
-             container.insertBefore(btn, refNode); 
-          });
+          // 3. Append to DOM
+          container.appendChild(primaryBtn);
+
+          // Add Secondary Row
+          if (secondaryBtns.length > 0) {
+              const row = document.createElement('div');
+              row.style.cssText = "display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; width: 100%; margin-top: 10px;";
+              secondaryBtns.forEach(btn => row.appendChild(btn));
+              container.appendChild(row);
+          }
       });
     </script>
 
