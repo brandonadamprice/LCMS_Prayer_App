@@ -32,6 +32,9 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="A Simple Way to Pray">
+    {% block head %}
+    <link rel="preload" as="image" href="{{ url_for('static', filename='banner.jpg') }}">
+    {% endblock %}
   </head>
   <body>
     <div id="art-background" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background-size: cover; background-position: center; opacity: 0; transition: opacity 2s ease; filter: sepia(0.4) blur(2px);"></div>

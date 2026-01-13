@@ -1,6 +1,9 @@
 {% extends parent_template|default("base.html") %}
 {% import "_macros.html" as macros %}
 {% block title %}Lenten Devotion{% endblock %}
+{% block head %}
+<link rel="preload" as="image" href="{{ url_for('static', filename=banner_image) }}">
+{% endblock %}
 {% block content %}
     <div class="page-header" style="--bg-image: url('{{ url_for('static', filename=banner_image, _external=True) }}');">
       <h1>Lenten Devotion</h1>

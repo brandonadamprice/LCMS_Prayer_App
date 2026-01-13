@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 {% import "_macros.html" as macros %}
 {% block title %}Extended Evening Devotion{% endblock %}
+{% block head %}
+<link rel="preload" as="image" href="{{ url_for('static', filename='banner_evening.jpg') }}">
+{% endblock %}
 {% block content %}
     <div class="page-header" style="--bg-image: url('{{ url_for('static', filename='banner_evening.jpg') }}');">
       <h1>Extended Evening Devotion</h1>

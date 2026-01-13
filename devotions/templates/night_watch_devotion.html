@@ -1,6 +1,9 @@
 {% extends parent_template|default("base.html") %}
 {% import "_macros.html" as macros %}
 {% block title %}Night Watch Devotion{% endblock %}
+{% block head %}
+<link rel="preload" as="image" href="{{ url_for('static', filename='banner_night_watch.jpg') }}">
+{% endblock %}
 {% block content %}
     <div class="page-header" style="--bg-image: url('{{ url_for('static', filename='banner_night_watch.jpg', _external=True) }}');">
       <h1>Night Watch Devotion</h1>
