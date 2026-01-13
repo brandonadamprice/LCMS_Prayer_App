@@ -131,6 +131,7 @@ class FullOfEyesScraper:
       # 1. Must have an image
       img_tag = el.find("img")
       if not img_tag:
+        logger.debug("Skipping element with no img tag.")
         continue
 
       # 2. Must have a title/link
@@ -143,6 +144,7 @@ class FullOfEyesScraper:
         if el.name == "a":
           link_tag = el
         else:
+          logger.debug("Skipping element without a link_tag.")
           continue
 
       # --- Extraction ---
@@ -150,6 +152,7 @@ class FullOfEyesScraper:
       # Link (Identifier)
       link = link_tag["href"]
       if link in unique_links:
+        logger.debug("Skipping duplicate link: %s", link)
         continue  # Skip duplicates
 
       # Title extraction
@@ -171,17 +174,21 @@ class FullOfEyesScraper:
           "home",
           "submit",
           "advanced search",
+          "read more",  # Add read more from original plan
       ]:
+        logger.debug("Skipping UI title: %s", title)
         continue
 
       # 2. Skip navigation/search links
       # Gallery items shouldn't point back to a search page
       if "/search/" in link or "?s=" in link:
+        logger.debug("Skipping non-content link: %s", link)
         continue
 
       # Image URL extraction
       image_url = img_tag.get("data-src") or img_tag.get("src")
       if not image_url:
+        logger.debug("Skipping item due to no image_url found. Link: %s", link)
         continue
 
       image_url_lower = image_url.lower()
@@ -189,19 +196,29 @@ class FullOfEyesScraper:
       # 3. Skip logos, avatars, spacers
       # Using lowercase to catch 'FOE-Logo' and 'logo'
       if "logo" in image_url_lower or "avatar" in image_url_lower:
+        logger.debug("Skipping UI image (logo/avatar): %s", image_url)
         continue
 
       if "1x1" in image_url_lower or "spacer" in image_url_lower:
+        logger.debug("Skipping UI image (1x1/spacer): %s", image_url)
         continue
 
       # Success
+      logger.info("ACCEPTED item: %s | %s", title, image_url)
       unique_links.add(link)
       items.append({"title": title, "image_url": image_url, "link": link})
 
     if not items:
-      logger.warning("No items parsed. Dumping first 1000 chars of body text:")
+      logger.warning(
+          "No items parsed. Dumping first 500 chars of prettified HTML:"
+      )
       if search_area:
-        logger.warning(search_area.get_text()[:1000])
+        # Use prettify() to get string representation, then slice
+        try:
+          pretty_html = search_area.prettify()[:500]
+          logger.warning(pretty_html)
+        except Exception as e:
+          logger.warning("Failed to dump HTML: %s", e)
       else:
         logger.warning("No search area found.")
 
