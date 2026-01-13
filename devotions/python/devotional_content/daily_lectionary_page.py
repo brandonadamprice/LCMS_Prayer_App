@@ -25,14 +25,14 @@ def generate_daily_lectionary_page():
   refs = [readings["OT"], readings["NT"]]
   texts = utils.fetch_passages(refs)
 
-  # Try to fetch relevant art for the OT reading
+  # Try to fetch relevant art for the NT reading
   art_data = None
   try:
-    ot_ref = readings["OT"]
-    if ot_ref and ot_ref != "Reading not found":
-      # Heuristic: Use Book + Chapter (e.g. "Isaiah 60:1-6" -> "Isaiah 60")
+    nt_ref = readings["NT"]
+    if nt_ref and nt_ref != "Reading not found":
+      # Heuristic: Use Book + Chapter (e.g. "Matthew 1:1-17" -> "Matthew 1")
       # Split by ':' to get book and chapter
-      query_parts = ot_ref.split(":")
+      query_parts = nt_ref.split(":")
       if query_parts:
         query = query_parts[0].strip()
         # Fallback if no colon (e.g. "Obadiah 1") or other format
