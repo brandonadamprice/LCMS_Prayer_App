@@ -38,6 +38,7 @@
 {% endblock %}
 
 {% block extra_js %}
+window.suppressDefaultArt = true;
 const schedule = JSON.parse('{{ schedule|safe }}');
 const dayDisplay = document.getElementById('day-display');
 const daySelect = document.getElementById('day-select');
@@ -88,6 +89,22 @@ function loadReadingsForDay(day) {
     fetchPassage(dayData["Psalms & Proverbs"], pspText);
 
     saveProgress(day);
+
+    // Fetch background art based on NT reading
+    fetchArt(dayData["New Testament"]);
+}
+
+async function fetchArt(ref) {
+    const theme = "Scripture";
+    try {
+        const response = await fetch(`/api/lectionary/art?ref=${encodeURIComponent(ref)}&theme=${encodeURIComponent(theme)}`);
+        const data = await response.json();
+        if (data && data.image_url) {
+            displayBackgroundArt(data);
+        }
+    } catch (e) {
+        console.error("Failed to fetch background art", e);
+    }
 }
 
 function saveProgress(day) {

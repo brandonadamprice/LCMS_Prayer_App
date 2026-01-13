@@ -82,3 +82,20 @@
     {% endcall %}
 
 {% endblock %}
+
+{% block extra_js %}
+window.suppressDefaultArt = true;
+document.addEventListener('DOMContentLoaded', async () => {
+    const readingRef = "{{ gospel_ref }}";
+    const theme = "Jesus";
+    try {
+        const response = await fetch(`/api/lectionary/art?ref=${encodeURIComponent(readingRef)}&theme=${encodeURIComponent(theme)}`);
+        const data = await response.json();
+        if (data && data.image_url) {
+            displayBackgroundArt(data);
+        }
+    } catch (e) {
+        console.error("Failed to fetch background art", e);
+    }
+});
+{% endblock %}

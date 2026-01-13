@@ -631,6 +631,26 @@
           setBackgroundArtPreference(localStorage.getItem('backgroundArt') === 'enabled');
       }
 
+      // Default Background Art Loader
+      async function loadDefaultArt() {
+          try {
+              const response = await fetch('/api/art/recent');
+              const data = await response.json();
+              if (data && data.image_url) {
+                  displayBackgroundArt(data);
+              }
+          } catch (e) {
+              console.error("Failed to fetch default background art", e);
+          }
+      }
+
+      // Load default art if not suppressed by specific page
+      document.addEventListener('DOMContentLoaded', () => {
+          if (!window.suppressDefaultArt) {
+              loadDefaultArt();
+          }
+      });
+
       // Toggle app menu
       menuButton.addEventListener('click', function(event) {
         appMenu.style.display = appMenu.style.display === 'block' ? 'none' : 'block';

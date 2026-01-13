@@ -115,6 +115,7 @@
 {% endblock %}
 
 {% block extra_js %}
+    window.suppressDefaultArt = true;
     let isLectionaryMode = false;
 
     document.addEventListener('DOMContentLoaded', () => {

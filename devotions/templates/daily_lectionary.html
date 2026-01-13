@@ -25,6 +25,7 @@
 {% endblock %}
 
 {% block extra_js %}
+    window.suppressDefaultArt = true;
     document.addEventListener('DOMContentLoaded', () => {
         const ntRef = "{{ nt_ref }}";
 
