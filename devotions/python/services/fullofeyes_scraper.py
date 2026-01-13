@@ -273,20 +273,36 @@ def get_art_for_reading(reading_ref):
 
   queries_to_try = []
 
-  # 1. Base query: Book + Chapter (e.g., "Romans 4" from "Romans 4:1-25")
-  if ":" in reading_ref:
-    base_query = reading_ref.split(":")[0].strip()
-    queries_to_try.append(base_query)
+  # Clean up reference (handle multiple passages separated by ;)
+  # We focus on the first passage for art search usually
+  main_ref = reading_ref.split(";")[0].strip()
 
-    # 2. Fallback: Book Name only (e.g., "Romans" from "Romans 4")
+  # 1. Try the specific full reference (e.g. "John 1:1-14")
+  queries_to_try.append(main_ref)
+
+  # 2. Base query: Book + Chapter (e.g., "Romans 4" from "Romans 4:1-25")
+  if ":" in main_ref:
+    parts = main_ref.split(":")
+    book_chapter = parts[0].strip()
+    verses_part = parts[1].strip()
+
+    # Try Book + Chapter + Start Verse (e.g. "John 1:1")
+    start_verse_match = re.match(r"^\d+", verses_part)
+    if start_verse_match:
+      start_verse = start_verse_match.group(0)
+      queries_to_try.append(f"{book_chapter}:{start_verse}")
+
+    queries_to_try.append(book_chapter)
+
+    # 3. Fallback: Book Name only (e.g., "Romans" from "Romans 4")
     # Remove the chapter number at the end
-    book_match = re.match(r"^(.*?)\s+\d+$", base_query)
+    book_match = re.match(r"^(.*?)\s+\d+$", book_chapter)
     if book_match:
       queries_to_try.append(book_match.group(1).strip())
   else:
     # Handle cases like "Jude 1-25" or "Obadiah 1" (no colon)
     # Try to capture "Jude 1" then "Jude"
-    match = re.match(r"^(.*)\s+([\d\-]+)$", reading_ref)
+    match = re.match(r"^(.*)\s+([\d\-]+)$", main_ref)
     if match:
       book_name = match.group(1).strip()
       # If the second part contains digits, try Book + 1 as well as Book
@@ -294,7 +310,7 @@ def get_art_for_reading(reading_ref):
       queries_to_try.append(book_name)
     else:
       # Just try the whole thing if we can't parse it
-      queries_to_try.append(reading_ref)
+      queries_to_try.append(main_ref)
 
   # Remove duplicates while preserving order
   queries_to_try = list(dict.fromkeys(queries_to_try))

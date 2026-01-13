@@ -36,33 +36,53 @@
 {% block extra_js %}
     document.addEventListener('DOMContentLoaded', () => {
         const ntRef = "{{ nt_ref }}";
+        const otRef = "{{ ot_ref }}";
+        const container = document.getElementById('art-container');
+        const loading = document.getElementById('art-loading');
 
-        if (!ntRef || ntRef === "Reading not found") {
-             document.getElementById('art-loading').innerHTML = "<em>No art found.</em>";
-             return;
+        function displayArt(data) {
+            document.getElementById('art-image').src = data.image_url;
+            document.getElementById('art-title').textContent = data.title;
+            document.getElementById('art-link').href = data.link;
+            container.style.display = 'block';
+            loading.style.display = 'none';
         }
 
-        console.log(`Fetching art for ref: ${ntRef}`);
-        fetch(`/api/lectionary/art?ref=${encodeURIComponent(ntRef)}`)
-            .then(r => r.json())
-            .then(data => {
-                const container = document.getElementById('art-container');
-                const loading = document.getElementById('art-loading');
-                if (data.image_url) {
-                    console.log('Art found:', data);
-                    document.getElementById('art-image').src = data.image_url;
-                    document.getElementById('art-title').textContent = data.title;
-                    document.getElementById('art-link').href = data.link;
-                    container.style.display = 'block';
-                    loading.style.display = 'none';
-                } else {
-                     console.log('No art found.');
-                     loading.innerHTML = "<em>No art found.</em>";
+        async function tryFetchArt() {
+            // Try NT first
+            if (ntRef && ntRef !== "Reading not found") {
+                try {
+                    console.log(`Fetching art for NT ref: ${ntRef}`);
+                    const response = await fetch(`/api/lectionary/art?ref=${encodeURIComponent(ntRef)}`);
+                    const data = await response.json();
+                    if (data.image_url) {
+                        displayArt(data);
+                        return;
+                    }
+                } catch (e) {
+                    console.error("Error fetching NT art", e);
                 }
-            })
-            .catch(e => {
-                console.error('Error fetching art:', e);
-                document.getElementById('art-loading').innerHTML = "<em>Could not load art.</em>";
-            });
+            }
+
+            // Fallback to OT
+            if (otRef && otRef !== "Reading not found") {
+                try {
+                    console.log(`Fetching art for OT ref: ${otRef}`);
+                    const response = await fetch(`/api/lectionary/art?ref=${encodeURIComponent(otRef)}`);
+                    const data = await response.json();
+                    if (data.image_url) {
+                        displayArt(data);
+                        return;
+                    }
+                } catch (e) {
+                    console.error("Error fetching OT art", e);
+                }
+            }
+
+            // Nothing found
+            loading.innerHTML = "<em>No art found.</em>";
+        }
+
+        tryFetchArt();
     });
 {% endblock %}
