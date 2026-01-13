@@ -122,6 +122,7 @@ class FullOfEyesScraper:
 
     # Find all potential entry blocks.
     potential_items = search_area.find_all(["article", "div", "li"])
+    logger.info("Found %d potential items to inspect.", len(potential_items))
 
     unique_links = set()
 
@@ -196,6 +197,13 @@ class FullOfEyesScraper:
       # Success
       unique_links.add(link)
       items.append({"title": title, "image_url": image_url, "link": link})
+
+    if not items:
+      logger.warning("No items parsed. Dumping first 1000 chars of body text:")
+      if search_area:
+        logger.warning(search_area.get_text()[:1000])
+      else:
+        logger.warning("No search area found.")
 
     return items
 
