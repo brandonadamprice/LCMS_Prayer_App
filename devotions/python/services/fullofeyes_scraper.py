@@ -67,17 +67,17 @@ class FullOfEyesScraper:
       # Randomize delay slightly to look more human
       time.sleep(random.uniform(1.0, 3.0))
 
-      logger.info(f"Fetching: {url}")
+      logger.info("Fetching: %s", url)
       response = self.session.get(url, timeout=15)
       response.raise_for_status()
 
       # Log if redirect happened or just to confirm specific endpoint hit
       if response.url != url:
-        logger.info(f"  -> Redirected to: {response.url}")
+        logger.info("  -> Redirected to: %s", response.url)
 
       return bs4.BeautifulSoup(response.content, "html.parser")
     except requests.exceptions.HTTPError as e:
-      logger.error(f"HTTP Error fetching {url}: {e}")
+      logger.error("HTTP Error fetching %s: %s", url, e)
       if e.response.status_code == 403:
         logger.warning(
             "Tip: A 403 error often means the site is blocking the script. Try"
@@ -85,7 +85,7 @@ class FullOfEyesScraper:
         )
       return None
     except requests.RequestException as e:
-      logger.error(f"Error fetching {url}: {e}")
+      logger.error("Error fetching %s: %s", url, e)
       return None
 
   def _get_next_page_url(self, soup):
@@ -212,7 +212,7 @@ class FullOfEyesScraper:
     Follows 'Next' links dynamically.
     """
     all_items = []
-    logger.info(f"Scraping up to {max_pages} pages from the main gallery...")
+    logger.info("Scraping up to %s pages from the main gallery...", max_pages)
 
     # Start at the gallery URL
     current_url = self.gallery_url
@@ -220,7 +220,7 @@ class FullOfEyesScraper:
     page_count = 0
     while current_url and page_count < max_pages:
       page_count += 1
-      logger.info(f"--- Page {page_count} ---")
+      logger.info("--- Page %s ---", page_count)
 
       soup = self._get_soup(current_url)
       if not soup:
@@ -229,14 +229,14 @@ class FullOfEyesScraper:
       items = self._parse_items_from_page(soup)
       if items:
         all_items.extend(items)
-        logger.info(f"  Found {len(items)} items.")
+        logger.info("  Found %d items.", len(items))
       else:
         logger.info("  No items found on this page.")
 
       # Find the next page URL for the next iteration
       current_url = self._get_next_page_url(soup)
       if current_url:
-        logger.info(f"  Next page found: {current_url}")
+        logger.info("  Next page found: %s", current_url)
       else:
         logger.info("  No 'Next' page link found. Stopping.")
         break
@@ -264,7 +264,7 @@ class FullOfEyesScraper:
     encoded_query = urllib.parse.quote(query)
     search_url = f"{self.base_url}/search/?_sf_s={encoded_query}&_sft_post_format=post-format-image"
 
-    logger.info(f"Searching for '{query}' at: {search_url}")
+    logger.info("Searching for '%s' at: %s", query, search_url)
 
     soup = self._get_soup(search_url)
     results = self._parse_items_from_page(soup)
@@ -325,7 +325,7 @@ def get_art_for_reading(reading_ref):
   queries_to_try = list(dict.fromkeys(queries_to_try))
 
   logger.info(
-      f"Searching art for ref '{reading_ref}' with queries: {queries_to_try}"
+      "Searching art for ref '%s' with queries: %s", reading_ref, queries_to_try
   )
 
   with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -339,10 +339,10 @@ def get_art_for_reading(reading_ref):
       try:
         results = future.result()
         if results:
-          logger.info(f"Found art for query '{query}'")
+          logger.info("Found art for query '%s'", query)
           return results[0]
       except Exception as e:  # pylint: disable=broad-except
-        logger.error(f"Error searching for art with query '{query}': {e}")
+        logger.error("Error searching for art with query '%s': %s", query, e)
 
   logger.info("No specific art found. Falling back to recent images.")
   try:
@@ -351,10 +351,10 @@ def get_art_for_reading(reading_ref):
     recent_images = fetch_recent_images_cached(ttl_key)
     if recent_images:
       selected = random.choice(recent_images)
-      logger.info(f"Using fallback image: {selected.get('title')}")
+      logger.info("Using fallback image: %s", selected.get("title"))
       return selected
   except Exception as e:  # pylint: disable=broad-except
-    logger.error(f"Error fetching recent images for fallback: {e}")
+    logger.error("Error fetching recent images for fallback: %s", e)
 
   return None
 
