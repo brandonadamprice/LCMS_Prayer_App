@@ -9,14 +9,6 @@ import uuid
 
 from authlib.integrations.flask_client import OAuth
 import communication
-import flask
-import flask_login
-from google.cloud import firestore
-import pytz
-import werkzeug.middleware.proxy_fix
-from werkzeug.security import check_password_hash
-from werkzeug.security import generate_password_hash
-
 from devotional_content import advent
 from devotional_content import bible_in_a_year
 from devotional_content import childrens_devotion
@@ -35,15 +27,21 @@ from devotional_content import new_year
 from devotional_content import night_watch
 from devotional_content import psalms_by_category
 from devotional_content import short_prayers
-
+import flask
+import flask_login
+from google.cloud import firestore
 import models
+import pytz
 import secrets_fetcher
-import utils
-
 from services import analytics_ga4
 from services import fullofeyes_scraper
 from services import prayer_requests
 from services import reminders
+from twilio.twiml.messaging_response import MessagingResponse
+import utils
+import werkzeug.middleware.proxy_fix
+from werkzeug.security import check_password_hash
+from werkzeug.security import generate_password_hash
 
 
 TEMPLATE_DIR = os.path.abspath(
@@ -1650,7 +1648,7 @@ def force_reminders_route():
 def lectionary_art_route():
   """Fetches relevant art based on a query."""
   ref = flask.request.args.get("ref")
-  art = daily_lectionary_page.get_art_for_reading(ref)
+  art = fullofeyes_scraper.get_art_for_reading(ref)
   return flask.jsonify(art) if art else flask.jsonify({})
 
 
