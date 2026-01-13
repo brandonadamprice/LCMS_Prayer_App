@@ -249,6 +249,10 @@
     <script>
       // Global function to set background art
       function displayBackgroundArt(data) {
+          if (localStorage.getItem('backgroundArt') === 'disabled') {
+              return;
+          }
+
           const bg = document.getElementById('art-background');
           const credit = document.getElementById('art-credit');
           const title = document.getElementById('art-title');
@@ -442,10 +446,12 @@
       const isLoggedIn = {{ current_user.is_authenticated|tojson }};
       const userDarkMode = {% if current_user.is_authenticated %}{{ current_user.dark_mode|tojson }}{% else %}null{% endif %};
       const userFontSizeLevel = {% if current_user.is_authenticated and current_user.font_size_level is not none %}{{ current_user.font_size_level }}{% else %}null{% endif %};
+      const userBackgroundArt = {% if current_user.is_authenticated %}{{ current_user.background_art|tojson }}{% else %}null{% endif %};
 
       // Control references
       const darkModeToggleSidebar = document.getElementById('dark-mode-toggle');
       const darkModeToggleSettings = document.getElementById('settings-dark-mode-toggle');
+      const backgroundArtToggleSettings = document.getElementById('settings-background-art-toggle');
       
       const decreaseFontSidebar = document.getElementById('decrease-font');
       const increaseFontSidebar = document.getElementById('increase-font');
@@ -574,6 +580,56 @@
 
       if(darkModeToggleSidebar) darkModeToggleSidebar.addEventListener('change', handleDarkModeToggle);
       if(darkModeToggleSettings) darkModeToggleSettings.addEventListener('change', handleDarkModeToggle);
+
+      // Background Art Logic
+      function setBackgroundArtPreference(enabled) {
+          if (enabled) {
+              localStorage.setItem('backgroundArt', 'enabled');
+          } else {
+              localStorage.setItem('backgroundArt', 'disabled');
+              // If disabled, remove visual effects immediately
+              document.body.classList.remove('has-background-art');
+              const bg = document.getElementById('art-background');
+              if (bg) bg.style.backgroundImage = '';
+              const credit = document.getElementById('art-credit');
+              if (credit) credit.style.display = 'none';
+          }
+          if (backgroundArtToggleSettings) backgroundArtToggleSettings.checked = enabled;
+      }
+
+      async function saveBackgroundArtPreference(enabled) {
+          setBackgroundArtPreference(enabled);
+          if (isLoggedIn) {
+              try {
+                  await fetch('/save_background_art', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ background_art: enabled }),
+                  });
+              } catch (error) {
+                  console.error('Failed to save background art preference:', error);
+              }
+          }
+      }
+
+      if (backgroundArtToggleSettings) {
+          backgroundArtToggleSettings.addEventListener('change', (e) => {
+              saveBackgroundArtPreference(e.target.checked);
+              // Reload to apply if re-enabling requires fetch, or just let user navigate
+              if (e.target.checked) location.reload();
+          });
+      }
+
+      // Init Background Art Preference
+      if (isLoggedIn && userBackgroundArt !== null) {
+          setBackgroundArtPreference(userBackgroundArt);
+      } else {
+          // Default to enabled if not set
+          if (localStorage.getItem('backgroundArt') === null) {
+             localStorage.setItem('backgroundArt', 'enabled');
+          }
+          setBackgroundArtPreference(localStorage.getItem('backgroundArt') === 'enabled');
+      }
 
       // Toggle app menu
       menuButton.addEventListener('click', function(event) {

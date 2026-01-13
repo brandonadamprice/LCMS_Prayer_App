@@ -1182,6 +1182,27 @@ def save_dark_mode_route():
   return flask.jsonify({"success": False, "error": "Invalid data"}), 400
 
 
+@app.route("/save_background_art", methods=["POST"])
+@flask_login.login_required
+def save_background_art_route():
+  """Saves background art preference for the current user."""
+  data = flask.request.json
+  enabled = data.get("background_art")
+  if isinstance(enabled, bool):
+    try:
+      db = utils.get_db_client()
+      user_ref = db.collection("users").document(flask_login.current_user.id)
+      user_ref.set({"background_art": enabled}, merge=True)
+      return flask.jsonify({"success": True})
+    except Exception as e:
+      app.logger.error("Failed to save background art setting: %s", e)
+      return (
+          flask.jsonify({"success": False, "error": "Database save failed"}),
+          500,
+      )
+  return flask.jsonify({"success": False, "error": "Invalid data"}), 400
+
+
 @app.route("/save_font_size", methods=["POST"])
 @flask_login.login_required
 def save_font_size_route():

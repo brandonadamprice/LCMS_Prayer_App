@@ -24,6 +24,7 @@ class User(flask_login.UserMixin):
       password_hash=None,
       google_id=None,
       timezone=None,
+      background_art=True,
   ):
     self.id = user_id
     self.email = email
@@ -43,6 +44,7 @@ class User(flask_login.UserMixin):
     self.password_hash = password_hash
     self.google_id = google_id
     self.timezone = timezone
+    self.background_art = background_art
 
   @staticmethod
   def get(user_id):
@@ -68,5 +70,6 @@ class User(flask_login.UserMixin):
           password_hash=data.get("password_hash"),
           google_id=data.get("google_id"),
           timezone=data.get("timezone"),
+          background_art=data.get("background_art", True),
       )
     return None
