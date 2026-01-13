@@ -4,6 +4,8 @@
 {% block title %}Daily Lectionary{% endblock %}
 
 {% block content %}
+    <div id="art-background" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background-size: cover; background-position: center; opacity: 0; transition: opacity 2s ease; filter: sepia(0.4) blur(2px);"></div>
+
     <div class="page-header">
       <h1>Daily Lectionary</h1>
       <p>
@@ -22,29 +24,31 @@
         <p>{{ nt_text|safe }}</p>
     {% endcall %}
 
-    {% call macros.card('Art') %}
-        <div id="art-container" style="text-align: center; display: none;">
-             <img id="art-image" style="max-width: 100%; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);" alt="Relevant Art">
-             <p id="art-title" style="font-style: italic; color: #666; margin-top: 5px;"></p>
-             <p style="font-size: 0.8em;"><a id="art-link" href="#" target="_blank">View on Full of Eyes</a></p>
-        </div>
-        <p id="art-loading"><em>Searching for relevant art...</em></p>
-    {% endcall %}
+    <div id="art-credit" style="text-align: center; font-size: 0.8em; margin-top: 20px; display: none; color: #7f8c8d;">
+        Background Art: <a id="art-link" href="#" target="_blank" style="color: inherit; text-decoration: underline;"><span id="art-title"></span></a> (Full of Eyes)
+    </div>
 
 {% endblock %}
 
 {% block extra_js %}
     document.addEventListener('DOMContentLoaded', () => {
         const ntRef = "{{ nt_ref }}";
-        const container = document.getElementById('art-container');
-        const loading = document.getElementById('art-loading');
+        const bg = document.getElementById('art-background');
+        const credit = document.getElementById('art-credit');
+        const title = document.getElementById('art-title');
+        const link = document.getElementById('art-link');
 
         function displayArt(data) {
-            document.getElementById('art-image').src = data.image_url;
-            document.getElementById('art-title').textContent = data.title;
-            document.getElementById('art-link').href = data.link;
-            container.style.display = 'block';
-            loading.style.display = 'none';
+            const img = new Image();
+            img.onload = () => {
+                bg.style.backgroundImage = `url('${data.image_url}')`;
+                bg.style.opacity = 0.25;
+            };
+            img.src = data.image_url;
+
+            title.textContent = data.title;
+            link.href = data.link;
+            credit.style.display = 'block';
         }
 
         async function tryFetchArt() {
@@ -61,9 +65,6 @@
                     console.error("Error fetching NT art", e);
                 }
             }
-
-            // Nothing found
-            loading.innerHTML = "<em>No art found.</em>";
         }
 
         tryFetchArt();
