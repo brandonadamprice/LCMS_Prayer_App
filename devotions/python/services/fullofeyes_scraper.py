@@ -20,6 +20,14 @@ def search_images_cached(query):
   return scraper.search_images(query)
 
 
+@functools.lru_cache(maxsize=1)
+def fetch_recent_images_cached(ttl_key):
+  """Cached wrapper for fetching recent images."""
+  del ttl_key  # Unused, just for cache invalidation
+  scraper = FullOfEyesScraper()
+  return scraper.fetch_recent_gallery_images(max_pages=1)
+
+
 class FullOfEyesScraper:
   """Scraper for Full of Eyes website."""
 
@@ -336,7 +344,18 @@ def get_art_for_reading(reading_ref):
       except Exception as e:  # pylint: disable=broad-except
         logger.error(f"Error searching for art with query '{query}': {e}")
 
-  logger.info("No art found.")
+  logger.info("No specific art found. Falling back to recent images.")
+  try:
+    # Refresh cache every hour
+    ttl_key = int(time.time() // 3600)
+    recent_images = fetch_recent_images_cached(ttl_key)
+    if recent_images:
+      selected = random.choice(recent_images)
+      logger.info(f"Using fallback image: {selected.get('title')}")
+      return selected
+  except Exception as e:  # pylint: disable=broad-except
+    logger.error(f"Error fetching recent images for fallback: {e}")
+
   return None
 
 
