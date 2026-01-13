@@ -800,10 +800,20 @@ body.dark-mode .catechism-qa {
   border-left-color: #555;
 }
 
+/* Background Art Transparency */
+body.has-background-art .card {
+    background-color: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(2px);
+}
+
 /* Dark Mode */
 body.dark-mode {
     background-color: #333333;
     color: #cccccc;
+}
+
+body.dark-mode.has-background-art .card {
+    background-color: rgba(68, 68, 68, 0.92);
 }
 
 body.dark-mode a {

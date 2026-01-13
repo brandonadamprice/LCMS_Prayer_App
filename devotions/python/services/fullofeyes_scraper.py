@@ -66,13 +66,13 @@ class FullOfEyesScraper:
       # Randomize delay slightly to look more human
       time.sleep(random.uniform(1.0, 3.0))
 
-      logger.info("Fetching: %s", url)
+      logger.debug("Fetching: %s", url)
       response = self.session.get(url, timeout=15)
       response.raise_for_status()
 
       # Log if redirect happened or just to confirm specific endpoint hit
       if response.url != url:
-        logger.info("  -> Redirected to: %s", response.url)
+        logger.debug("  -> Redirected to: %s", response.url)
 
       return bs4.BeautifulSoup(response.content, "html.parser")
     except requests.exceptions.HTTPError as e:
@@ -121,7 +121,7 @@ class FullOfEyesScraper:
 
     # Find all potential entry blocks.
     potential_items = search_area.find_all(["article", "div", "li"])
-    logger.info("Found %d potential items to inspect.", len(potential_items))
+    logger.debug("Found %d potential items to inspect.", len(potential_items))
 
     unique_links = set()
 
@@ -203,23 +203,23 @@ class FullOfEyesScraper:
         continue
 
       # Success
-      logger.info("ACCEPTED item: %s | %s", title, image_url)
+      logger.debug("ACCEPTED item: %s | %s", title, image_url)
       unique_links.add(link)
       items.append({"title": title, "image_url": image_url, "link": link})
 
     if not items:
-      logger.warning(
+      logger.debug(
           "No items parsed. Dumping first 500 chars of prettified HTML:"
       )
       if search_area:
         # Use prettify() to get string representation, then slice
         try:
           pretty_html = search_area.prettify()[:500]
-          logger.warning(pretty_html)
+          logger.debug(pretty_html)
         except Exception as e:
-          logger.warning("Failed to dump HTML: %s", e)
+          logger.debug("Failed to dump HTML: %s", e)
       else:
-        logger.warning("No search area found.")
+        logger.debug("No search area found.")
 
     return items
 
@@ -236,7 +236,7 @@ class FullOfEyesScraper:
     Follows 'Next' links dynamically.
     """
     all_items = []
-    logger.info("Scraping up to %s pages from the main gallery...", max_pages)
+    logger.debug("Scraping up to %s pages from the main gallery...", max_pages)
 
     # Start at the gallery URL
     current_url = self.gallery_url
@@ -244,7 +244,7 @@ class FullOfEyesScraper:
     page_count = 0
     while current_url and page_count < max_pages:
       page_count += 1
-      logger.info("--- Page %s ---", page_count)
+      logger.debug("--- Page %s ---", page_count)
 
       soup = self._get_soup(current_url)
       if not soup:
@@ -253,16 +253,16 @@ class FullOfEyesScraper:
       items = self._parse_items_from_page(soup)
       if items:
         all_items.extend(items)
-        logger.info("  Found %d items.", len(items))
+        logger.debug("  Found %d items.", len(items))
       else:
-        logger.info("  No items found on this page.")
+        logger.debug("  No items found on this page.")
 
       # Find the next page URL for the next iteration
       current_url = self._get_next_page_url(soup)
       if current_url:
-        logger.info("  Next page found: %s", current_url)
+        logger.debug("  Next page found: %s", current_url)
       else:
-        logger.info("  No 'Next' page link found. Stopping.")
+        logger.debug("  No 'Next' page link found. Stopping.")
         break
 
     return all_items
@@ -288,7 +288,7 @@ class FullOfEyesScraper:
     encoded_query = urllib.parse.quote(query)
     search_url = f"{self.base_url}/search/?_sf_s={encoded_query}&_sft_post_format=post-format-image"
 
-    logger.info("Searching for '%s' at: %s", query, search_url)
+    logger.debug("Searching for '%s' at: %s", query, search_url)
 
     soup = self._get_soup(search_url)
     results = self._parse_items_from_page(soup)
@@ -348,7 +348,7 @@ def get_art_for_reading(reading_ref):
   # Remove duplicates while preserving order
   queries_to_try = list(dict.fromkeys(queries_to_try))
 
-  logger.info(
+  logger.debug(
       "Searching art for ref '%s' with queries: %s", reading_ref, queries_to_try
   )
 
