@@ -57,13 +57,19 @@
                     console.log(`Fetching art for NT ref: ${ntRef}`);
                     const response = await fetch(`/api/lectionary/art?ref=${encodeURIComponent(ntRef)}`);
                     const data = await response.json();
+                    console.log('Art API Response:', data);
+                    
                     if (data.image_url) {
                         displayArt(data);
                         return;
+                    } else {
+                        console.log('No art returned from API.');
                     }
                 } catch (e) {
                     console.error("Error fetching NT art", e);
                 }
+            } else {
+                console.log('No NT ref to search for.');
             }
         }
 
