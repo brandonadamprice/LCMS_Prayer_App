@@ -1,30 +1,19 @@
 """Functions for managing prayer reminders."""
 
 import datetime
-from email.message import EmailMessage
-import smtplib
 import uuid
-import bible_in_a_year
-import close_of_day
-import evening
-import firebase_admin
-from firebase_admin import messaging
-import flask
-import lent
-import midday
-import morning
-import night_watch
-import pytz
-import secrets_fetcher
-from twilio.rest import Client
-import utils
 
-# Initialize Firebase Admin if not already initialized
-try:
-  firebase_admin.get_app()
-except ValueError:
-  # Explicitly set project ID to ensure correct FCM endpoint usage
-  firebase_admin.initialize_app(options={"projectId": "lcms-prayer-app"})
+import communication
+from devotional_content import bible_in_a_year
+from devotional_content import close_of_day
+from devotional_content import evening
+from devotional_content import lent
+from devotional_content import midday
+from devotional_content import morning
+from devotional_content import night_watch
+import flask
+import pytz
+import utils
 
 REMINDERS_COLLECTION = "reminders"
 
@@ -158,22 +147,21 @@ def update_user_reminders_timezone(user_id, new_timezone):
   )
   reminders = get_reminders(user_id)
   db = utils.get_db_client()
-  
+
   for r in reminders:
-      try:
-          next_run = calculate_next_run(r['time'], new_timezone)
-          ref = (
-              db.collection("users")
-              .document(user_id)
-              .collection(REMINDERS_COLLECTION)
-              .document(r['id'])
-          )
-          ref.update({
-              "timezone": new_timezone,
-              "next_run_utc": next_run
-          })
-      except Exception as e:
-          flask.current_app.logger.error(f"[REMINDER] Failed to update reminder {r.get('id')}: {e}")
+    try:
+      next_run = calculate_next_run(r["time"], new_timezone)
+      ref = (
+          db.collection("users")
+          .document(user_id)
+          .collection(REMINDERS_COLLECTION)
+          .document(r["id"])
+      )
+      ref.update({"timezone": new_timezone, "next_run_utc": next_run})
+    except Exception as e:
+      flask.current_app.logger.error(
+          f"[REMINDER] Failed to update reminder {r.get('id')}: {e}"
+      )
   return True
 
 
@@ -263,7 +251,7 @@ def _send_push(user_data, title, body, url):
   """Sends a push notification using Firebase Cloud Messaging."""
   tokens = user_data.get("fcm_tokens", [])
   if not tokens:
-    flask.current_app.logger.warning(f"[PUSH] No tokens found for user.")
+    flask.current_app.logger.warning("[PUSH] No tokens found for user.")
     return
 
   success_count = 0
@@ -273,23 +261,11 @@ def _send_push(user_data, title, body, url):
   # We send individually to avoid 404 errors with the /batch endpoint
   # that send_multicast uses, which can occur in some environments.
   for token in tokens:
-    try:
-      message = messaging.Message(
-          data={
-              "title": title,
-              "body": body,
-              "url": url,
-          },
-          token=token,
-      )
-      messaging.send(message)
+    if communication.send_push(token, title, body, url):
       success_count += 1
-    except Exception as e:
+    else:
       failure_count += 1
       failed_tokens.append(token)
-      flask.current_app.logger.warning(
-          f"[PUSH] Failed to send to token {token}: {e}"
-      )
 
   flask.current_app.logger.info(
       f"[PUSH] Sent {success_count} messages. Failed: {failure_count}"
@@ -412,24 +388,6 @@ def _send_email(user_data, devotion_url, devotion_key, reading_type):
       template_name = "lent_devotion.html"
 
     if data and template_name:
-      # Render using the email base template
-      # We need to pass 'config' manually if outside of a normal request context
-      # but flask.render_template usually handles context locals.
-      # We inject 'parent_template' to switch the base.
-
-      # For daily lectionary vs office readings preference
-      # If reading_type is lectionary, we simulate the toggle behavior
-      # The templates use JS for this, so we need to adjust the data for the template
-      # to render the correct reading block initially, or use CSS to hide/show.
-      # Email clients don't support JS.
-      # We should pre-process the data so the desired reading is in the main slot
-      # OR create an email-specific context variable.
-
-      # Since templates use `display: none` for one or the other, and JS toggles it,
-      # we can't rely on JS.
-      # We can set a style variable to show/hide blocks via inline CSS?
-      # Or easier: just override the variables in `data` to point to the correct texts?
-
       if reading_type == "lectionary" and devotion_key in [
           "morning",
           "midday",
@@ -439,10 +397,6 @@ def _send_email(user_data, devotion_url, devotion_key, reading_type):
       ]:
         # Swap reading references and texts to lectionary versions if available
         if data.get("daily_lectionary_readings"):
-          # We need to construct a formatted reading text for the email template
-          # The existing templates have hardcoded divs for office vs lectionary
-          # controlled by JS style.display.
-          # We can pass `show_lectionary_css` and `show_office_css` variables?
           data["office_reading_style"] = "display: none;"
           data["lectionary_reading_style"] = "display: block;"
         else:
@@ -467,27 +421,8 @@ def _send_email(user_data, devotion_url, devotion_key, reading_type):
       )
       return
 
-    smtp_server = secrets_fetcher.get_smtp_server()
-    smtp_port = secrets_fetcher.get_smtp_port()
-    smtp_user = secrets_fetcher.get_smtp_user()
-    smtp_password = secrets_fetcher.get_smtp_password()
-
-    msg = EmailMessage()
-    msg["Subject"] = f"{title} - {datetime.date.today().strftime('%A, %b %d')}"
-    msg["From"] = f"A Simple Way to Pray <{smtp_user}>"
-    msg["To"] = email
-
-    msg.set_content(
-        "Please enable HTML to view this devotion.", subtype="plain"
-    )
-    msg.add_alternative(body, subtype="html")
-
-    with smtplib.SMTP(smtp_server, smtp_port) as server:
-      server.starttls()
-      server.login(smtp_user, smtp_password)
-      server.send_message(msg)
-
-    flask.current_app.logger.info(f"[EMAIL] Sent devotion to {email}")
+    subject = f"{title} - {datetime.date.today().strftime('%A, %b %d')}"
+    communication.send_email(email, subject, body_html=body)
 
   except Exception as e:
     flask.current_app.logger.error(f"[EMAIL] Failed to send email: {e}")
@@ -503,29 +438,16 @@ def _send_sms(user_data, message, notification_type=None):
     return
 
   try:
-    sid = secrets_fetcher.get_twilio_account_sid()
-    token = secrets_fetcher.get_twilio_api_key()
-    from_number = secrets_fetcher.get_twilio_phone_number()
-
-    if not (sid and token and from_number):
-      flask.current_app.logger.warning(
-          "[SMS] Missing Twilio credentials (SID, API Key, or Phone Number)."
-      )
-      return
-
     # Append opt-out instruction
     full_message = f"{message}\n\nRespond STOP to stop these text messages."
 
-    client = Client(sid, token)
-    msg = client.messages.create(body=full_message, from_=from_number, to=phone)
-    flask.current_app.logger.info(f"[SMS] Sent SMS to {phone}: {msg.sid}")
-
-    # Update user's last_sms_type for STOP handling
-    if notification_type and "id" in user_data:
-      db = utils.get_db_client()
-      db.collection("users").document(user_data["id"]).update(
-          {"last_sms_type": notification_type}
-      )
+    if communication.send_sms(phone, full_message):
+      # Update user's last_sms_type for STOP handling
+      if notification_type and "id" in user_data:
+        db = utils.get_db_client()
+        db.collection("users").document(user_data["id"]).update(
+            {"last_sms_type": notification_type}
+        )
 
   except Exception as e:
     flask.current_app.logger.error(f"[SMS] Failed to send SMS: {e}")

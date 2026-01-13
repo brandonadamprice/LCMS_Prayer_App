@@ -1,43 +1,48 @@
 """Main Flask application for serving devotions."""
 
 import datetime
-from email.message import EmailMessage
 import logging
 import os
 import re
 import secrets
-import smtplib
 import uuid
-import advent
-import analytics_ga4
+
 from authlib.integrations.flask_client import OAuth
-import bible_in_a_year
-import childrens_devotion
-import close_of_day
-import daily_lectionary_page
-import evening
-import extended_evening
+import communication
 import flask
 import flask_login
 from google.cloud import firestore
-import gospels_by_category
-import lent
-import liturgical_calendar
-import memory
-import mid_week
-import midday
-import morning
-import new_year
-import night_watch
-import prayer_requests
-import psalms_by_category
 import pytz
-import reminders
-import secrets_fetcher
-import short_prayers
-import utils
 import werkzeug.middleware.proxy_fix
-from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.security import check_password_hash
+from werkzeug.security import generate_password_hash
+
+from devotional_content import advent
+from devotional_content import bible_in_a_year
+from devotional_content import childrens_devotion
+from devotional_content import close_of_day
+from devotional_content import daily_lectionary_page
+from devotional_content import evening
+from devotional_content import extended_evening
+from devotional_content import gospels_by_category
+from devotional_content import lent
+from devotional_content import liturgical_calendar
+from devotional_content import memory
+from devotional_content import mid_week
+from devotional_content import midday
+from devotional_content import morning
+from devotional_content import new_year
+from devotional_content import night_watch
+from devotional_content import psalms_by_category
+from devotional_content import short_prayers
+
+import models
+import secrets_fetcher
+import utils
+
+from services import analytics_ga4
+from services import prayer_requests
+from services import reminders
 
 
 TEMPLATE_DIR = os.path.abspath(
@@ -63,7 +68,7 @@ app.config["REMEMBER_COOKIE_SAMESITE"] = "None"
 app.config["OTHER_PRAYERS"] = utils.get_other_prayers()
 try:
   app.config["ADMIN_USER_ID"] = secrets_fetcher.get_brandon_user_id()
-except:
+except Exception:  # pylint: disable=broad-except
   app.config["ADMIN_USER_ID"] = None
 
 # OAuth and Flask-Login Setup
@@ -91,78 +96,10 @@ google = oauth.register(
 )
 
 
-class User(flask_login.UserMixin):
-  """User class for Flask-Login."""
-
-  def __init__(
-      self,
-      user_id,
-      email=None,
-      name=None,
-      profile_pic=None,
-      dark_mode=None,
-      font_size_level=None,
-      favorites=None,
-      fcm_tokens=None,
-      google_profile_pic=None,
-      selected_pic_source=None,
-      phone_number=None,
-      notification_preferences=None,
-      password_hash=None,
-      google_id=None,
-      timezone=None,
-  ):
-    self.id = user_id
-    self.email = email
-    self.name = name
-    self.profile_pic = profile_pic
-    self.dark_mode = dark_mode
-    self.font_size_level = font_size_level
-    self.favorites = favorites or []
-    self.fcm_tokens = fcm_tokens or []
-    self.google_profile_pic = google_profile_pic
-    self.selected_pic_source = selected_pic_source
-    self.phone_number = phone_number
-    self.notification_preferences = notification_preferences or {
-        "prayer_reminders": {"push": True, "sms": False},
-        "prayed_for_me": {"push": True, "sms": False},
-    }
-    self.password_hash = password_hash
-    self.google_id = google_id
-    self.timezone = timezone
-
-  @staticmethod
-  def get(user_id):
-    """Gets a user from Firestore by user_id (which is Google's sub)."""
-    db = utils.get_db_client()
-    user_ref = db.collection("users").document(user_id)
-    user_doc = user_ref.get()
-    if user_doc.exists:
-      data = user_doc.to_dict()
-      return User(
-          user_id=user_id,
-          email=data.get("email"),
-          name=data.get("name"),
-          profile_pic=data.get("profile_pic"),
-          dark_mode=data.get("dark_mode"),
-          font_size_level=data.get("font_size_level"),
-          favorites=data.get("favorites", []),
-          fcm_tokens=data.get("fcm_tokens", []),
-          google_profile_pic=data.get("google_profile_pic"),
-          selected_pic_source=data.get("selected_pic_source"),
-          phone_number=data.get("phone_number"),
-          notification_preferences=data.get("notification_preferences"),
-          password_hash=data.get("password_hash"),
-          google_id=data.get("google_id"),
-          timezone=data.get("timezone"),
-      )
-    return None
-
-
 @login_manager.user_loader
 def load_user(user_id):
   """Flask-Login user loader."""
-  return User.get(user_id)
+  return models.User.get(user_id)
 
 
 @app.before_request
@@ -221,35 +158,21 @@ def validate_email(email):
 
 def send_verification_email(email, code):
   """Sends a verification email using SMTP."""
-  smtp_server = secrets_fetcher.get_smtp_server()
-  smtp_port = secrets_fetcher.get_smtp_port()
-  smtp_user = secrets_fetcher.get_smtp_user()
-  smtp_password = secrets_fetcher.get_smtp_password()
+  body = f"Your verification code for A Simple Way to Pray is: {code}"
+  success = communication.send_email(
+      email, "Your Verification Code", body_text=body
+  )
 
-  if not all([smtp_server, smtp_port, smtp_user, smtp_password]):
-    app.logger.warning("Missing SMTP credentials. Logging verification code.")
+  if not success:
+    # If sending failed (e.g. no credentials in dev), log the code.
+    app.logger.warning("Email sending failed. Logging verification code.")
     app.logger.info("========== EMAIL VERIFICATION ==========")
     app.logger.info("To: %s", email)
     app.logger.info("Code: %s", code)
     app.logger.info("========================================")
     return True
 
-  msg = EmailMessage()
-  msg.set_content(f"Your verification code for A Simple Way to Pray is: {code}")
-  msg["Subject"] = "Your Verification Code"
-  msg["From"] = smtp_user
-  msg["To"] = email
-
-  try:
-    with smtplib.SMTP(smtp_server, smtp_port) as server:
-      server.starttls()
-      server.login(smtp_user, smtp_password)
-      server.send_message(msg)
-    app.logger.info("Verification email sent to %s", email)
-    return True
-  except Exception as e:
-    app.logger.error("Failed to send verification email: %s", e)
-    return False
+  return success
 
 
 def get_oauth_user_data(user_info, provider):
@@ -279,7 +202,7 @@ def create_new_user_doc(user_data, provider):
 
   user_data["last_login"] = datetime.datetime.now(datetime.timezone.utc)
   db.collection("users").document(user_id).set(user_data, merge=True)
-  return User.get(user_id)
+  return models.User.get(user_id)
 
 
 def update_existing_user_doc(user_id, user_data):
@@ -326,7 +249,7 @@ def update_existing_user_doc(user_id, user_data):
           del user_data["profile_pic"]
 
   db.collection("users").document(user_id).set(user_data, merge=True)
-  return User.get(user_id)
+  return models.User.get(user_id)
 
 
 def handle_oauth_login(user_info, provider):
@@ -453,7 +376,7 @@ def login():
 def settings_route():
   """Renders the dedicated settings page."""
   if flask.request.args.get("demo") == "twilio_compliance":
-    dummy_user = User(
+    dummy_user = models.User(
         user_id="demo_user",
         email="demo@asimplewaytopray.com",
         name="Demo User",
@@ -808,7 +731,7 @@ def register_verify():
           "password_hash": pending_data["password_hash"],
           "name": pending_data["name"],
       })
-      user = User.get(user_id)
+      user = models.User.get(user_id)
       flask.flash("Account verified and updated!", "success")
     else:
       # Create new user
@@ -858,7 +781,7 @@ def email_login():
     flask.flash("Invalid email or password.", "error")
     return flask.redirect("/login")
 
-  user = User.get(user_doc.id)
+  user = models.User.get(user_doc.id)
   flask_login.login_user(user, remember=True)
   return flask.redirect("/")
 
@@ -1725,8 +1648,6 @@ def force_reminders_route():
 @app.route("/twilio/sms_reply", methods=["POST"])
 def twilio_sms_reply():
   """Handles incoming SMS replies from Twilio."""
-  from twilio.twiml.messaging_response import MessagingResponse
-
   incoming_msg = flask.request.values.get("Body", "").strip().upper()
   from_number = flask.request.values.get("From", "")
 
