@@ -149,3 +149,17 @@
       </a>
     </div>
 {% endblock %}
+
+{% block extra_js %}
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const response = await fetch('/api/art/recent');
+        const data = await response.json();
+        if (data && data.image_url) {
+            displayBackgroundArt(data);
+        }
+    } catch (e) {
+        console.error("Failed to fetch background art", e);
+    }
+});
+{% endblock %}

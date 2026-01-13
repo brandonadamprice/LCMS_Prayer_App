@@ -1653,8 +1653,19 @@ def force_reminders_route():
 def lectionary_art_route():
   """Fetches relevant art based on a query."""
   ref = flask.request.args.get("ref")
-  art = fullofeyes_scraper.get_art_for_reading(ref)
+  theme = flask.request.args.get("theme")
+  art = fullofeyes_scraper.get_art_for_reading(ref, fallback_theme=theme)
   return flask.jsonify(art) if art else flask.jsonify({})
+
+
+@app.route("/api/art/recent")
+def art_recent_route():
+  """Fetches a random recent image."""
+  ttl_key = int(datetime.datetime.now().timestamp() // 3600)
+  images = fullofeyes_scraper.fetch_recent_images_cached(ttl_key)
+  if images:
+    return flask.jsonify(secrets.choice(images))
+  return flask.jsonify({})
 
 
 @app.route("/twilio/sms_reply", methods=["POST"])

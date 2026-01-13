@@ -147,4 +147,18 @@
            isLectionaryMode = true;
        }
     }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        const readingRef = "{{ reading_ref }}";
+        const theme = "Resurrection"; // Morning theme
+        try {
+            const response = await fetch(`/api/lectionary/art?ref=${encodeURIComponent(readingRef)}&theme=${encodeURIComponent(theme)}`);
+            const data = await response.json();
+            if (data && data.image_url) {
+                displayBackgroundArt(data);
+            }
+        } catch (e) {
+            console.error("Failed to fetch background art", e);
+        }
+    });
 {% endblock %}

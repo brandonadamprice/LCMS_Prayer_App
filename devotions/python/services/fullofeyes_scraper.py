@@ -299,9 +299,15 @@ class FullOfEyesScraper:
     return image_results
 
 
-def get_art_for_reading(reading_ref):
+def get_art_for_reading(reading_ref, fallback_theme=None):
   """Searches for art based on a scripture reference."""
   if not reading_ref or reading_ref == "Reading not found":
+    if fallback_theme:
+      # If no reading, just try the theme
+      logger.info("No reading ref, searching for theme: %s", fallback_theme)
+      results = search_images_cached(fallback_theme)
+      if results:
+        return random.choice(results)
     return None
 
   queries_to_try = []
@@ -368,6 +374,19 @@ def get_art_for_reading(reading_ref):
       except Exception as e:  # pylint: disable=broad-except
         logger.error("Error searching for art with query '%s': %s", query, e)
 
+  # 4. Fallback Theme
+  if fallback_theme:
+    logger.info("No art for ref found. Trying fallback theme: %s", fallback_theme)
+    try:
+        theme_results = search_images_cached(fallback_theme)
+        if theme_results:
+            selected = random.choice(theme_results)
+            logger.info("Found art for theme '%s'", fallback_theme)
+            return selected
+    except Exception as e:
+        logger.error("Error searching for theme '%s': %s", fallback_theme, e)
+
+  # 5. Fallback to Recent
   logger.info("No specific art found. Falling back to recent images.")
   try:
     # Refresh cache every hour
