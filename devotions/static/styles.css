@@ -802,8 +802,8 @@ body.dark-mode .catechism-qa {
 
 /* Background Art Transparency */
 body.has-background-art .card {
-    background-color: rgba(255, 255, 255, 0.92);
-    backdrop-filter: blur(2px);
+    background-color: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(3px);
 }
 
 /* Dark Mode */
@@ -813,7 +813,7 @@ body.dark-mode {
 }
 
 body.dark-mode.has-background-art .card {
-    background-color: rgba(68, 68, 68, 0.92);
+    background-color: rgba(68, 68, 68, 0.85);
 }
 
 body.dark-mode a {
