@@ -353,6 +353,8 @@ def get_art_for_reading(reading_ref):
       selected = random.choice(recent_images)
       logger.info("Using fallback image: %s", selected.get("title"))
       return selected
+    else:
+      logger.warning("Recent images list is empty.")
   except Exception as e:  # pylint: disable=broad-except
     logger.error("Error fetching recent images for fallback: %s", e)
 

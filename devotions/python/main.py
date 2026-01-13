@@ -77,8 +77,13 @@ else:
   # Wire up Gunicorn logging to Flask's logger in production
   gunicorn_logger = logging.getLogger("gunicorn.error")
   app.logger.handlers = gunicorn_logger.handlers
-  # Force INFO level to ensure we see our auth logs
   app.logger.setLevel(logging.INFO)
+  
+  # Configure root logger to output to Gunicorn handlers as well
+  # This ensures logs from other modules (like fullofeyes_scraper) are captured
+  root_logger = logging.getLogger()
+  root_logger.handlers = gunicorn_logger.handlers
+  root_logger.setLevel(logging.INFO)
 
 oauth = OAuth(app)
 login_manager = flask_login.LoginManager()
