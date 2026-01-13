@@ -36,7 +36,6 @@
 {% block extra_js %}
     document.addEventListener('DOMContentLoaded', () => {
         const ntRef = "{{ nt_ref }}";
-        const otRef = "{{ ot_ref }}";
         const container = document.getElementById('art-container');
         const loading = document.getElementById('art-loading');
 
@@ -49,7 +48,6 @@
         }
 
         async function tryFetchArt() {
-            // Try NT first
             if (ntRef && ntRef !== "Reading not found") {
                 try {
                     console.log(`Fetching art for NT ref: ${ntRef}`);
@@ -61,21 +59,6 @@
                     }
                 } catch (e) {
                     console.error("Error fetching NT art", e);
-                }
-            }
-
-            // Fallback to OT
-            if (otRef && otRef !== "Reading not found") {
-                try {
-                    console.log(`Fetching art for OT ref: ${otRef}`);
-                    const response = await fetch(`/api/lectionary/art?ref=${encodeURIComponent(otRef)}`);
-                    const data = await response.json();
-                    if (data.image_url) {
-                        displayArt(data);
-                        return;
-                    }
-                } catch (e) {
-                    console.error("Error fetching OT art", e);
                 }
             }
 

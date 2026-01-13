@@ -1,5 +1,6 @@
 """Utility to scrape art from Full of Eyes."""
 
+import concurrent.futures
 import functools
 import logging
 import random
@@ -319,11 +320,21 @@ def get_art_for_reading(reading_ref):
       f"Searching art for ref '{reading_ref}' with queries: {queries_to_try}"
   )
 
-  for query in queries_to_try:
-    results = search_images_cached(query)
-    if results:
-      logger.info(f"Found art for query '{query}'")
-      return results[0]
+  with concurrent.futures.ThreadPoolExecutor() as executor:
+    # Map query to future to preserve order of checking
+    query_to_future = {
+        q: executor.submit(search_images_cached, q) for q in queries_to_try
+    }
+
+    for query in queries_to_try:
+      future = query_to_future[query]
+      try:
+        results = future.result()
+        if results:
+          logger.info(f"Found art for query '{query}'")
+          return results[0]
+      except Exception as e:  # pylint: disable=broad-except
+        logger.error(f"Error searching for art with query '{query}': {e}")
 
   logger.info("No art found.")
   return None
