@@ -452,6 +452,24 @@ def login():
 @app.route("/settings")
 def settings_route():
   """Renders the dedicated settings page."""
+  if flask.request.args.get("demo") == "twilio_compliance":
+    dummy_user = User(
+        user_id="demo_user",
+        email="demo@asimplewaytopray.com",
+        name="Demo User",
+        phone_number="+15550199999",
+        notification_preferences={
+            "prayer_reminders": {"push": True, "email": False, "sms": False},
+            "prayed_for_me": {"push": True, "email": False, "sms": False},
+        },
+        timezone="America/New_York",
+    )
+    return flask.render_template(
+        "settings.html",
+        timezones=pytz.common_timezones,
+        current_user=dummy_user,
+    )
+
   return flask.render_template("settings.html", timezones=pytz.common_timezones)
 
 

@@ -405,6 +405,13 @@
   const savePrefsBtn = document.getElementById('save-prefs-btn');
   if (savePrefsBtn) {
       savePrefsBtn.addEventListener('click', async () => {
+          // Check for demo mode
+          const urlParams = new URLSearchParams(window.location.search);
+          if (urlParams.get('demo') === 'twilio_compliance') {
+              alert("Preferences saved successfully. (Demo Mode)");
+              return;
+          }
+
           const form = document.getElementById('notification-preferences-form');
           const formData = new FormData(form);
           
