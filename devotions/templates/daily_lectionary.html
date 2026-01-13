@@ -22,14 +22,47 @@
         <p>{{ nt_text|safe }}</p>
     {% endcall %}
 
-    {% if art_data %}
-        {% call macros.card('Art') %}
-            <div id="art-container" style="text-align: center;">
-                 <img src="{{ art_data.image_url }}" style="max-width: 100%; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);" alt="Relevant Art: {{ art_data.title }}">
-                 <p style="font-style: italic; color: #666; margin-top: 5px;">{{ art_data.title }}</p>
-                 <p style="font-size: 0.8em;"><a href="{{ art_data.link }}" target="_blank">View on Full of Eyes</a></p>
-            </div>
-        {% endcall %}
-    {% endif %}
+    {% call macros.card('Art') %}
+        <div id="art-container" style="text-align: center; display: none;">
+             <img id="art-image" style="max-width: 100%; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);" alt="Relevant Art">
+             <p id="art-title" style="font-style: italic; color: #666; margin-top: 5px;"></p>
+             <p style="font-size: 0.8em;"><a id="art-link" href="#" target="_blank">View on Full of Eyes</a></p>
+        </div>
+        <p id="art-loading"><em>Searching for relevant art...</em></p>
+    {% endcall %}
 
+{% endblock %}
+
+{% block extra_js %}
+    document.addEventListener('DOMContentLoaded', () => {
+        const ntRef = "{{ nt_ref }}";
+
+        if (!ntRef || ntRef === "Reading not found") {
+             document.getElementById('art-loading').innerHTML = "<em>No art found.</em>";
+             return;
+        }
+
+        console.log(`Fetching art for ref: ${ntRef}`);
+        fetch(`/api/lectionary/art?ref=${encodeURIComponent(ntRef)}`)
+            .then(r => r.json())
+            .then(data => {
+                const container = document.getElementById('art-container');
+                const loading = document.getElementById('art-loading');
+                if (data.image_url) {
+                    console.log('Art found:', data);
+                    document.getElementById('art-image').src = data.image_url;
+                    document.getElementById('art-title').textContent = data.title;
+                    document.getElementById('art-link').href = data.link;
+                    container.style.display = 'block';
+                    loading.style.display = 'none';
+                } else {
+                     console.log('No art found.');
+                     loading.innerHTML = "<em>No art found.</em>";
+                }
+            })
+            .catch(e => {
+                console.error('Error fetching art:', e);
+                document.getElementById('art-loading').innerHTML = "<em>Could not load art.</em>";
+            });
+    });
 {% endblock %}

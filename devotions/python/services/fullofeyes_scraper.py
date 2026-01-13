@@ -1,11 +1,14 @@
 """Utility to scrape art from Full of Eyes."""
 
 import functools
+import logging
 import random
 import time
 import urllib.parse
 import bs4
 import requests
+
+logger = logging.getLogger(__name__)
 
 
 @functools.lru_cache(maxsize=128)
@@ -54,25 +57,25 @@ class FullOfEyesScraper:
       # Randomize delay slightly to look more human
       time.sleep(random.uniform(1.0, 3.0))
 
-      print(f"Fetching: {url}")
+      logger.info(f"Fetching: {url}")
       response = self.session.get(url, timeout=15)
       response.raise_for_status()
 
-      # Print if redirect happened or just to confirm specific endpoint hit
+      # Log if redirect happened or just to confirm specific endpoint hit
       if response.url != url:
-        print(f"  -> Redirected to: {response.url}")
+        logger.info(f"  -> Redirected to: {response.url}")
 
       return bs4.BeautifulSoup(response.content, "html.parser")
     except requests.exceptions.HTTPError as e:
-      print(f"HTTP Error fetching {url}: {e}")
+      logger.error(f"HTTP Error fetching {url}: {e}")
       if e.response.status_code == 403:
-        print(
+        logger.warning(
             "Tip: A 403 error often means the site is blocking the script. Try"
             " waiting a few hours or changing your IP."
         )
       return None
     except requests.RequestException as e:
-      print(f"Error fetching {url}: {e}")
+      logger.error(f"Error fetching {url}: {e}")
       return None
 
   def _get_next_page_url(self, soup):
@@ -199,7 +202,7 @@ class FullOfEyesScraper:
     Follows 'Next' links dynamically.
     """
     all_items = []
-    print(f"Scraping up to {max_pages} pages from the main gallery...")
+    logger.info(f"Scraping up to {max_pages} pages from the main gallery...")
 
     # Start at the gallery URL
     current_url = self.gallery_url
@@ -207,7 +210,7 @@ class FullOfEyesScraper:
     page_count = 0
     while current_url and page_count < max_pages:
       page_count += 1
-      print(f"\n--- Page {page_count} ---")
+      logger.info(f"--- Page {page_count} ---")
 
       soup = self._get_soup(current_url)
       if not soup:
@@ -216,16 +219,16 @@ class FullOfEyesScraper:
       items = self._parse_items_from_page(soup)
       if items:
         all_items.extend(items)
-        print(f"  Found {len(items)} items.")
+        logger.info(f"  Found {len(items)} items.")
       else:
-        print("  No items found on this page.")
+        logger.info("  No items found on this page.")
 
       # Find the next page URL for the next iteration
       current_url = self._get_next_page_url(soup)
       if current_url:
-        print(f"  Next page found: {current_url}")
+        logger.info(f"  Next page found: {current_url}")
       else:
-        print("  No 'Next' page link found. Stopping.")
+        logger.info("  No 'Next' page link found. Stopping.")
         break
 
     return all_items
@@ -251,7 +254,7 @@ class FullOfEyesScraper:
     encoded_query = urllib.parse.quote(query)
     search_url = f"{self.base_url}/search/?_sf_s={encoded_query}&_sft_post_format=post-format-image"
 
-    print(f"Searching for '{query}' at: {search_url}")
+    logger.info(f"Searching for '{query}' at: {search_url}")
 
     soup = self._get_soup(search_url)
     results = self._parse_items_from_page(soup)

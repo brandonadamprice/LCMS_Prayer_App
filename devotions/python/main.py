@@ -1646,6 +1646,14 @@ def force_reminders_route():
     return flask.jsonify({"success": False, "error": msg}), 400
 
 
+@app.route("/api/lectionary/art")
+def lectionary_art_route():
+  """Fetches relevant art based on a query."""
+  ref = flask.request.args.get("ref")
+  art = daily_lectionary_page.get_art_for_reading(ref)
+  return flask.jsonify(art) if art else flask.jsonify({})
+
+
 @app.route("/twilio/sms_reply", methods=["POST"])
 def twilio_sms_reply():
   """Handles incoming SMS replies from Twilio."""
