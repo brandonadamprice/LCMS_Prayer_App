@@ -1,10 +1,18 @@
 """Utility to scrape art from Full of Eyes."""
 
+import functools
 import random
 import time
 import urllib.parse
 import bs4
 import requests
+
+
+@functools.lru_cache(maxsize=128)
+def search_images_cached(query):
+  """Cached wrapper for searching images."""
+  scraper = FullOfEyesScraper()
+  return scraper.search_images(query)
 
 
 class FullOfEyesScraper:

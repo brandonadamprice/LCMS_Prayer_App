@@ -22,4 +22,14 @@
         <p>{{ nt_text|safe }}</p>
     {% endcall %}
 
+    {% if art_data %}
+        {% call macros.card('Art') %}
+            <div id="art-container" style="text-align: center;">
+                 <img src="{{ art_data.image_url }}" style="max-width: 100%; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);" alt="Relevant Art: {{ art_data.title }}">
+                 <p style="font-style: italic; color: #666; margin-top: 5px;">{{ art_data.title }}</p>
+                 <p style="font-size: 0.8em;"><a href="{{ art_data.link }}" target="_blank">View on Full of Eyes</a></p>
+            </div>
+        {% endcall %}
+    {% endif %}
+
 {% endblock %}

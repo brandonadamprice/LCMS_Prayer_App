@@ -41,6 +41,7 @@ import secrets_fetcher
 import utils
 
 from services import analytics_ga4
+from services import fullofeyes_scraper
 from services import prayer_requests
 from services import reminders
 
