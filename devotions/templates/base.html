@@ -49,68 +49,41 @@
       </div>
 
       <div class="navbar-center desktop-nav">
-        <div class="dropdown">
-          <button class="dropbtn">Daily Prayer ▾</button>
-          <div class="dropdown-content">
-            <a href="/morning_devotion">Morning</a>
-            <a href="/midday_devotion">Midday</a>
-            <a href="/evening_devotion">Evening</a>
-            <a href="/close_of_day_devotion">Close of Day</a>
-            <a href="/night_watch_devotion">Night Watch</a>
-            {% if current_user.is_authenticated %}
-            <a href="/reminders" style="border-top: 1px solid #eee;">Prayer Reminders</a>
-            {% endif %}
-          </div>
-        </div>
-        <div class="dropdown">
-          <button class="dropbtn">Devotions ▾</button>
-          <div class="dropdown-content">
-            {% if is_advent %}
-            <a href="/advent_devotion">Advent</a>
-            {% endif %}
-            {% if is_new_year %}
-            <a href="/new_year_devotion">New Year's</a>
-            {% endif %}
-            {% if is_lent %}
-            <a href="/lent_devotion">Lenten</a>
-            {% endif %}
-            <a href="/childrens_devotion">Children's</a>
-            <a href="/litany">The Litany</a>
-            <a href="/extended_evening_devotion">Extended Evening</a>
-            <a href="/mid_week_devotion">Mid-Week</a>
-            <a href="/short_prayers">Short Prayers</a>
-          </div>
-        </div>
-        <div class="dropdown">
-          <button class="dropbtn">Bible ▾</button>
-          <div class="dropdown-content">
-            <a href="/daily_lectionary">Daily Lectionary</a>
-            <a href="/psalms_by_category">Psalms</a>
-            <a href="/gospels_by_category">Gospels</a>
-            <a href="/bible_in_a_year">Bible in a Year</a>
-            <a href="/memory">Memorization</a>
-          </div>
-        </div>
-        <div class="dropdown">
-          <button class="dropbtn">Prayer ▾</button>
-          <div class="dropdown-content">
-            <a href="/prayer_requests">Submit Request</a>
-            <a href="/prayer_wall">Prayer Wall</a>
-            <a href="/my_prayers">My Prayers</a>
-          </div>
-        </div>
-        <a href="/liturgical_calendar" class="nav-link">Calendar</a>
-        {% if current_user.is_authenticated and current_user.favorites %}
-        <div class="dropdown">
-          <button class="dropbtn">Favorites ▾</button>
-          <div class="dropdown-content">
-            {% for fav in current_user.favorites %}
-            <a href="{{ fav.path }}">{{ fav.title }}</a>
-            {% endfor %}
-          </div>
-        </div>
-        {% endif %}
-        <a href="/feedback" class="nav-link">Feedback</a>
+        {% for item in app_menu %}
+          {% if item.type == 'dropdown' %}
+            <div class="dropdown">
+              <button class="dropbtn">{{ item.label }} ▾</button>
+              <div class="dropdown-content">
+                {% for sub in item.items %}
+                   {% if sub.enabled %}
+                     {% if sub.requires_auth and not current_user.is_authenticated %}
+                       {# Skip if auth required #}
+                     {% else %}
+                       {% if sub.separator_before %}
+                         <a href="{{ sub.url }}" style="border-top: 1px solid #eee;">{{ sub.label }}</a>
+                       {% else %}
+                         <a href="{{ sub.url }}">{{ sub.label }}</a>
+                       {% endif %}
+                     {% endif %}
+                   {% endif %}
+                {% endfor %}
+              </div>
+            </div>
+          {% elif item.type == 'link' %}
+            <a href="{{ item.url }}" class="nav-link">{{ item.label }}</a>
+          {% elif item.type == 'dynamic_favorites' %}
+             {% if current_user.is_authenticated and current_user.favorites %}
+              <div class="dropdown">
+                <button class="dropbtn">{{ item.label }} ▾</button>
+                <div class="dropdown-content">
+                  {% for fav in current_user.favorites %}
+                  <a href="{{ fav.path }}">{{ fav.title }}</a>
+                  {% endfor %}
+                </div>
+              </div>
+             {% endif %}
+          {% endif %}
+        {% endfor %}
       </div>
 
       <div class="navbar-right">
@@ -139,85 +112,38 @@
           </div>
           <div class="app-menu-section mobile-nav">
             <strong>Navigation</strong>
-            
-            <button class="menu-accordion">Daily Prayer</button>
-            <div class="menu-panel">
-              <a href="/morning_devotion" class="menu-sub-link">Morning</a>
-              <a href="/midday_devotion" class="menu-sub-link">Midday</a>
-              <a href="/evening_devotion" class="menu-sub-link">Evening</a>
-              <a href="/close_of_day_devotion" class="menu-sub-link">Close of Day</a>
-              <a href="/night_watch_devotion" class="menu-sub-link">Night Watch</a>
-              {% if current_user.is_authenticated %}
-              <a href="/reminders" class="menu-sub-link">Prayer Reminders</a>
+            {% for item in app_menu %}
+              {% if item.type == 'dropdown' %}
+                <button class="menu-accordion">{{ item.label }}</button>
+                <div class="menu-panel">
+                  {% for sub in item.items %}
+                     {% if sub.enabled %}
+                       {% if sub.requires_auth and not current_user.is_authenticated %}
+                         {# Skip #}
+                       {% else %}
+                         <a href="{{ sub.url }}" class="menu-sub-link">{{ sub.label }}</a>
+                       {% endif %}
+                     {% elif sub.seasonal %}
+                       <span class="menu-sub-link disabled">{{ sub.label }} (Seasonal)</span>
+                     {% endif %}
+                  {% endfor %}
+                </div>
+              {% elif item.type == 'link' %}
+                 <button class="menu-accordion">{{ item.label }}</button>
+                 <div class="menu-panel">
+                     <a href="{{ item.url }}" class="menu-sub-link">{{ item.label }}</a>
+                 </div>
+              {% elif item.type == 'dynamic_favorites' %}
+                  {% if current_user.is_authenticated and current_user.favorites %}
+                      <button class="menu-accordion">{{ item.label }}</button>
+                      <div class="menu-panel">
+                          {% for fav in current_user.favorites %}
+                          <a href="{{ fav.path }}" class="menu-sub-link">{{ fav.title }}</a>
+                          {% endfor %}
+                      </div>
+                  {% endif %}
               {% endif %}
-            </div>
-
-            <button class="menu-accordion">Seasonal Devotions</button>
-            <div class="menu-panel">
-               {% if is_advent %}
-               <a href="/advent_devotion" class="menu-sub-link">Advent Family Devotional</a>
-               {% else %}
-               <span class="menu-sub-link disabled">Advent (Seasonal)</span>
-               {% endif %}
-               {% if is_new_year %}
-               <a href="/new_year_devotion" class="menu-sub-link">New Year's Devotion</a>
-               {% else %}
-               <span class="menu-sub-link disabled">New Year's (Seasonal)</span>
-               {% endif %}
-               {% if is_lent %}
-               <a href="/lent_devotion" class="menu-sub-link">Lenten Devotion</a>
-               {% else %}
-               <span class="menu-sub-link disabled">Lenten (Seasonal)</span>
-               {% endif %}
-            </div>
-
-            <button class="menu-accordion">Children's Devotions</button>
-            <div class="menu-panel">
-                <a href="/childrens_devotion" class="menu-sub-link">Children's Daily Devotion</a>
-            </div>
-
-            <button class="menu-accordion">Other Devotions</button>
-            <div class="menu-panel">
-                <a href="/litany" class="menu-sub-link">The Litany</a>
-                <a href="/extended_evening_devotion" class="menu-sub-link">Extended Evening</a>
-                <a href="/mid_week_devotion" class="menu-sub-link">Mid-Week Devotion</a>
-                <a href="/short_prayers" class="menu-sub-link">Short Prayers</a>
-            </div>
-
-            <button class="menu-accordion">Calendar</button>
-            <div class="menu-panel">
-                <a href="/liturgical_calendar" class="menu-sub-link">Liturgical Calendar</a>
-            </div>
-
-            <button class="menu-accordion">Bible Helps</button>
-            <div class="menu-panel">
-                <a href="/daily_lectionary" class="menu-sub-link">Daily Lectionary</a>
-                <a href="/psalms_by_category" class="menu-sub-link">Psalms</a>
-                <a href="/gospels_by_category" class="menu-sub-link">Gospels</a>
-                <a href="/bible_in_a_year" class="menu-sub-link">Bible in a Year</a>
-                <a href="/memory" class="menu-sub-link">Scripture Memorization</a>
-            </div>
-
-            <button class="menu-accordion">Prayer Requests</button>
-            <div class="menu-panel">
-                <a href="/prayer_requests" class="menu-sub-link">Submit a Request</a>
-                <a href="/prayer_wall" class="menu-sub-link">Pray for Someone</a>
-                <a href="/my_prayers" class="menu-sub-link">My Personal Prayers</a>
-            </div>
-
-            {% if current_user.is_authenticated and current_user.favorites %}
-            <button class="menu-accordion">Favorites</button>
-            <div class="menu-panel">
-                {% for fav in current_user.favorites %}
-                <a href="{{ fav.path }}" class="menu-sub-link">{{ fav.title }}</a>
-                {% endfor %}
-            </div>
-            {% endif %}
-
-            <button class="menu-accordion">Feedback</button>
-            <div class="menu-panel">
-                <a href="/feedback" class="menu-sub-link">Submit Feedback</a>
-            </div>
+            {% endfor %}
           </div>
         </div>
       </div>

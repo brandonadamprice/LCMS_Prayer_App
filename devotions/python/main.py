@@ -30,6 +30,7 @@ from devotional_content import short_prayers
 import flask
 import flask_login
 from google.cloud import firestore
+import menu
 import models
 import pytz
 import secrets_fetcher
@@ -78,7 +79,7 @@ else:
   gunicorn_logger = logging.getLogger("gunicorn.error")
   app.logger.handlers = gunicorn_logger.handlers
   app.logger.setLevel(logging.INFO)
-  
+
   # Configure root logger to output to Gunicorn handlers as well
   # This ensures logs from other modules (like fullofeyes_scraper) are captured
   root_logger = logging.getLogger()
@@ -139,7 +140,14 @@ def inject_globals():
   easter_sunday = cy.easter_date
   is_lent = ash_wednesday <= now.date() <= easter_sunday
 
-  return dict(is_advent=is_advent, is_new_year=is_new_year, is_lent=is_lent)
+  app_menu = menu.get_menu_items(is_advent, is_new_year, is_lent)
+
+  return dict(
+      is_advent=is_advent,
+      is_new_year=is_new_year,
+      is_lent=is_lent,
+      app_menu=app_menu,
+  )
 
 
 def validate_password(password):
