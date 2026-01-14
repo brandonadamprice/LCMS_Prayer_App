@@ -1702,11 +1702,19 @@ def debug_twilio_route():
     from twilio.rest import Client
 
     client = Client(sid, token)
-    account = client.api.accounts(sid).fetch()
+    # Just try to fetch the account associated with the credentials
+    # If using an API Key (SK...), client.api.accounts(sid) might fail if sid is the API Key SID
+    # Use client.api.v2010.account to get the main account associated with credentials
+    # or just try to list messages (limit 1) which validates auth.
+
+    # Actually, if 'sid' is an API Key (starts with SK), we cannot fetch /Accounts/SK...
+    # We should rely on the Account SID being correct.
+    # Let's try a safer operations: list messages with limit=1
+    client.messages.list(limit=1)
+
     return flask.jsonify({
         "success": True,
-        "message": f"Successfully authenticated as {account.friendly_name}",
-        "status": account.status,
+        "message": "Successfully authenticated (listed messages)",
     })
   except Exception as e:
     # Log credentials for inspection
