@@ -1685,48 +1685,6 @@ def force_reminders_route():
     return flask.jsonify({"success": False, "error": msg}), 400
 
 
-@app.route("/debug/twilio", methods=["GET"])
-@flask_login.login_required
-def debug_twilio_route():
-  """Checks Twilio credentials validity."""
-  if flask_login.current_user.id != app.config.get("ADMIN_USER_ID"):
-    return flask.abort(403)
-
-  sid = secrets_fetcher.get_twilio_account_sid()
-  token = secrets_fetcher.get_twilio_api_key()
-
-  if not sid or not token:
-    return flask.jsonify({"success": False, "error": "Missing credentials"})
-
-  try:
-    from twilio.rest import Client
-
-    client = Client(sid, token)
-    # Just try to fetch the account associated with the credentials
-    # If using an API Key (SK...), client.api.accounts(sid) might fail if sid is the API Key SID
-    # Use client.api.v2010.account to get the main account associated with credentials
-    # or just try to list messages (limit 1) which validates auth.
-
-    # Actually, if 'sid' is an API Key (starts with SK), we cannot fetch /Accounts/SK...
-    # We should rely on the Account SID being correct.
-    # Let's try a safer operations: list messages with limit=1
-    client.messages.list(limit=1)
-
-    return flask.jsonify({
-        "success": True,
-        "message": "Successfully authenticated (listed messages)",
-    })
-  except Exception as e:
-    # Log credentials for inspection
-    app.logger.error(
-        "Debug Twilio failed. SID: %s..., Token: %s..., Error: %s",
-        sid[:5] if sid else "None",
-        token[:5] if token else "None",
-        e,
-    )
-    return flask.jsonify({"success": False, "error": str(e)})
-
-
 @app.route("/api/lectionary/art")
 def lectionary_art_route():
   """Fetches relevant art based on a query."""

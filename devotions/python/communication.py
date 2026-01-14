@@ -83,19 +83,7 @@ def send_sms(to_phone, message):
     logger.info("SMS sent to %s: %s", to_phone, msg.sid)
     return True
   except Exception as e:
-    logger.error(
-        "Failed to send SMS to %s. Error: %s. SID used: %s... Token used:"
-        " %s... From: %s",
-        to_phone,
-        e,
-        sid[:5] if sid else "None",
-        token[:5] if token else "None",
-        from_number,
-    )
-    if hasattr(e, "msg"):
-      logger.error("Twilio Error Message: %s", e.msg)
-    if hasattr(e, "code"):
-      logger.error("Twilio Error Code: %s", e.code)
+    logger.error("Failed to send SMS to %s: %s", to_phone, e)
     return False
 
 
