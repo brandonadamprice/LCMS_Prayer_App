@@ -59,11 +59,11 @@ def generate_small_catechism_page():
   ]
 
   # Construct a pseudo-section for Daily Prayers
-  daily_prayers_section = {"group_title": "Daily Prayers", "items": []}
+  daily_prayers_section = {"group_title": "Daily Prayers", "prayer_list": []}
 
   for key, title in dp_keys:
     if key in op:
-      daily_prayers_section["items"].append({
+      daily_prayers_section["prayer_list"].append({
           "title": title,
           "text": op[key]["prayer"],
           "reference": op[key].get("reference"),
