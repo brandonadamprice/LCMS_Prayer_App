@@ -1,472 +1,479 @@
-{
-  "extended_mid_week_devotions": [
-    {
-      "week_number": 1,
-      "church_season/day": "Advent I (Ad Te Levavi)",
-      "Psalm": "Psalm 25",
-      "OT": "Zechariah 9:9-12",
-      "NT Lesson (Epistle)": "Romans 13:11-14",
-      "NT Lesson (Gospel)": "Matthew 21:1-9",
-      "Prayer": "Stir up our hearts, O Lord, to make ready the way of Your only-begotten Son, so that by His coming we may be enabled to serve You with pure minds; through the same Jesus Christ, Your Son, our Lord."
-    },
-    {
-      "week_number": 2,
-      "church_season/day": "Advent II",
-      "Psalm": "Psalm 80",
-      "OT": "Isaiah 40:1-5",
-      "NT Lesson (Epistle)": "Romans 15:4-13",
-      "NT Lesson (Gospel)": "Luke 21:25-36",
-      "Prayer": "Lord, we implore You, give ear to our prayers and lighten the darkness of our hearts by Your gracious visitation; who lives and reigns with the Father and the Holy Spirit, ever one God, world without end."
-    },
-    {
-      "week_number": 3,
-      "church_season/day": "Advent III (Gaudete)",
-      "Psalm": "Psalm 145",
-      "OT": "Isaiah 61:1-4",
-      "NT Lesson (Epistle)": "1 Corinthians 4:1-5",
-      "NT Lesson (Gospel)": "Matthew 11:2-10",
-      "Prayer": "Lord, we implore You, give ear to our prayers, and lighten the darkness of our hearts by Your gracious visitation; who lives and reigns with the Father in the unity of the Holy Spirit, God, forever and ever."
-    },
-    {
-      "week_number": 4,
-      "church_season/day": "Advent IV",
-      "Psalm": "Psalm 145",
-      "OT": "Isaiah 66:1-9",
-      "NT Lesson (Epistle)": "Philippians 4:4-7",
-      "NT Lesson (Gospel)": "John 1:19-28",
-      "Prayer": "Mercifully hear, O Lord, the prayers of Your people, that, as they rejoice in the advent of Your only-begotten Son according to the flesh, so when He comes a second time in His majesty, they may receive the reward of eternal life; through the same Jesus Christ, Your Son, our Lord."
-    },
-    {
-      "week_number": 5,
-      "church_season/day": "Christmas Day (Later Service)",
-      "Psalm": "Psalm 98",
-      "OT": "Isaiah 62:10-12",
-      "NT Lesson (Epistle)": "Hebrews 1:1-12",
-      "NT Lesson (Gospel)": "John 1:1-14",
-      "Prayer": "Grant, we implore You, Almighty God, that the new birth of Your only-begotten Son in the flesh may set us free who are held in the old bondage under the yoke of sin; through the same Jesus Christ, Your Son, our Lord."
-    },
-    {
-      "week_number": 6,
-      "church_season/day": "Sunday after Christmas",
-      "Psalm": "Psalm 103",
-      "OT": "Isaiah 35:1-10",
-      "NT Lesson (Epistle)": "Galatians 4:1-7",
-      "NT Lesson (Gospel)": "Luke 2:33-40",
-      "Prayer": "Almighty and everlasting God, from whom comes down every good and perfect gift: We give You thanks for all Your benefits, temporal and spiritual, bestowed upon us in the year past, and we implore You of Your goodness, grant us a favorable and joyful year..."
-    },
-    {
-      "week_number": 7,
-      "church_season/day": "The Epiphany of Our Lord",
-      "Psalm": "Psalm 97",
-      "OT": "Isaiah 60:1-6",
-      "NT Lesson (Epistle)": "Isaiah 60:1-6",
-      "NT Lesson (Gospel)": "Matthew 2:1-12",
-      "Prayer": "And now do we praise You, that You sent unto us Your only-begotten Son, and that in Him, being found in fashion as a man, You revealed the fullness of Your glory. Therefore with Angels, etc."
-    },
-    {
-      "week_number": 8,
-      "church_season/day": "Epiphany 1",
-      "Psalm": "Psalm 72",
-      "OT": "Isaiah 42:1-7",
-      "NT Lesson (Epistle)": "Romans 12:1-5",
-      "NT Lesson (Gospel)": "Luke 2:41-52",
-      "Prayer": "O Lord, we implore You mercifully to receive the prayers of Your people who call upon You; and grant that they may both perceive and know what things they ought to do, and also may have grace and power faithfully to fulfill the same; through Jesus Christ, Your Son, our Lord."
-    },
-    {
-      "week_number": 9,
-      "church_season/day": "Epiphany 3",
-      "Psalm": "Psalm 76",
-      "OT": "2 Kings 5:1-14",
-      "NT Lesson (Epistle)": "Romans 12:16-21",
-      "NT Lesson (Gospel)": "Matthew 8:1-13",
-      "Prayer": "Almighty and everlasting God, who governs all things in heaven and earth, mercifully hear the supplications of Your people and grant us Your peace all the days of our life; through Jesus Christ, Your Son, our Lord."
-    },
-    {
-      "week_number": 10,
-      "church_season/day": "Septuagesima (Time of Law)",
-      "Psalm": "Psalm 18",
-      "OT": "Exodus 14:1-31",
-      "NT Lesson (Epistle)": "1 Corinthians 9:24-10:5",
-      "NT Lesson (Gospel)": "Matthew 20:1-16",
-      "Prayer": "O Lord God, who sees that we put not our trust in anything that we do: Mercifully grant that by Your power we may be defended against all adversity; through Jesus Christ, Your Son, our Lord."
-    },
-    {
-      "week_number": 11,
-      "church_season/day": "Quinquagesima",
-      "Psalm": "Psalm 31",
-      "OT": "Exodus 40:1-38",
-      "NT Lesson (Epistle)": "1 Corinthians 13:1-13",
-      "NT Lesson (Gospel)": "Luke 18:31-43",
-      "Prayer": "O Lord, who has taught us that all our doings without charity are nothing worth: Send Your Holy Spirit and pour into our hearts that most excellent gift of charity, the very bond of peace and of all virtues; through Jesus Christ, Your Son, our Lord."
-    },
-    {
-      "week_number": 12,
-      "church_season/day": "Ash Wednesday",
-      "Psalm": "Psalm 38",
-      "OT": "Isaiah 58:1-12",
-      "NT Lesson (Epistle)": "Joel 2:12-19",
-      "NT Lesson (Gospel)": "Matthew 6:16-21",
-      "Prayer": "Almighty and everlasting God, who hates nothing that You have made, and forgives the sins of all those who are penitent: Create and make in us new and contrite hearts, that we, worthily lamenting our sins, and acknowledging our transgressions, may obtain of You, the God of all mercy, perfect remission and forgiveness; through Jesus Christ, Your Son, our Lord."
-    },
-    {
-      "week_number": 13,
-      "church_season/day": "Lent I (Invocavit)",
-      "Psalm": "Psalm 91",
-      "OT": "Genesis 3:1-24",
-      "NT Lesson (Epistle)": "2 Corinthians 6:1-10",
-      "NT Lesson (Gospel)": "Matthew 4:1-11",
-      "Prayer": "Almighty God, who sees that we have no power of ourselves to help ourselves, keep us both outwardly in our bodies and inwardly in our souls; that we may be defended from all adversities which may happen to the body, and from all evil thoughts which may assault and hurt the soul; through Jesus Christ, our Lord."
-    },
-    {
-      "week_number": 14,
-      "church_season/day": "Lent III (Oculi)",
-      "Psalm": "Psalm 25",
-      "OT": "Exodus 24:1-18",
-      "NT Lesson (Epistle)": "Ephesians 5:1-9",
-      "NT Lesson (Gospel)": "Luke 11:14-28",
-      "Prayer": "O God, the protector of all that trust in You, without whom nothing is strong, nothing is holy: Increase and multiply upon us Your mercy; that, You being our ruler and guide, we may so pass through things temporal, that we finally lose not the things eternal; through Jesus Christ, Your Son, our Lord."
-    },
-    {
-      "week_number": 15,
-      "church_season/day": "Lent V (Judica)",
-      "Psalm": "Psalm 43",
-      "OT": "Jeremiah 11:18-23",
-      "NT Lesson (Epistle)": "Hebrews 9:11-15",
-      "NT Lesson (Gospel)": "John 8:46-59",
-      "Prayer": "Almighty God, we implore You graciously to behold this Your family, for which our Lord Jesus Christ was contented to be betrayed and given up into the hands of wicked men and to suffer death upon the cross; through the same Jesus Christ, Your Son, our Lord."
-    },
-    {
-      "week_number": 16,
-      "church_season/day": "Maundy Thursday",
-      "Psalm": "Psalm 23",
-      "OT": "Exodus 12:1-28",
-      "NT Lesson (Epistle)": "1 Corinthians 11:23-32",
-      "NT Lesson (Gospel)": "John 13:1-15",
-      "Prayer": "Who on the Tree of the Cross gave salvation unto mankind; that whence death arose, thence life also might rise again: and that he who by a tree once overcame, might likewise by a Tree be overcome, through Christ our Lord."
-    },
-    {
-      "week_number": 17,
-      "church_season/day": "Good Friday",
-      "Psalm": "Psalm 22",
-      "OT": "Isaiah 53:3-12",
-      "NT Lesson (Epistle)": "Hebrews 4:14-16, 5:7-9",
-      "NT Lesson (Gospel)": "John 18:1-19:42",
-      "Prayer": "Almighty and everlasting God, who has willed that Your Son should bear for us the pains of the Cross, that You might remove from us the power of the adversary: Help us so to remember and give thanks for His passion..."
-    },
-    {
-      "week_number": 18,
-      "church_season/day": "Easter Day",
-      "Psalm": "Psalm 118",
-      "OT": "Exodus 14:10-31",
-      "NT Lesson (Epistle)": "1 Corinthians 5:6-8",
-      "NT Lesson (Gospel)": "Mark 16:1-8",
-      "Prayer": "But chiefly are we bound to praise You for the glorious Resurrection of Your Son Jesus Christ our Lord: for He is the very Paschal Lamb, which was offered for us and has taken away the sin of the world; Who by His death has destroyed death and by His rising to life again has restored to us everlasting life."
-    },
-    {
-      "week_number": 19,
-      "church_season/day": "Easter II (Quasimodogeniti)",
-      "Psalm": "Psalm 81",
-      "OT": "Leviticus 8:1-13, 30-36",
-      "NT Lesson (Epistle)": "1 John 5:4-10",
-      "NT Lesson (Gospel)": "John 20:19-31",
-      "Prayer": "Grant, we implore You, Almighty God, that we who have celebrated the solemnities of the Lord's Resurrection may, by the help of Your grace, bring forth the fruits thereof in our life and conduct; through the same Jesus Christ our Lord."
-    },
-    {
-      "week_number": 20,
-      "church_season/day": "Easter III (Misericordias)",
-      "Psalm": "Psalm 33",
-      "OT": "Ezekiel 34:11-16",
-      "NT Lesson (Epistle)": "1 Peter 2:21-25",
-      "NT Lesson (Gospel)": "John 10:11-16",
-      "Prayer": "O God, who makes the minds of the faithful to be of one will: Grant unto Your people that they may love what You command, and desire what You promise; that, among the manifold changes of the world, our hearts may there be fixed where true joys are to be found; through Jesus Christ, our Lord."
-    },
-    {
-      "week_number": 21,
-      "church_season/day": "Easter V (Rogate)",
-      "Psalm": "Psalm 66",
-      "OT": "Jeremiah 7:1-11",
-      "NT Lesson (Epistle)": "James 1:22-27",
-      "NT Lesson (Gospel)": "John 16:23-30",
-      "Prayer": "O God, from whom all good things do come: Grant to us Your humble servants, that by Your holy inspiration we may think those things that are right, and by Your merciful guiding may perform the same; through Jesus Christ, Your Son, our Lord."
-    },
-    {
-      "week_number": 22,
-      "church_season/day": "Ascension Day",
-      "Psalm": "Psalm 47",
-      "OT": "Numbers 11:1-23, 31-35",
-      "NT Lesson (Epistle)": "Acts 1:1-11",
-      "NT Lesson (Gospel)": "Mark 16:14-20",
-      "Prayer": "Who, after Your Son, our Lord Jesus Christ, had accomplished the work of our redemption, exalted him with great triumph unto Your kingdom in heaven: Grant that we may also in heart and mind thither ascend, and with him continually dwell; through the same Jesus Christ, Your Son, our Lord."
-    },
-    {
-      "week_number": 23,
-      "church_season/day": "Pentecost Sunday",
-      "Psalm": "Psalm 68",
-      "OT": "Numbers 21:10-35",
-      "NT Lesson (Epistle)": "Acts 2:1-13",
-      "NT Lesson (Gospel)": "John 14:23-31",
-      "Prayer": "Lord God, dear Father, Who on this day through Your Holy Spirit enlightened and taught the hearts of Your believing ones: Grant to us, that we may have right understanding through the same Spirit and at all times rejoice in His comfort and power, for Jesus Christ, our Lord."
-    },
-    {
-      "week_number": 24,
-      "church_season/day": "Holy Trinity Sunday",
-      "Psalm": "Psalm 8",
-      "OT": "Numbers 35:9-30",
-      "NT Lesson (Epistle)": "Romans 11:33-36",
-      "NT Lesson (Gospel)": "John 3:1-15",
-      "Prayer": "Who with Your Only-begotten Son, and the Holy Spirit, are one God, one Lord. And in the confession of the only true God, we worship the Trinity in Person, and the Unity in Substance, of Majesty co-equal. Therefore with Angels, etc."
-    },
-    {
-      "week_number": 25,
-      "church_season/day": "Trinity 1",
-      "Psalm": "Psalm 13",
-      "OT": "Deuteronomy 5:1-33",
-      "NT Lesson (Epistle)": "1 John 4:16-21",
-      "NT Lesson (Gospel)": "Luke 16:19-31",
-      "Prayer": "O God, the strength of all them that put their trust in You: Mercifully accept our prayers; and because through the weakness of our mortal nature we can do no good thing without You, grant us the help of Your grace, that in keeping Your commandments we may please You, both in will and deed; through Jesus Christ, Your Son, our Lord."
-    },
-    {
-      "week_number": 26,
-      "church_season/day": "Trinity 4",
-      "Psalm": "Psalm 23",
-      "OT": "2 Samuel 12:1-14",
-      "NT Lesson (Epistle)": "Romans 8:18-23",
-      "NT Lesson (Gospel)": "Luke 6:36-42",
-      "Prayer": "Grant, O Lord, we implore You, that the course of this world may be so peaceably ordered by Your governance, that Your Church may joyfully serve You in all godly quietness; through Jesus Christ, Your Son, our Lord."
-    },
-    {
-      "week_number": 27,
-      "church_season/day": "Trinity 8",
-      "Psalm": "Psalm 55",
-      "OT": "Jeremiah 23:23-29",
-      "NT Lesson (Epistle)": "Romans 8:12-17",
-      "NT Lesson (Gospel)": "Matthew 7:15-23",
-      "Prayer": "O God, whose never-failing providence orders all things both in heaven and earth: We humbly implore You to put away from us all hurtful things, and to give us those things which are profitable for us; through Your Son, Jesus Christ our Lord."
-    },
-    {
-      "week_number": 28,
-      "church_season/day": "Trinity 12",
-      "Psalm": "Psalm 77",
-      "OT": "Isaiah 35:1-10",
-      "NT Lesson (Epistle)": "2 Corinthians 3:4-11",
-      "NT Lesson (Gospel)": "Mark 7:31-37",
-      "Prayer": "Make haste, O God, to deliver me! O Lord, make haste to help me! Let them be put to shame and confusion who seek my life!"
-    },
-    {
-      "week_number": 29,
-      "church_season/day": "Trinity 16",
-      "Psalm": "Psalm 84",
-      "OT": "Jeremiah 22:1-10",
-      "NT Lesson (Epistle)": "Ephesians 3:13-21",
-      "NT Lesson (Gospel)": "Luke 7:11-17",
-      "Prayer": "Lord, we pray that Your grace may always go before and follow after us, and make us continually to be given to all good works; through Your Son, Jesus Christ our Lord, who lives and reigns with You in the unity of the Holy Spirit, God, forever and ever."
-    },
-    {
-      "week_number": 30,
-      "church_season/day": "Trinity 20",
-      "Psalm": "Psalm 145",
-      "OT": "Isaiah 25:6-9",
-      "NT Lesson (Epistle)": "Ephesians 5:15-21",
-      "NT Lesson (Gospel)": "Matthew 22:1-14",
-      "Prayer": "Lord, we implore You to keep Your household, the Church, in continual godliness; that through Your protection it may be free from all adversities, and devoutly given to serve You in good works, to the glory of Your Name; through Jesus Christ, Your Son, our Lord."
-    },
-    {
-      "week_number": 31,
-      "church_season/day": "Trinity 24",
-      "Psalm": "Psalm 130",
-      "OT": "1 Kings 17:17-24",
-      "NT Lesson (Epistle)": "Colossians 1:9-14",
-      "NT Lesson (Gospel)": "Matthew 9:18-26",
-      "Prayer": "Absolve, we implore You, O Lord, Your people from their offenses; that from the bonds of our sins which, by reason of our frailty, we have brought upon us, we may be delivered by Your bountiful goodness; through Jesus Christ, Your Son, our Lord."
-    },
-    {
-      "week_number": 32,
-      "church_season/day": "Last Sunday after Trinity",
-      "Psalm": "Psalm 93",
-      "OT": "Revelation 21:1-5",
-      "NT Lesson (Epistle)": "1 Thessalonians 4:13-18",
-      "NT Lesson (Gospel)": "Matthew 25:1-13",
-      "Prayer": "O God, so rule and govern our hearts and minds by Your Holy Spirit, that, being ever mindful of the end of all things and the day of Your just judgment, we may be stirred up to holiness of living here, and dwell with You in life everlasting; through Jesus Christ, Your Son, our Lord."
-    },
-    {
-      "week_number": 33,
-      "church_season/day": "St. Stephen the Martyr",
-      "Psalm": "Psalm 119:1-8",
-      "OT": "Genesis 4:1-10",
-      "NT Lesson (Epistle)": "Acts 6:8-7:2a, 51-60",
-      "NT Lesson (Gospel)": "Matthew 23:34-39",
-      "Prayer": "Grant, O Lord, that in all our sufferings here upon earth for the testimony of Your truth we may steadfastly look up to heaven and by faith behold the glory that shall be revealed; and, being filled with the Holy Spirit, may learn to love and bless our persecutors by the example of Your first martyr, Saint Stephen..."
-    },
-    {
-      "week_number": 34,
-      "church_season/day": "St. John the Apostle",
-      "Psalm": "Psalm 92",
-      "OT": "Exodus 33:1-23",
-      "NT Lesson (Epistle)": "1 John 1:1-10",
-      "NT Lesson (Gospel)": "John 21:19-24",
-      "Prayer": "Grant, we implore You, Almighty God, that we, who have been blessed with the light of Your truth, may by the illumination of the Holy Spirit so walk in Your way that we may attain the joy of everlasting life; through Jesus Christ, Your Son, our Lord."
-    },
-    {
-      "week_number": 35,
-      "church_season/day": "Conversion of St. Paul",
-      "Psalm": "Psalm 40",
-      "OT": "Acts 9:1-22",
-      "NT Lesson (Epistle)": "Acts 9:1-22",
-      "NT Lesson (Gospel)": "Matthew 19:27-30",
-      "Prayer": "Grant, we implore You, Almighty God, that we, who celebrate the conversion of Your blessed Apostle Paul, may by his example be stirred up to holiness of life, and in all things follow the pattern of his ready obedience; through the same Jesus Christ, Your Son, our Lord."
-    },
-    {
-      "week_number": 36,
-      "church_season/day": "Presentation of our Lord",
-      "Psalm": "Psalm 48",
-      "OT": "Malachi 3:1-4",
-      "NT Lesson (Epistle)": "Malachi 3:1-4",
-      "NT Lesson (Gospel)": "Luke 2:22-32",
-      "Prayer": "Grant, we implore You, O Lord, unto Your servants the gift of Your heavenly grace, that, as the Son of the Virgin Mary has made us partakers of salvation, we may daily grow in grace; through the same Jesus Christ, Your Son, our Lord."
-    },
-    {
-      "week_number": 37,
-      "church_season/day": "St. Mark the Evangelist",
-      "Psalm": "Psalm 66",
-      "OT": "Ezekiel 1:1-14, 22-28",
-      "NT Lesson (Epistle)": "Ephesians 4:7-16",
-      "NT Lesson (Gospel)": "Luke 10:1-9",
-      "Prayer": "O almighty God, who has enriched Your Church with the precious Gospel written by Your Evangelist Saint Mark, give us grace that we may firmly believe Your glad tidings of salvation and daily walk as it becomes the Gospel of Christ; through the same Jesus Christ, Your Son, our Lord."
-    },
-    {
-      "week_number": 38,
-      "church_season/day": "St. Philip and St. James",
-      "Psalm": "Psalm 121",
-      "OT": "Joshua 14:6-15",
-      "NT Lesson (Epistle)": "Ephesians 2:19-22",
-      "NT Lesson (Gospel)": "John 14:1-14",
-      "Prayer": "Almighty and everlasting God, give unto us the increase of faith, hope, and charity; and that we may obtain that which You promise, make us to love that which You command; through Jesus Christ, Your Son, our Lord."
-    },
-    {
-      "week_number": 39,
-      "church_season/day": "Nativity of St. John the Baptist",
-      "Psalm": "Psalm 117",
-      "OT": "Isaiah 40:1-5",
-      "NT Lesson (Epistle)": "Isaiah 40:1-5",
-      "NT Lesson (Gospel)": "Luke 1:57-80",
-      "Prayer": "Merciful Father, give us grace that we may never presume to sin; but if at any time we offend Your divine majesty, may we truly repent and lament our offense and by a lively faith obtain remission of all our sins, solely through the merits of Your Son, our Savior, Jesus Christ."
-    },
-    {
-      "week_number": 40,
-      "church_season/day": "Trinity 5",
-      "Psalm": "Psalm 34",
-      "OT": "2 Samuel 1:1-27",
-      "NT Lesson (Epistle)": "1 Peter 3:8-15",
-      "NT Lesson (Gospel)": "Luke 5:1-11",
-      "Prayer": "Behold, O God, our Shield: and look upon the face of Your anointed; for a day in Your courts: is better than a thousand."
-    },
-    {
-      "week_number": 41,
-      "church_season/day": "Trinity 10 (Israel Sunday)",
-      "Psalm": "Psalm 103",
-      "OT": "Jeremiah 8:1-13",
-      "NT Lesson (Epistle)": "1 Corinthians 12:1-11",
-      "NT Lesson (Gospel)": "Luke 19:41-48",
-      "Prayer": "Let Your merciful ears, O Lord, be open to the prayers of Your humble servants; and that they may obtain their petitions, make them to ask such things as shall please You; through Jesus Christ, Your Son, our Lord."
-    },
-    {
-      "week_number": 42,
-      "church_season/day": "Trinity 14",
-      "Psalm": "Psalm 84",
-      "OT": "Leviticus 13:1-11",
-      "NT Lesson (Epistle)": "Galatians 5:16-24",
-      "NT Lesson (Gospel)": "Luke 17:11-19",
-      "Prayer": "Keep, we implore You, O Lord, Your Church with Your perpetual mercy; and, because the frailty of man without You we cannot but fall, keep us ever by Your help from all things hurtful, and lead us to all things profitable to our salvation; through Jesus Christ, Your Son, our Lord."
-    },
-    {
-      "week_number": 43,
-      "church_season/day": "Trinity 17",
-      "Psalm": "Psalm 119:137-144",
-      "OT": "Amos 5:1-15",
-      "NT Lesson (Epistle)": "Ephesians 4:1-6",
-      "NT Lesson (Gospel)": "Luke 14:1-11",
-      "Prayer": "O God, who makes the minds of the faithful to be of one will: Grant unto Your people that they may love what You command, and desire what You promise; that, among the manifold changes of the world, our hearts may there be fixed where true joys are to be found; through Jesus Christ, our Lord."
-    },
-    {
-      "week_number": 44,
-      "church_season/day": "Trinity 22",
-      "Psalm": "Psalm 90",
-      "OT": "Daniel 3:1-30",
-      "NT Lesson (Epistle)": "Philippians 1:3-11",
-      "NT Lesson (Gospel)": "Matthew 18:23-35",
-      "Prayer": "Almighty God, who knows us to be set in the midst of so many and great dangers, that by reason of the frailty of our nature we cannot always stand upright: Grant to us such strength and protection as may support us in all dangers and carry us through all temptations; through Jesus Christ, Your Son, our Lord."
-    },
-    {
-      "week_number": 45,
-      "church_season/day": "Trinity 23",
-      "Psalm": "Psalm 115",
-      "OT": "Proverbs 31:10-31",
-      "NT Lesson (Epistle)": "Philippians 3:17-21",
-      "NT Lesson (Gospel)": "Matthew 22:15-22",
-      "Prayer": "O Lord, we implore You to keep Your Church and household continually in Your true religion; that they who do lean only upon the hope of Your heavenly grace may evermore be defended by Your mighty power; through Jesus Christ, Your Son, our Lord."
-    },
-    {
-      "week_number": 46,
-      "church_season/day": "Trinity 26",
-      "Psalm": "Psalm 119:169-176",
-      "OT": "Isaiah 65:1-16",
-      "NT Lesson (Epistle)": "2 Peter 3:3-14",
-      "NT Lesson (Gospel)": "Matthew 25:1-13",
-      "Prayer": "O God, so rule and govern our hearts and minds by Your Holy Spirit, that, being ever mindful of the end of all things and the day of Your just judgment, we may be stirred up to holiness of living here, and dwell with You in life everlasting; through Jesus Christ, Your Son, our Lord."
-    },
-    {
-      "week_number": 47,
-      "church_season/day": "Festival of the Reformation",
-      "Psalm": "Psalm 46",
-      "OT": "Isaiah 52:7-10",
-      "NT Lesson (Epistle)": "Revelation 14:6-7",
-      "NT Lesson (Gospel)": "Matthew 11:12-15",
-      "Prayer": "O Lord, in these days we rejoicingly commemorate the fact that... You arose and set them in safety by sending Your servant Luther, who again brought the everlasting Gospel to the people... Grant us grace to welcome You aright, lest through sin, vanity, and unbelief we drive You away from us."
-    },
-    {
-      "week_number": 48,
-      "church_season/day": "All Saints' Day",
-      "Psalm": "Psalm 33",
-      "OT": "Isaiah 26:1-9",
-      "NT Lesson (Epistle)": "Revelation 7:2-17",
-      "NT Lesson (Gospel)": "Matthew 5:1-12",
-      "Prayer": "Through Jesus Christ our Lord, who in the blessedness of Your saints has given us a glorious pledge of the hope of our calling; that, following their example and being strengthened by their fellowship, we may exult in You for Your mercy, even as they rejoice with You in glory."
-    },
-    {
-      "week_number": 49,
-      "church_season/day": "St. Andrew the Apostle",
-      "Psalm": "Psalm 139",
-      "OT": "Deuteronomy 30:11-20",
-      "NT Lesson (Epistle)": "Romans 10:8-18",
-      "NT Lesson (Gospel)": "Matthew 4:18-22",
-      "Prayer": "Almighty God, by whose grace Your Apostle Saint Andrew obeyed the call of Your Son Jesus Christ, grant unto us also grace to follow Him in heart and life; through the same Jesus Christ, Your Son, our Lord."
-    },
-    {
-      "week_number": 50,
-      "church_season/day": "Trinity 6",
-      "Psalm": "Psalm 32",
-      "OT": "Genesis 4:1-15",
-      "NT Lesson (Epistle)": "Romans 6:3-11",
-      "NT Lesson (Gospel)": "Matthew 5:20-26",
-      "Prayer": "The Lord is the Strength of His people: He is the saving Strength of His anointed. Save Your people and bless Your inheritance: feed them also and lift them up forever."
-    },
-    {
-      "week_number": 51,
-      "church_season/day": "St. James the Elder",
-      "Psalm": "Psalm 147",
-      "OT": "Jeremiah 45:1-5",
-      "NT Lesson (Epistle)": "Romans 8:28-39",
-      "NT Lesson (Gospel)": "Matthew 20:20-28",
-      "Prayer": "Grant, we implore You, Almighty God, that we, who celebrate the conversion of Your blessed Apostle Paul, may by his example be stirred up to holiness of life, and in all things follow the pattern of his ready obedience; through the same Jesus Christ, Your Son, our Lord."
-    },
-    {
-      "week_number": 52,
-      "church_season/day": "St. Michael and All Angels",
-      "Psalm": "Psalm 103",
-      "OT": "Daniel 10:10-21",
-      "NT Lesson (Epistle)": "Revelation 12:7-12",
-      "NT Lesson (Gospel)": "Matthew 18:1-11",
-      "Prayer": "Almighty God, who has ordained and constituted the services of Angels and men in a wonderful order: Grant that as Your holy Angels always do You service in heaven, so, by Your appointment, they may succor and defend us on earth; through Jesus Christ, Your Son, our Lord."
-    }
-  ]
-}
+[
+  {
+    "week_number": 1,
+    "church_season/day": "Advent I (Ad Te Levavi)",
+    "Psalm": "Psalm 24",
+    "OT": "Jer. 23:5-8",
+    "NT Lesson (Epistle)": "Romans 13:11-14",
+    "NT Lesson (Gospel)": "Matthew 21:1-9",
+    "Prayer": "Stir up, we beseech Thee, Thy power, O Lord, and come, that by Thy protection we may be rescued from the threatening perils of our sins and saved by Thy mighty deliverance; through Jesus Christ, Thy Son, our Lord."
+  },
+  {
+    "week_number": 2,
+    "church_season/day": "Advent II (Populus Zion)",
+    "Psalm": "Psalm 50:1-15",
+    "OT": "Malachi 4:1-6",
+    "NT Lesson (Epistle)": "Romans 15:4-13",
+    "NT Lesson (Gospel)": "Luke 21:25-36",
+    "Prayer": "Stir up our hearts, O Lord, to make ready the way of Thine only-begotten Son, so that by His coming we may be enabled to serve Thee with pure minds; through the same Jesus Christ, Thy Son, our Lord."
+  },
+  {
+    "week_number": 3,
+    "church_season/day": "Advent III (Gaudete)",
+    "Psalm": "Psalm 85",
+    "OT": "Isaiah 40:1-8",
+    "NT Lesson (Epistle)": "1 Corinthians 4:1-5",
+    "NT Lesson (Gospel)": "Matthew 11:2-10",
+    "Prayer": "Lord, we beseech Thee, give ear to our prayers and lighten the darkness of our hearts by Thy gracious visitation; who livest and reignest with the Father and the Holy Ghost, ever one God, world without end."
+  },
+  {
+    "week_number": 4,
+    "church_season/day": "Advent IV (Rorate Coeli)",
+    "Psalm": "Psalm 111",
+    "OT": "Deuteronomy 18:15-19",
+    "NT Lesson (Epistle)": "Philippians 4:4-7",
+    "NT Lesson (Gospel)": "John 1:19-28",
+    "Prayer": "Stir up, we beseech Thee, Thy power, O Lord, and come and help us with Thy great might, that by the help of Thy grace, whatsoever is hindered by our sins may be speedily accomplished through Thy mercy and satisfaction."
+  },
+  {
+    "week_number": 5,
+    "church_season/day": "Christmas Day (The Nativity of Our Lord)",
+    "Psalm": "Psalm 2",
+    "OT": "Exodus 40:17-21, 34-38",
+    "NT Lesson (Epistle)": "Titus 3:4-7",
+    "NT Lesson (Gospel)": "John 1:1-14",
+    "Prayer": "Grant, we beseech Thee, Almighty God, that the new birth of Thine only-begotten Son in the flesh may set us free who are held in the old bondage under the yoke of sin; through the same Jesus Christ, Thy Son, our Lord."
+  },
+  {
+    "week_number": 6,
+    "church_season/day": "Sunday after Christmas",
+    "Psalm": "Psalm 89:1-8",
+    "OT": "Isaiah 11:1-5",
+    "NT Lesson (Epistle)": "Galatians 4:1-7",
+    "NT Lesson (Gospel)": "Luke 2:33-40",
+    "Prayer": "Almighty and everlasting God, direct our actions according to Thy good pleasure, that in the Name of Thy beloved Son we may be made to abound in good works; through Jesus Christ, our Lord."
+  },
+  {
+    "week_number": 7,
+    "church_season/day": "The Epiphany of Our Lord",
+    "Psalm": "Psalm 24",
+    "OT": "Isaiah 60:1-6",
+    "NT Lesson (Epistle)": "Ephesians 3:1-12",
+    "NT Lesson (Gospel)": "Matthew 2:1-12",
+    "Prayer": "O God, who by the leading of a star didst manifest Thine only-begotten Son to the Gentiles: Mercifully grant that we, who know Thee now by faith, may after this life have the fruition of Thy glorious Godhead."
+  },
+  {
+    "week_number": 8,
+    "church_season/day": "First Sunday after the Epiphany",
+    "Psalm": "Psalm 50:1-15",
+    "OT": "1 Kings 8:6-13",
+    "NT Lesson (Epistle)": "Romans 12:1-5",
+    "NT Lesson (Gospel)": "Luke 2:41-52",
+    "Prayer": "O Lord, we beseech Thee mercifully to receive the prayers of Thy people who call upon Thee; and grant that they may both perceive and know what things they ought to do, and also may have grace and power faithfully to fulfill the same."
+  },
+  {
+    "week_number": 9,
+    "church_season/day": "Second Sunday after the Epiphany",
+    "Psalm": "Psalm 67",
+    "OT": "Exodus 33:12-23",
+    "NT Lesson (Epistle)": "Romans 12:6-16",
+    "NT Lesson (Gospel)": "John 2:1-11",
+    "Prayer": "Almighty and everlasting God, who dost govern all things in heaven and earth: Mercifully hear the supplications of Thy people and grant us Thy peace all the days of our life; through Jesus Christ, Thy Son, our Lord."
+  },
+  {
+    "week_number": 10,
+    "church_season/day": "The Transfiguration of Our Lord",
+    "Psalm": "Psalm 2",
+    "OT": "Exodus 34:29-35",
+    "NT Lesson (Epistle)": "2 Peter 1:16-21",
+    "NT Lesson (Gospel)": "Matthew 17:1-9",
+    "Prayer": "O God, who in the glorious transfiguration of Thine only-begotten Son hast confirmed the mysteries of the faith by the testimony of the fathers: Mercifully grant that we may be made fellow-heirs with the King of Glory."
+  },
+  {
+    "week_number": 11,
+    "church_season/day": "Septuagesima Sunday",
+    "Psalm": "Psalm 95:1-9",
+    "OT": "Exodus 17:1-7",
+    "NT Lesson (Epistle)": "1 Corinthians 9:24-10:5",
+    "NT Lesson (Gospel)": "Matthew 20:1-16",
+    "Prayer": "O Lord, we beseech Thee favorably to hear the prayers of Thy people, that we, who are justly punished for our offenses, may be mercifully delivered by Thy goodness, for the glory of Thy Name; through Jesus Christ, our Savior."
+  },
+  {
+    "week_number": 12,
+    "church_season/day": "Sexagesima Sunday",
+    "Psalm": "Psalm 84",
+    "OT": "Isaiah 55:10-13",
+    "NT Lesson (Epistle)": "2 Corinthians 11:19-12:9",
+    "NT Lesson (Gospel)": "Luke 8:4-15",
+    "Prayer": "O Lord God, who seest that we put not our trust in anything that we do: Mercifully grant that by Thy power we may be defended against all adversity; through Jesus Christ, Thy Son, our Lord."
+  },
+  {
+    "week_number": 13,
+    "church_season/day": "Quinquagesima Sunday",
+    "Psalm": "Psalm 146",
+    "OT": "1 Samuel 16:1-13",
+    "NT Lesson (Epistle)": "1 Corinthians 13:1-13",
+    "NT Lesson (Gospel)": "Luke 18:31-43",
+    "Prayer": "O Lord, we beseech Thee, mercifully hear our prayers and, having set us free from the bonds of sin, defend us from all evil; through Jesus Christ, Thy Son, our Lord, who liveth and reigneth with Thee and the Holy Ghost."
+  },
+  {
+    "week_number": 14,
+    "church_season/day": "Ash Wednesday",
+    "Psalm": "Psalm 51:1-13",
+    "OT": "Joel 2:12-19",
+    "NT Lesson (Epistle)": "2 Peter 1:2-11",
+    "NT Lesson (Gospel)": "Matthew 6:16-21",
+    "Prayer": "Almighty and everlasting God, who hatest nothing that Thou hast made and dost forgive the sins of all those who are penitent: Create and make in us new and contrite hearts, that we, worthily lamenting our sins and acknowledging our wretchedness, may obtain of Thee, the God of all mercy, perfect remission and forgiveness; through Jesus Christ, our Lord."
+  },
+  {
+    "week_number": 15,
+    "church_season/day": "Invocabit (First Sunday in Lent)",
+    "Psalm": "Psalm 32",
+    "OT": "Genesis 3:1-21",
+    "NT Lesson (Epistle)": "2 Corinthians 6:1-10",
+    "NT Lesson (Gospel)": "Matthew 4:1-11",
+    "Prayer": "O Lord, mercifully hear our prayer and stretch forth the right hand of Thy Majesty to defend us from them that rise up against us; through Jesus Christ, Thy Son, our Lord."
+  },
+  {
+    "week_number": 16,
+    "church_season/day": "Reminiscere (Second Sunday in Lent)",
+    "Psalm": "Psalm 121",
+    "OT": "Genesis 32:22-32",
+    "NT Lesson (Epistle)": "1 Thessalonians 4:1-7",
+    "NT Lesson (Gospel)": "Matthew 15:21-28",
+    "Prayer": "O God, who seest that of ourselves we have no strength: Keep us both outwardly and inwardly; that we may be defended from all adversities which may happen to the body, and from all evil thoughts which may assault and hurt the soul; through Jesus Christ, Thy Son, our Lord."
+  },
+  {
+    "week_number": 17,
+    "church_season/day": "Oculi (Third Sunday in Lent)",
+    "Psalm": "Psalm 136:1-16",
+    "OT": "Exodus 8:16-24",
+    "NT Lesson (Epistle)": "Ephesians 5:1-9",
+    "NT Lesson (Gospel)": "Luke 11:14-28",
+    "Prayer": "We beseech Thee, Almighty God, look upon the hearty desires of Thy humble servants and stretch forth the right hand of Thy Majesty to be our defense against all our enemies; through Jesus Christ, Thy Son, our Lord."
+  },
+  {
+    "week_number": 18,
+    "church_season/day": "Laetare (Fourth Sunday in Lent)",
+    "Psalm": "Psalm 132:8-18",
+    "OT": "Exodus 16:2-21",
+    "NT Lesson (Epistle)": "Galatians 4:21-31",
+    "NT Lesson (Gospel)": "John 6:1-15",
+    "Prayer": "Grant, we beseech Thee, Almighty God, that we, who for our evil deeds do worthily deserve to be punished, by the comfort of Thy grace may mercifully be relieved; through Jesus Christ, Thy Son, our Lord."
+  },
+  {
+    "week_number": 19,
+    "church_season/day": "Judica (Fifth Sunday in Lent)",
+    "Psalm": "Psalm 43",
+    "OT": "Genesis 22:1-14",
+    "NT Lesson (Epistle)": "Hebrews 9:11-15",
+    "NT Lesson (Gospel)": "John 8:46-59",
+    "Prayer": "We beseech Thee, Almighty God, mercifully to look upon Thy people, that by Thy great goodness they may be governed and preserved evermore both in body and soul; through Jesus Christ, Thy Son, our Lord."
+  },
+  {
+    "week_number": 20,
+    "church_season/day": "Palmarum (The Sixth Sunday in Lent)",
+    "Psalm": "Psalm 118:19-29",
+    "OT": "Zechariah 9:9-12",
+    "NT Lesson (Epistle)": "Philippians 2:5-11",
+    "NT Lesson (Gospel)": "Matthew 21:1-9",
+    "Prayer": "Almighty and everlasting God, who hast sent Thy Son, our Savior Jesus Christ, to take upon Him our flesh and to suffer death upon the Cross, that all mankind should follow the example of His great humility: Mercifully grant that we may follow the example of His patience and also be made partakers of His resurrection; through the same Jesus Christ, our Lord."
+  },
+  {
+    "week_number": 21,
+    "church_season/day": "Easter Day (The Resurrection of Our Lord)",
+    "Psalm": "Psalm 118:15-29",
+    "OT": "Job 19:23-27",
+    "NT Lesson (Epistle)": "1 Corinthians 5:6-8",
+    "NT Lesson (Gospel)": "Mark 16:1-8",
+    "Prayer": "Almighty God, who through Thine only-begotten Son, Jesus Christ, hast overcome death and opened unto us the gate of everlasting life: We humbly beseech Thee that, as Thou dost put into our minds good desires, so by Thy continual help we may bring the same to good effect; through the same Jesus Christ, our Lord."
+  },
+  {
+    "week_number": 22,
+    "church_season/day": "Quasimodogeniti (First Sunday after Easter)",
+    "Psalm": "Psalm 33",
+    "OT": "Ezekiel 37:1-14",
+    "NT Lesson (Epistle)": "1 John 5:4-10",
+    "NT Lesson (Gospel)": "John 20:19-31",
+    "Prayer": "Grant, we beseech Thee, Almighty God, that we who have celebrated the solemnities of the Lord's Resurrection may, by the help of Thy grace, bring forth the fruits thereof in our life and conversation; through the same Jesus Christ, Thy Son, our Lord."
+  },
+  {
+    "week_number": 23,
+    "church_season/day": "Misericordias Domini (Second Sunday after Easter)",
+    "Psalm": "Psalm 23",
+    "OT": "Ezekiel 34:11-16",
+    "NT Lesson (Epistle)": "1 Peter 2:21-25",
+    "NT Lesson (Gospel)": "John 10:11-16",
+    "Prayer": "God, who by the humiliation of Thy Son didst raise up the fallen world: Grant unto Thy faithful ones perpetual gladness, and those whom Thou hast delivered from the danger of everlasting death do Thou make partakers of eternal joys; through the same Jesus Christ, Thy Son, our Lord."
+  },
+  {
+    "week_number": 24,
+    "church_season/day": "Jubilate (Third Sunday after Easter)",
+    "Psalm": "Psalm 147:1-11",
+    "OT": "Isaiah 40:25-31",
+    "NT Lesson (Epistle)": "1 Peter 2:11-20",
+    "NT Lesson (Gospel)": "John 16:16-22",
+    "Prayer": "Almighty God, who showest to them that be in error the light of Thy truth to the intent that they may return into the way of righteousness: Grant unto all them that are admitted into the fellowship of Christ's religion that they may avoid those things that are contrary to their profession and follow all such things as are agreeable to the same; through Jesus Christ, Thy Son, our Lord."
+  },
+  {
+    "week_number": 25,
+    "church_season/day": "Cantate (Fourth Sunday after Easter)",
+    "Psalm": "Psalm 66:1-8",
+    "OT": "Isaiah 12:1-6",
+    "NT Lesson (Epistle)": "James 1:16-21",
+    "NT Lesson (Gospel)": "John 16:5-15",
+    "Prayer": "O God, who makest the minds of the faithful to be of one will: Grant unto Thy people that they may love what Thou commandest and desire what Thou dost promise; that, among the manifold changes of the world, our hearts may there be fixed where true joys are to be found; through Jesus Christ, Thy Son, our Lord."
+  },
+  {
+    "week_number": 26,
+    "church_season/day": "Rogate (Fifth Sunday after Easter)",
+    "Psalm": "Psalm 107:1-9",
+    "OT": "Numbers 21:4-9",
+    "NT Lesson (Epistle)": "James 1:22-27",
+    "NT Lesson (Gospel)": "John 16:23-30",
+    "Prayer": "O God, from whom all good things do come: Grant to us, Thy humble servants, that by Thy holy inspiration we may think those things that be right and by Thy merciful guiding may perform the same; through Jesus Christ, Thy Son, our Lord."
+  },
+  {
+    "week_number": 27,
+    "church_season/day": "Exaudi (The Sunday after the Ascension)",
+    "Psalm": "Psalm 51:1-12",
+    "OT": "Ezekiel 36:22-28",
+    "NT Lesson (Epistle)": "1 Peter 4:7-11",
+    "NT Lesson (Gospel)": "John 15:26—16:4",
+    "Prayer": "Almighty, Everlasting God, make us to have always a devout will towards Thee and to serve Thy Majesty with a pure heart; through Jesus Christ, Thy Son, our Lord."
+  },
+  {
+    "week_number": 28,
+    "church_season/day": "The Day of Pentecost (Whitsunday)",
+    "Psalm": "Psalm 143",
+    "OT": "Genesis 11:1-9",
+    "NT Lesson (Epistle)": "Acts 2:1-21",
+    "NT Lesson (Gospel)": "John 14:23-31",
+    "Prayer": "O God, who didst teach the hearts of Thy faithful people by sending to them the light of Thy Holy Spirit: Grant us by the same Spirit to have a right judgment in all things and evermore to rejoice in His holy comfort; through Jesus Christ, Thy Son, our Lord."
+  },
+  {
+    "week_number": 29,
+    "church_season/day": "The Feast of the Holy Trinity",
+    "Psalm": "Psalm 29",
+    "OT": "Isaiah 6:1-7",
+    "NT Lesson (Epistle)": "Romans 11:33-36",
+    "NT Lesson (Gospel)": "John 3:1-15",
+    "Prayer": "Almighty and Everlasting God, who hast given unto us, Thy servants, grace, by the confession of a true faith, to acknowledge the glory of the eternal Trinity, and in the power of the Divine Majesty to worship the Unity: We beseech Thee that Thou wouldst keep us steadfast in this faith and evermore defend us from all adversities; who livest and reignest, one God, world without end."
+  },
+  {
+    "week_number": 30,
+    "church_season/day": "First Sunday after Trinity",
+    "Psalm": "Psalm 33:12-22",
+    "OT": "Genesis 15:1-6",
+    "NT Lesson (Epistle)": "1 John 4:16-21",
+    "NT Lesson (Gospel)": "Luke 16:19-31",
+    "Prayer": "O God, the strength of all them that put their trust in Thee: Mercifully accept our prayers; and because through the weakness of our mortal nature we can do no good thing without Thee, grant us the help of Thy grace, that in keeping Thy commandments we may please Thee both in will and deed; through Jesus Christ, our Lord."
+  },
+  {
+    "week_number": 31,
+    "church_season/day": "Second Sunday after Trinity",
+    "Psalm": "Psalm 34:12-22",
+    "OT": "Proverbs 9:1-10",
+    "NT Lesson (Epistle)": "1 John 3:13-18",
+    "NT Lesson (Gospel)": "Luke 14:15-24",
+    "Prayer": "O Lord, who never failest to help and govern them whom Thou dost bring up in Thy steadfast fear and love: Make us to have a perpetual fear and love of Thy holy Name; through Jesus Christ, Thy Son, our Lord."
+  },
+  {
+    "week_number": 32,
+    "church_season/day": "Third Sunday after Trinity",
+    "Psalm": "Psalm 103:1-13",
+    "OT": "Micah 7:18-20",
+    "NT Lesson (Epistle)": "1 Peter 5:6-11",
+    "NT Lesson (Gospel)": "Luke 15:1-10",
+    "Prayer": "O Lord, we beseech Thee mercifully to hear us; and grant that we, to whom Thou hast given a hearty desire to pray, may by Thy mighty aid be defended and comforted in all dangers and adversities; through Jesus Christ, Thy Son, our Lord."
+  },
+  {
+    "week_number": 33,
+    "church_season/day": "Fourth Sunday after Trinity",
+    "Psalm": "Psalm 138",
+    "OT": "Genesis 50:15-21",
+    "NT Lesson (Epistle)": "Romans 8:18-23",
+    "NT Lesson (Gospel)": "Luke 6:36-42",
+    "Prayer": "Grant, O Lord, we beseech Thee, that the course of this world may be so peaceably ordered by Thy governance, that Thy Church may joyfully serve Thee in all godly quietness; through Jesus Christ, Thy Son, our Lord."
+  },
+  {
+    "week_number": 34,
+    "church_season/day": "Fifth Sunday after Trinity",
+    "Psalm": "Psalm 16",
+    "OT": "1 Kings 19:11-21",
+    "NT Lesson (Epistle)": "1 Peter 3:8-15",
+    "NT Lesson (Gospel)": "Luke 5:1-11",
+    "Prayer": "O God, who hast prepared for them that love Thee such good things as pass man's understanding: Pour into our hearts such love toward Thee that we, loving Thee above all things, may obtain Thy promises, which exceed all that we can desire; through Jesus Christ, Thy Son, our Lord."
+  },
+  {
+    "week_number": 35,
+    "church_season/day": "Sixth Sunday after Trinity",
+    "Psalm": "Psalm 19",
+    "OT": "Exodus 20:1-17",
+    "NT Lesson (Epistle)": "Romans 6:3-11",
+    "NT Lesson (Gospel)": "Matthew 5:20-26",
+    "Prayer": "Lord of all power and might, who art the Author and Giver of all good things: Graft in our hearts the love of Thy Name, increase in us true religion, nourish us with all goodness, and of Thy great mercy keep us in the same; through Jesus Christ, Thy Son, our Lord."
+  },
+  {
+    "week_number": 36,
+    "church_season/day": "Seventh Sunday after Trinity",
+    "Psalm": "Psalm 33:1-11",
+    "OT": "Genesis 2:7-17",
+    "NT Lesson (Epistle)": "Romans 6:19-23",
+    "NT Lesson (Gospel)": "Mark 8:1-9",
+    "Prayer": "O God, whose never-failing providence ordereth all things both in heaven and earth: We humbly beseech Thee to put away from us all hurtful things and to give us those things which be profitable for us; through Jesus Christ, Thy Son, our Lord."
+  },
+  {
+    "week_number": 37,
+    "church_season/day": "Eighth Sunday after Trinity",
+    "Psalm": "Psalm 26",
+    "OT": "Jeremiah 23:16-29",
+    "NT Lesson (Epistle)": "Romans 8:12-17",
+    "NT Lesson (Gospel)": "Matthew 7:15-23",
+    "Prayer": "Grant to us, Lord, we beseech Thee, the spirit to think and do always such things as are right; that we, who cannot do anything that is good without Thee, may by Thee be enabled to live according to Thy will; through Jesus Christ, Thy Son, our Lord."
+  },
+  {
+    "week_number": 38,
+    "church_season/day": "Ninth Sunday after Trinity",
+    "Psalm": "Psalm 51:1-12",
+    "OT": "2 Samuel 22:26-34",
+    "NT Lesson (Epistle)": "1 Corinthians 10:6-13",
+    "NT Lesson (Gospel)": "Luke 16:1-9",
+    "Prayer": "Let Thy merciful ears, O Lord, be open to the prayers of Thy humble servants; and that they may obtain their petitions, make them to ask such things as shall please Thee; through Jesus Christ, Thy Son, our Lord."
+  },
+  {
+    "week_number": 39,
+    "church_season/day": "Tenth Sunday after Trinity",
+    "Psalm": "Psalm 92",
+    "OT": "Jeremiah 7:1-11",
+    "NT Lesson (Epistle)": "1 Corinthians 12:1-11",
+    "NT Lesson (Gospel)": "Luke 19:41-48",
+    "Prayer": "O God, who declarest Thy almighty power chiefly in showing mercy and pity: Mercifully grant unto us such a measure of Thy grace that we, running the way of Thy commandments, may obtain Thy gracious promises and be made partakers of Thy heavenly treasure; through Jesus Christ, Thy Son, our Lord."
+  },
+  {
+    "week_number": 40,
+    "church_season/day": "Eleventh Sunday after Trinity",
+    "Psalm": "Psalm 50:7-23",
+    "OT": "Genesis 4:1-15",
+    "NT Lesson (Epistle)": "1 Corinthians 15:1-10",
+    "NT Lesson (Gospel)": "Luke 18:9-14",
+    "Prayer": "Almighty and Everlasting God, who art always more ready to hear than we to pray, and art wont to give more than either we desire or deserve: Pour down upon us the abundance of Thy mercy, forgiving us those things whereof our conscience is afraid, and giving us those good things which we are not worthy to ask but through the merits and mediation of Jesus Christ, Thy Son, our Lord."
+  },
+  {
+    "week_number": 41,
+    "church_season/day": "Twelfth Sunday after Trinity",
+    "Psalm": "Psalm 146",
+    "OT": "Isaiah 29:17-24",
+    "NT Lesson (Epistle)": "2 Corinthians 3:4-11",
+    "NT Lesson (Gospel)": "Mark 7:31-37",
+    "Prayer": "Almighty and Merciful God, of whose only gift it cometh that Thy faithful people do unto Thee true and laudable service: Grant, we beseech Thee, that we may so faithfully serve Thee in this life that we fail not finally to attain Thy heavenly promises; through Jesus Christ, Thy Son, our Lord."
+  },
+  {
+    "week_number": 42,
+    "church_season/day": "Thirteenth Sunday after Trinity",
+    "Psalm": "Psalm 32",
+    "OT": "2 Chronicles 28:8-15",
+    "NT Lesson (Epistle)": "Galatians 3:15-22",
+    "NT Lesson (Gospel)": "Luke 10:23-37",
+    "Prayer": "Almighty and Everlasting God, give unto us the increase of faith, hope, and charity; and that we may obtain that which Thou dost promise, make us to love that which Thou dost command; through Jesus Christ, Thy Son, our Lord."
+  },
+  {
+    "week_number": 43,
+    "church_season/day": "Fourteenth Sunday after Trinity",
+    "Psalm": "Psalm 119:9-16",
+    "OT": "Proverbs 4:10-23",
+    "NT Lesson (Epistle)": "Galatians 5:16-24",
+    "NT Lesson (Gospel)": "Luke 17:11-19",
+    "Prayer": "Keep, we beseech Thee, O Lord, Thy Church with Thy perpetual mercy; and, because the frailty of man without Thee cannot but fall, keep us ever by Thy help from all things hurtful and lead us to all things profitable to our salvation; through Jesus Christ, Thy Son, our Lord."
+  },
+  {
+    "week_number": 44,
+    "church_season/day": "Fifteenth Sunday after Trinity",
+    "Psalm": "Psalm 146",
+    "OT": "1 Kings 17:8-16",
+    "NT Lesson (Epistle)": "Galatians 5:25—6:10",
+    "NT Lesson (Gospel)": "Matthew 6:24-34",
+    "Prayer": "O Lord, we beseech Thee, let Thy continual pity cleanse and defend Thy Church; and because it cannot continue in safety without Thy succor, preserve it evermore by Thy help and goodness; through Jesus Christ, Thy Son, our Lord."
+  },
+  {
+    "week_number": 45,
+    "church_season/day": "Sixteenth Sunday after Trinity",
+    "Psalm": "Psalm 30",
+    "OT": "1 Kings 17:17-24",
+    "NT Lesson (Epistle)": "Ephesians 3:13-21",
+    "NT Lesson (Gospel)": "Luke 7:11-17",
+    "Prayer": "Lord, we pray Thee that Thy grace may always go before and follow after us and make us continually to be given to all good works; through Jesus Christ, Thy Son, our Lord."
+  },
+  {
+    "week_number": 46,
+    "church_season/day": "Seventeenth Sunday after Trinity",
+    "Psalm": "Psalm 2",
+    "OT": "Proverbs 25:6-14",
+    "NT Lesson (Epistle)": "Ephesians 4:1-6",
+    "NT Lesson (Gospel)": "Luke 14:1-11",
+    "Prayer": "Lord, we beseech Thee, grant Thy people grace to withstand the temptations of the devil and with pure hearts and minds to follow Thee, the only God; through Jesus Christ, Thy Son, our Lord."
+  },
+  {
+    "week_number": 47,
+    "church_season/day": "Eighteenth Sunday after Trinity",
+    "Psalm": "Psalm 34:8-22",
+    "OT": "Deuteronomy 10:12-21",
+    "NT Lesson (Epistle)": "1 Corinthians 1:4-9",
+    "NT Lesson (Gospel)": "Matthew 22:34-46",
+    "Prayer": "O God, forasmuch as without Thee we are not able to please Thee, mercifully grant that Thy Holy Spirit may in all things direct and rule our hearts; through Jesus Christ, Thy Son, our Lord."
+  },
+  {
+    "week_number": 48,
+    "church_season/day": "Nineteenth Sunday after Trinity",
+    "Psalm": "Psalm 84",
+    "OT": "Genesis 28:10-17",
+    "NT Lesson (Epistle)": "Ephesians 4:22-28",
+    "NT Lesson (Gospel)": "Matthew 9:1-8",
+    "Prayer": "O Almighty and Most Merciful God, of Thy bountiful goodness keep us, we beseech Thee, from all things that may hurt us, that we, being ready both in body and soul, may cheerfully accomplish those things that Thou wouldst have done; through Jesus Christ, Thy Son, our Lord."
+  },
+  {
+    "week_number": 49,
+    "church_season/day": "Twentieth Sunday after Trinity",
+    "Psalm": "Psalm 27:1-9",
+    "OT": "Isaiah 55:1-9",
+    "NT Lesson (Epistle)": "Ephesians 5:15-21",
+    "NT Lesson (Gospel)": "Matthew 22:1-14",
+    "Prayer": "Grant, we beseech Thee, Merciful Lord, to Thy faithful people pardon and peace, that they may be cleansed from all their sins and serve Thee with a quiet mind; through Jesus Christ, Thy Son, our Lord."
+  },
+  {
+    "week_number": 50,
+    "church_season/day": "Twenty-first Sunday after Trinity",
+    "Psalm": "Psalm 8",
+    "OT": "Genesis 1:1—2:3",
+    "NT Lesson (Epistle)": "Ephesians 6:10-17",
+    "NT Lesson (Gospel)": "John 4:46-54",
+    "Prayer": "Lord, we beseech Thee to keep Thy household, the Church, in continual godliness, that through Thy protection it may be free from all adversities and devoutly given to serve Thee in good works; through Jesus Christ, Thy Son, our Lord."
+  },
+  {
+    "week_number": 51,
+    "church_season/day": "Twenty-third Sunday after Trinity",
+    "Psalm": "Psalm 111",
+    "OT": "Proverbs 8:11-22",
+    "NT Lesson (Epistle)": "Philippians 3:17-21",
+    "NT Lesson (Gospel)": "Matthew 22:15-22",
+    "Prayer": "O God, our Refuge and Strength, who art the Author of all godliness: Be ready, we beseech Thee, to hear the devout prayers of Thy Church; and grant that those things which we ask faithfully we may obtain effectually; through Jesus Christ, Thy Son, our Lord."
+  },
+  {
+    "week_number": 52,
+    "church_season/day": "Twenty-fourth Sunday after Trinity",
+    "Psalm": "Psalm 126",
+    "OT": "Isaiah 51:9-16",
+    "NT Lesson (Epistle)": "Colossians 1:9-14",
+    "NT Lesson (Gospel)": "Matthew 9:18-26",
+    "Prayer": "O Lord, we beseech Thee, absolve Thy people from their offenses; that through Thy bountiful goodness we may all be delivered from the bands of those sins which by our frailty we have committed; through Jesus Christ, Thy Son, our Lord."
+  },
+  {
+    "week_number": 53,
+    "church_season/day": "Last Sunday of the Church Year",
+    "Psalm": "Psalm 149",
+    "OT": "Isaiah 65:17-25",
+    "NT Lesson (Epistle)": "1 Thessalonians 5:1-11",
+    "NT Lesson (Gospel)": "Matthew 25:1-13",
+    "Prayer": "O God, so rule and govern our hearts and minds by Thy Holy Spirit, that, being ever mindful of the end of all things and the day of Thy just judgment, we may be stirred up to holiness of living here and dwell with Thee forever hereafter; through Jesus Christ, Thy Son, our Lord."
+  }
+]

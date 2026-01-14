@@ -297,14 +297,14 @@ class ChurchYear:
     )
 
   def get_week_of_church_year(self, current_date: datetime.date) -> int:
-    """Returns week number 1-52 within church year starting Advent 1."""
+    """Returns week number 1-53 within church year starting Advent 1."""
     adv1_this_year = self.calculate_advent1(current_date.year)
     if current_date >= adv1_this_year:
       start_of_cy = adv1_this_year
     else:
       start_of_cy = self.calculate_advent1(current_date.year - 1)
 
-    week = ((current_date - start_of_cy).days // 7) % 52 + 1
+    week = ((current_date - start_of_cy).days // 7) + 1
     return week
 
   def calculate_easter(self, year: int) -> datetime.date:
@@ -737,7 +737,19 @@ def get_all_personal_prayers_for_user(user_id=None) -> dict:
 def get_mid_week_reading_for_date(now: datetime.datetime) -> Optional[dict]:
   """Returns mid week reading data for given date based on week of church year."""
   cy = ChurchYear(now.year)
-  week_num = cy.get_week_of_church_year(now.date())
+  week_num = cy.get_week_of_church_year(now.date()) + 1
+
+  max_week = 53
+  try:
+    max_week = max(
+        r["week_number"]
+        for r in MID_WEEK_READINGS["extended_mid_week_devotions"]
+    )
+  except (KeyError, ValueError):
+    pass
+
+  if week_num > max_week:
+    week_num = 1
 
   for reading in MID_WEEK_READINGS["extended_mid_week_devotions"]:
     if reading["week_number"] == week_num:
