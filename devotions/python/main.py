@@ -1685,6 +1685,33 @@ def force_reminders_route():
     return flask.jsonify({"success": False, "error": msg}), 400
 
 
+@app.route("/debug/twilio", methods=["GET"])
+@flask_login.login_required
+def debug_twilio_route():
+  """Checks Twilio credentials validity."""
+  if flask_login.current_user.id != app.config.get("ADMIN_USER_ID"):
+    return flask.abort(403)
+
+  sid = secrets_fetcher.get_twilio_account_sid()
+  token = secrets_fetcher.get_twilio_api_key()
+
+  if not sid or not token:
+    return flask.jsonify({"success": False, "error": "Missing credentials"})
+
+  try:
+    from twilio.rest import Client
+
+    client = Client(sid, token)
+    account = client.api.accounts(sid).fetch()
+    return flask.jsonify({
+        "success": True,
+        "message": f"Successfully authenticated as {account.friendly_name}",
+        "status": account.status,
+    })
+  except Exception as e:
+    return flask.jsonify({"success": False, "error": str(e)})
+
+
 @app.route("/api/lectionary/art")
 def lectionary_art_route():
   """Fetches relevant art based on a query."""
