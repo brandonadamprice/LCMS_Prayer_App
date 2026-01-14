@@ -123,16 +123,11 @@
                        {% else %}
                          <a href="{{ sub.url }}" class="menu-sub-link">{{ sub.label }}</a>
                        {% endif %}
-                     {% elif sub.seasonal %}
-                       <span class="menu-sub-link disabled">{{ sub.label }} (Seasonal)</span>
                      {% endif %}
                   {% endfor %}
                 </div>
               {% elif item.type == 'link' %}
-                 <button class="menu-accordion">{{ item.label }}</button>
-                 <div class="menu-panel">
-                     <a href="{{ item.url }}" class="menu-sub-link">{{ item.label }}</a>
-                 </div>
+                 <a href="{{ item.url }}" class="menu-accordion no-arrow">{{ item.label }}</a>
               {% elif item.type == 'dynamic_favorites' %}
                   {% if current_user.is_authenticated and current_user.favorites %}
                       <button class="menu-accordion">{{ item.label }}</button>

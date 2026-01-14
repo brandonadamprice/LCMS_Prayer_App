@@ -552,6 +552,10 @@ body.dark-mode .app-menu-section strong {
     box-shadow: none;
 }
 
+.menu-accordion.no-arrow:after {
+    content: none;
+}
+
 .menu-panel {
   background-color: #fafafa;
   max-height: 0;
