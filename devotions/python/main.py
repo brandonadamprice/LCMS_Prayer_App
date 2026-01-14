@@ -1709,6 +1709,13 @@ def debug_twilio_route():
         "status": account.status,
     })
   except Exception as e:
+    # Log credentials for inspection
+    app.logger.error(
+        "Debug Twilio failed. SID: %s..., Token: %s..., Error: %s",
+        sid[:5] if sid else "None",
+        token[:5] if token else "None",
+        e,
+    )
     return flask.jsonify({"success": False, "error": str(e)})
 
 
