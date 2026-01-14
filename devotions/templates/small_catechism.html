@@ -17,7 +17,6 @@
         {% for group_name, sections in grouped_catechism.items() %}
             <option value="group-{{ loop.index }}">{{ group_name }}</option>
         {% endfor %}
-        <option value="group-daily-prayers">Daily Prayers</option>
     </select>
 </div>
 
@@ -37,7 +36,7 @@
                     </div>
                 {% endfor %}
                 
-                {% if section.prayers %}
+                {% if section.prayers and section.prayers|length > 0 %}
                     <hr>
                     <p class="subheader"><strong>Prayer</strong></p>
                     {% for prayer in section.prayers %}
@@ -48,18 +47,6 @@
         {% endfor %}
     </div>
 {% endfor %}
-
-<div id="group-daily-prayers" class="catechism-group" style="scroll-margin-top: 80px;">
-    <h2 style="margin-top: 30px; border-bottom: 2px solid #2980b9; color: #2980b9;">Daily Prayers</h2>
-    {% for item in daily_prayers.prayer_list %}
-        {% call macros.card(item.title, collapsed=True) %}
-            <p>{{ item.text|replace('\n', '<br>')|safe }}</p>
-            {% if item.reference %}
-                <span class="versicle-ref">{{ item.reference }}</span>
-            {% endif %}
-        {% endcall %}
-    {% endfor %}
-</div>
 
 {% endblock %}
 

@@ -50,7 +50,9 @@
             <p>{{ qa.answer|safe }}</p>
           </div>
         {% endfor %}
+        {% if catechism_prayer %}
         <p><strong>Prayer:</strong> {{ catechism_prayer|safe }}</p>
+        {% endif %}
         <span class="versicle-ref">Catechism source: <a href="https://bookofconcord.org/small-catechism/" target="_blank">bookofconcord.org</a></span>
     {% endcall %}
     {% endif %}

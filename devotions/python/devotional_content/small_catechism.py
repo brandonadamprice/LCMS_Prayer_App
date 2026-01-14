@@ -14,6 +14,7 @@ def get_grouped_catechism():
       "The Sacrament of Holy Baptism": [],
       "Confession": [],
       "The Sacrament of the Altar": [],
+      "Daily Prayers": [],
   }
 
   for section in sections:
@@ -30,6 +31,13 @@ def get_grouped_catechism():
       groups["Confession"].append(section)
     elif "Sacrament of the Altar" in title:
       groups["The Sacrament of the Altar"].append(section)
+    elif title in [
+        "Morning Prayer",
+        "Evening Prayer",
+        "Asking a Blessing",
+        "Returning Thanks",
+    ]:
+      groups["Daily Prayers"].append(section)
     else:
       # Fallback for any unmatched sections
       if "Other" not in groups:
@@ -44,38 +52,8 @@ def generate_small_catechism_page():
   """Generates HTML for the Small Catechism page."""
   grouped_catechism = get_grouped_catechism()
 
-  # Also fetch Daily Prayers from other_prayers.json to present as a section
-  op = utils.OTHER_PRAYERS
-
-  # Mapping keys to display titles for standard Catechism Daily Prayers
-  dp_keys = [
-      ("luthers_morning_prayer", "Morning Prayer"),
-      ("luthers_evening_prayer", "Evening Prayer"),
-      (
-          "childs_daily_petition",
-          "Asking a Blessing",
-      ),
-  ]
-
-  # Construct a pseudo-section for Daily Prayers
-  prayer_list = []
-
-  for key, title in dp_keys:
-    if key in op:
-      prayer_list.append({
-          "title": title,
-          "text": op[key]["prayer"],
-          "reference": op[key].get("reference"),
-      })
-
-  daily_prayers_section = {
-      "group_title": "Daily Prayers",
-      "prayer_list": prayer_list,
-  }
-
   print("Generated Small Catechism HTML")
   return flask.render_template(
       "small_catechism.html",
       grouped_catechism=grouped_catechism,
-      daily_prayers=daily_prayers_section,
   )
