@@ -4,7 +4,7 @@ import os
 from google.cloud import secretmanager
 
 PROJECT_ID = "978583660884"
-_SECRET_VERSION = "1"
+_SECRET_VERSION = "latest"
 
 
 def _get_secret(secret_name, environment_variable, version=_SECRET_VERSION):
@@ -100,12 +100,12 @@ def get_ga4_property_id():
 
 def get_twilio_account_sid():
   """Fetches the Twilio Account SID."""
-  return _get_secret("TWILIO_ACCOUNT_SID", "TWILIO_ACCOUNT_SID", version="2")
+  return _get_secret("TWILIO_ACCOUNT_SID", "TWILIO_ACCOUNT_SID")
 
 
 def get_twilio_api_key():
   """Fetches the Twilio API Key (Auth Token)."""
-  return _get_secret("TWILIO_API_KEY", "TWILIO_API_KEY", version="2")
+  return _get_secret("TWILIO_API_KEY", "TWILIO_API_KEY")
 
 
 def get_twilio_phone_number():
