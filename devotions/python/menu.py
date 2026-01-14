@@ -68,11 +68,6 @@ def get_menu_items(is_advent, is_new_year, is_lent):
                   "url": "/mid_week_devotion",
                   "enabled": True,
               },
-              {
-                  "label": "Short Prayers",
-                  "url": "/short_prayers",
-                  "enabled": True,
-              },
           ],
       },
       {
@@ -113,6 +108,11 @@ def get_menu_items(is_advent, is_new_year, is_lent):
               },
               {"label": "Prayer Wall", "url": "/prayer_wall", "enabled": True},
               {"label": "My Prayers", "url": "/my_prayers", "enabled": True},
+              {
+                  "label": "Short Prayers",
+                  "url": "/short_prayers",
+                  "enabled": True,
+              },
           ],
       },
       {
