@@ -7,7 +7,7 @@ def get_menu_items(is_advent, is_new_year, is_lent):
       {
           "label": "Daily Prayer",
           "type": "dropdown",
-          "items": [
+          "submenu": [
               {"label": "Morning", "url": "/morning_devotion", "enabled": True},
               {"label": "Midday", "url": "/midday_devotion", "enabled": True},
               {"label": "Evening", "url": "/evening_devotion", "enabled": True},
@@ -33,7 +33,7 @@ def get_menu_items(is_advent, is_new_year, is_lent):
       {
           "label": "Devotions",
           "type": "dropdown",
-          "items": [
+          "submenu": [
               {
                   "label": "Advent",
                   "url": "/advent_devotion",
@@ -78,7 +78,7 @@ def get_menu_items(is_advent, is_new_year, is_lent):
       {
           "label": "Bible",
           "type": "dropdown",
-          "items": [
+          "submenu": [
               {
                   "label": "Daily Lectionary",
                   "url": "/daily_lectionary",
@@ -105,7 +105,7 @@ def get_menu_items(is_advent, is_new_year, is_lent):
       {
           "label": "Prayer",
           "type": "dropdown",
-          "items": [
+          "submenu": [
               {
                   "label": "Submit Request",
                   "url": "/prayer_requests",

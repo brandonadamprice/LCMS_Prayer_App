@@ -54,7 +54,7 @@
             <div class="dropdown">
               <button class="dropbtn">{{ item.label }} ▾</button>
               <div class="dropdown-content">
-                {% for sub in item.items %}
+                {% for sub in item.submenu %}
                    {% if sub.enabled %}
                      {% if sub.requires_auth and not current_user.is_authenticated %}
                        {# Skip if auth required #}
@@ -116,7 +116,7 @@
               {% if item.type == 'dropdown' %}
                 <button class="menu-accordion">{{ item.label }}</button>
                 <div class="menu-panel">
-                  {% for sub in item.items %}
+                  {% for sub in item.submenu %}
                      {% if sub.enabled %}
                        {% if sub.requires_auth and not current_user.is_authenticated %}
                          {# Skip #}
