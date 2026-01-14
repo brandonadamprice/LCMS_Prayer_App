@@ -109,7 +109,7 @@
                   <th style="padding-bottom: 10px;">Type</th>
                   <th style="text-align: center; padding-bottom: 10px;">Push</th>
                   <th style="text-align: center; padding-bottom: 10px;">Email</th>
-                  <th style="text-align: center; padding-bottom: 10px;">SMS <span style="font-size: 0.8em; font-weight: normal;">(Soon)</span></th>
+                  <th style="text-align: center; padding-bottom: 10px;">SMS</th>
               </tr>
           </thead>
           <tbody>
@@ -223,7 +223,7 @@
         <div style="margin-bottom: 15px;">
           <label for="phone">Mobile Phone Number (Optional):</label><br>
           <input type="tel" id="phone" name="phone" value="{{ current_user.phone_number or '' }}" placeholder="+1234567890" class="form-input">
-          <p style="font-size: 0.8em; color: #7f8c8d;">Format: +1234567890. Required for SMS notifications (Coming Soon).</p>
+          <p style="font-size: 0.8em; color: #7f8c8d;">Format: +1234567890. Required for SMS notifications.</p>
         </div>
         <button type="submit" class="button">Save Profile Changes</button>
     </div>
