@@ -26,6 +26,8 @@ def _get_secret(secret_name, environment_variable, version=_SECRET_VERSION):
 
   if val:
     return val.strip()
+  
+  print(f"Secret {secret_name} is missing or None.")
   return val
 
 
@@ -98,12 +100,12 @@ def get_ga4_property_id():
 
 def get_twilio_account_sid():
   """Fetches the Twilio Account SID."""
-  return _get_secret("TWILIO_ACCOUNT_SID", "TWILIO_ACCOUNT_SID")
+  return _get_secret("TWILIO_ACCOUNT_SID", "TWILIO_ACCOUNT_SID", version="2")
 
 
 def get_twilio_api_key():
   """Fetches the Twilio API Key (Auth Token)."""
-  return _get_secret("TWILIO_API_KEY", "TWILIO_API_KEY")
+  return _get_secret("TWILIO_API_KEY", "TWILIO_API_KEY", version="2")
 
 
 def get_twilio_phone_number():
