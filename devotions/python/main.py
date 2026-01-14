@@ -27,6 +27,7 @@ from devotional_content import new_year
 from devotional_content import night_watch
 from devotional_content import psalms_by_category
 from devotional_content import short_prayers
+from devotional_content import small_catechism
 import flask
 import flask_login
 from google.cloud import firestore
@@ -967,6 +968,12 @@ def memory_route():
 def short_prayers_route():
   """Returns Short Prayers page."""
   return short_prayers.generate_short_prayers_page()
+
+
+@app.route("/small_catechism")
+def small_catechism_route():
+  """Returns Small Catechism page."""
+  return small_catechism.generate_small_catechism_page()
 
 
 @app.route("/litany")

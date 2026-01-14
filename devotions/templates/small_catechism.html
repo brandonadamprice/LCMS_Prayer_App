@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% import "_macros.html" as macros %}
+
+{% block title %}Small Catechism{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Luther's Small Catechism</h1>
+  <p>A simple explanation of Christian doctrine for the household.</p>
+</div>
+
+<!-- Navigation to jump to parts -->
+<div class="card">
+    <label for="catechism-nav"><strong>Jump to Part:</strong></label>
+    <select id="catechism-nav" onchange="jumpToPart(this.value)" style="width: 100%; padding: 8px; margin-top: 5px; border-radius: 4px; border: 1px solid #ccc;">
+        <option value="" disabled selected>Select a part...</option>
+        {% for group_name, sections in grouped_catechism.items() %}
+            <option value="group-{{ loop.index }}">{{ group_name }}</option>
+        {% endfor %}
+        <option value="group-daily-prayers">Daily Prayers</option>
+    </select>
+</div>
+
+{% for group_name, sections in grouped_catechism.items() %}
+    <div id="group-{{ loop.index }}" class="catechism-group" style="scroll-margin-top: 80px;">
+        <h2 style="margin-top: 30px; border-bottom: 2px solid #2980b9; color: #2980b9;">{{ group_name }}</h2>
+        {% for section in sections %}
+            {% call macros.card(section.title, collapsed=True) %}
+                {% if section.text %}
+                    <div style="margin-bottom: 15px; font-size: 1.1em;">{{ section.text|safe }}</div>
+                {% endif %}
+                
+                {% for qa in section.questions_and_answers %}
+                    <div class="catechism-qa">
+                        <p><strong>{{ qa.question }}</strong></p>
+                        <p>{{ qa.answer|safe }}</p>
+                    </div>
+                {% endfor %}
+                
+                {% if section.prayers %}
+                    <hr>
+                    <p class="subheader"><strong>Prayer</strong></p>
+                    {% for prayer in section.prayers %}
+                        <p>{{ prayer }}</p>
+                    {% endfor %}
+                {% endif %}
+            {% endcall %}
+        {% endfor %}
+    </div>
+{% endfor %}
+
+<div id="group-daily-prayers" class="catechism-group" style="scroll-margin-top: 80px;">
+    <h2 style="margin-top: 30px; border-bottom: 2px solid #2980b9; color: #2980b9;">Daily Prayers</h2>
+    {% for item in daily_prayers.items %}
+        {% call macros.card(item.title, collapsed=True) %}
+            <p>{{ item.text|replace('\n', '<br>')|safe }}</p>
+            {% if item.reference %}
+                <span class="versicle-ref">{{ item.reference }}</span>
+            {% endif %}
+        {% endcall %}
+    {% endfor %}
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+function jumpToPart(id) {
+    const element = document.getElementById(id);
+    if (element) {
+        element.scrollIntoView({behavior: 'smooth'});
+    }
+}
+{% endblock %}

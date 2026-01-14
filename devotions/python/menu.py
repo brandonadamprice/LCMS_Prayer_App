@@ -71,6 +71,17 @@ def get_menu_items(is_advent, is_new_year, is_lent):
           ],
       },
       {
+          "label": "Catechism",
+          "type": "dropdown",
+          "submenu": [
+              {
+                  "label": "Small Catechism",
+                  "url": "/small_catechism",
+                  "enabled": True,
+              },
+          ],
+      },
+      {
           "label": "Bible",
           "type": "dropdown",
           "submenu": [
