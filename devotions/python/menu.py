@@ -127,16 +127,16 @@ def get_menu_items(is_advent, is_new_year, is_lent):
           ],
       },
       {
-          "label": "Calendar",
-          "type": "link",
-          "url": "/liturgical_calendar",
-          "enabled": True,
-      },
-      {
           "label": "Favorites",
           "type": "dynamic_favorites",
           "requires_auth": True,
           "requires_favorites": True,
+          "enabled": True,
+      },
+      {
+          "label": "Calendar",
+          "type": "link",
+          "url": "/liturgical_calendar",
           "enabled": True,
       },
       {

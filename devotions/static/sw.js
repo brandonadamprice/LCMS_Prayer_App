@@ -32,7 +32,8 @@ self.addEventListener('fetch', (event) => {
 
   // Exclude authentication routes from service worker interception.
   // This allows the browser to handle redirects and cookies for OAuth natively.
-  if (url.pathname.startsWith('/login') || url.pathname.startsWith('/authorize')) {
+  if (url.pathname.startsWith('/login') ||
+      url.pathname.startsWith('/authorize')) {
     return;
   }
 
@@ -66,65 +67,59 @@ self.addEventListener('push', function(event) {
   if (event.data) {
     const payload = event.data.json();
     // payload.data contains the custom fields sent from the server
-    const data = payload.data || {}; 
-    const title = data.title || "Prayer Reminder";
-    const body = data.body || "It's time for prayer.";
-    const url = data.url || "/";
+    const data = payload.data || {};
+    const title = data.title || 'Prayer Reminder';
+    const body = data.body || 'It\'s time for prayer.';
+    const url = data.url || '/';
 
     const options = {
       body: body,
       icon: '/static/favicon.svg',
       badge: '/static/favicon.svg',
-      data: {
-        url: url
-      }
+      data: {url: url}
     };
-    event.waitUntil(
-      self.registration.showNotification(title, options)
-    );
+    event.waitUntil(self.registration.showNotification(title, options));
   }
 });
 
 self.addEventListener('notificationclick', function(event) {
   event.notification.close();
-  // Ensure the URL is absolute relative to the SW's origin to avoid "out of scope" issues (browser header)
-  // and to ensure reliable matching of existing windows.
+  // Ensure the URL is absolute relative to the SW's origin to avoid "out of
+  // scope" issues (browser header) and to ensure reliable matching of existing
+  // windows.
   const rawUrl = event.notification.data.url;
   const urlToOpen = new URL(rawUrl, self.location.origin).href;
 
-  event.waitUntil(
-    clients.matchAll({
-      type: 'window',
-      includeUncontrolled: true
-    }).then((windowClients) => {
-      let matchingClient = null;
+  event.waitUntil(clients.matchAll({type: 'window', includeUncontrolled: true})
+                      .then((windowClients) => {
+                        let matchingClient = null;
 
-      // 1. Prioritize exact URL match
-      for (let i = 0; i < windowClients.length; i++) {
-        const client = windowClients[i];
-        if (client.url === urlToOpen) {
-          matchingClient = client;
-          break;
-        }
-      }
+                        // 1. Prioritize exact URL match
+                        for (let i = 0; i < windowClients.length; i++) {
+                          const client = windowClients[i];
+                          if (client.url === urlToOpen) {
+                            matchingClient = client;
+                            break;
+                          }
+                        }
 
-      // 2. If no exact match, grab the first available window
-      if (!matchingClient && windowClients.length > 0) {
-        matchingClient = windowClients[0];
-      }
+                        // 2. If no exact match, grab the first available window
+                        if (!matchingClient && windowClients.length > 0) {
+                          matchingClient = windowClients[0];
+                        }
 
-      if (matchingClient) {
-        if (matchingClient.url !== urlToOpen) {
-            return matchingClient.navigate(urlToOpen).then(client => client.focus());
-        } else {
-            return matchingClient.focus();
-        }
-      } else {
-        // 3. If no windows open, open a new one
-        if (clients.openWindow) {
-            return clients.openWindow(urlToOpen);
-        }
-      }
-    })
-  );
+                        if (matchingClient) {
+                          if (matchingClient.url !== urlToOpen) {
+                            return matchingClient.navigate(urlToOpen).then(
+                                client => client.focus());
+                          } else {
+                            return matchingClient.focus();
+                          }
+                        } else {
+                          // 3. If no windows open, open a new one
+                          if (clients.openWindow) {
+                            return clients.openWindow(urlToOpen);
+                          }
+                        }
+                      }));
 });

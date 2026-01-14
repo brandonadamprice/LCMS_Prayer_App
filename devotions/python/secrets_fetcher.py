@@ -60,7 +60,9 @@ def get_firebase_api_key():
 
 def get_firebase_messaging_sender_id():
   """Fetches the Firebase Messaging Sender ID."""
-  return _get_secret("FIREBASE_MESSAGING_SENDER_ID", "FIREBASE_MESSAGING_SENDER_ID")
+  return _get_secret(
+      "FIREBASE_MESSAGING_SENDER_ID", "FIREBASE_MESSAGING_SENDER_ID"
+  )
 
 
 def get_firebase_app_id():
@@ -121,6 +123,3 @@ def get_smtp_user():
 def get_smtp_password():
   """Fetches the SMTP password (app password)."""
   return _get_secret("SMTP_PASSWORD", "SMTP_PASSWORD")
-
-
-

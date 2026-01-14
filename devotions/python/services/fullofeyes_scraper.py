@@ -376,15 +376,17 @@ def get_art_for_reading(reading_ref, fallback_theme=None):
 
   # 4. Fallback Theme
   if fallback_theme:
-    logger.info("No art for ref found. Trying fallback theme: %s", fallback_theme)
+    logger.info(
+        "No art for ref found. Trying fallback theme: %s", fallback_theme
+    )
     try:
-        theme_results = search_images_cached(fallback_theme)
-        if theme_results:
-            selected = random.choice(theme_results)
-            logger.info("Found art for theme '%s'", fallback_theme)
-            return selected
+      theme_results = search_images_cached(fallback_theme)
+      if theme_results:
+        selected = random.choice(theme_results)
+        logger.info("Found art for theme '%s'", fallback_theme)
+        return selected
     except Exception as e:
-        logger.error("Error searching for theme '%s': %s", fallback_theme, e)
+      logger.error("Error searching for theme '%s': %s", fallback_theme, e)
 
   # 5. Fallback to Recent
   logger.info("No specific art found. Falling back to recent images.")

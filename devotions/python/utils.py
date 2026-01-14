@@ -146,9 +146,10 @@ def load_mid_week_readings():
   """Loads mid week readings from JSON file."""
   with open(MID_WEEK_READINGS_JSON_PATH, "r", encoding="utf-8") as f:
     data = json.load(f)
-    for item in data["extended_mid_week_devotions"]:
-      item["church_season_day"] = item.pop("church_season/day")
-    return data
+    for item in data:
+      if "church_season/day" in item:
+        item["church_season_day"] = item.pop("church_season/day")
+    return {"extended_mid_week_devotions": data}
 
 
 CATECHISM_SECTIONS = load_catechism()
