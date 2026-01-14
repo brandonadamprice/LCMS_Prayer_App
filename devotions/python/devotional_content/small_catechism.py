@@ -45,7 +45,6 @@ def generate_small_catechism_page():
   grouped_catechism = get_grouped_catechism()
 
   # Also fetch Daily Prayers from other_prayers.json to present as a section
-  daily_prayers_data = []
   op = utils.OTHER_PRAYERS
 
   # Mapping keys to display titles for standard Catechism Daily Prayers
@@ -55,19 +54,24 @@ def generate_small_catechism_page():
       (
           "childs_daily_petition",
           "Asking a Blessing",
-      ),  # Using this as a placeholder for Tischgebet/Blessing? No, let's just stick to what we have.
+      ),
   ]
 
   # Construct a pseudo-section for Daily Prayers
-  daily_prayers_section = {"group_title": "Daily Prayers", "prayer_list": []}
+  prayer_list = []
 
   for key, title in dp_keys:
     if key in op:
-      daily_prayers_section["prayer_list"].append({
+      prayer_list.append({
           "title": title,
           "text": op[key]["prayer"],
           "reference": op[key].get("reference"),
       })
+
+  daily_prayers_section = {
+      "group_title": "Daily Prayers",
+      "prayer_list": prayer_list,
+  }
 
   print("Generated Small Catechism HTML")
   return flask.render_template(
