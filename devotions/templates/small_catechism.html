@@ -28,25 +28,22 @@
                 {% if section.text %}
                     <div style="margin-bottom: 15px; font-size: 1.1em;">{{ section.text|safe }}</div>
                 {% endif %}
-                
+
                 {% for qa in section.questions_and_answers %}
                     <div class="catechism-qa">
                         <p><strong>{{ qa.question }}</strong></p>
                         <p>{{ qa.answer|safe }}</p>
                     </div>
                 {% endfor %}
-                
-                {% if section.prayers and section.prayers|length > 0 %}
-                    <hr>
-                    <p class="subheader"><strong>Prayer</strong></p>
-                    {% for prayer in section.prayers %}
-                        <p>{{ prayer }}</p>
-                    {% endfor %}
-                {% endif %}
+
             {% endcall %}
         {% endfor %}
     </div>
 {% endfor %}
+
+<p style="text-align: center; margin-top: 30px; font-style: italic; color: #7f8c8d; font-size: 0.9em;">
+    Catechism text sourced from <a href="https://bookofconcord.org/small-catechism/" target="_blank" style="color: inherit; text-decoration: underline;">bookofconcord.org</a>.
+</p>
 
 {% endblock %}
 

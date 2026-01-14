@@ -15,6 +15,8 @@ def get_grouped_catechism():
       "Confession": [],
       "The Sacrament of the Altar": [],
       "Daily Prayers": [],
+      "Table of Duties": [],
+      "Christian Questions with Their Answers": [],
   }
 
   for section in sections:
@@ -38,6 +40,10 @@ def get_grouped_catechism():
         "Returning Thanks",
     ]:
       groups["Daily Prayers"].append(section)
+    elif "Table of Duties" in title:
+      groups["Table of Duties"].append(section)
+    elif "Christian Questions" in title:
+      groups["Christian Questions with Their Answers"].append(section)
     else:
       # Fallback for any unmatched sections
       if "Other" not in groups:
