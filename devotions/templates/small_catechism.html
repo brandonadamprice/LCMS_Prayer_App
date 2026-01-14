@@ -18,6 +18,10 @@
             <option value="group-{{ loop.index }}">{{ group_name }}</option>
         {% endfor %}
     </select>
+    <div style="margin-top: 15px; display: flex; gap: 10px;">
+        <button class="button" onclick="expandAll()" style="flex: 1; margin: 0;">Expand All</button>
+        <button class="button" onclick="collapseAll()" style="flex: 1; margin: 0;">Collapse All</button>
+    </div>
 </div>
 
 {% for group_name, sections in grouped_catechism.items() %}
@@ -53,5 +57,17 @@ function jumpToPart(id) {
     if (element) {
         element.scrollIntoView({behavior: 'smooth'});
     }
+}
+
+function expandAll() {
+    document.querySelectorAll('.catechism-group .card').forEach(card => {
+        card.classList.remove('collapsed');
+    });
+}
+
+function collapseAll() {
+    document.querySelectorAll('.catechism-group .card').forEach(card => {
+        card.classList.add('collapsed');
+    });
 }
 {% endblock %}
