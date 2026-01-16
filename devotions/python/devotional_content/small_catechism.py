@@ -106,6 +106,70 @@ def _inject_christian_questions_scripture(qa_list):
     except Exception as e:
       print(f"Error injecting scripture for Q17: {e}")
 
+  # Question 20 (index 19)
+  if 19 < len(qa_list) and "Galatians 5" in qa_list[19]["answer"]:
+    try:
+      # Define mappings for Q20 refs
+      refs_to_fetch = [
+          "Galatians 5:17",
+          "Romans 7:18",
+          "John 15:18",  # Representative verse for John 15-16
+          "1 John 2:15-16",
+          "1 John 5:19",
+          "John 8:44",
+          "John 16:11",
+          "1 Peter 5:8",
+          "Ephesians 6:11",
+          "2 Timothy 2:26",
+      ]
+      texts = utils.fetch_passages(
+          refs_to_fetch, include_verse_numbers=False, include_copyright=False
+      )
+      text_map = dict(zip(refs_to_fetch, texts))
+
+      def mk_tooltip(label, ref_key):
+        content = f"{ref_key}: {text_map.get(ref_key, '')}".replace(
+            '"', "&quot;"
+        )
+        return (
+            f'<span class="scripture-tooltip" data-text="{content}">{label}</span>'
+        )
+
+      ans = qa_list[19]["answer"]
+
+      # Simple replacements
+      ans = ans.replace(
+          "Galatians 5", mk_tooltip("Galatians 5", "Galatians 5:17")
+      )
+      ans = ans.replace("Romans 7", mk_tooltip("Romans 7", "Romans 7:18"))
+      ans = ans.replace(
+          "John 15-16", mk_tooltip("John 15-16", "John 15:18")
+      )
+      ans = ans.replace("1 Peter 5", mk_tooltip("1 Peter 5", "1 Peter 5:8"))
+      ans = ans.replace(
+          "Ephesians 6", mk_tooltip("Ephesians 6", "Ephesians 6:11")
+      )
+      ans = ans.replace(
+          "2 Timothy 2", mk_tooltip("2 Timothy 2", "2 Timothy 2:26")
+      )
+
+      # Composite replacements
+      ans = ans.replace(
+          "1 John 2 and 5",
+          f"{mk_tooltip('1 John 2', '1 John 2:15-16')} and"
+          f" {mk_tooltip('5', '1 John 5:19')}",
+      )
+      ans = ans.replace(
+          "John 8 and 16",
+          f"{mk_tooltip('John 8', 'John 8:44')} and"
+          f" {mk_tooltip('16', 'John 16:11')}",
+      )
+
+      qa_list[19]["answer"] = ans
+
+    except Exception as e:
+      print(f"Error injecting scripture for Q20: {e}")
+
 
 def generate_small_catechism_page():
   """Generates HTML for the Small Catechism page."""
