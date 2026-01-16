@@ -1683,15 +1683,18 @@ body.dark-mode .scripture-tooltip.active::before {
     .scripture-tooltip.active::after {
         position: fixed;
         top: auto;
-        bottom: 20px;
-        left: 5%;
-        width: 90%;
+        bottom: 0;
+        left: 0;
+        width: 100%;
         transform: none;
         margin: 0;
         z-index: 2000;
         box-shadow: 0 -4px 15px rgba(0,0,0,0.3);
-        text-align: center;
-        max-height: 40vh;
+        text-align: left;
+        padding: 20px;
+        box-sizing: border-box;
+        border-radius: 12px 12px 0 0;
+        max-height: 50vh;
         overflow-y: auto;
     }
     
