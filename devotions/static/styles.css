@@ -1615,3 +1615,59 @@ body.dark-mode .page-menu-item:hover {
 .page-menu-container {
     display: none; /* Hiding the old kebab menu container */
 }
+
+/* Scripture Tooltip */
+.scripture-tooltip {
+    border-bottom: 1px dotted #7f8c8d;
+    cursor: help;
+    position: relative;
+    color: #2980b9;
+}
+
+.scripture-tooltip:hover::after {
+    content: attr(data-text);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: #fff;
+    padding: 10px;
+    border-radius: 5px;
+    width: 300px;
+    z-index: 1000;
+    font-size: 0.9em;
+    line-height: 1.4;
+    white-space: normal;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    margin-bottom: 8px;
+    text-align: left;
+}
+
+/* Add a small arrow to the tooltip */
+.scripture-tooltip:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: #333;
+    margin-bottom: -4px; /* push down to touch tooltip */
+    z-index: 1000;
+}
+
+body.dark-mode .scripture-tooltip {
+    color: #90caf9;
+    border-bottom-color: #90caf9;
+}
+
+body.dark-mode .scripture-tooltip:hover::after {
+    background: #eee;
+    color: #333;
+    box-shadow: 0 4px 10px rgba(255,255,255,0.1);
+}
+
+body.dark-mode .scripture-tooltip:hover::before {
+    border-top-color: #eee;
+}
