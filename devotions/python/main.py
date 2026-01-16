@@ -1775,16 +1775,16 @@ def complete_prayer_route():
     new_achievements = []
 
     milestone_map = {
-        7: "1 Week Streak",
-        30: "1 Month Streak",
-        90: "3 Months Streak",
-        180: "6 Months Streak",
-        270: "9 Months Streak",
-        365: "1 Year Streak",
+        7: ("1 Week Streak", "🔥"),
+        30: ("1 Month Streak", "🎗️"),
+        90: ("3 Months Streak", "🥉"),
+        180: ("6 Months Streak", "🥈"),
+        270: ("9 Months Streak", "🥇"),
+        365: ("1 Year Streak", "🏆"),
     }
 
     # Helper to add achievement if not present
-    def check_and_add(streak_val, title):
+    def check_and_add(streak_val, title, icon="🔥"):
       nonlocal milestone_reached, milestone_msg
       if streak_val <= new_streak:
         # Create a slug/id for the achievement
@@ -1793,7 +1793,7 @@ def complete_prayer_route():
         if not any(a["id"] == ach_id for a in current_achievements):
           # New achievement!
           new_achievements.append(
-              {"id": ach_id, "title": title, "date": today_str, "icon": "🔥"}
+              {"id": ach_id, "title": title, "date": today_str, "icon": icon}
           )
           # Only notify if it was just reached *now* (i.e. new_streak exactly matches)
           if streak_val == new_streak:
@@ -1801,16 +1801,14 @@ def complete_prayer_route():
             milestone_msg = f"Achievement Unlocked: {title}!"
 
     # Check standard milestones
-    for day_count, title in milestone_map.items():
-      check_and_add(day_count, title)
+    for day_count, (title, icon) in milestone_map.items():
+      check_and_add(day_count, title, icon)
 
     # Check periodic milestones > 365
     if new_streak > 365 and (new_streak - 365) % 90 == 0:
       # Dynamic title
-      years = new_streak // 365
-      months = (new_streak % 365) // 30
       title = f"{new_streak} Day Streak"
-      check_and_add(new_streak, title)
+      check_and_add(new_streak, title, "👑")
 
     if streak_updated or new_achievements:
       update_data = {}
