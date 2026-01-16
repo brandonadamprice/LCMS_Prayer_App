@@ -20,16 +20,16 @@
                 <span class="slider"></span>
             </label>
             <span style="margin-left: 10px; font-size: 0.9em; font-weight: bold; color: #2980b9;">
+                <span class="scripture-tooltip" data-text="Enable to view in-depth explanations from the Large Catechism and take interactive quizzes." style="border-bottom: none; font-size: 1.2em; vertical-align: middle; margin-right: 3px;">&#9432;</span>
                 Learning Mode
-                <span class="scripture-tooltip" data-text="Enable to view in-depth explanations from the Large Catechism and take interactive quizzes." style="border-bottom: none; font-size: 1.2em; vertical-align: middle;">&#9432;</span>
             </span>
         </div>
     </div>
 
-    <div style="display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap;">
-        <button class="button" onclick="navigate(-1)" style="margin: 0; padding: 10px 15px;" aria-label="Previous Part">&laquo;</button>
-        <div style="flex-grow: 1; min-width: 200px;">
-            <select id="catechism-nav" onchange="showPart(this.value)" class="form-input" style="width: 100%;">
+    <div style="display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: nowrap;">
+        <button class="button" onclick="navigate(-1)" style="margin: 0; padding: 10px 15px; flex-shrink: 0;" aria-label="Previous Part">&laquo;</button>
+        <div style="flex-grow: 1; min-width: 0;">
+            <select id="catechism-nav" onchange="showPart(this.value)" class="form-input" style="width: 100%; text-overflow: ellipsis;">
                 {% for group_name, sections in grouped_catechism.items() %}
                     <option value="{{ loop.index0 }}">{{ group_name }}</option>
                 {% endfor %}
