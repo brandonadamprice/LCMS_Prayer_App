@@ -114,7 +114,7 @@
       "explanation": "This commandment prohibits murder and physical harm, but also targets the roots of violence: **anger, hatred, and bitterness**. Positively, Luther emphasizes that we should **assist and serve our neighbor in every bodily danger or need**. A Christian is called to have a patient and gentle heart, doing good even to those who are enemies. Any harm done to a neighbor, including through the manipulation of laws to damage their well-being, stands condemned under this heading.",
       "questions": [
         {
-          "question": "What is the positive requirement for a Christian regarding their neighbor's life?",
+          "question": "What is the positive requirement for a Christian regarding their neighbor’s life?",
           "options": [
             "To ignore their physical needs and focus on their soul",
             "To assist and serve them in every bodily danger or need",
@@ -246,7 +246,7 @@
     {
       "title": "The Tenth Commandment",
       "commandment": "The Tenth Commandment: Thou shalt not covet thy neighbor's wife, nor his man-servant, nor his maid-servant, nor his cattle, nor anything that is his.",
-      "explanation": "The Tenth Commandment focuses on the **alienation or enticement** of the people and creatures that serve the neighbor. It forbids driving away or forcing a neighbor's spouse or workers to leave. Luther emphasizes that we should instead **urge them to stay and do their duty** in the places where God has put them. These final commandments serve as a mirror to show that no one is fully pure in heart, pointing the believer to the need for the forgiveness found in the Gospel.",
+      "explanation": "The Tenth Commandment focuses on the **alienation or enticement** of the people and creatures that serve the neighbor. It forbids driving away or forcing a neighbor’s spouse or workers to leave. Luther emphasizes that we should instead **urge them to stay and do their duty** in the places where God has put them. These final commandments serve as a mirror to show that no one is fully pure in heart, pointing the believer to the need for the forgiveness found in the Gospel.",
       "questions": [
         {
           "question": "What is the positive requirement regarding a neighbor's workers?",
@@ -279,7 +279,7 @@
   "apostles_creed": [
     {
       "title": "The Apostles' Creed - First Article",
-      "explanation": "The First Article confesses God as **Father, Almighty, and Maker**. Luther's explanation in the Small Catechism emphasizes a personal realization: **'I believe that God has made me and all creatures.'** This means God has provided not only the soul and body but also every faculty, including **eyes, ears, reason, and senses**, and continues to preserve them daily. The Large Catechism notes that we recognize God as our Father because He provides for us out of **sheer fatherly and divine goodness and mercy**, without any merit or worthiness in us. This article encompasses all temporal goods—clothing, shoes, food, drink, house, and home—and asserts that God **defends us against all danger** and guards us from all evil. Thus, the duty of the Christian is to **thank, praise, serve, and obey Him**.",
+      "explanation": "The First Article confesses God as **Father, Almighty, and Maker**. Luther’s explanation in the Small Catechism emphasizes a personal realization: **'I believe that God has made me and all creatures.'** This means God has provided not only the soul and body but also every faculty, including **eyes, ears, reason, and senses**, and continues to preserve them daily. The Large Catechism notes that we recognize God as our Father because He provides for us out of **sheer fatherly and divine goodness and mercy**, without any merit or worthiness in us. This article encompasses all temporal goods—clothing, shoes, food, drink, house, and home—and asserts that God **defends us against all danger** and guards us from all evil. Thus, the duty of the Christian is to **thank, praise, serve, and obey Him**.",
       "questions": [
         {
           "question": "According to the Small Catechism, what is the basis for God providing all that we need?",
@@ -375,7 +375,7 @@
     },
     {
       "title": "The Lord's Prayer - First Petition",
-      "explanation": "God's name is **holy in itself**, but we pray that it may be **kept holy among us**. This occurs when the **Word of God is taught in its truth and purity** and when we, as children of God, **lead holy lives according to it**. Conversely, anyone who teaches or lives contrary to God's Word **profanes the name of God** among us. The Large Catechism identifies this as the spiritual defense against false teachers and an evil life.",
+      "explanation": "God’s name is **holy in itself**, but we pray that it may be **kept holy among us**. This occurs when the **Word of God is taught in its truth and purity** and when we, as children of God, **lead holy lives according to it**. Conversely, anyone who teaches or lives contrary to God’s Word **profanes the name of God** among us. The Large Catechism identifies this as the spiritual defense against false teachers and an evil life.",
       "questions": [
         {
           "question": "How is God's name kept holy among us?",
@@ -407,7 +407,7 @@
     },
     {
       "title": "The Lord's Prayer - Third Petition",
-      "explanation": "God's **good and gracious will** is done even without our prayer, but we pray that it may be **done among us**. God's will is done when He **breaks and hinders every evil plan and purpose** of the devil, the world, and our sinful nature. It is also done when He **strengthens and keeps us firm in His Word and faith** until we die. We pray against our own will and the devil's will, which seek to block God's name and kingdom.",
+      "explanation": "God’s **good and gracious will** is done even without our prayer, but we pray that it may be **done among us**. God’s will is done when He **breaks and hinders every evil plan and purpose** of the devil, the world, and our sinful nature. It is also done when He **strengthens and keeps us firm in His Word and faith** until we die. We pray against our own will and the devil's will, which seek to block God's name and kingdom.",
       "questions": [
         {
           "question": "According to the Small Catechism, what does God do to ensure His will is done?",
@@ -855,6 +855,652 @@
             "None of the articles"
           ],
           "answer": "The First Article (Creation)"
+        }
+      ]
+    }
+  ],
+  "table_of_duties": [
+    {
+      "title": "Table of Duties: For Bishops, Pastors, and Preachers",
+      "explanation": "A **bishop or pastor must be blameless**, the husband of one wife, vigilant, sober, and of good behavior. He is to be **given to hospitality and apt to teach**, ensuring he is not a brawler or greedy for money. He must rule his own house well, keeping his children in subjection, for if he cannot manage his family, he cannot care for the Church of God. Crucially, he must **hold fast the faithful Word** as he has been taught, so that he may use sound doctrine to exhort and convince those who contradict it.",
+      "questions": [
+        {
+          "question": "Which of the following is a specific requirement for a bishop according to the Table of Duties?",
+          "options": [
+            "He must be a skilled administrator in secular business",
+            "He must be apt to teach and hold fast the faithful Word",
+            "He must never have been married",
+            "He must be a novice in the faith"
+          ],
+          "answer": "He must be apt to teach and hold fast the faithful Word"
+        },
+        {
+          "question": "Why is a pastor expected to rule his own house well?",
+          "options": [
+            "To demonstrate his personal wealth",
+            "To prove he can manage the Church of God",
+            "To satisfy the requirements of the civil government",
+            "To provide a place for guests to stay"
+          ],
+          "answer": "To prove he can manage the Church of God"
+        }
+      ]
+    },
+    {
+      "title": "Table of Duties: What the Hearers Owe to Their Pastors",
+      "explanation": "The Lord has ordained that those who **preach the Gospel should live of the Gospel**. Hearers are commanded to **communicate in all good things** with their teachers and to count elders who rule well worthy of **double honor**, especially those who labor in Word and doctrine. This includes **obeying and submitting** to them, as they watch for souls and must give an account to God. The goal is for them to do their work with **joy and not with grief**, as the latter is unprofitable for the congregation.",
+      "questions": [
+        {
+          "question": "What does the Scripture mean by 'double honor' for those who labor in the Word?",
+          "options": [
+            "They should receive two titles",
+            "They should be given liberal support and respect",
+            "They should be exempt from all laws",
+            "They should be served by the congregation as kings"
+          ],
+          "answer": "They should be given liberal support and respect"
+        },
+        {
+          "question": "Why should hearers obey their leaders according to Hebrews 13:17?",
+          "options": [
+            "Because the leaders are infallible",
+            "Because they watch for souls as those who must give an account",
+            "To ensure the pastor never feels sad",
+            "To follow a democratic vote"
+          ],
+          "answer": "Because they watch for souls as those who must give an account"
+        }
+      ]
+    },
+    {
+      "title": "Table of Duties: Concerning Civil Government",
+      "explanation": "Every soul is to be **subject to the higher powers**, for all authority that exists is **ordained of God**. The civil ruler is described as **God's minister** for the good of the citizens. The government is given the **power of the sword** to act as a revenger and execute wrath upon those who do evil. Resisting the power of the state is viewed as **resisting the ordinance of God**, which brings damnation upon the resistor.",
+      "questions": [
+        {
+          "question": "What is the primary role of the civil magistrate according to Romans 13?",
+          "options": [
+            "To teach the Gospel to all nations",
+            "To be God's minister for the punishment of evildoers",
+            "To manage the funds of the local church",
+            "To interpret the Scriptures for the laity"
+          ],
+          "answer": "To be God's minister for the punishment of evildoers"
+        },
+        {
+          "question": "From where does civil authority derive its power?",
+          "options": [
+            "The common consent of the people",
+            "The military strength of the ruler",
+            "It is ordained of God",
+            "The decisions of church councils"
+          ],
+          "answer": "It is ordained of God"
+        }
+      ]
+    },
+    {
+      "title": "Table of Duties: What Subjects Owe to the Magistrates",
+      "explanation": "Citizens are commanded to **render unto Caesar the things that are Caesar's**, which includes paying **tribute, custom, and taxes**. Subjection to authorities is a matter of **conscience**, not just a fear of punishment. Christians are encouraged to offer **supplications, prayers, and thanksgivings** for all in authority so that society may lead a quiet and peaceable life in all godliness. In all matters, they are to **honor the king** and governors as those sent for the praise of them that do well.",
+      "questions": [
+        {
+          "question": "Why does the Small Catechism say citizens should be subject to government?",
+          "options": [
+            "Only because they fear physical punishment",
+            "Not only for wrath, but also for conscience' sake",
+            "To gain a higher standing in the Church",
+            "Because the government provides the Means of Grace"
+          ],
+          "answer": "Not only for wrath, but also for conscience' sake"
+        },
+        {
+          "question": "What specific act should Christians perform for their rulers according to 1 Timothy 2?",
+          "options": [
+            "Build monuments to them",
+            "Offer prayers, intercessions, and thanksgivings",
+            "Vote for them in every election",
+            "Invite them to preach in the church"
+          ],
+          "answer": "Offer prayers, intercessions, and thanksgivings"
+        }
+      ]
+    },
+    {
+      "title": "Table of Duties: For Husbands",
+      "explanation": "Husbands are to **dwell with their wives according to knowledge**, giving **honor to the wife as the weaker vessel**. They are reminded that they are **heirs together of the grace of life**, and they are warned that if they fail in this duty, their **prayers will be hindered**. Furthermore, they are commanded to **love their wives** as Christ loved the Church and to **never be bitter** against them.",
+      "questions": [
+        {
+          "question": "What is the consequence of a husband not honoring his wife?",
+          "options": [
+            "He will lose his job",
+            "His prayers will be hindered",
+            "He must pay a fine to the church",
+            "He is no longer a citizen"
+          ],
+          "answer": "His prayers will be hindered"
+        },
+        {
+          "question": "What is the model for a husband's love according to Ephesians 5?",
+          "options": [
+            "The love of parents for children",
+            "How Christ loved the Church and gave Himself for it",
+            "The mutual agreement of friends",
+            "The pursuit of personal happiness"
+          ],
+          "answer": "How Christ loved the Church and gave Himself for it"
+        }
+      ]
+    },
+    {
+      "title": "Table of Duties: For Wives",
+      "explanation": "Wives are exhorted to **submit themselves to their own husbands as unto the Lord**. This submission is modeled after **Sarah**, who obeyed Abraham and called him 'lord'. Wives are encouraged to maintain a **chaste conversation** and the ornament of a **meek and quiet spirit**, which is of great price in the sight of God. This subjection is to be done 'in the Lord', acknowledging the husband as the head of the wife just as Christ is the head of the Church.",
+      "questions": [
+        {
+          "question": "Who is presented as a biblical model for wives in the Table of Duties?",
+          "options": ["Mary Magdalene", "Sarah", "Ruth", "Deborah"],
+          "answer": "Sarah"
+        },
+        {
+          "question": "According to the sources, what is of 'great price' in the sight of God for a wife?",
+          "options": [
+            "Expensive apparel and gold jewelry",
+            "A meek and quiet spirit",
+            "A successful career outside the home",
+            "Superiority over her husband"
+          ],
+          "answer": "A meek and quiet spirit"
+        }
+      ]
+    },
+    {
+      "title": "Table of Duties: For Parents",
+      "explanation": "Fathers are specifically commanded **not to provoke their children to wrath**. Instead of being harsh or overbearing, they are to **bring them up in the nurture and admonition of the Lord**. This involves providing for both the bodily and spiritual needs of the children, acting as 'bishop' and 'bishopress' in the home to ensure the children learn the fear and knowledge of God.",
+      "questions": [
+        {
+          "question": "What are parents forbidden from doing to their children?",
+          "options": [
+            "Sending them to school",
+            "Provoking them to wrath",
+            "Giving them household chores",
+            "Teaching them the Catechism"
+          ],
+          "answer": "Provoking them to wrath"
+        },
+        {
+          "question": "What is the positive duty of parents mentioned in the Table of Duties?",
+          "options": [
+            "To amass a great inheritance for their children",
+            "To bring them up in the nurture and admonition of the Lord",
+            "To allow children to choose their own religion",
+            "To ensure children never suffer any hardship"
+          ],
+          "answer": "To bring them up in the nurture and admonition of the Lord"
+        }
+      ]
+    },
+    {
+      "title": "Table of Duties: For Children",
+      "explanation": "Children are commanded to **obey their parents in the Lord**, for this is right. They are to **honor their father and mother**, which is the first commandment with a promise: that it may be **well with them** and they may **live long on the earth**. This obedience is seen as a holy and precious work in the sight of God, far surpassing self-chosen religious works.",
+      "questions": [
+        {
+          "question": "What is the promise attached to the commandment to honor parents?",
+          "options": [
+            "That they will become rich",
+            "That it may be well with them and they may live long on the earth",
+            "That they will never face temptation",
+            "That they will become leaders in the Church"
+          ],
+          "answer": "That it may be well with them and they may live long on the earth"
+        },
+        {
+          "question": "Why is a child's obedience considered a 'golden work'?",
+          "options": [
+            "Because it is difficult to do",
+            "Because it is commanded by God",
+            "Because it earns salvation",
+            "Because it makes parents happy"
+          ],
+          "answer": "Because it is commanded by God"
+        }
+      ]
+    },
+    {
+      "title": "Table of Duties: For Male and Female Servants, Hired Men, and Laborers",
+      "explanation": "Servants and laborers are to be **obedient to their masters** with fear, trembling, and **singleness of heart**, as unto Christ. They should work **not with eye-service as men-pleasers**, but as the servants of Christ, doing the **will of God from the heart**. They are promised that whatever good thing they do, they will **receive the same from the Lord**, regardless of their status as bond or free.",
+      "questions": [
+        {
+          "question": "How should a Christian worker perform their duties?",
+          "options": [
+            "With eye-service to gain a promotion",
+            "As servants of Christ, doing the will of God from the heart",
+            "Only when the supervisor is watching",
+            "With a focus on personal profit only"
+          ],
+          "answer": "As servants of Christ, doing the will of God from the heart"
+        },
+        {
+          "question": "What is the motivation for a worker to serve faithfully even under a harsh master?",
+          "options": [
+            "The fear of the executioner",
+            "The promise that they will receive a reward from the Lord",
+            "To earn their freedom immediately",
+            "To prove they are better than their master"
+          ],
+          "answer": "The promise that they will receive a reward from the Lord"
+        }
+      ]
+    },
+    {
+      "title": "Table of Duties: For Masters and Mistresses",
+      "explanation": "Masters are to do the **same things** toward their workers, **forbearing threatening**. They must remember that they also have a **Master in heaven**, and that there is **no respect of persons with Him**. This requires them to treat their servants with **justice and equality**, recognizing that in God's eyes, both master and servant stand on a common ground of need and grace.",
+      "questions": [
+        {
+          "question": "What are masters specifically commanded to 'forbear'?",
+          "options": [
+            "Paying wages",
+            "Threatening",
+            "Providing food",
+            "Teaching the Word"
+          ],
+          "answer": "Threatening"
+        },
+        {
+          "question": "What should a master always keep in mind regarding his own status?",
+          "options": [
+            "He is the ultimate authority in his house",
+            "He also has a Master in heaven with whom there is no partiality",
+            "He is superior to his servants in every way",
+            "His wealth is proof of his holiness"
+          ],
+          "answer": "He also has a Master in heaven with whom there is no partiality"
+        }
+      ]
+    },
+    {
+      "title": "Table of Duties: For Young Persons in General",
+      "explanation": "Young people are to **submit themselves to the elder** and be clothed with **humility**, for God resists the proud but gives **grace to the humble**.",
+      "questions": []
+    },
+    {
+      "title": "Table of Duties: For Widows",
+      "explanation": "**Widows** who are 'widows indeed' are to trust in God and continue in **supplications and prayers** night and day.",
+      "questions": [
+        {
+          "question": "What is the duty of a 'widow indeed'?",
+          "options": [
+            "To remarry as quickly as possible",
+            "To live in pleasure",
+            "To trust in God and continue in prayer",
+            "To become a judge in the church"
+          ],
+          "answer": "To trust in God and continue in prayer"
+        }
+      ]
+    },
+    {
+      "title": "Table of Duties: For All in Common",
+      "explanation": "**Everyone** is bound by the summary commandment: **'Thou shalt love thy neighbor as thyself.'** All other duties and commandments are briefly comprehended in this one rule of love.",
+      "questions": [
+        {
+          "question": "What is the summary of all 'Relative Duties' to one's neighbor?",
+          "options": [
+            "To gain as much property as possible",
+            "To love thy neighbor as thyself",
+            "To follow only the first three commandments",
+            "To avoid all social contact"
+          ],
+          "answer": "To love thy neighbor as thyself"
+        }
+      ]
+    }
+  ],
+  "christian_questions_and_answers": [
+    {
+      "title": "Christian Questions with Their Answers",
+      "explanation": "These questions are designed to move the catechumen from a knowledge of their own sin to the **absolute certainty of forgiveness** in Christ. By focusing on the **external Word and promise**, the Small Catechism provides the 'most certain' foundation for the life of the baptized. Outside of this framework of Law and Gospel, the Sacrament can be easily misunderstood as a human work rather than a **divine gift**.",
+      "questions": []
+    },
+    {
+      "question_number": 1,
+      "question_text": "Do you believe that you are a sinner?",
+      "explanation": "A Christian must begin by **confessing their status as a sinner**, acknowledging that they have offended God. This is not a mere intellectual admission but a realization that permeates the heart of the believer.",
+      "questions": [
+        {
+          "question": "What is the primary belief required before receiving the Sacrament?",
+          "options": [
+            "That you have done enough good works",
+            "That you are a sinner",
+            "That you have mastered the Small Catechism",
+            "That you are physically healthy"
+          ],
+          "answer": "That you are a sinner"
+        }
+      ]
+    },
+    {
+      "question_number": 2,
+      "question_text": "How do you know this?",
+      "explanation": "The knowledge of sin is derived specifically from the **Ten Commandments**, which the individual recognizes they have not kept. The Law serves as a mirror to reveal the depth of human corruption.",
+      "questions": [
+        {
+          "question": "According to the sources, what tool reveals that a person is a sinner?",
+          "options": [
+            "Human reason and logic",
+            "The Ten Commandments",
+            "Personal feelings of guilt",
+            "The opinions of neighbors"
+          ],
+          "answer": "The Ten Commandments"
+        }
+      ]
+    },
+    {
+      "question_number": 3,
+      "question_text": "Are you sorry for your sins?",
+      "explanation": "True repentance involves being **genuinely sorry** for having sinned against God. This sorrow is a sacrifice with which God is pleased, as seen in the example of King David.",
+      "questions": [
+        {
+          "question": "What characterizes the heart of a person rightly prepared for the Sacrament?",
+          "options": [
+            "Happiness and celebration only",
+            "Sorrow for having sinned against God",
+            "A sense of moral superiority",
+            "Indifference to past mistakes"
+          ],
+          "answer": "Sorrow for having sinned against God"
+        }
+      ]
+    },
+    {
+      "question_number": 4,
+      "question_text": "What have you deserved from God because of your sins?",
+      "explanation": "The Law teaches that sin deserves God’s **wrath and displeasure, temporal death, and eternal damnation**. This realization is necessary to understand the magnitude of the grace offered in the Gospel.",
+      "questions": [
+        {
+          "question": "What are the consequences of sin according to the Small Catechism?",
+          "options": [
+            "Minor social embarrassment",
+            "Temporary setbacks in life",
+            "Wrath, temporal death, and eternal damnation",
+            "None, because God is only love"
+          ],
+          "answer": "Wrath, temporal death, and eternal damnation"
+        }
+      ]
+    },
+    {
+      "question_number": 5,
+      "question_text": "Do you hope to be saved?",
+      "explanation": "Despite the deserved damnation, the Christian maintains a **steadfast hope for salvation**. This hope is not based on self-improvement but on the external promises of God.",
+      "questions": [
+        {
+          "question": "Upon what is the Christian's hope for salvation based?",
+          "options": [
+            "Internal feelings of peace",
+            "The promises and grace of God",
+            "The performance of daily rituals",
+            "The lack of significant sins"
+          ],
+          "answer": "The promises and grace of God"
+        }
+      ]
+    },
+    {
+      "question_number": 6,
+      "question_text": "In whom then do you trust?",
+      "explanation": "The believer places their entire confidence in their **dear Lord Jesus Christ**. Trusting in Christ is the only way to find relief from the terrors of the Law.",
+      "questions": [
+        {
+          "question": "Who is the object of the Christian's trust for salvation?",
+          "options": [
+            "The Virgin Mary",
+            "The individual's own faith",
+            "Jesus Christ",
+            "The Church hierarchy"
+          ],
+          "answer": "Jesus Christ"
+        }
+      ]
+    },
+    {
+      "question_number": 7,
+      "question_text": "Who is Christ?",
+      "explanation": "Christ is confessed as the **Son of God, true God and true man** in one person. His two natures are essential for his role as the Redeemer of the world.",
+      "questions": [
+        {
+          "question": "What are the two natures of Jesus Christ?",
+          "options": [
+            "Spirit and flesh only",
+            "True God and true man",
+            "Prophet and King only",
+            "Angel and human"
+          ],
+          "answer": "True God and true man"
+        }
+      ]
+    },
+    {
+      "question_number": 8,
+      "question_text": "How many Gods are there?",
+      "explanation": "There is **only one God**, but he exists in **three persons**: Father, Son, and Holy Spirit. This Trinitarian confession distinguishes Christian worship from all other religions.",
+      "questions": [
+        {
+          "question": "How many persons exist in the one Godhead?",
+          "options": ["One", "Two", "Three", "Twelve"],
+          "answer": "Three"
+        }
+      ]
+    },
+    {
+      "question_number": 9,
+      "question_text": "What has Christ done for you that you trust in Him?",
+      "explanation": "Christ **died and shed His blood** on the cross for the **forgiveness of sins**. This objective act of redemption is the sole ground for the believer’s justification.",
+      "questions": [
+        {
+          "question": "What specific act of Christ provides the basis for trust in Him?",
+          "options": [
+            "His teaching of the Sermon on the Mount",
+            "His birth in Bethlehem",
+            "His death and the shedding of His blood",
+            "His performance of many miracles"
+          ],
+          "answer": "His death and the shedding of His blood"
+        }
+      ]
+    },
+    {
+      "question_number": 10,
+      "question_text": "Did the Father also die for you?",
+      "explanation": "The Father did not die, as He is **God only**; the Son alone is both **true God and true man** who suffered and died. This maintains the biblical distinction between the persons of the Trinity.",
+      "questions": [
+        {
+          "question": "Why did the Father not die for the sins of the world?",
+          "options": [
+            "He was not willing to suffer",
+            "He is God only and did not take on human nature",
+            "He died first before the Son",
+            "The Holy Spirit died instead"
+          ],
+          "answer": "He is God only and did not take on human nature"
+        }
+      ]
+    },
+    {
+      "question_number": 11,
+      "question_text": "How do you know this?",
+      "explanation": "This truth is known from the **Holy Gospel**, the words of the **Sacrament**, and the physical **pledge of His body and blood**. These external means provide the certainty that faith requires.",
+      "questions": [
+        {
+          "question": "What serves as a 'pledge' of Christ's work for the believer?",
+          "options": [
+            "The feeling of peace in the heart",
+            "The physical body and blood given in the Sacrament",
+            "A successful and prosperous life",
+            "The authority of the Pope"
+          ],
+          "answer": "The physical body and blood given in the Sacrament"
+        }
+      ]
+    },
+    {
+      "question_number": 12,
+      "question_text": "What are the Words of Institution?",
+      "explanation": "The Words of Institution are the **authoritative command of Christ** regarding the bread and the cup, emphasizing the **remission of sins**. These words are the 'effective cause' that makes the Sacrament what it is.",
+      "questions": [
+        {
+          "question": "What is the primary benefit of the Sacrament mentioned in the Words of Institution?",
+          "options": [
+            "Social unity among members",
+            "The forgiveness of sins",
+            "A reminder of ancient history",
+            "A symbolic representation of love"
+          ],
+          "answer": "The forgiveness of sins"
+        }
+      ]
+    },
+    {
+      "question_number": 13,
+      "question_text": "Do you believe, then, that the true body and blood of Christ are in the Sacrament?",
+      "explanation": "The Christian confesses the **real and essential presence** of Christ's body and blood 'in, with, and under' the elements. This belief is founded on the **Word and ordinance of God**, not human holiness.",
+      "questions": [
+        {
+          "question": "Upon what is the validity of the body and blood in the Sacrament founded?",
+          "options": [
+            "The faith of the communicant",
+            "The holiness of the presiding minister",
+            "The Word and ordinance of God",
+            "The quality of the bread and wine"
+          ],
+          "answer": "The Word and ordinance of God"
+        }
+      ]
+    },
+    {
+      "question_number": 14,
+      "question_text": "What convinces you to believe this?",
+      "explanation": "The believer is convinced by the **words of Christ**: 'Take, eat, this is My body; drink of it, all of you, this is My blood'. These are **creative and powerful words** that carry the efficacy of the first Supper to today.",
+      "questions": [
+        {
+          "question": "What does the Formula of Concord describe as the power making Christ present?",
+          "options": [
+            "The prayer of the people",
+            "The creative and powerful words of Christ",
+            "The manual acts of the priest",
+            "The atmosphere of the sanctuary"
+          ],
+          "answer": "The creative and powerful words of Christ"
+        }
+      ]
+    },
+    {
+      "question_number": 15,
+      "question_text": "What should we do when we eat His body and drink His blood, and in this way receive His pledge?",
+      "explanation": "When we eat and drink, we are to **believe the words** of Christ and remember His death. By believing the words 'given and shed for you,' the communicant **receives the forgiveness of sins**.",
+      "questions": [
+        {
+          "question": "How is the promise of the Sacrament received by the individual?",
+          "options": [
+            "Through the physical act of chewing and swallowing",
+            "Through faith in the words 'for you'",
+            "Through a public display of piety",
+            "Through the mediation of the saints"
+          ],
+          "answer": "Through faith in the words 'for you'"
+        }
+      ]
+    },
+    {
+      "question_number": 16,
+      "question_text": "Why should we want to go to the Sacrament often?",
+      "explanation": "We should go frequently to **remember Christ's death** and to have our **faith strengthened** against sin and the devil. The Sacrament serves as a **'daily pasture'** to nourish the new man in the face of constant trial.",
+      "questions": [
+        {
+          "question": "Why is the Sacrament described as a 'daily pasture' for the soul?",
+          "options": [
+            "Because it is a social tradition",
+            "Because it strengthens the believer against temptation",
+            "Because it is a simple meal of bread and wine",
+            "Because it represents the beauty of nature"
+          ],
+          "answer": "Because it strengthens the believer against temptation"
+        }
+      ]
+    },
+    {
+      "question_number": 17,
+      "question_text": "What should a person do if they feel their faith is weak or they have a troubled conscience?",
+      "explanation": "The Sacrament is intended precisely for **terrified consciences** and those who feel their weakness. They are encouraged to seek the **comfort and strength** found at the Lord’s Table.",
+      "questions": [
+        {
+          "question": "For whom is the Lord's Supper especially intended?",
+          "options": [
+            "Those who have achieved perfect holiness",
+            "Those with terrified consciences and weak faith",
+            "Those who can explain complex theological systems",
+            "Those who have not sinned for several weeks"
+          ],
+          "answer": "Those with terrified consciences and weak faith"
+        }
+      ]
+    },
+    {
+      "question_number": 18,
+      "question_text": "What if you find yourself unworthy or unprepared?",
+      "explanation": "Worthiness is not found in outward preparation or fasting, but in **faith in Christ's words**. Faith lives on the **external promises** that provide a 'most certain theology'.",
+      "questions": [
+        {
+          "question": "What defines true 'worthiness' to receive the Sacrament?",
+          "options": [
+            "Fasting since the previous midnight",
+            "Faith in Christ's words 'Given and shed for you'",
+            "A high level of emotional excitement",
+            "The ability to memorize the entire Bible"
+          ],
+          "answer": "Faith in Christ's words 'Given and shed for you'"
+        }
+      ]
+    },
+    {
+      "question_number": 19,
+      "question_text": "How can eating and drinking do such great things?",
+      "explanation": "The physical act does not produce forgiveness; rather, the **Word of God** connected to the eating and drinking is the 'chief thing'. The Word is the **effective cause** that delivers life and salvation.",
+      "questions": [
+        {
+          "question": "What is the 'chief thing' in the Sacrament that delivers the benefits?",
+          "options": [
+            "The chemical properties of the elements",
+            "The physical act of eating",
+            "The Word of God",
+            "The congregation's unity"
+          ],
+          "answer": "The Word of God"
+        }
+      ]
+    },
+    {
+      "question_number": 20,
+      "question_text": "But what should you do if you are not aware of this need and have no hunger and thirst for the Sacrament?",
+      "explanation": "The sources suggest three physical and spiritual checks: **touch your body** to see if you are still flesh and blood; **look at the world** to see its sin and trouble; and **remember the devil** who seeks to murder the soul. These realities drive a person to seek the **strength of the Sacrament**.",
+      "questions": [
+        {
+          "question": "What is the advice for those who lack hunger for the Lord's Supper?",
+          "options": [
+            "Wait until they feel more holy",
+            "Read a secular self-help book",
+            "Touch their body to see if they are still 'flesh and blood'",
+            "Stop attending church for a season"
+          ],
+          "answer": "Touch their body to see if they are still 'flesh and blood'"
+        },
+        {
+          "question": "According to Question 20, what three things should a person consider if they are indifferent to the Sacrament?",
+          "options": [
+            "Their health, their wealth, and their fame",
+            "Their body, the world, and the devil",
+            "Their parents, their children, and their spouse",
+            "Their logic, their reason, and their intellect"
+          ],
+          "answer": "Their body, the world, and the devil"
         }
       ]
     }

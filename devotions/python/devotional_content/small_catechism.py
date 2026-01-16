@@ -28,6 +28,7 @@ def get_grouped_catechism():
 
   # Create a lookup for explanations by title
   explanations_map = {}
+  christian_questions_data = {}
 
   # List of keys in explanation_data that contain lists of items with "title"
   keys_to_load = [
@@ -38,6 +39,8 @@ def get_grouped_catechism():
       "confession_and_office_of_the_keys",
       "sacrament_of_the_altar",
       "daily_prayers",
+      "table_of_duties",
+      "christian_questions_and_answers",
   ]
 
   for key in keys_to_load:
@@ -45,6 +48,8 @@ def get_grouped_catechism():
       for item in explanation_data[key]:
         if "title" in item:
           explanations_map[item["title"]] = item
+        elif "question_number" in item:
+          christian_questions_data[item["question_number"]] = item
 
   groups = {
       "The Ten Commandments": [],
@@ -70,13 +75,55 @@ def get_grouped_catechism():
       )
       # Inject tooltips for explanation text
       explanation_text = inject_references(explanation_text)
-      
+
       section["explanation"] = explanation_text
-      section["quiz_questions"] = explanations_map[title]["questions"]
-    
+      
+      # Process quiz questions for tooltips
+      quiz_questions = explanations_map[title]["questions"]
+      for q in quiz_questions:
+          if "question" in q:
+              q["question"] = inject_references(q["question"])
+          if "options" in q:
+              q["options"] = [inject_references(opt) for opt in q["options"]]
+      
+      section["quiz_questions"] = quiz_questions
+
+    # Special handling for Christian Questions per-question explanation
+    if "Christian Questions" in title and "questions_and_answers" in section:
+      for idx, qa in enumerate(section["questions_and_answers"]):
+        q_num = idx + 1
+        if q_num in christian_questions_data:
+          cq_item = christian_questions_data[q_num]
+
+          explanation_text = cq_item.get("explanation", "")
+          # Format explanation text
+          explanation_text = re.sub(
+              r"\*\*(.*?)\*\*", r"<strong>\1</strong>", explanation_text
+          )
+          explanation_text = inject_references(explanation_text)
+
+          qa["explanation"] = explanation_text
+          
+          # Process quiz questions
+          cq_quizzes = cq_item.get("questions", [])
+          for q in cq_quizzes:
+              if "question" in q:
+                  q["question"] = inject_references(q["question"])
+              if "options" in q:
+                  q["options"] = [inject_references(opt) for opt in q["options"]]
+                  
+          qa["quiz_questions"] = cq_quizzes
+
     # Inject tooltips for main section text if present (e.g. Table of Duties)
     if "text" in section and section["text"]:
       section["text"] = inject_references(section["text"])
+
+    # Inject tooltips for main Q&A answers (e.g. Baptism, Altar)
+    # Skip Christian Questions as it has its own specific injector
+    if "questions_and_answers" in section and "Christian Questions" not in title:
+      for qa in section["questions_and_answers"]:
+        if "answer" in qa:
+          qa["answer"] = inject_references(qa["answer"])
 
     if "Commandment" in title or "Close of the Commandments" in title:
       groups["The Ten Commandments"].append(section)
@@ -125,18 +172,22 @@ def inject_references(text):
   # "Christian Questions" uses "John 14; Romans 5".
   # "Table of Duties" uses "1 Tim. 3:2ff".
   # "Explanation" uses "Matthew 28:19", "Romans 6:4".
-  
+
   # Refined Pattern:
   # 1. Optional Prefix: 1, 2, 3, I, II, III
-  # 2. Book Name: [A-Z][a-z]+ (one or more words allowed? e.g. Song of Solomon? Usually single word + prefix in these contexts)
+  # 2. Book Name: [A-Z][a-z]+
   # 3. Separator
-  # 4. Chapter:Verse
+  # 4. Chapter(:Verse)?
   # 5. Optional range/suffix
-
-  # Note: This simple regex handles standard single-word books or numbered books. 
-  # Complex books like "Song of Solomon" might need more work if present.
-  pattern = r'\b((?:1|2|3|I|II|III)?\s*[A-Z][a-z]+\.?\s+\d+:\d+(?:[-–]\d+)?(?:ff|f)?)'
   
+  # Updates:
+  # - Made verse optional to catch "Romans 6"
+  # - Added 'v.' optional prefix handling? No, keep simple.
+  
+  pattern = (
+      r"\b((?:1|2|3|I|II|III)?\s*[A-Z][a-z]+\.?\s+\d+(?::\d+)?(?:[-–]\d+)?(?:ff|f)?)"
+  )
+
   matches = list(set(re.findall(pattern, text)))
   if not matches:
     return text
@@ -144,28 +195,33 @@ def inject_references(text):
   # Clean refs for API
   clean_refs = []
   for m in matches:
-    clean = m.replace('–', '-').replace('ff', '').replace('f', '').strip()
+    clean = m.replace("–", "-").replace("ff", "").replace("f", "").strip()
     clean_refs.append(clean)
-  
+
   try:
-    texts = utils.fetch_passages(clean_refs, include_verse_numbers=False, include_copyright=False)
+    texts = utils.fetch_passages(
+        clean_refs, include_verse_numbers=False, include_copyright=False
+    )
     ref_map = dict(zip(matches, texts))
-    
+
     for ref_str, scripture_text in ref_map.items():
       # Skip if reading not available
       if "Reading not available" in scripture_text:
         continue
-      
+
       # Basic HTML escaping for attribute
-      escaped_text = scripture_text.replace('"', '&quot;')
-      tooltip = f'<span class="scripture-tooltip" data-text="{escaped_text}">{ref_str}</span>'
-      
+      escaped_text = scripture_text.replace('"', "&quot;")
+      tooltip = (
+          '<span class="scripture-tooltip"'
+          f' data-text="{escaped_text}">{ref_str}</span>'
+      )
+
       # Replace in text. Use string replace.
       text = text.replace(ref_str, tooltip)
-      
+
   except Exception as e:
     print(f"Error injecting references: {e}")
-    
+
   return text
 
 

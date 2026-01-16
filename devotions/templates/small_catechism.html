@@ -89,10 +89,10 @@
                         <p class="subheader"><strong>Quiz</strong></p>
                         {% for q in section.quiz_questions %}
                         <div class="quiz-container">
-                            <p style="font-weight: bold; margin-bottom: 10px;">{{ q.question }}</p>
+                            <p style="font-weight: bold; margin-bottom: 10px;">{{ q.question|safe }}</p>
                             <div class="quiz-options">
                                 {% for option in q.options %}
-                                <button class="quiz-option" onclick="checkQuizAnswer(this, '{{ q.answer|replace("'", "\\'") }}')">{{ option }}</button>
+                                <button class="quiz-option" onclick="checkQuizAnswer(this, '{{ q.answer|replace("'", "\\'") }}')">{{ option|safe }}</button>
                                 {% endfor %}
                             </div>
                             <p class="quiz-feedback"></p>
