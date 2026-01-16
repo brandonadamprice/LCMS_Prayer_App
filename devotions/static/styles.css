@@ -1677,6 +1677,31 @@ body.dark-mode .scripture-tooltip.active::before {
     border-top-color: #eee;
 }
 
+/* Mobile Tooltip Adjustment */
+@media (max-width: 600px) {
+    .scripture-tooltip:hover::after,
+    .scripture-tooltip.active::after {
+        position: fixed;
+        top: auto;
+        bottom: 20px;
+        left: 5%;
+        width: 90%;
+        transform: none;
+        margin: 0;
+        z-index: 2000;
+        box-shadow: 0 -4px 15px rgba(0,0,0,0.3);
+        text-align: center;
+        max-height: 40vh;
+        overflow-y: auto;
+    }
+    
+    /* Hide the arrow on mobile */
+    .scripture-tooltip:hover::before,
+    .scripture-tooltip.active::before {
+        display: none;
+    }
+}
+
 /* Learning Mode Styles */
 .learning-content {
     margin-top: 20px;
