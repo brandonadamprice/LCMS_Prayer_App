@@ -80,15 +80,15 @@ def get_grouped_catechism():
       explanation_text = inject_references(explanation_text)
 
       section["explanation"] = explanation_text
-      
+
       # Process quiz questions for tooltips
       quiz_questions = explanations_map[title]["questions"]
       for q in quiz_questions:
-          if "question" in q:
-              q["question"] = inject_references(q["question"])
-          if "options" in q:
-              q["options"] = [inject_references(opt) for opt in q["options"]]
-      
+        if "question" in q:
+          q["question"] = inject_references(q["question"])
+        if "options" in q:
+          q["options"] = [inject_references(opt) for opt in q["options"]]
+
       section["quiz_questions"] = quiz_questions
 
     # Special handling for Christian Questions per-question explanation
@@ -106,15 +106,15 @@ def get_grouped_catechism():
           explanation_text = inject_references(explanation_text)
 
           qa["explanation"] = explanation_text
-          
+
           # Process quiz questions
           cq_quizzes = cq_item.get("questions", [])
           for q in cq_quizzes:
-              if "question" in q:
-                  q["question"] = inject_references(q["question"])
-              if "options" in q:
-                  q["options"] = [inject_references(opt) for opt in q["options"]]
-                  
+            if "question" in q:
+              q["question"] = inject_references(q["question"])
+            if "options" in q:
+              q["options"] = [inject_references(opt) for opt in q["options"]]
+
           qa["quiz_questions"] = cq_quizzes
 
     # Inject tooltips for main section text if present (e.g. Table of Duties)
@@ -123,7 +123,10 @@ def get_grouped_catechism():
 
     # Inject tooltips for main Q&A answers (e.g. Baptism, Altar)
     # Skip Christian Questions as it has its own specific injector
-    if "questions_and_answers" in section and "Christian Questions" not in title:
+    if (
+        "questions_and_answers" in section
+        and "Christian Questions" not in title
+    ):
       for qa in section["questions_and_answers"]:
         if "answer" in qa:
           qa["answer"] = inject_references(qa["answer"])
@@ -182,15 +185,13 @@ def inject_references(text):
   # 3. Separator
   # 4. Chapter(:Verse)?
   # 5. Optional range/suffix
-  
+
   # Updates:
   # - Made verse optional to catch "Romans 6"
   # - Added 'v.' optional prefix handling? No, keep simple.
   # - Added negative lookahead to exclude "Gospel" (e.g. "Gospel. 1") which consumes the number for following refs
-  
-  pattern = (
-      r"\b((?:1|2|3|I|II|III)?\s*(?!Gospel)[A-Z][a-z]+\.?\s+\d+(?::\d+)?(?:[-–]\d+)?(?:ff|f)?)"
-  )
+
+  pattern = r"\b((?:1|2|3|I|II|III)?\s*(?!Gospel)[A-Z][a-z]+\.?\s+\d+(?::\d+)?(?:[-–]\d+)?(?:ff|f)?)"
 
   matches = list(set(re.findall(pattern, text)))
   if not matches:
@@ -212,7 +213,7 @@ def inject_references(text):
       ref_str = m.group(1)
       if ref_str not in ref_map:
         return ref_str
-      
+
       scripture_text = ref_map[ref_str]
       if "Reading not available" in scripture_text:
         return ref_str
