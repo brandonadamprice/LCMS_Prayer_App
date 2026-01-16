@@ -68,8 +68,15 @@ def get_grouped_catechism():
       explanation_text = re.sub(
           r"\*\*(.*?)\*\*", r"<strong>\1</strong>", explanation_text
       )
+      # Inject tooltips for explanation text
+      explanation_text = inject_references(explanation_text)
+      
       section["explanation"] = explanation_text
       section["quiz_questions"] = explanations_map[title]["questions"]
+    
+    # Inject tooltips for main section text if present (e.g. Table of Duties)
+    if "text" in section and section["text"]:
+      section["text"] = inject_references(section["text"])
 
     if "Commandment" in title or "Close of the Commandments" in title:
       groups["The Ten Commandments"].append(section)
@@ -105,6 +112,61 @@ def get_grouped_catechism():
 
   # Filter out empty groups and return
   return {k: v for k, v in groups.items() if v}
+
+
+def inject_references(text):
+  """Injects scripture tooltips into text."""
+  if not text:
+    return text
+
+  # Pattern: (Book) (Chapter):(Verse)(Optional Range)(Optional Suffix)
+  # Matches: 1 Tim. 3:2, Rom. 13:1-4, John 20:22–23 (en-dash), Titus 3:5
+  # Does NOT match: "John 14" (chapter only) unless we expand regex, but user only asked for what we see.
+  # "Christian Questions" uses "John 14; Romans 5".
+  # "Table of Duties" uses "1 Tim. 3:2ff".
+  # "Explanation" uses "Matthew 28:19", "Romans 6:4".
+  
+  # Refined Pattern:
+  # 1. Optional Prefix: 1, 2, 3, I, II, III
+  # 2. Book Name: [A-Z][a-z]+ (one or more words allowed? e.g. Song of Solomon? Usually single word + prefix in these contexts)
+  # 3. Separator
+  # 4. Chapter:Verse
+  # 5. Optional range/suffix
+
+  # Note: This simple regex handles standard single-word books or numbered books. 
+  # Complex books like "Song of Solomon" might need more work if present.
+  pattern = r'\b((?:1|2|3|I|II|III)?\s*[A-Z][a-z]+\.?\s+\d+:\d+(?:[-–]\d+)?(?:ff|f)?)'
+  
+  matches = list(set(re.findall(pattern, text)))
+  if not matches:
+    return text
+
+  # Clean refs for API
+  clean_refs = []
+  for m in matches:
+    clean = m.replace('–', '-').replace('ff', '').replace('f', '').strip()
+    clean_refs.append(clean)
+  
+  try:
+    texts = utils.fetch_passages(clean_refs, include_verse_numbers=False, include_copyright=False)
+    ref_map = dict(zip(matches, texts))
+    
+    for ref_str, scripture_text in ref_map.items():
+      # Skip if reading not available
+      if "Reading not available" in scripture_text:
+        continue
+      
+      # Basic HTML escaping for attribute
+      escaped_text = scripture_text.replace('"', '&quot;')
+      tooltip = f'<span class="scripture-tooltip" data-text="{escaped_text}">{ref_str}</span>'
+      
+      # Replace in text. Use string replace.
+      text = text.replace(ref_str, tooltip)
+      
+  except Exception as e:
+    print(f"Error injecting references: {e}")
+    
+  return text
 
 
 def _inject_christian_questions_scripture(qa_list):

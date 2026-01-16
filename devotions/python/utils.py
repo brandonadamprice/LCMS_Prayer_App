@@ -541,15 +541,17 @@ def _preprocess_ref(ref: str) -> str:
   processed_parts = [first_part]
   for part in parts[1:]:
     part = part.strip()
-    if re.fullmatch(r"\d+(-\d+)?", part):  # verses only
+    # Remove f/ff suffixes for API query
+    clean_part = re.sub(r"ff?$", "", part).strip()
+    if re.fullmatch(r"\d+(-\d+)?", clean_part):  # verses only
       if book_chapter_if_present:
-        processed_parts.append(f"{book_chapter_if_present}:{part}")
+        processed_parts.append(f"{book_chapter_if_present}:{clean_part}")
       else:  # single chapter book
-        processed_parts.append(f"{book} {part}")
-    elif re.fullmatch(r"\d+:\d+(-\d+)?", part):  # chapter:verses
-      processed_parts.append(f"{book} {part}")
-    else:  # Likely a full reference like '3 John 1-15', keep as is.
-      processed_parts.append(part)
+        processed_parts.append(f"{book} {clean_part}")
+    elif re.fullmatch(r"\d+:\d+(-\d+)?", clean_part):  # chapter:verses
+      processed_parts.append(f"{book} {clean_part}")
+    else:
+      processed_parts.append(clean_part)
   return ";".join(processed_parts)
 
 
