@@ -25,12 +25,26 @@ def get_grouped_catechism():
   """Groups the catechism sections into the Six Chief Parts."""
   sections = utils.CATECHISM_SECTIONS
   explanation_data = load_catechism_explanation()
-  
+
   # Create a lookup for explanations by title
   explanations_map = {}
-  if "ten_commandments" in explanation_data:
-    for item in explanation_data["ten_commandments"]:
-      explanations_map[item["title"]] = item
+
+  # List of keys in explanation_data that contain lists of items with "title"
+  keys_to_load = [
+      "ten_commandments",
+      "apostles_creed",
+      "lords_prayer",
+      "sacrament_of_holy_baptism",
+      "confession_and_office_of_the_keys",
+      "sacrament_of_the_altar",
+      "daily_prayers",
+  ]
+
+  for key in keys_to_load:
+    if key in explanation_data:
+      for item in explanation_data[key]:
+        if "title" in item:
+          explanations_map[item["title"]] = item
 
   groups = {
       "The Ten Commandments": [],
@@ -46,7 +60,7 @@ def get_grouped_catechism():
 
   for section in sections:
     title = section["title"]
-    
+
     # Inject explanation data if available
     if title in explanations_map:
       explanation_text = explanations_map[title]["explanation"]
@@ -102,14 +116,13 @@ def _inject_christian_questions_scripture(qa_list):
       texts = utils.fetch_passages(
           refs, include_verse_numbers=False, include_copyright=False
       )
-      combined_text = (
-          f"Rom 6:21: {texts[0]}\nRom 6:23: {texts[1]}"
-      )
+      combined_text = f"Rom 6:21: {texts[0]}\nRom 6:23: {texts[1]}"
       # Escape for HTML attribute
       combined_text = combined_text.replace('"', "&quot;")
       qa_list[3]["answer"] = qa_list[3]["answer"].replace(
           "Romans 6:21,23",
-          f'<span class="scripture-tooltip" data-text="{combined_text}">Romans 6:21,23</span>',
+          f'<span class="scripture-tooltip" data-text="{combined_text}">Romans'
+          " 6:21,23</span>",
       )
     except Exception as e:
       print(f"Error injecting scripture for Q4: {e}")
@@ -137,7 +150,8 @@ def _inject_christian_questions_scripture(qa_list):
         tooltip_text = f"{full_ref}: {verse_text}".replace('"', "&quot;")
         qa_list[16]["answer"] = qa_list[16]["answer"].replace(
             short_ref,
-            f'<span class="scripture-tooltip" data-text="{tooltip_text}">{short_ref}</span>',
+            '<span class="scripture-tooltip"'
+            f' data-text="{tooltip_text}">{short_ref}</span>',
         )
     except Exception as e:
       print(f"Error injecting scripture for Q17: {e}")
@@ -168,7 +182,8 @@ def _inject_christian_questions_scripture(qa_list):
             '"', "&quot;"
         )
         return (
-            f'<span class="scripture-tooltip" data-text="{content}">{label}</span>'
+            '<span class="scripture-tooltip"'
+            f' data-text="{content}">{label}</span>'
         )
 
       ans = qa_list[19]["answer"]
@@ -178,9 +193,7 @@ def _inject_christian_questions_scripture(qa_list):
           "Galatians 5", mk_tooltip("Galatians 5", "Galatians 5:17")
       )
       ans = ans.replace("Romans 7", mk_tooltip("Romans 7", "Romans 7:18"))
-      ans = ans.replace(
-          "John 15-16", mk_tooltip("John 15-16", "John 15:18")
-      )
+      ans = ans.replace("John 15-16", mk_tooltip("John 15-16", "John 15:18"))
       ans = ans.replace("1 Peter 5", mk_tooltip("1 Peter 5", "1 Peter 5:8"))
       ans = ans.replace(
           "Ephesians 6", mk_tooltip("Ephesians 6", "Ephesians 6:11")

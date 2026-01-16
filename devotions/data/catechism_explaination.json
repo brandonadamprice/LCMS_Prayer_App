@@ -501,5 +501,362 @@
         }
       ]
     }
+  ],
+  "sacrament_of_holy_baptism": [
+    {
+      "title": "Holy Baptism - Part 1",
+      "explanation": "Baptism is defined in the Small Catechism as **not just plain water**, but water included in **God's command and combined with God's word**. The Large Catechism explains that when the Word of God is added to the element of water, it becomes a **sacrament—a holy, divine thing**. The specific 'Word of God' referred to is the **Great Commission** from Matthew 28:19, where Christ commands the church to baptize in the name of the **Father, Son, and Holy Spirit**. Without this divine mandate, the water is no different from water used for cooking or a 'bath-keeper's baptism'.",
+      "questions": [
+        {
+          "question": "What two things together constitute Baptism according to the Small Catechism?",
+          "options": [
+            "Faith and ritual washing",
+            "Water and God's Word",
+            "Prayer and sanctified oil",
+            "The priest's intention and water"
+          ],
+          "answer": "Water and God's Word"
+        },
+        {
+          "question": "According to the Large Catechism, what is Baptism called when the Word is separated from the water?",
+          "options": [
+            "An invalid sign",
+            "A bath-keeper's baptism",
+            "A spiritual washing",
+            "A traditional ceremony"
+          ],
+          "answer": "A bath-keeper's baptism"
+        }
+      ]
+    },
+    {
+      "title": "Holy Baptism - Part 2",
+      "explanation": "Baptism is a **true means of grace** that works the **forgiveness of sins, rescues from death and the devil, and gives eternal salvation**. The sources emphasize that these benefits are given to all who believe, as declared in **Mark 16:16**. The Large Catechism teaches that to be saved through baptism is to be **delivered from the tyranny of sin, death, and Satan** and to be transferred into the kingdom of Christ to live with Him forever. It is not a human work, but a **treasure God gives and faith receives**.",
+      "questions": [
+        {
+          "question": "What is the primary power or 'work' of Baptism described in the Small Catechism?",
+          "options": [
+            "To grant membership in a local parish",
+            "To symbolise a clean life",
+            "To save and deliver from the devil",
+            "To remind the parents of their duties"
+          ],
+          "answer": "To save and deliver from the devil"
+        },
+        {
+          "question": "To whom does Baptism grant eternal salvation?",
+          "options": [
+            "To all who are physically washed",
+            "Only to those who are born of Christian parents",
+            "To all who believe the words and promises of God",
+            "To those who perform enough good works afterwards"
+          ],
+          "answer": "To all who believe the words and promises of God"
+        }
+      ]
+    },
+    {
+      "title": "Holy Baptism - Part 3",
+      "explanation": "The sources state clearly that **'water indeed does not do it'**, but rather the **Word of God** which accompanies the water and the **faith** which trusts that Word. The water is sanctified by the Word to become a **'gracious water of life'** and a **'washing of regeneration'**. Citing Titus 3:5, the catechism explains that God saves us through the **renewing of the Holy Spirit**, whom He poured out on us generously through Jesus Christ. The power of the sacrament rests entirely on the **objective promise of God**, which faith then grasps.",
+      "questions": [
+        {
+          "question": "What biblical passage is used to describe Baptism as the 'washing of regeneration'?",
+          "options": ["John 3:16", "Titus 3:5", "Romans 12:1", "Matthew 5:1"],
+          "answer": "Titus 3:5"
+        },
+        {
+          "question": "What role does faith play in the efficacy of the water in Baptism?",
+          "options": [
+            "Faith creates the power in the water",
+            "Faith is unnecessary for any benefit",
+            "Faith trusts the Word of God in the water",
+            "Faith is the physical element of the sacrament"
+          ],
+          "answer": "Faith trusts the Word of God in the water"
+        }
+      ]
+    },
+    {
+      "title": "Holy Baptism - Part 4",
+      "explanation": "Baptizing with water signifies that the **Old Adam in us**, with all sins and evil desires, should be **drowned and die through daily contrition and repentance**. In its place, a **new man should daily emerge and arise** to live before God in righteousness and purity forever. This is based on **Romans 6:4**, which teaches that we are **buried with Christ by baptism into death** so that we may walk in newness of life. The Large Catechism adds that the Christian life is nothing else than a **daily baptism**, begun once but continuing ever after.",
+      "questions": [
+        {
+          "question": "According to Romans 6, we are buried with Christ by baptism into what?",
+          "options": ["The Church", "The Law", "Death", "Suffering"],
+          "answer": "Death"
+        },
+        {
+          "question": "How often should the 'new man' emerge in the life of a Christian?",
+          "options": [
+            "Once a year during Lent",
+            "Only at the moment of physical baptism",
+            "Daily",
+            "Only when the person feels holy"
+          ],
+          "answer": "Daily"
+        }
+      ]
+    }
+  ],
+  "confession_and_office_of_the_keys": [
+    {
+      "title": "Confession",
+      "explanation": "Confession consists of two parts: first, **that we confess our sins**, and second, that we **receive absolution (forgiveness)** from the pastor as from God Himself. The Small Catechism teaches that the penitent should **in no wise doubt**, but firmly believe that sins are forgiven before God in heaven through this act. While we should plead guilty of all sins before God—even those we don't perceive—we should only **confess those sins to the pastor** that we know and feel in our hearts. Luther emphasizes that confession is retained **for the sake of the absolution**, which he describes as a 'great and wonderful treasure'.",
+      "questions": [
+        {
+          "question": "What are the two parts of Confession in the Lutheran tradition?",
+          "options": [
+            "Penance and satisfaction",
+            "Confessing sins and receiving absolution",
+            "Sorrow and doing good works",
+            "Reading Scripture and prayer"
+          ],
+          "answer": "Confessing sins and receiving absolution"
+        },
+        {
+          "question": "According to the Small Catechism, what sins should we confess to the pastor?",
+          "options": [
+            "Every single sin we have ever committed",
+            "Only those sins our parents know about",
+            "Only those we know and feel in our hearts",
+            "None; we only confess to God"
+          ],
+          "answer": "Only those we know and feel in our hearts"
+        }
+      ]
+    },
+    {
+      "title": "The Office of the Keys",
+      "explanation": "The Office of the Keys is the **special authority which Christ has given to His Church** to forgive the sins of repentant sinners and withhold forgiveness from the unrepentant. Its foundation is **John 20:22-23**, where the risen Lord breathed on His disciples and commanded them to remit and retain sins. The Book of Concord clarifies that this power belongs **principally and immediately to the whole Church**, which then calls ministers to exercise it publicly. Lutheran teaching insists that the pastor's absolution is as **valid and certain in heaven** as if Christ our dear Lord dealt with us Himself.",
+      "questions": [
+        {
+          "question": "Which scriptural passage is the primary 'word of institution' for the Office of the Keys?",
+          "options": [
+            "Genesis 1:1",
+            "John 20:22-23",
+            "1 Corinthians 13:1",
+            "Revelation 22:20"
+          ],
+          "answer": "John 20:22-23"
+        },
+        {
+          "question": "How certain should a Christian be of the absolution spoken by a called minister?",
+          "options": [
+            "As certain as if Christ spoke it Himself",
+            "Somewhat certain, depending on the pastor's holiness",
+            "It is merely a hopeful wish",
+            "Only as certain as their own level of contrition"
+          ],
+          "answer": "As certain as if Christ spoke it Himself"
+        }
+      ]
+    }
+  ],
+  "sacrament_of_the_altar": [
+    {
+      "title": "Sacrament of the Altar - What is it?",
+      "explanation": "It is the **true body and blood of our Lord Jesus Christ**, under the bread and wine, given to Christians to eat and drink. It was **instituted by Christ Himself**, as recorded by the Evangelists and St. Paul. The Large Catechism stresses that it is the **Word of Christ** that makes and distinguishes this sacrament from mere bread and wine. Luther famously stated that even if a 'knave' or wicked priest administers it, the recipient still receives the **true Sacrament** because it is founded on God's Word, not human holiness.",
+      "questions": [
+        {
+          "question": "What is received 'in, with, and under' the bread and wine?",
+          "options": [
+            "A symbol of Christ's love",
+            "The true body and blood of Christ",
+            "The Holy Spirit only",
+            "The merits of the saints"
+          ],
+          "answer": "The true body and blood of Christ"
+        },
+        {
+          "question": "What determines the validity of the Sacrament according to the Large Catechism?",
+          "options": [
+            "The faith of the communicant",
+            "The holiness of the priest",
+            "The Word and ordinance of God",
+            "The quality of the elements"
+          ],
+          "answer": "The Word and ordinance of God"
+        }
+      ]
+    },
+    {
+      "title": "Sacrament of the Altar - The Benefit",
+      "explanation": "The benefits are revealed in the words **'Given and shed for you for the forgiveness of sins.'** In the Sacrament, **forgiveness of sins, life, and salvation** are delivered through these words. Luther calls it a **'daily pasture'** and a **'food of souls'** meant to strengthen the 'new man' against the constant temptations of the devil and the world. Where there is forgiveness of sins, there is also life and salvation; thus the Sacrament provides **assurance against death and every calamity**.",
+      "questions": [
+        {
+          "question": "What are the three core benefits given in the Sacrament of the Altar?",
+          "options": [
+            "Wealth, health, and prosperity",
+            "Forgiveness, life, and salvation",
+            "Friendship, unity, and social standing",
+            "Knowledge, wisdom, and power"
+          ],
+          "answer": "Forgiveness, life, and salvation"
+        },
+        {
+          "question": "Why is the Sacrament referred to as a 'precious antidote'?",
+          "options": [
+            "It cures physical diseases",
+            "It acts against the 'poison' of sin in our system",
+            "It prevents the believer from ever sinning again",
+            "It makes the believer physically immortal instantly"
+          ],
+          "answer": "It acts against the 'poison' of sin in our system"
+        }
+      ]
+    },
+    {
+      "title": "Sacrament of the Altar - The Power",
+      "explanation": "The physical act of eating and drinking does not produce these effects; rather, the **Word of God**—specifically the phrase 'given and shed for you for the forgiveness of sins'—is the **chief thing in the Sacrament**. The Word is the **effective cause** that makes the elements the vehicle of Christ's body and blood. The Formula of Concord explains that the words of institution are **creative and powerful**, carrying the efficacy of the first Supper to every celebration today.",
+      "questions": [
+        {
+          "question": "What does the Small Catechism identify as the 'main thing' in the Sacrament?",
+          "options": [
+            "The act of kneeling",
+            "The specific type of wine used",
+            "The words 'Given and shed for you...'",
+            "The presence of the congregation"
+          ],
+          "answer": "The words 'Given and shed for you...'"
+        },
+        {
+          "question": "To what does the Formula of Concord ascribe the true presence of Christ?",
+          "options": [
+            "The faith of the believers",
+            "The almighty power of God and Christ's Word",
+            "The prayer of the people",
+            "The physical breaking of the bread"
+          ],
+          "answer": "The almighty power of God and Christ's Word"
+        }
+      ]
+    },
+    {
+      "title": "Sacrament of the Altar - Worthiness",
+      "explanation": "True worthiness is not found in outward preparation, such as fasting, but in **faith in Christ's words: 'Given and shed for you.'** He who believes these words has exactly what they say: the forgiveness of sins. Conversely, anyone who **doubts or does not believe** these words is unworthy and unprepared, for the words 'for you' require **truly believing hearts**. The Sacrament is intended for **terrified consciences** and those who feel their weakness and need of God's grace.",
+      "questions": [
+        {
+          "question": "Who is 'truly worthy and well-prepared' to receive the Sacrament?",
+          "options": [
+            "He who has not sinned for a week",
+            "He who has fasted since midnight",
+            "He who has faith in Christ's words 'for you'",
+            "He who can recite the entire Catechism"
+          ],
+          "answer": "He who has faith in Christ's words 'for you'"
+        },
+        {
+          "question": "What is the result for those who eat and drink unworthily (without faith)?",
+          "options": [
+            "They receive no body or blood at all",
+            "They receive a symbolic blessing",
+            "They eat and drink judgment to themselves",
+            "They are automatically forgiven anyway"
+          ],
+          "answer": "They eat and drink judgment to themselves"
+        }
+      ]
+    }
+  ],
+  "daily_prayers": [
+    {
+      "title": "Morning Prayer",
+      "explanation": "The Christian begins the day by making the **sign of the holy cross** and saying the name of the **Triune God**. After reciting the **Creed and the Lord's Prayer**, Luther's Morning Prayer is spoken. It gives thanks to God for **gracious protection through the night** and asks Him to keep the believer from **sin and every evil** throughout the day. It concludes with the petition that God's **holy angel** be with the believer so that the wicked foe may have no power over them.",
+      "questions": [
+        {
+          "question": "What is the first act recommended in Luther's Morning Prayer?",
+          "options": [
+            "Reading a newspaper",
+            "Making the sign of the holy cross",
+            "Singing a secular song",
+            "Planning the day's work"
+          ],
+          "answer": "Making the sign of the holy cross"
+        },
+        {
+          "question": "In the Morning Prayer, what is the purpose of asking for God's holy angel?",
+          "options": [
+            "To gain secret knowledge",
+            "To ensure financial success",
+            "So that the wicked foe has no power over the believer",
+            "To help with physical chores"
+          ],
+          "answer": "So that the wicked foe has no power over the believer"
+        }
+      ]
+    },
+    {
+      "title": "Evening Prayer",
+      "explanation": "At the close of the day, the Christian again makes the **sign of the cross** and recites the **Creed and Lord's Prayer**. The Evening Prayer thanks God for His **gracious protection during the day** and asks for the **forgiveness of all sins**. Like the morning prayer, it asks for the presence of the **holy angel** for protection against the devil. This ritual acts as a **daily return to one's baptism**, finding rest in God's mercy before sleep.",
+      "questions": [
+        {
+          "question": "What does the believer specifically ask God to forgive in the Evening Prayer?",
+          "options": [
+            "Only the sins of others",
+            "All sins where they have done wrong",
+            "Only the 'big' sins",
+            "Nothing; the prayer is only for thanks"
+          ],
+          "answer": "All sins where they have done wrong"
+        },
+        {
+          "question": "The Evening Prayer is described in the sources as a daily return to what?",
+          "options": [
+            "The Ten Commandments",
+            "The local congregation",
+            "One's Baptism",
+            "The Garden of Eden"
+          ],
+          "answer": "One's Baptism"
+        }
+      ]
+    },
+    {
+      "title": "Asking a Blessing",
+      "explanation": "Before eating, the household gathers and recites **Psalm 145:15-16**, acknowledging that God gives food to all creatures in due season. The prayer follows: **'Lord God, heavenly Father, bless us and these Your gifts'**. This practice emphasizes that even physical food is a gift from **God's bountiful goodness** and is to be received with prayer and thanksgiving, recognizing God as the **Provider of all daily bread**.",
+      "questions": [
+        {
+          "question": "Which Psalm is traditionally used when asking a blessing before a meal?",
+          "options": ["Psalm 23", "Psalm 51", "Psalm 145", "Psalm 150"],
+          "answer": "Psalm 145"
+        },
+        {
+          "question": "What is the focus of the blessing before a meal?",
+          "options": [
+            "Asking for more food",
+            "Recognising the food as a gift from God's bountiful goodness",
+            "Praying for the cook's skills",
+            "Demanding better quality elements"
+          ],
+          "answer": "Recognising the food as a gift from God's bountiful goodness"
+        }
+      ]
+    },
+    {
+      "title": "Returning Thanks",
+      "explanation": "After the meal, the family gives thanks, often using **Psalm 136:1**: **'Give thanks to the Lord, for He is good; His love endures forever'**. This prayer acknowledges that God **provides food for every creature** and expresses gratitude for His mercy. It serves as a practical application of the **First Article of the Creed**, confessing that God is the Creator who richly and daily provides all that we need for body and life.",
+      "questions": [
+        {
+          "question": "What attribute of God is highlighted in the prayer after a meal?",
+          "options": [
+            "His wrath against sin",
+            "His distance from creation",
+            "His goodness and enduring love",
+            "His demand for payment"
+          ],
+          "answer": "His goodness and enduring love"
+        },
+        {
+          "question": "Which article of the Creed does returning thanks after a meal reinforce?",
+          "options": [
+            "The First Article (Creation)",
+            "The Second Article (Redemption)",
+            "The Third Article (Sanctification)",
+            "None of the articles"
+          ],
+          "answer": "The First Article (Creation)"
+        }
+      ]
+    }
   ]
 }
