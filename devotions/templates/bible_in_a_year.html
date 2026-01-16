@@ -35,6 +35,8 @@
         <p id="psp-text">{% if psp_text %}{{ psp_text|safe }}{% else %}<em>Loading...</em>{% endif %}</p>
     {% endcall %}
 
+    {{ macros.prayer_complete_button() }}
+
 {% endblock %}
 
 {% block extra_js %}

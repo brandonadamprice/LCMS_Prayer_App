@@ -25,6 +25,8 @@ class User(flask_login.UserMixin):
       google_id=None,
       timezone=None,
       background_art=True,
+      streak_count=0,
+      last_prayer_date=None,
   ):
     self.id = user_id
     self.email = email
@@ -45,6 +47,8 @@ class User(flask_login.UserMixin):
     self.google_id = google_id
     self.timezone = timezone
     self.background_art = background_art
+    self.streak_count = streak_count
+    self.last_prayer_date = last_prayer_date
 
   @staticmethod
   def get(user_id):
@@ -71,5 +75,7 @@ class User(flask_login.UserMixin):
           google_id=data.get("google_id"),
           timezone=data.get("timezone"),
           background_art=data.get("background_art", True),
+          streak_count=data.get("streak_count", 0),
+          last_prayer_date=data.get("last_prayer_date"),
       )
     return None

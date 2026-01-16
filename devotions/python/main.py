@@ -1704,6 +1704,102 @@ def art_recent_route():
   return flask.jsonify({})
 
 
+@app.route("/api/complete_prayer", methods=["POST"])
+@flask_login.login_required
+def complete_prayer_route():
+  """Marks a prayer as complete and updates the streak."""
+  user_id = flask_login.current_user.id
+  timezone_str = flask_login.current_user.timezone or "America/New_York"
+  
+  try:
+    tz = pytz.timezone(timezone_str)
+  except pytz.UnknownTimeZoneError:
+    tz = pytz.timezone("America/New_York")
+
+  now = datetime.datetime.now(tz)
+  today_str = now.strftime("%Y-%m-%d") # YYYY-MM-DD format for storage consistency
+
+  db = utils.get_db_client()
+  user_ref = db.collection("users").document(user_id)
+  
+  # Transaction to safely update streak
+  @firestore.transactional
+  def update_streak_in_transaction(transaction, user_ref):
+    snapshot = transaction.get(user_ref)
+    if not snapshot.exists:
+      return None
+    
+    user_data = snapshot.to_dict()
+    current_streak = user_data.get("streak_count", 0)
+    last_date_str = user_data.get("last_prayer_date") # Expecting string YYYY-MM-DD
+
+    # Parse last_date if it exists
+    last_date = None
+    if last_date_str:
+      try:
+        last_date = datetime.datetime.strptime(last_date_str, "%Y-%m-%d").date()
+      except ValueError:
+        # Handle legacy or bad format if necessary, reset
+        pass
+    
+    today_date = now.date()
+    
+    new_streak = current_streak
+    streak_updated = False
+    
+    if last_date == today_date:
+        # Already prayed today
+        return {"streak": current_streak, "milestone_reached": False, "already_prayed": True}
+    
+    elif last_date == today_date - datetime.timedelta(days=1):
+        # Prayed yesterday, increment
+        new_streak += 1
+        streak_updated = True
+    else:
+        # Missed a day or more (or first time)
+        new_streak = 1
+        streak_updated = True
+    
+    if streak_updated:
+        transaction.update(user_ref, {
+            "streak_count": new_streak,
+            "last_prayer_date": today_str
+        })
+    
+    # Check for milestones
+    # 7 days (1 week), 30 days (1 month), 90 days (3 months), 180 days (6 months), 
+    # 270 days (9 months), 365 days (1 year), then every 90 days.
+    milestone_reached = False
+    milestone_msg = ""
+    
+    milestones = [7, 30, 90, 180, 270, 365]
+    if new_streak in milestones or (new_streak > 365 and (new_streak - 365) % 90 == 0):
+        milestone_reached = True
+        if new_streak == 7:
+            milestone_msg = "1 Week Streak!"
+        elif new_streak == 30:
+            milestone_msg = "1 Month Streak!"
+        elif new_streak == 365:
+            milestone_msg = "1 Year Streak!"
+        else:
+            milestone_msg = f"{new_streak} Day Streak!"
+
+    return {
+        "streak": new_streak,
+        "milestone_reached": milestone_reached,
+        "milestone_msg": milestone_msg,
+        "already_prayed": False
+    }
+
+  transaction = db.transaction()
+  result = update_streak_in_transaction(transaction, user_ref)
+  
+  if result:
+      return flask.jsonify(result)
+  else:
+      return flask.jsonify({"error": "User not found"}), 404
+
+
 @app.route("/twilio/sms_reply", methods=["POST"])
 def twilio_sms_reply():
   """Handles incoming SMS replies from Twilio."""

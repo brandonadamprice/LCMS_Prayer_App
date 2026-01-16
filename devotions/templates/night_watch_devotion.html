@@ -79,6 +79,8 @@
         {{ macros.format_prayer(concluding_prayer) }}
     {% endcall %}
 
+    {{ macros.prayer_complete_button() }}
+
     {% call macros.card('Closing') %}
         {{ macros.format_prayer(config['OTHER_PRAYERS']['nunc_dimittis']) }}
         <p>Bless we the Lord.<br /><strong>Thanks be to God.</strong></p>

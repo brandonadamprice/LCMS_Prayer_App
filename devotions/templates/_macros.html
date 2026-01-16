@@ -42,3 +42,66 @@
 </div>
 {% endif %}
 {% endmacro %}
+
+{% macro prayer_complete_button() %}
+{% if current_user.is_authenticated %}
+<div style="text-align: center; margin-top: 30px; margin-bottom: 20px;">
+    <button id="btn-complete-prayer" class="button" onclick="markPrayerComplete()" style="background-color: #27ae60; font-size: 1.1em; padding: 12px 24px;">
+        <span style="margin-right: 8px;">🔥</span> Mark Prayer Complete
+    </button>
+    <p id="prayer-complete-msg" style="color: #27ae60; font-weight: bold; display: none; margin-top: 10px;">Prayer recorded!</p>
+</div>
+<script>
+async function markPrayerComplete() {
+    const btn = document.getElementById('btn-complete-prayer');
+    const msg = document.getElementById('prayer-complete-msg');
+    
+    if (btn) btn.disabled = true;
+    
+    try {
+        const response = await fetch('/api/complete_prayer', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'}
+        });
+        const data = await response.json();
+        
+        if (data.streak !== undefined) {
+            // Update UI
+            if (msg) {
+                msg.style.display = 'block';
+                if (data.already_prayed) {
+                    msg.textContent = "You've already prayed today! Streak: " + data.streak;
+                } else {
+                    msg.textContent = "Prayer recorded! Current Streak: " + data.streak + " days";
+                }
+            }
+            if (btn) btn.style.display = 'none';
+            
+            // Update nav counter if it exists
+            const navStreak = document.getElementById('nav-streak-count');
+            if (navStreak) navStreak.textContent = data.streak;
+            
+            // Handle milestone
+            if (data.milestone_reached) {
+                showMilestonePopup(data.milestone_msg, data.streak);
+            }
+        }
+    } catch (e) {
+        console.error("Error marking prayer complete:", e);
+        if (btn) btn.disabled = false;
+        alert("Failed to record prayer. Please check your connection.");
+    }
+}
+
+function showMilestonePopup(message, streak) {
+    // Create modal HTML dynamically if not present, or use a hidden one in base
+    // We'll rely on a global function defined in base.html for the modal
+    if (window.triggerMilestoneModal) {
+        window.triggerMilestoneModal(message, streak);
+    } else {
+        alert("Congratulations! " + message);
+    }
+}
+</script>
+{% endif %}
+{% endmacro %}

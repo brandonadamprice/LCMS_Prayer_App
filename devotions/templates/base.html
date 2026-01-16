@@ -86,7 +86,12 @@
         {% endfor %}
       </div>
 
-      <div class="navbar-right">
+      <div class="navbar-right" style="display: flex; align-items: center;">
+        {% if current_user.is_authenticated %}
+        <div class="nav-streak" title="Consecutive Days Prayed">
+            <span style="margin-right: 5px;">🔥</span> <span id="nav-streak-count">{{ current_user.streak_count }}</span>
+        </div>
+        {% endif %}
         <button id="menu-button" aria-label="Menu">&#9776;</button>
         <div id="app-menu">
           <div class="app-menu-section">
@@ -165,6 +170,20 @@
             <a href="/login" class="button" id="modal-login-btn">Log In / Sign Up</a>
         </div>
       </div>
+    </div>
+
+    <div id="milestone-modal" class="modal">
+        <div class="modal-content milestone-content">
+            <span class="close-modal" onclick="closeMilestoneModal()">&times;</span>
+            <div class="milestone-badge">🔥</div>
+            <h2 id="milestone-title" style="color: #27ae60; margin-top: 0;">Milestone Reached!</h2>
+            <p id="milestone-message" style="font-size: 1.2em; margin: 15px 0;"></p>
+            <p>Keep up the good work!</p>
+            <div style="margin-top: 20px;">
+                <button class="button" onclick="shareMilestone()">Share</button>
+                <button class="button" onclick="closeMilestoneModal()" style="background-color: #7f8c8d;">Close</button>
+            </div>
+        </div>
     </div>
     {% block body_scripts %}{% endblock %}
     <script>
@@ -617,6 +636,42 @@
           if (ath && ap) {
               ath.style.display = 'block';
               ap.style.display = 'none';
+          }
+      }
+
+      // Milestone Modal Functions
+      window.triggerMilestoneModal = function(message, streak) {
+          document.getElementById('milestone-message').textContent = message;
+          document.getElementById('milestone-modal').classList.add('visible');
+          if(navigator.vibrate) navigator.vibrate([100, 50, 100]);
+          
+          // Store text for sharing
+          window.milestoneShareText = `I just reached a ${streak} day prayer streak on A Simple Way to Pray! 🔥 #Christianity #Prayer`;
+      }
+
+      function closeMilestoneModal() {
+          document.getElementById('milestone-modal').classList.remove('visible');
+      }
+
+      async function shareMilestone() {
+          if (navigator.share) {
+              try {
+                  await navigator.share({
+                      title: 'Prayer Streak Milestone',
+                      text: window.milestoneShareText,
+                      url: window.location.origin
+                  });
+              } catch (err) {
+                  console.log('Error sharing:', err);
+              }
+          } else {
+              // Fallback to clipboard
+              try {
+                  await navigator.clipboard.writeText(window.milestoneShareText + " " + window.location.origin);
+                  alert("Message copied to clipboard!");
+              } catch (err) {
+                  alert("Could not copy to clipboard. Please share manually.");
+              }
           }
       }
 
