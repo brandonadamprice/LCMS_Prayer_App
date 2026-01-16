@@ -1,0 +1,275 @@
+{
+  "ten_commandments": [
+    {
+      "title": "The First Commandment",
+      "commandment": "The First Commandment: Thou shalt have no other gods.",
+      "explanation": "This commandment is defined in the Large Catechism as the **chief source and fountainhead** from which all others flow. To have a god is essentially to have something from which the heart expects all good and to which it takes refuge in all distress. It is the **confidence and faith of the heart** alone that make both God and an idol. Martin Luther identifies Mammon, or money and property, as the most common idol in the world, asserting that whatever the heart clings to is truly that person's god. This commandment requires us to **fear, love, and trust in God above all things**, serving as the basis for all human accountability.",
+      "questions": [
+        {
+          "question": "According to the Large Catechism, what is the 'maker' of a god?",
+          "options": [
+            "A person's good works and rituals",
+            "The confidence and faith of the heart",
+            "The authority of the church hierarchy",
+            "The specific name used in prayer"
+          ],
+          "answer": "The confidence and faith of the heart"
+        },
+        {
+          "question": "What does Luther identify as the most common idol in the world?",
+          "options": [
+            "Political power",
+            "Fame and reputation",
+            "Mammon (money and property)",
+            "Self-righteousness"
+          ],
+          "answer": "Mammon (money and property)"
+        }
+      ]
+    },
+    {
+      "title": "The Second Commandment",
+      "commandment": "The Second Commandment: Thou shalt not take the name of the Lord, thy God, in vain.",
+      "explanation": "This commandment forbids using God's name to lie, deceive, curse, or practice magic. Positively, it mandates that Christians **call upon God's name in every trouble** and use it for prayer, praise, and thanksgiving. Luther emphasizes that **prayer is a strict duty and obligation** commanded by God, carrying the same weight as the prohibition against murder. The name of God is considered profaned when those who claim to be His children live evil lives or teach false doctrines that misrepresent His Word.",
+      "questions": [
+        {
+          "question": "What positive action is mandated by the Second Commandment?",
+          "options": [
+            "Observing the Sabbath rest",
+            "Giving to the poor regularly",
+            "Calling upon God's name in every need",
+            "Building grand places of worship"
+          ],
+          "answer": "Calling upon God's name in every need"
+        },
+        {
+          "question": "How is God's name profaned according to Lutheran teaching?",
+          "options": [
+            "By translating the Bible into common languages",
+            "By living an evil life while claiming to be a Christian",
+            "By speaking the name of God in public",
+            "By failing to pay a full tithe to the church"
+          ],
+          "answer": "By living an evil life while claiming to be a Christian"
+        }
+      ]
+    },
+    {
+      "title": "The Third Commandment",
+      "commandment": "The Third Commandment: Thou shalt sanctify the holy-day.",
+      "explanation": "In Lutheran theology, the literal requirement to rest on the seventh day was given specifically to the Jewish nation and is not legally binding on Christians. However, the moral substance remains: we are to **honor and gladly hear the preaching of God's Word**. The Sabbath is not made holy by the act of resting itself, but by **God's Word**, which Luther calls the 'treasure that sanctifies everything.' Whenever the Word is preached, heard, or pondered, both the person and the day are made holy. Neglecting the public administration of the Word and Sacraments is a violation of this command.",
+      "questions": [
+        {
+          "question": "What makes the Sabbath day holy according to the Large Catechism?",
+          "options": [
+            "The physical act of resting from labor",
+            "The Word of God",
+            "The tradition of the ancient fathers",
+            "The specific day of the week selected"
+          ],
+          "answer": "The Word of God"
+        },
+        {
+          "question": "What is the primary duty for a Christian under the Third Commandment?",
+          "options": [
+            "To avoid all forms of commerce on Sunday",
+            "To replicate ancient Jewish ceremonies",
+            "To willingly hear and learn God's Word",
+            "To spend the day in silent isolation"
+          ],
+          "answer": "To willingly hear and learn God's Word"
+        }
+      ]
+    },
+    {
+      "title": "The Fourth Commandment",
+      "commandment": "The Fourth Commandment: Thou shalt honor thy father and thy mother.",
+      "explanation": "God places parenthood in a position of honor second only to Himself. All earthly authority is viewed as **flowing and being propagated from the authority of parents**. This includes 'fathers in blood' (biological parents), 'fathers in office' (civil government), and 'spiritual fathers' (pastors). Parents are charged with bringing up their children in the **fear and knowledge of God** and providing for their education so they can serve society. Honoring parents involves serving and obeying them for God's sake, recognizing them as His representatives.",
+      "questions": [
+        {
+          "question": "From what source does all earthly authority flow according to Luther?",
+          "options": [
+            "The social contract of citizens",
+            "The authority of parents",
+            "The military power of the state",
+            "The democratic process"
+          ],
+          "answer": "The authority of parents"
+        },
+        {
+          "question": "What is the 'Table of Duties' in the Small Catechism related to?",
+          "options": [
+            "The various ranks of the clergy",
+            "Specific rules for church architecture",
+            "How Christians are to govern their conduct in their place in life",
+            "The historical timeline of the Reformation"
+          ],
+          "answer": "How Christians are to govern their conduct in their place in life"
+        }
+      ]
+    },
+    {
+      "title": "The Fifth Commandment",
+      "commandment": "The Fifth Commandment: Thou shalt not kill.",
+      "explanation": "This commandment prohibits murder and physical harm, but also targets the roots of violence: **anger, hatred, and bitterness**. Positively, Luther emphasizes that we should **assist and serve our neighbor in every bodily danger or need**. A Christian is called to have a patient and gentle heart, doing good even to those who are enemies. Any harm done to a neighbor, including through the manipulation of laws to damage their well-being, stands condemned under this heading.",
+      "questions": [
+        {
+          "question": "What is the positive requirement for a Christian regarding their neighbor’s life?",
+          "options": [
+            "To ignore their physical needs and focus on their soul",
+            "To assist and serve them in every bodily danger or need",
+            "To seek legal revenge for every personal wrong",
+            "To provide them with worldly wealth above all else"
+          ],
+          "answer": "To assist and serve them in every bodily danger or need"
+        },
+        {
+          "question": "How can the Fifth Commandment be broken without physical violence?",
+          "options": [
+            "By owning an excessive amount of property",
+            "Through anger, hatred, or slandering with the tongue",
+            "By choosing a different religious tradition",
+            "By missing a single church service"
+          ],
+          "answer": "Through anger, hatred, or slandering with the tongue"
+        }
+      ]
+    },
+    {
+      "title": "The Sixth Commandment",
+      "commandment": "The Sixth Commandment: Thou shalt not commit adultery.",
+      "explanation": "This commandment mandates a **chaste and decent life in words and deeds** and requires that husbands and wives **love and honor each other**. Luther understands marriage as a divine order and mystery that reflects the relationship between Christ and the Church. It forbids not only physical adultery but also **impure thoughts and the destruction of marriage's purpose** through lust. Marriage is held in high esteem because God sanctioned and guarded it as the highest estate for the procreation of children and the stability of society.",
+      "questions": [
+        {
+          "question": "According to Luther, what biblical 'mystery' does marriage reflect?",
+          "options": [
+            "The mystery of the creation of the stars",
+            "The mystery of the relationship between Christ and the Church",
+            "The mystery of the origin of human language",
+            "The mystery of how to live without any suffering"
+          ],
+          "answer": "The mystery of the relationship between Christ and the Church"
+        },
+        {
+          "question": "What does this commandment require of husbands and wives?",
+          "options": [
+            "To prioritize their parents over their spouse",
+            "To live separately for the sake of higher holiness",
+            "To love and honor each other",
+            "To focus solely on earthly riches and success"
+          ],
+          "answer": "To love and honor each other"
+        }
+      ]
+    },
+    {
+      "title": "The Seventh Commandment",
+      "commandment": "The Seventh Commandment: Thou shalt not steal.",
+      "explanation": "This commandment protects the rights of ownership and forbids the right acquisition of goods through fraud or dishonest business practices. Luther applies this to **economic ethics**, condemning usury, greed, and 'legal' tricks used to obtain property. He labels those who exploit others under the pretext of right as **'swivel-chair robbers.'** The positive requirement is to **help the neighbor improve and protect his possessions and income**, recognizing private ownership as divinely ordained.",
+      "questions": [
+        {
+          "question": "What term does Luther use for those who steal using 'legal' tricks or trade?",
+          "options": [
+            "Petty thieves",
+            "Swivel-chair robbers",
+            "Righteous merchants",
+            "Holy monks"
+          ],
+          "answer": "Swivel-chair robbers"
+        },
+        {
+          "question": "What positive duty does a Christian have toward a neighbor's property?",
+          "options": [
+            "To help the neighbor improve and protect it",
+            "To demand that the neighbor share it with all people equally",
+            "To ignore it as a temporary worldly matter",
+            "To take it if they believe it was acquired unfairly"
+          ],
+          "answer": "To help the neighbor improve and protect it"
+        }
+      ]
+    },
+    {
+      "title": "The Eighth Commandment",
+      "commandment": "The Eighth Commandment: Thou shalt not bear false witness against thy neighbor.",
+      "explanation": "The focus here is on **governing the tongue** and protecting the neighbor's reputation. It forbids lying about, slandering, or betraying others. Christians are commanded to defend their neighbor, speak well of them, and **put the best construction on everything they do**. Luther emphasizes the 'order of the Gospel' from Matthew 18, which instructs that a brother's fault should be addressed privately before being made public, using the tongue to cover infirmities rather than expose them.",
+      "questions": [
+        {
+          "question": "What is the 'best construction' rule in the Eighth Commandment?",
+          "options": [
+            "To build the neighbor a higher quality house",
+            "To interpret the neighbor's actions in the kindest possible way",
+            "To ignore all laws of evidence in a court of law",
+            "To never speak of a neighbor's sin even if it is public"
+          ],
+          "answer": "To interpret the neighbor's actions in the kindest possible way"
+        },
+        {
+          "question": "How should a Christian first handle a brother's sin according to Matthew 18?",
+          "options": [
+            "Report it immediately to the local authorities",
+            "Gossip about it to warn the rest of the congregation",
+            "Admonish him privately",
+            "Wait for a formal church council to take action"
+          ],
+          "answer": "Admonish him privately"
+        }
+      ]
+    },
+    {
+      "title": "The Ninth Commandment",
+      "commandment": "The Ninth Commandment: Thou shalt not covet thy neighbor's house.",
+      "explanation": "This commandment targets **internal desires and 'impure thoughts'** that lead a person to seek what belongs to their neighbor. It specifically addresses seeking to obtain a neighbor's **inheritance or home** through 'wicked cunning' or a 'show of right.' Luther notes that this commandment is addressed especially to the **most pious**, who may not break external laws but still harbor envy or avarice in the heart. It reveals the deep-seated 'evil infection' of human nature that persists even when outward works appear good.",
+      "questions": [
+        {
+          "question": "What does the Ninth Commandment specifically protect?",
+          "options": [
+            "The neighbor's physical life",
+            "The neighbor's wife and servants",
+            "The neighbor's inheritance and house",
+            "The neighbor's livestock and cattle"
+          ],
+          "answer": "The neighbor's inheritance and house"
+        },
+        {
+          "question": "To whom does Luther say the commandments against coveting are especially addressed?",
+          "options": [
+            "Known criminals and outlaws",
+            "The unbaptized and heathens",
+            "The most pious and honest people",
+            "Publicans and notorious sinners"
+          ],
+          "answer": "The most pious and honest people"
+        }
+      ]
+    },
+    {
+      "title": "The Tenth Commandment",
+      "commandment": "The Tenth Commandment: Thou shalt not covet thy neighbor's wife, nor his man-servant, nor his maid-servant, nor his cattle, nor anything that is his.",
+      "explanation": "The Tenth Commandment focuses on the **alienation or enticement** of the people and creatures that serve the neighbor. It forbids driving away or forcing a neighbor’s spouse or workers to leave. Luther emphasizes that we should instead **urge them to stay and do their duty** in the places where God has put them. These final commandments serve as a mirror to show that no one is fully pure in heart, pointing the believer to the need for the forgiveness found in the Gospel.",
+      "questions": [
+        {
+          "question": "What is the positive requirement regarding a neighbor's workers?",
+          "options": [
+            "To hire them away for a better wage",
+            "To set them free from their master immediately",
+            "To urge them to stay and diligently do their duty",
+            "To ignore their existence entirely"
+          ],
+          "answer": "To urge them to stay and diligently do their duty"
+        },
+        {
+          "question": "What is the theological function of the Ninth and Tenth Commandments as a whole?",
+          "options": [
+            "To provide a list of rewards for the righteous",
+            "To establish the civil code for property disputes",
+            "To reveal that the heart is the source of all sin",
+            "To allow Christians to judge their neighbors' hearts"
+          ],
+          "answer": "To reveal that the heart is the source of all sin"
+        }
+      ]
+    }
+  ],
+  "conclusion": "The Ten Commandments are considered the only part of the Law of Moses that is eternal, inscribed on the hearts of all men as natural law. Outside of these commandments, **no work can be good or pleasing to God**, no matter how great it appears to the world. Their primary purpose is to reveal God's wrath against sin, acting as a mirror to show our inability to save ourselves and guiding the 'new man' on the path of good works that are pleasing to God."
+}

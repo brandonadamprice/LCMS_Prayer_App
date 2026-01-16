@@ -1,12 +1,36 @@
 """Functions for generating the Small Catechism page."""
 
+import json
+import os
 import flask
 import utils
+
+CATECHISM_EXPLANATION_PATH = os.path.join(
+    utils.SCRIPT_DIR, "..", "data", "catechism_explaination.json"
+)
+
+
+def load_catechism_explanation():
+  """Loads the catechism explanation data."""
+  try:
+    with open(CATECHISM_EXPLANATION_PATH, "r", encoding="utf-8") as f:
+      return json.load(f)
+  except FileNotFoundError:
+    print(f"Warning: {CATECHISM_EXPLANATION_PATH} not found.")
+    return {}
 
 
 def get_grouped_catechism():
   """Groups the catechism sections into the Six Chief Parts."""
   sections = utils.CATECHISM_SECTIONS
+  explanation_data = load_catechism_explanation()
+  
+  # Create a lookup for explanations by title
+  explanations_map = {}
+  if "ten_commandments" in explanation_data:
+    for item in explanation_data["ten_commandments"]:
+      explanations_map[item["title"]] = item
+
   groups = {
       "The Ten Commandments": [],
       "The Apostles' Creed": [],
@@ -21,6 +45,12 @@ def get_grouped_catechism():
 
   for section in sections:
     title = section["title"]
+    
+    # Inject explanation data if available
+    if title in explanations_map:
+      section["explanation"] = explanations_map[title]["explanation"]
+      section["quiz_questions"] = explanations_map[title]["questions"]
+
     if "Commandment" in title or "Close of the Commandments" in title:
       groups["The Ten Commandments"].append(section)
     elif "Creed" in title:
