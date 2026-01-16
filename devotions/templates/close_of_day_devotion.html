@@ -1,5 +1,5 @@
 {% extends parent_template|default("base.html") %}
-{% import "_macros.html" as macros %}
+{% import "_macros.html" as macros with context %}
 {% block title %}Close of the Day Devotion{% endblock %}
 {% block head %}
 <link rel="preload" as="image" href="{{ url_for('static', filename='banner_close_of_day.jpg') }}">
