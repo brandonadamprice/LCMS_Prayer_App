@@ -1870,6 +1870,20 @@ def streaks_route():
   today_str = datetime.datetime.now(tz).strftime("%Y-%m-%d")
   prayed_today = user.last_prayer_date == today_str
 
+  # Determine recommended devotion
+  now = datetime.datetime.now(tz)
+  hour = now.hour
+  if 5 <= hour < 11:
+      recommended_devotion = {"name": "Morning Prayer", "url": "/morning_devotion"}
+  elif 11 <= hour < 15:
+      recommended_devotion = {"name": "Midday Prayer", "url": "/midday_devotion"}
+  elif 15 <= hour < 20:
+      recommended_devotion = {"name": "Evening Prayer", "url": "/evening_devotion"}
+  elif 0 <= hour < 5:
+      recommended_devotion = {"name": "Night Watch", "url": "/night_watch_devotion"}
+  else:
+      recommended_devotion = {"name": "Close of the Day", "url": "/close_of_day_devotion"}
+
   return flask.render_template(
       "streaks.html",
       current_streak=current_streak,
@@ -1877,6 +1891,7 @@ def streaks_route():
       progress_percent=progress_percent,
       prayed_today=prayed_today,
       achievements=user.achievements,
+      recommended_devotion=recommended_devotion
   )
 
 

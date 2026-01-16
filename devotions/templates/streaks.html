@@ -18,7 +18,8 @@
             <p style="color: #27ae60; font-weight: bold;">You have prayed today! Keep it up!</p>
         {% else %}
             <p style="color: #e74c3c;">You haven't recorded a prayer yet today.</p>
-            <a href="/" class="button" style="background-color: #2980b9;">Go Pray Now</a>
+            <p style="margin-bottom: 20px;">Keep your streak alive by praying <strong>{{ recommended_devotion.name }}</strong> now.</p>
+            <a href="{{ recommended_devotion.url }}" class="button" style="background-color: #2980b9;">Go to {{ recommended_devotion.name }}</a>
         {% endif %}
     </div>
 
