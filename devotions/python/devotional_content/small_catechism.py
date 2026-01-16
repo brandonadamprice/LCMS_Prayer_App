@@ -2,6 +2,7 @@
 
 import json
 import os
+import re
 import flask
 import utils
 
@@ -48,7 +49,12 @@ def get_grouped_catechism():
     
     # Inject explanation data if available
     if title in explanations_map:
-      section["explanation"] = explanations_map[title]["explanation"]
+      explanation_text = explanations_map[title]["explanation"]
+      # Replace markdown bold **text** with <strong>text</strong>
+      explanation_text = re.sub(
+          r"\*\*(.*?)\*\*", r"<strong>\1</strong>", explanation_text
+      )
+      section["explanation"] = explanation_text
       section["quiz_questions"] = explanations_map[title]["questions"]
 
     if "Commandment" in title or "Close of the Commandments" in title:

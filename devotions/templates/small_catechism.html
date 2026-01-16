@@ -79,23 +79,23 @@
                     {% endfor %}
 
                     {% if section.explanation %}
-                    <div class="learning-content hidden" style="margin-top: 20px; padding-top: 20px; border-top: 2px dashed #eee;">
-                        <p class="subheader" style="color: #e67e22;"><strong>Explanation (Large Catechism Summary)</strong></p>
-                        <div style="background-color: #fff9e6; padding: 15px; border-radius: 5px; border-left: 4px solid #f1c40f; margin-bottom: 20px;">
+                    <div class="learning-content hidden">
+                        <p class="subheader"><strong>Explanation (Large Catechism Summary)</strong></p>
+                        <div class="learning-explanation">
                             {{ section.explanation|safe }}
                         </div>
 
                         {% if section.quiz_questions %}
-                        <p class="subheader" style="color: #27ae60;"><strong>Quiz</strong></p>
+                        <p class="subheader"><strong>Quiz</strong></p>
                         {% for q in section.quiz_questions %}
-                        <div class="quiz-container" style="margin-bottom: 15px; padding: 10px; background-color: #f8f9fa; border-radius: 5px;">
+                        <div class="quiz-container">
                             <p style="font-weight: bold; margin-bottom: 10px;">{{ q.question }}</p>
                             <div class="quiz-options">
                                 {% for option in q.options %}
-                                <button class="quiz-option" onclick="checkQuizAnswer(this, '{{ q.answer|replace("'", "\\'") }}')" style="display: block; width: 100%; text-align: left; padding: 8px; margin: 5px 0; border: 1px solid #ccc; background: white; border-radius: 4px; cursor: pointer;">{{ option }}</button>
+                                <button class="quiz-option" onclick="checkQuizAnswer(this, '{{ q.answer|replace("'", "\\'") }}')">{{ option }}</button>
                                 {% endfor %}
                             </div>
-                            <p class="quiz-feedback" style="display: none; margin-top: 10px; font-weight: bold;"></p>
+                            <p class="quiz-feedback"></p>
                         </div>
                         {% endfor %}
                         {% endif %}
@@ -215,27 +215,23 @@ function checkQuizAnswer(btn, correctAnswer) {
     allBtns.forEach(b => b.disabled = true);
     
     if (btn.innerText === correctAnswer) {
-        btn.style.backgroundColor = '#d4edda';
-        btn.style.borderColor = '#c3e6cb';
-        btn.style.color = '#155724';
+        btn.classList.add('correct');
         feedback.innerText = "Correct! ✅";
-        feedback.style.color = '#27ae60';
+        feedback.classList.add('success');
+        feedback.classList.remove('error');
     } else {
-        btn.style.backgroundColor = '#f8d7da';
-        btn.style.borderColor = '#f5c6cb';
-        btn.style.color = '#721c24';
+        btn.classList.add('incorrect');
         
         // Highlight correct answer
         allBtns.forEach(b => {
             if (b.innerText === correctAnswer) {
-                b.style.backgroundColor = '#d4edda';
-                b.style.borderColor = '#c3e6cb';
-                b.style.color = '#155724';
+                b.classList.add('correct');
             }
         });
         
         feedback.innerText = "Incorrect. The correct answer is highlighted.";
-        feedback.style.color = '#e74c3c';
+        feedback.classList.add('error');
+        feedback.classList.remove('success');
     }
     feedback.style.display = 'block';
 }
