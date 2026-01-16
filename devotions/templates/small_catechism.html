@@ -37,20 +37,38 @@
              <button class="button" onclick="collapseAllInPart('part-{{ loop.index0 }}')" style="font-size: 0.8em; padding: 5px 10px;">Collapse All</button>
         </div>
 
-        {% for section in sections %}
-            {% call macros.card(section.title, collapsed=True) %}
+        {% if group_name == "Christian Questions with Their Answers" %}
+            {% for section in sections %}
                 {% if section.text %}
-                    <div style="margin-bottom: 15px; font-size: 1.1em;">{{ section.text|safe }}</div>
+                    <div class="card">
+                        <div class="card-content">
+                            <div style="font-size: 1.1em;">{{ section.text|safe }}</div>
+                        </div>
+                    </div>
                 {% endif %}
 
                 {% for qa in section.questions_and_answers %}
-                    <div class="catechism-qa">
-                        <p><strong>{{ qa.question }}</strong></p>
+                    {% call macros.card(qa.question, collapsed=True) %}
                         <p>{{ qa.answer|safe }}</p>
-                    </div>
+                    {% endcall %}
                 {% endfor %}
-            {% endcall %}
-        {% endfor %}
+            {% endfor %}
+        {% else %}
+            {% for section in sections %}
+                {% call macros.card(section.title, collapsed=True) %}
+                    {% if section.text %}
+                        <div style="margin-bottom: 15px; font-size: 1.1em;">{{ section.text|safe }}</div>
+                    {% endif %}
+
+                    {% for qa in section.questions_and_answers %}
+                        <div class="catechism-qa">
+                            <p><strong>{{ qa.question }}</strong></p>
+                            <p>{{ qa.answer|safe }}</p>
+                        </div>
+                    {% endfor %}
+                {% endcall %}
+            {% endfor %}
+        {% endif %}
 
         <div style="display: flex; justify-content: space-between; margin-top: 30px;">
              <button class="button" onclick="navigate(-1)" {% if loop.first %}disabled style="opacity: 0.5;"{% endif %}>&laquo; Previous Part</button>
