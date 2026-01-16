@@ -85,7 +85,26 @@
 {% endblock %}
 
 {% block extra_js %}
-function showPart(index) {
+let indexToSlug = {};
+let slugToIndex = {};
+
+function initSlugs() {
+    const select = document.getElementById('catechism-nav');
+    for (let i = 0; i < select.options.length; i++) {
+        const opt = select.options[i];
+        const name = opt.text;
+        const slug = name.toLowerCase()
+            .replace(/'/g, '')
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-+|-+$/g, '');
+        
+        const index = opt.value; 
+        indexToSlug[index] = slug;
+        slugToIndex[slug] = index;
+    }
+}
+
+function showPart(index, updateHistory = true) {
     const parts = document.querySelectorAll('.catechism-part');
     parts.forEach(el => el.style.display = 'none');
     
@@ -95,7 +114,15 @@ function showPart(index) {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
     
-    document.getElementById('catechism-nav').value = index;
+    const select = document.getElementById('catechism-nav');
+    select.value = index;
+
+    if (updateHistory && indexToSlug[index]) {
+        const slug = indexToSlug[index];
+        if (window.location.hash !== '#' + slug) {
+            window.location.hash = slug;
+        }
+    }
 }
 
 function navigate(delta) {
@@ -103,7 +130,6 @@ function navigate(delta) {
     let currentIndex = parseInt(select.value);
     let newIndex = currentIndex + delta;
     
-    // Bounds check
     const maxIndex = select.options.length - 1;
     if(newIndex < 0) newIndex = 0;
     if(newIndex > maxIndex) newIndex = maxIndex;
@@ -124,4 +150,28 @@ function collapseAllInPart(partId) {
         card.classList.add('collapsed');
     });
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    initSlugs();
+    
+    // Check initial hash
+    const hash = window.location.hash.substring(1);
+    if (hash && slugToIndex.hasOwnProperty(hash)) {
+        showPart(slugToIndex[hash], false); 
+    }
+});
+
+window.addEventListener('hashchange', () => {
+    const hash = window.location.hash.substring(1);
+    let index = 0; // Default to first part if hash is empty/invalid
+    if (hash && slugToIndex.hasOwnProperty(hash)) {
+        index = slugToIndex[hash];
+    }
+    
+    const select = document.getElementById('catechism-nav');
+    // Only update if we aren't already showing this part
+    if (select.value != index) {
+        showPart(index, false);
+    }
+});
 {% endblock %}
