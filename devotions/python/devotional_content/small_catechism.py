@@ -186,9 +186,10 @@ def inject_references(text):
   # Updates:
   # - Made verse optional to catch "Romans 6"
   # - Added 'v.' optional prefix handling? No, keep simple.
+  # - Added negative lookahead to exclude "Gospel" (e.g. "Gospel. 1") which consumes the number for following refs
   
   pattern = (
-      r"\b((?:1|2|3|I|II|III)?\s*[A-Z][a-z]+\.?\s+\d+(?::\d+)?(?:[-–]\d+)?(?:ff|f)?)"
+      r"\b((?:1|2|3|I|II|III)?\s*(?!Gospel)[A-Z][a-z]+\.?\s+\d+(?::\d+)?(?:[-–]\d+)?(?:ff|f)?)"
   )
 
   matches = list(set(re.findall(pattern, text)))
