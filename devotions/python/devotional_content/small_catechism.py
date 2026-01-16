@@ -1,5 +1,6 @@
 """Functions for generating the Small Catechism page."""
 
+import copy
 import json
 import os
 import re
@@ -23,7 +24,9 @@ def load_catechism_explanation():
 
 def get_grouped_catechism():
   """Groups the catechism sections into the Six Chief Parts."""
-  sections = utils.CATECHISM_SECTIONS
+  # Deep copy to prevent modifying the global CATECHISM_SECTIONS in place,
+  # which causes recursive tooltip injection on page reloads.
+  sections = copy.deepcopy(utils.CATECHISM_SECTIONS)
   explanation_data = load_catechism_explanation()
 
   # Create a lookup for explanations by title
@@ -204,20 +207,24 @@ def inject_references(text):
     )
     ref_map = dict(zip(matches, texts))
 
-    for ref_str, scripture_text in ref_map.items():
-      # Skip if reading not available
+    def replace_match(m):
+      ref_str = m.group(1)
+      if ref_str not in ref_map:
+        return ref_str
+      
+      scripture_text = ref_map[ref_str]
       if "Reading not available" in scripture_text:
-        continue
+        return ref_str
 
-      # Basic HTML escaping for attribute
       escaped_text = scripture_text.replace('"', "&quot;")
-      tooltip = (
+      return (
           '<span class="scripture-tooltip"'
           f' data-text="{escaped_text}">{ref_str}</span>'
       )
 
-      # Replace in text. Use string replace.
-      text = text.replace(ref_str, tooltip)
+    # Use re.sub with a callback to safely replace in one pass
+    # This avoids nested replacements if one reference is a substring of another
+    text = re.sub(pattern, replace_match, text)
 
   except Exception as e:
     print(f"Error injecting references: {e}")

@@ -58,9 +58,43 @@
                     </div>
                 {% endif %}
 
+                {# Render Section Explanation if available #}
+                {% if section.explanation %}
+                   <div class="card learning-content hidden">
+                        <p class="subheader"><strong>Introduction</strong></p>
+                        <div class="learning-explanation">
+                            {{ section.explanation|safe }}
+                        </div>
+                   </div>
+                {% endif %}
+
                 {% for qa in section.questions_and_answers %}
                     {% call macros.card(qa.question, collapsed=True) %}
                         <p>{{ qa.answer|safe }}</p>
+
+                        {% if qa.explanation %}
+                        <div class="learning-content hidden">
+                            <p class="subheader"><strong>Explanation</strong></p>
+                            <div class="learning-explanation">
+                                {{ qa.explanation|safe }}
+                            </div>
+
+                            {% if qa.quiz_questions %}
+                            <p class="subheader"><strong>Quiz</strong></p>
+                            {% for q in qa.quiz_questions %}
+                            <div class="quiz-container">
+                                <p style="font-weight: bold; margin-bottom: 10px;">{{ q.question|safe }}</p>
+                                <div class="quiz-options">
+                                    {% for option in q.options %}
+                                    <button class="quiz-option" onclick="checkQuizAnswer(this, '{{ q.answer|replace("'", "\\'") }}')">{{ option|safe }}</button>
+                                    {% endfor %}
+                                </div>
+                                <p class="quiz-feedback"></p>
+                            </div>
+                            {% endfor %}
+                            {% endif %}
+                        </div>
+                        {% endif %}
                     {% endcall %}
                 {% endfor %}
             {% endfor %}
