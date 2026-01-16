@@ -114,7 +114,7 @@
       "explanation": "This commandment prohibits murder and physical harm, but also targets the roots of violence: **anger, hatred, and bitterness**. Positively, Luther emphasizes that we should **assist and serve our neighbor in every bodily danger or need**. A Christian is called to have a patient and gentle heart, doing good even to those who are enemies. Any harm done to a neighbor, including through the manipulation of laws to damage their well-being, stands condemned under this heading.",
       "questions": [
         {
-          "question": "What is the positive requirement for a Christian regarding their neighbor’s life?",
+          "question": "What is the positive requirement for a Christian regarding their neighbor's life?",
           "options": [
             "To ignore their physical needs and focus on their soul",
             "To assist and serve them in every bodily danger or need",
@@ -246,7 +246,7 @@
     {
       "title": "The Tenth Commandment",
       "commandment": "The Tenth Commandment: Thou shalt not covet thy neighbor's wife, nor his man-servant, nor his maid-servant, nor his cattle, nor anything that is his.",
-      "explanation": "The Tenth Commandment focuses on the **alienation or enticement** of the people and creatures that serve the neighbor. It forbids driving away or forcing a neighbor’s spouse or workers to leave. Luther emphasizes that we should instead **urge them to stay and do their duty** in the places where God has put them. These final commandments serve as a mirror to show that no one is fully pure in heart, pointing the believer to the need for the forgiveness found in the Gospel.",
+      "explanation": "The Tenth Commandment focuses on the **alienation or enticement** of the people and creatures that serve the neighbor. It forbids driving away or forcing a neighbor's spouse or workers to leave. Luther emphasizes that we should instead **urge them to stay and do their duty** in the places where God has put them. These final commandments serve as a mirror to show that no one is fully pure in heart, pointing the believer to the need for the forgiveness found in the Gospel.",
       "questions": [
         {
           "question": "What is the positive requirement regarding a neighbor's workers?",
@@ -269,7 +269,237 @@
           "answer": "To reveal that the heart is the source of all sin"
         }
       ]
+    },
+    {
+      "title": "The Close of the Commandments",
+      "explanation": "The Ten Commandments are considered the only part of the Law of Moses that is eternal, inscribed on the hearts of all men as natural law. Outside of these commandments, **no work can be good or pleasing to God**, no matter how great it appears to the world. Their primary purpose is to reveal God's wrath against sin, acting as a mirror to show our inability to save ourselves and guiding the 'new man' on the path of good works that are pleasing to God.",
+      "questions": []
     }
   ],
-  "conclusion": "The Ten Commandments are considered the only part of the Law of Moses that is eternal, inscribed on the hearts of all men as natural law. Outside of these commandments, **no work can be good or pleasing to God**, no matter how great it appears to the world. Their primary purpose is to reveal God's wrath against sin, acting as a mirror to show our inability to save ourselves and guiding the 'new man' on the path of good works that are pleasing to God."
+  "apostles_creed": [
+    {
+      "title": "The Apostles' Creed - First Article",
+      "explanation": "The First Article confesses God as **Father, Almighty, and Maker**. Luther's explanation in the Small Catechism emphasizes a personal realization: **'I believe that God has made me and all creatures.'** This means God has provided not only the soul and body but also every faculty, including **eyes, ears, reason, and senses**, and continues to preserve them daily. The Large Catechism notes that we recognize God as our Father because He provides for us out of **sheer fatherly and divine goodness and mercy**, without any merit or worthiness in us. This article encompasses all temporal goods—clothing, shoes, food, drink, house, and home—and asserts that God **defends us against all danger** and guards us from all evil. Thus, the duty of the Christian is to **thank, praise, serve, and obey Him**.",
+      "questions": [
+        {
+          "question": "According to the Small Catechism, what is the basis for God providing all that we need?",
+          "options": [
+            "Our consistent obedience to the Law",
+            "Our merit and worthiness",
+            "Sheer fatherly, divine goodness and mercy",
+            "Our regular attendance at the Divine Service"
+          ],
+          "answer": "Sheer fatherly, divine goodness and mercy"
+        },
+        {
+          "question": "What does the First Article teach about God's ongoing work?",
+          "options": [
+            "He created the world and then stepped back",
+            "He still takes care of all His members and senses",
+            "He only provides for those who pray for daily bread",
+            "He only takes care of the soul, not the body"
+          ],
+          "answer": "He still takes care of all His members and senses"
+        }
+      ]
+    },
+    {
+      "title": "The Apostles' Creed - Second Article",
+      "explanation": "This article focuses on the person and work of Jesus Christ, whom the Christian confesses as **'my Lord.'** Luther explains that for Christ to be 'Lord' means He is **'my Redeemer'** who has purchased and won us from **all sins, from death, and from the power of the devil.** This redemption was achieved not with gold or silver, but with His **holy, precious blood and His innocent suffering and death.** The purpose of this work is that the believer may **be His own, live under Him in His kingdom, and serve Him** in everlasting righteousness, innocence, and blessedness. The article affirms His two natures—**true God, begotten of the Father from eternity, and true man, born of the Virgin Mary**—and centers the entire Gospel on His resurrection and eternal reign.",
+      "questions": [
+        {
+          "question": "What does the word 'Lord' essentially mean in Luther's explanation of the Second Article?",
+          "options": [
+            "Ruler of the universe",
+            "Redeemer",
+            "Taskmaster",
+            "Legislator"
+          ],
+          "answer": "Redeemer"
+        },
+        {
+          "question": "From what three powers has Christ redeemed the believer?",
+          "options": [
+            "Poverty, sickness, and sadness",
+            "The Pope, the Turks, and the Jews",
+            "Sin, death, and the power of the devil",
+            "The Law, the world, and the flesh"
+          ],
+          "answer": "Sin, death, and the power of the devil"
+        }
+      ]
+    },
+    {
+      "title": "The Apostles' Creed - Third Article",
+      "explanation": "The Third Article treats the work of the **Holy Spirit**, who is the **Sanctifier**. The core of this article is the confession that **'I cannot by my own reason or strength believe in Jesus Christ, my Lord, or come to Him.'** Instead, the Holy Spirit **calls us by the Gospel, enlightens us with His gifts, and sanctifies and keeps us in the true faith.** This work is not done in isolation but through the **holy Christian Church**, which the Spirit calls, gathers, and enlightens on earth. In this Church, the Spirit **daily and richly forgives all my sins and the sins of all believers.** Finally, the Spirit provides eschatological hope, as He will **raise the dead on the Last Day** and give eternal life to all believers in Christ.",
+      "questions": [
+        {
+          "question": "Why is the work of the Holy Spirit necessary according to the Small Catechism?",
+          "options": [
+            "Because human reason is too weak and strength is lacking to believe",
+            "Because God will not save us unless we ask the Spirit",
+            "To prove that we are doing good works",
+            "To help us understand the deep mysteries of philosophy"
+          ],
+          "answer": "Because human reason is too weak and strength is lacking to believe"
+        },
+        {
+          "question": "Where does the Holy Spirit daily and richly forgive sins?",
+          "options": [
+            "In the private heart of the individual only",
+            "In the holy Christian Church",
+            "Only in the future kingdom of glory",
+            "Through our own acts of satisfaction"
+          ],
+          "answer": "In the holy Christian Church"
+        }
+      ]
+    }
+  ],
+  "lords_prayer": [
+    {
+      "title": "The Lord's Prayer - Introduction",
+      "explanation": "In the introduction, God **tenderly invites us to believe** that He is our **true Father** and that we are His **true children**. This relationship allows us to approach Him with **all boldness and confidence**, just as beloved children entreat an affectionate father. The Large Catechism notes that we can only call Him Father because Christ, our Advocate, has taught us this and because we have been **baptized into His name** and given the Spirit of adoption.",
+      "questions": [
+        {
+          "question": "What does the introduction to the Lord's Prayer 'tenderly invite' us to do?",
+          "options": [
+            "Fear the coming judgment",
+            "Believe He is our true Father and we are His true children",
+            "Follow all the commandments before speaking",
+            "Understand the complex nature of the Trinity"
+          ],
+          "answer": "Believe He is our true Father and we are His true children"
+        }
+      ]
+    },
+    {
+      "title": "The Lord's Prayer - First Petition",
+      "explanation": "God's name is **holy in itself**, but we pray that it may be **kept holy among us**. This occurs when the **Word of God is taught in its truth and purity** and when we, as children of God, **lead holy lives according to it**. Conversely, anyone who teaches or lives contrary to God's Word **profanes the name of God** among us. The Large Catechism identifies this as the spiritual defense against false teachers and an evil life.",
+      "questions": [
+        {
+          "question": "How is God's name kept holy among us?",
+          "options": [
+            "By never speaking it aloud",
+            "When the Word of God is taught in its truth and purity and we live accordingly",
+            "By building large cathedrals in His honor",
+            "Only through the performance of the sacraments"
+          ],
+          "answer": "When the Word of God is taught in its truth and purity and we live accordingly"
+        }
+      ]
+    },
+    {
+      "title": "The Lord's Prayer - Second Petition",
+      "explanation": "The kingdom of God **comes of itself without our prayer**, but we pray that it may **come to us**. This happens when our heavenly Father **gives us His Holy Spirit**, so that by His grace we **believe His holy Word** and lead godly lives here in time and hereafter in eternity. It is a prayer for the Spirit to reign in our hearts and for the Gospel to be spread throughout the world.",
+      "questions": [
+        {
+          "question": "What is requested of the Father in the Second Petition?",
+          "options": [
+            "The physical return of Christ immediately",
+            "That He give us His Holy Spirit to work grace and faith",
+            "The destruction of earthly governments",
+            "That we may be given power to rule others"
+          ],
+          "answer": "That He give us His Holy Spirit to work grace and faith"
+        }
+      ]
+    },
+    {
+      "title": "The Lord's Prayer - Third Petition",
+      "explanation": "God's **good and gracious will** is done even without our prayer, but we pray that it may be **done among us**. God's will is done when He **breaks and hinders every evil plan and purpose** of the devil, the world, and our sinful nature. It is also done when He **strengthens and keeps us firm in His Word and faith** until we die. We pray against our own will and the devil's will, which seek to block God's name and kingdom.",
+      "questions": [
+        {
+          "question": "According to the Small Catechism, what does God do to ensure His will is done?",
+          "options": [
+            "He rewards our good works with prosperity",
+            "He breaks and hinders the evil plans of the devil and our sinful nature",
+            "He forces all people to become Christians",
+            "He ignores our sins for a time"
+          ],
+          "answer": "He breaks and hinders the evil plans of the devil and our sinful nature"
+        }
+      ]
+    },
+    {
+      "title": "The Lord's Prayer - Fourth Petition",
+      "explanation": "God gives daily bread **even to the wicked** without our prayer, but we pray that He would lead us to **realize this and receive our daily bread with thanksgiving**. Daily bread includes everything that has to do with the **support and needs of the body**, such as food, drink, clothing, house, home, land, animals, money, a devout spouse, obedient children, **upright and faithful rulers, and good government.**",
+      "questions": [
+        {
+          "question": "What is included in the definition of 'daily bread'?",
+          "options": [
+            "Only spiritual food like the Bible",
+            "Only the bread used in the Lord's Supper",
+            "Everything that has to do with the support and needs of the body",
+            "Only the basic necessities like grain and water"
+          ],
+          "answer": "Everything that has to do with the support and needs of the body"
+        }
+      ]
+    },
+    {
+      "title": "The Lord's Prayer - Fifth Petition",
+      "explanation": "In this petition, we pray that our Father in heaven would **not look at our sins** nor deny our prayer because of them. We are unworthy of what we ask, but we pray that He would **give us everything by grace**, for we sin daily and deserve nothing but punishment. The 'as we forgive' part is a **promise and sign**; because God forgives us freely, we will also **heartily forgive and gladly do good** to those who sin against us.",
+      "questions": [
+        {
+          "question": "Why do we say 'as we forgive' in this petition?",
+          "options": [
+            "To earn God's forgiveness through our own efforts",
+            "As a sign that we have received God's free grace and will likewise forgive others",
+            "To remind God that we are essentially good people",
+            "To demand that our neighbor apologize first"
+          ],
+          "answer": "As a sign that we have received God's free grace and will likewise forgive others"
+        }
+      ]
+    },
+    {
+      "title": "The Lord's Prayer - Sixth Petition",
+      "explanation": "God tempts no one, but we pray that He would **guard and keep us** so that the **devil, the world, and our sinful nature** may not deceive us or mislead us into false belief, despair, or other great shame and vice. We pray that even if we are attacked by such temptations, we may **finally overcome and win the victory**.",
+      "questions": [
+        {
+          "question": "What are the three powers mentioned that seek to mislead the believer into false belief and despair?",
+          "options": [
+            "The Pope, the Turks, and the heretics",
+            "The devil, the world, and our sinful nature",
+            "Reason, science, and philosophy",
+            "Hunger, poverty, and sickness"
+          ],
+          "answer": "The devil, the world, and our sinful nature"
+        }
+      ]
+    },
+    {
+      "title": "The Lord's Prayer - Seventh Petition",
+      "explanation": "This is a **summary petition** where we pray that our Father in heaven would **rescue us from every evil of body and soul, possessions and reputation**. We pray that when our **last hour comes**, He would grant us a **blessed end** and graciously take us from this valley of sorrow to Himself in heaven.",
+      "questions": [
+        {
+          "question": "What is the primary request regarding the 'last hour' in the Seventh Petition?",
+          "options": [
+            "That we may live forever on this earth",
+            "That we may be granted a blessed end and taken to heaven",
+            "That our possessions be left to our children",
+            "That we may avoid all physical pain"
+          ],
+          "answer": "That we may be granted a blessed end and taken to heaven"
+        }
+      ]
+    },
+    {
+      "title": "The Lord's Prayer - Conclusion",
+      "explanation": "The conclusion provides the **certainty of faith**. We should be **assured that these petitions are acceptable** to our Father in heaven and are heard by Him, for He has commanded us to pray this way and promised to hear us. **'Amen'** means **'Yes, yes, it shall be so.'** It seals the prayer with the confidence that God's promises are true and reliable.",
+      "questions": [
+        {
+          "question": "What does the word 'Amen' mean in the context of the Lord's Prayer?",
+          "options": [
+            "I hope this comes true",
+            "The prayer is now finished",
+            "Yes, yes, it shall be so",
+            "I will try to be a better person"
+          ],
+          "answer": "Yes, yes, it shall be so"
+        }
+      ]
+    }
+  ]
 }
