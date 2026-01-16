@@ -511,6 +511,7 @@ body.dark-mode .app-menu-section strong {
   cursor: pointer;
   padding: 12px 20px;
   width: 100%;
+  box-sizing: border-box;
   text-align: left;
   border: none;
   border-bottom: 1px solid #f5f5f5;
