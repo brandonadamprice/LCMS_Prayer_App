@@ -215,7 +215,7 @@ def inject_references(text):
         return ref_str
 
       scripture_text = ref_map[ref_str]
-      if "Reading not available" in scripture_text:
+      if "Reading not available" in scripture_text or "ESV API" in scripture_text:
         return ref_str
 
       escaped_text = scripture_text.replace('"', "&quot;")
@@ -243,6 +243,8 @@ def _inject_christian_questions_scripture(qa_list):
       texts = utils.fetch_passages(
           refs, include_verse_numbers=False, include_copyright=False
       )
+      if any("ESV API" in t for t in texts):
+        raise Exception("ESV API Error")
       combined_text = f"Rom 6:21: {texts[0]}\nRom 6:23: {texts[1]}"
       # Escape for HTML attribute
       combined_text = combined_text.replace('"', "&quot;")
@@ -269,6 +271,8 @@ def _inject_christian_questions_scripture(qa_list):
       texts = utils.fetch_passages(
           refs_to_fetch, include_verse_numbers=False, include_copyright=False
       )
+      if any("ESV API" in t for t in texts):
+        raise Exception("ESV API Error")
       # Map back ref_key -> text
       text_map = dict(zip(refs_to_fetch, texts))
 
@@ -302,6 +306,8 @@ def _inject_christian_questions_scripture(qa_list):
       texts = utils.fetch_passages(
           refs_to_fetch, include_verse_numbers=False, include_copyright=False
       )
+      if any("ESV API" in t for t in texts):
+        raise Exception("ESV API Error")
       text_map = dict(zip(refs_to_fetch, texts))
 
       def mk_tooltip(label, ref_key):

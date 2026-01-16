@@ -273,33 +273,6 @@ function checkQuizAnswer(btn, correctAnswer) {
     feedback.style.display = 'block';
 }
 
-// Tooltip Toggle Logic
-document.addEventListener('click', function(event) {
-    if (event.target.classList.contains('scripture-tooltip')) {
-        // Toggle active class on the clicked tooltip
-        event.target.classList.toggle('active');
-        
-        // Optional: Close other open tooltips to keep it clean?
-        // User asked to dismiss by clicking *it* again, implying others might stay open or it's independent.
-        // Standard tooltip behavior usually allows only one, but let's stick to simple toggle for now.
-        // If we want to close others:
-        /*
-        const others = document.querySelectorAll('.scripture-tooltip.active');
-        others.forEach(t => {
-            if (t !== event.target) {
-                t.classList.remove('active');
-            }
-        });
-        */
-    } else {
-        // Close all tooltips if clicking outside
-        const activeTooltips = document.querySelectorAll('.scripture-tooltip.active');
-        activeTooltips.forEach(t => {
-            t.classList.remove('active');
-        });
-    }
-});
-
 document.addEventListener('DOMContentLoaded', () => {
     initSlugs();
     

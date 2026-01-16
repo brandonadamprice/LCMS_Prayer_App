@@ -722,6 +722,32 @@
           }
         });
       }
+
+      // Global Tooltip Toggle Logic
+      document.addEventListener('click', function(event) {
+          // If clicking ON a tooltip (text or pseudo-element popup)
+          if (event.target.classList.contains('scripture-tooltip')) {
+              const wasActive = event.target.classList.contains('active');
+              
+              // Close ALL tooltips first (so we don't have multiple open)
+              const activeTooltips = document.querySelectorAll('.scripture-tooltip.active');
+              activeTooltips.forEach(t => {
+                  t.classList.remove('active');
+              });
+
+              // If it wasn't already active, open it.
+              // If it WAS active, we just closed it above (toggle off behavior).
+              if (!wasActive) {
+                  event.target.classList.add('active');
+              }
+          } else {
+              // Close all tooltips if clicking outside
+              const activeTooltips = document.querySelectorAll('.scripture-tooltip.active');
+              activeTooltips.forEach(t => {
+                  t.classList.remove('active');
+              });
+          }
+      });
     </script>
   </body>
 </html>

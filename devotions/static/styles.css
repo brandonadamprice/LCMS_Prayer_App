@@ -1679,8 +1679,13 @@ body.dark-mode .scripture-tooltip.active::before {
 
 /* Mobile Tooltip Adjustment */
 @media (max-width: 600px) {
-    .scripture-tooltip:hover::after,
+    /* Disable hover on mobile to prevent sticky tooltips */
+    .scripture-tooltip:hover::after {
+        display: none;
+    }
+
     .scripture-tooltip.active::after {
+        display: block;
         position: fixed;
         top: auto;
         bottom: 0;
