@@ -1625,7 +1625,8 @@ body.dark-mode .page-menu-item:hover {
     color: #2980b9;
 }
 
-.scripture-tooltip:hover::after {
+.scripture-tooltip:hover::after,
+.scripture-tooltip.active::after {
     content: attr(data-text);
     position: absolute;
     bottom: 100%;
@@ -1646,7 +1647,8 @@ body.dark-mode .page-menu-item:hover {
 }
 
 /* Add a small arrow to the tooltip */
-.scripture-tooltip:hover::before {
+.scripture-tooltip:hover::before,
+.scripture-tooltip.active::before {
     content: '';
     position: absolute;
     bottom: 100%;
@@ -1663,13 +1665,15 @@ body.dark-mode .scripture-tooltip {
     border-bottom-color: #90caf9;
 }
 
-body.dark-mode .scripture-tooltip:hover::after {
+body.dark-mode .scripture-tooltip:hover::after,
+body.dark-mode .scripture-tooltip.active::after {
     background: #eee;
     color: #333;
     box-shadow: 0 4px 10px rgba(255,255,255,0.1);
 }
 
-body.dark-mode .scripture-tooltip:hover::before {
+body.dark-mode .scripture-tooltip:hover::before,
+body.dark-mode .scripture-tooltip.active::before {
     border-top-color: #eee;
 }
 
