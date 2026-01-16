@@ -602,6 +602,24 @@
           localStorage.setItem(LOGIN_MSG_KEY, 'true');
       }
 
+      // Creed Toggle Functions
+      function showApostlesCreed() {
+          const ath = document.getElementById('athanasian-creed');
+          const ap = document.getElementById('apostles-creed');
+          if (ath && ap) {
+              ath.style.display = 'none';
+              ap.style.display = 'block';
+          }
+      }
+      function showAthanasianCreed() {
+          const ath = document.getElementById('athanasian-creed');
+          const ap = document.getElementById('apostles-creed');
+          if (ath && ap) {
+              ath.style.display = 'block';
+              ap.style.display = 'none';
+          }
+      }
+
       if(closeLoginModal) {
           closeLoginModal.addEventListener('click', dismissLoginModal);
       }

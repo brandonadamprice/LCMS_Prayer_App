@@ -482,6 +482,7 @@ def get_devotion_data(now: datetime.datetime) -> dict:
 
   # 7. Combine data
   data = {
+      "is_trinity_sunday": now.date() == cy.holy_trinity,
       "date_str": now.strftime("%A, %B %d, %Y"),
       "key": key,
       "psalm_ref": psalm_ref,

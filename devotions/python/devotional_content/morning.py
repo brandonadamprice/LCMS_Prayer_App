@@ -40,6 +40,7 @@ def get_morning_devotion_data(user_id=None):
   all_personal_prayers = utils.get_all_personal_prayers_for_user(user_id)
 
   return {
+      "is_trinity_sunday": now.date() == cy.holy_trinity,
       "date_str": now.strftime("%A, %B %d, %Y"),
       "daily_lectionary_readings": daily_lectionary_readings,
       "lectionary_texts": lectionary_texts,

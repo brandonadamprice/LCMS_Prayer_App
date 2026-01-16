@@ -40,6 +40,7 @@ def get_close_of_day_devotion_data(user_id=None):
   concluding_prayer = utils.OTHER_PRAYERS["close_of_day_prayers"]
 
   template_data = {
+      "is_trinity_sunday": now.date() == cy.holy_trinity,
       "date_str": now.strftime("%A, %B %d, %Y"),
       "daily_lectionary_readings": daily_lectionary_readings,
       "lectionary_texts": lectionary_texts,

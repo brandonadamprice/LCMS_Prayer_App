@@ -85,7 +85,19 @@
     {% endcall %}
 
     {% call macros.card('Creed') %}
-        {{ macros.format_prayer(config['OTHER_PRAYERS']['apostles_creed']) }}
+        {% if is_trinity_sunday %}
+            <div id="athanasian-creed">
+                <p class="rubric">The Athanasian Creed is traditionally recited on Trinity Sunday.</p>
+                {{ macros.format_prayer(config['OTHER_PRAYERS']['athanasian_creed']) }}
+                <button class="button" onclick="showApostlesCreed()">Switch to Apostles' Creed</button>
+            </div>
+            <div id="apostles-creed" style="display: none;">
+                {{ macros.format_prayer(config['OTHER_PRAYERS']['apostles_creed']) }}
+                <button class="button" onclick="showAthanasianCreed()">Switch to Athanasian Creed</button>
+            </div>
+        {% else %}
+            {{ macros.format_prayer(config['OTHER_PRAYERS']['apostles_creed']) }}
+        {% endif %}
     {% endcall %}
 
     {% call macros.card('Prayers') %}
