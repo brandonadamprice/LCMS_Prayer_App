@@ -9,24 +9,34 @@
   <p>A simple explanation of Christian doctrine for the household.</p>
 </div>
 
-<!-- Navigation to jump to parts -->
+<!-- Navigation Menu -->
 <div class="card">
-    <label for="catechism-nav"><strong>Jump to Part:</strong></label>
-    <select id="catechism-nav" onchange="jumpToPart(this.value)" style="width: 100%; padding: 8px; margin-top: 5px; border-radius: 4px; border: 1px solid #ccc;">
-        <option value="" disabled selected>Select a part...</option>
-        {% for group_name, sections in grouped_catechism.items() %}
-            <option value="group-{{ loop.index }}">{{ group_name }}</option>
-        {% endfor %}
-    </select>
-    <div style="margin-top: 15px; display: flex; gap: 10px;">
-        <button class="button" onclick="expandAll()" style="flex: 1; margin: 0;">Expand All</button>
-        <button class="button" onclick="collapseAll()" style="flex: 1; margin: 0;">Collapse All</button>
+    <label for="catechism-nav" style="display: block; margin-bottom: 5px; font-weight: bold; color: #555;">Select Part:</label>
+    <div style="display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap;">
+        <button class="button" onclick="navigate(-1)" style="margin: 0; padding: 10px 15px;" aria-label="Previous Part">&laquo;</button>
+        <div style="flex-grow: 1; min-width: 200px;">
+            <select id="catechism-nav" onchange="showPart(this.value)" class="form-input" style="width: 100%;">
+                {% for group_name, sections in grouped_catechism.items() %}
+                    <option value="{{ loop.index0 }}">{{ group_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button class="button" onclick="navigate(1)" style="margin: 0; padding: 10px 15px;" aria-label="Next Part">&raquo;</button>
     </div>
 </div>
 
+<div id="catechism-container">
 {% for group_name, sections in grouped_catechism.items() %}
-    <div id="group-{{ loop.index }}" class="catechism-group" style="scroll-margin-top: 80px;">
-        <h2 style="margin-top: 30px; border-bottom: 2px solid #2980b9; color: #2980b9;">{{ group_name }}</h2>
+    <div id="part-{{ loop.index0 }}" class="catechism-part" style="display: {% if loop.first %}block{% else %}none{% endif %};">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #2980b9; padding-bottom: 10px;">
+             <h2 style="margin: 0; border: none; color: #2980b9;">{{ group_name }}</h2>
+        </div>
+        
+        <div style="margin-bottom: 15px; text-align: right;">
+             <button class="button" onclick="expandAllInPart('part-{{ loop.index0 }}')" style="font-size: 0.8em; padding: 5px 10px;">Expand All</button>
+             <button class="button" onclick="collapseAllInPart('part-{{ loop.index0 }}')" style="font-size: 0.8em; padding: 5px 10px;">Collapse All</button>
+        </div>
+
         {% for section in sections %}
             {% call macros.card(section.title, collapsed=True) %}
                 {% if section.text %}
@@ -39,11 +49,16 @@
                         <p>{{ qa.answer|safe }}</p>
                     </div>
                 {% endfor %}
-
             {% endcall %}
         {% endfor %}
+
+        <div style="display: flex; justify-content: space-between; margin-top: 30px;">
+             <button class="button" onclick="navigate(-1)" {% if loop.first %}disabled style="opacity: 0.5;"{% endif %}>&laquo; Previous Part</button>
+             <button class="button" onclick="navigate(1)" {% if loop.last %}disabled style="opacity: 0.5;"{% endif %}>Next Part &raquo;</button>
+        </div>
     </div>
 {% endfor %}
+</div>
 
 <p style="text-align: center; margin-top: 30px; font-style: italic; color: #7f8c8d; font-size: 0.9em;">
     Catechism text sourced from <a href="https://bookofconcord.org/small-catechism/" target="_blank" style="color: inherit; text-decoration: underline;">bookofconcord.org</a>.
@@ -52,21 +67,42 @@
 {% endblock %}
 
 {% block extra_js %}
-function jumpToPart(id) {
-    const element = document.getElementById(id);
-    if (element) {
-        element.scrollIntoView({behavior: 'smooth'});
+function showPart(index) {
+    const parts = document.querySelectorAll('.catechism-part');
+    parts.forEach(el => el.style.display = 'none');
+    
+    const selected = document.getElementById('part-' + index);
+    if(selected) {
+        selected.style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    
+    document.getElementById('catechism-nav').value = index;
+}
+
+function navigate(delta) {
+    const select = document.getElementById('catechism-nav');
+    let currentIndex = parseInt(select.value);
+    let newIndex = currentIndex + delta;
+    
+    // Bounds check
+    const maxIndex = select.options.length - 1;
+    if(newIndex < 0) newIndex = 0;
+    if(newIndex > maxIndex) newIndex = maxIndex;
+    
+    if(newIndex !== currentIndex) {
+        showPart(newIndex);
     }
 }
 
-function expandAll() {
-    document.querySelectorAll('.catechism-group .card').forEach(card => {
+function expandAllInPart(partId) {
+    document.querySelectorAll('#' + partId + ' .card').forEach(card => {
         card.classList.remove('collapsed');
     });
 }
 
-function collapseAll() {
-    document.querySelectorAll('.catechism-group .card').forEach(card => {
+function collapseAllInPart(partId) {
+    document.querySelectorAll('#' + partId + ' .card').forEach(card => {
         card.classList.add('collapsed');
     });
 }
