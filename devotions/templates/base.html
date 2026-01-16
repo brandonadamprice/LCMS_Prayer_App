@@ -88,9 +88,9 @@
 
       <div class="navbar-right" style="display: flex; align-items: center;">
         {% if current_user.is_authenticated %}
-        <div class="nav-streak" title="Consecutive Days Prayed">
+        <a href="/streaks" class="nav-streak scripture-tooltip" data-text="View your Prayer Journey and Achievements" style="text-decoration: none; border-bottom: none;">
             <span style="margin-right: 5px;">🔥</span> <span id="nav-streak-count">{{ current_user.streak_count }}</span>
-        </div>
+        </a>
         {% endif %}
         <button id="menu-button" aria-label="Menu">&#9776;</button>
         <div id="app-menu">

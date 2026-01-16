@@ -1710,28 +1710,33 @@ def complete_prayer_route():
   """Marks a prayer as complete and updates the streak."""
   user_id = flask_login.current_user.id
   timezone_str = flask_login.current_user.timezone or "America/New_York"
-  
+
   try:
     tz = pytz.timezone(timezone_str)
   except pytz.UnknownTimeZoneError:
     tz = pytz.timezone("America/New_York")
 
   now = datetime.datetime.now(tz)
-  today_str = now.strftime("%Y-%m-%d") # YYYY-MM-DD format for storage consistency
+  today_str = now.strftime(
+      "%Y-%m-%d"
+  )  # YYYY-MM-DD format for storage consistency
 
   db = utils.get_db_client()
   user_ref = db.collection("users").document(user_id)
-  
+
   # Transaction to safely update streak
   @firestore.transactional
   def update_streak_in_transaction(transaction, user_ref):
-    snapshot = transaction.get(user_ref)
+    snapshot = next(transaction.get(user_ref))
     if not snapshot.exists:
       return None
-    
+
     user_data = snapshot.to_dict()
     current_streak = user_data.get("streak_count", 0)
-    last_date_str = user_data.get("last_prayer_date") # Expecting string YYYY-MM-DD
+    current_achievements = user_data.get("achievements", [])
+    last_date_str = user_data.get(
+        "last_prayer_date"
+    )  # Expecting string YYYY-MM-DD
 
     # Parse last_date if it exists
     last_date = None
@@ -1741,63 +1746,138 @@ def complete_prayer_route():
       except ValueError:
         # Handle legacy or bad format if necessary, reset
         pass
-    
+
     today_date = now.date()
-    
+
     new_streak = current_streak
     streak_updated = False
-    
+
     if last_date == today_date:
-        # Already prayed today
-        return {"streak": current_streak, "milestone_reached": False, "already_prayed": True}
-    
+      # Already prayed today
+      return {
+          "streak": current_streak,
+          "milestone_reached": False,
+          "already_prayed": True,
+      }
+
     elif last_date == today_date - datetime.timedelta(days=1):
-        # Prayed yesterday, increment
-        new_streak += 1
-        streak_updated = True
+      # Prayed yesterday, increment
+      new_streak += 1
+      streak_updated = True
     else:
-        # Missed a day or more (or first time)
-        new_streak = 1
-        streak_updated = True
-    
-    if streak_updated:
-        transaction.update(user_ref, {
-            "streak_count": new_streak,
-            "last_prayer_date": today_str
-        })
-    
-    # Check for milestones
-    # 7 days (1 week), 30 days (1 month), 90 days (3 months), 180 days (6 months), 
-    # 270 days (9 months), 365 days (1 year), then every 90 days.
+      # Missed a day or more (or first time)
+      new_streak = 1
+      streak_updated = True
+
+    # Check for milestones/achievements
     milestone_reached = False
     milestone_msg = ""
-    
-    milestones = [7, 30, 90, 180, 270, 365]
-    if new_streak in milestones or (new_streak > 365 and (new_streak - 365) % 90 == 0):
-        milestone_reached = True
-        if new_streak == 7:
-            milestone_msg = "1 Week Streak!"
-        elif new_streak == 30:
-            milestone_msg = "1 Month Streak!"
-        elif new_streak == 365:
-            milestone_msg = "1 Year Streak!"
-        else:
-            milestone_msg = f"{new_streak} Day Streak!"
+    new_achievements = []
+
+    milestone_map = {
+        7: "1 Week Streak",
+        30: "1 Month Streak",
+        90: "3 Months Streak",
+        180: "6 Months Streak",
+        270: "9 Months Streak",
+        365: "1 Year Streak",
+    }
+
+    # Helper to add achievement if not present
+    def check_and_add(streak_val, title):
+      nonlocal milestone_reached, milestone_msg
+      if streak_val <= new_streak:
+        # Create a slug/id for the achievement
+        ach_id = f"streak_{streak_val}"
+        # Check if user already has it
+        if not any(a["id"] == ach_id for a in current_achievements):
+          # New achievement!
+          new_achievements.append(
+              {"id": ach_id, "title": title, "date": today_str, "icon": "🔥"}
+          )
+          # Only notify if it was just reached *now* (i.e. new_streak exactly matches)
+          if streak_val == new_streak:
+            milestone_reached = True
+            milestone_msg = f"Achievement Unlocked: {title}!"
+
+    # Check standard milestones
+    for day_count, title in milestone_map.items():
+      check_and_add(day_count, title)
+
+    # Check periodic milestones > 365
+    if new_streak > 365 and (new_streak - 365) % 90 == 0:
+      # Dynamic title
+      years = new_streak // 365
+      months = (new_streak % 365) // 30
+      title = f"{new_streak} Day Streak"
+      check_and_add(new_streak, title)
+
+    if streak_updated or new_achievements:
+      update_data = {}
+      if streak_updated:
+        update_data["streak_count"] = new_streak
+        update_data["last_prayer_date"] = today_str
+      if new_achievements:
+        # Merge with existing
+        all_achievements = current_achievements + new_achievements
+        update_data["achievements"] = all_achievements
+
+      transaction.update(user_ref, update_data)
 
     return {
         "streak": new_streak,
         "milestone_reached": milestone_reached,
         "milestone_msg": milestone_msg,
-        "already_prayed": False
+        "already_prayed": False,
     }
 
   transaction = db.transaction()
   result = update_streak_in_transaction(transaction, user_ref)
-  
+
   if result:
-      return flask.jsonify(result)
+    return flask.jsonify(result)
   else:
-      return flask.jsonify({"error": "User not found"}), 404
+    return flask.jsonify({"error": "User not found"}), 404
+
+
+@app.route("/streaks")
+@flask_login.login_required
+def streaks_route():
+  """Renders the streaks and achievements page."""
+  user = flask_login.current_user
+
+  # Calculate next milestone
+  current_streak = user.streak_count
+  next_milestone = 7
+  milestones = [7, 30, 90, 180, 270, 365]
+
+  for m in milestones:
+    if current_streak < m:
+      next_milestone = m
+      break
+  if current_streak >= 365:
+    next_milestone = current_streak + (90 - ((current_streak - 365) % 90))
+
+  progress_percent = min(100, (current_streak / next_milestone) * 100)
+
+  # Determine if prayed today
+  timezone_str = user.timezone or "America/New_York"
+  try:
+    tz = pytz.timezone(timezone_str)
+  except pytz.UnknownTimeZoneError:
+    tz = pytz.timezone("America/New_York")
+
+  today_str = datetime.datetime.now(tz).strftime("%Y-%m-%d")
+  prayed_today = user.last_prayer_date == today_str
+
+  return flask.render_template(
+      "streaks.html",
+      current_streak=current_streak,
+      next_milestone=next_milestone,
+      progress_percent=progress_percent,
+      prayed_today=prayed_today,
+      achievements=user.achievements,
+  )
 
 
 @app.route("/twilio/sms_reply", methods=["POST"])

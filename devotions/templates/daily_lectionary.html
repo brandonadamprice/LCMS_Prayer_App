@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% import "_macros.html" as macros %}
+{% import "_macros.html" as macros with context %}
 
 {% block title %}Daily Lectionary{% endblock %}
 
@@ -21,6 +21,8 @@
         <span class="ref">{{ nt_ref }}</span>
         <p>{{ nt_text|safe }}</p>
     {% endcall %}
+
+    {{ macros.prayer_complete_button() }}
 
 {% endblock %}
 
