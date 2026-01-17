@@ -17,6 +17,23 @@
       body.dark-mode .card-header-custom {
         border-bottom-color: #555;
       }
+      .promo-box {
+          background-color: #f8f9fa;
+          padding: 20px;
+          border-radius: 8px;
+      }
+      body.dark-mode .promo-box {
+          background-color: #3a3a3a;
+          border: 1px solid #555;
+      }
+      .free-tag {
+          margin-top: 10px; 
+          color: #27ae60; 
+          font-weight: bold;
+      }
+      body.dark-mode .free-tag {
+          color: #2ecc71;
+      }
     </style>
 
     {% if not current_user.is_authenticated %}
@@ -24,16 +41,19 @@
         <h2>Personalize Your Prayer Life</h2>
         <div style="text-align: center; margin: 25px 0;">
             <a href="/login" class="button" style="background-color: #2980b9; font-size: 1.2em; padding: 15px 40px; display: inline-block;">Log In / Sign Up</a>
-            <p style="margin-top: 10px; color: #27ae60; font-weight: bold;">100% Free to Join!</p>
+            <p class="free-tag">100% Free to Join!</p>
         </div>
         
-        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px;">
+        <div class="promo-box">
             <p style="margin-top: 0; font-weight: bold; font-size: 1.1em; margin-bottom: 10px;">Create an account to:</p>
             <ul style="margin: 0; padding-left: 20px; line-height: 1.8;">
                 <li>🔥 <strong>Track Streaks</strong> and earn achievements</li>
                 <li>⭐ <strong>Save Favorites</strong> for quick access</li>
                 <li>📝 <strong>Manage Personal Prayers</strong> securely</li>
+                <li>🔔 <strong>Prayer Reminders</strong> to keep you consistent</li>
+                <li>🙏 <strong>Get Notified</strong> when someone prays for you</li>
                 <li>⚙️ <strong>Sync Settings</strong> (dark mode, fonts) across devices</li>
+                <li>🚀 <strong>More Features</strong> coming soon!</li>
             </ul>
         </div>
     </div>
