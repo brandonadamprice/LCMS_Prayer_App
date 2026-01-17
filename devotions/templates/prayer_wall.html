@@ -4,21 +4,54 @@
       <p style="font-style: italic; margin-top: 10px;">"Therefore take heed: our own self-assumed good works lead us to and into ourselves, that we seek only our own benefit and salvation; but God’s commandments drive us to our neighbor, that we may thereby benefit others to their salvation. Just as Christ on the Cross prayed not for Himself alone, but rather for us, when He said, 'Father, forgive them, for they know not what they do,' so we also must pray for one another." — Martin Luther</p>
     </div>
 
+    <style>
+      .action-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 20px;
+        align-items: center;
+      }
+      .action-buttons .button {
+        width: 100%;
+        box-sizing: border-box;
+        margin: 0;
+      }
+      .action-buttons .or-divider {
+        color: #7f8c8d;
+        font-weight: bold;
+        padding: 5px 0;
+      }
+      
+      @media (min-width: 600px) {
+        .action-buttons {
+          flex-direction: row;
+          justify-content: center;
+        }
+        .action-buttons .button {
+          width: auto;
+        }
+        .action-buttons .or-divider {
+          padding: 0 10px;
+        }
+      }
+    </style>
+
     <div class="card">
       <h2>Prayer Wall</h2>
-      <p>Below are a list of prayer requests, you can choose to pray for any or all of them.</p>
-      <p>Or submit a request of your own here: 
-      {% if current_user.is_authenticated %}
-        <a href="/prayer_requests" class="button" style="display: inline-block; padding: 5px 10px; font-size: 0.9em; margin: 0 0 0 5px; vertical-align: middle;">Submit a Prayer Request</a>
-      {% else %}
-        <span style="font-size: 0.9em; color: #666; font-style: italic; margin-left: 5px;">(You must be signed in to submit)</span>
-      {% endif %}
-      </p>
+      <p>Below is a list of prayer requests. You can choose to pray for any or all of them.</p>
+      
+      <div class="action-buttons">
+          {% if current_user.is_authenticated %}
+            <a href="/prayer_requests" class="button">Submit a Prayer Request</a>
+            
+            <span class="or-divider">OR</span>
 
-      <p style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #eee; font-size: 0.95em;">
-        Do you want to just include prayers in your private devotions? 
-        <a href="/my_prayers" class="button" style="display: inline-block; padding: 5px 10px; font-size: 0.9em; margin: 0 0 0 5px; vertical-align: middle;">Add to Personal Prayers</a>
-      </p>
+            <a href="/my_prayers" class="button" style="background-color: #27ae60;">Add to Personal Prayers</a>
+          {% else %}
+             <a href="/login" class="button" style="background-color: #95a5a6;">Log In to Submit Request</a>
+          {% endif %}
+      </div>
     </div>
 
     {% if not prayer_requests %}
