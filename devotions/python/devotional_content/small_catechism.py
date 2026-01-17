@@ -215,7 +215,10 @@ def inject_references(text):
         return ref_str
 
       scripture_text = ref_map[ref_str]
-      if "Reading not available" in scripture_text or "ESV API" in scripture_text:
+      if (
+          "Reading not available" in scripture_text
+          or "ESV API" in scripture_text
+      ):
         return ref_str
 
       escaped_text = scripture_text.replace('"', "&quot;")

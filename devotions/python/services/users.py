@@ -8,11 +8,72 @@ import uuid
 import communication
 import flask
 from google.cloud import firestore
+from itsdangerous import URLSafeTimedSerializer
 import models
 import pytz
 import utils
 
 logger = logging.getLogger(__name__)
+
+
+def get_user_by_email(email):
+  """Finds a user by email."""
+  db = utils.get_db_client()
+  users_ref = db.collection("users")
+  query = users_ref.where("email", "==", email).limit(1)
+  results = list(query.stream())
+  if results:
+    return models.User.get(results[0].id)
+  return None
+
+
+def get_reset_token(email):
+  """Generates a password reset token."""
+  serializer = URLSafeTimedSerializer(utils.secrets.get_flask_secret_key())
+  return serializer.dumps(email, salt="password-reset-salt")
+
+
+def verify_reset_token(token, expiration=3600):
+  """Verifies a password reset token."""
+  serializer = URLSafeTimedSerializer(utils.secrets.get_flask_secret_key())
+  try:
+    email = serializer.loads(
+        token, salt="password-reset-salt", max_age=expiration
+    )
+  except Exception:
+    return None
+  return email
+
+
+def send_password_reset_email(email, reset_link):
+  """Sends a password reset email."""
+  body = (
+      f"To reset your password, visit the following link: {reset_link}\n\n"
+      "If you did not make this request then simply ignore this email and no"
+      " changes will be made."
+  )
+  success = communication.send_email(
+      email, "Password Reset Request", body_text=body
+  )
+
+  if not success:
+    logger.warning("Email sending failed for password reset to %s", email)
+    logger.info("Reset Link: %s", reset_link)
+
+  return True
+
+
+def reset_password(email, new_password_hash):
+  """Resets the user's password."""
+  user = get_user_by_email(email)
+  if not user:
+    return False
+
+  db = utils.get_db_client()
+  db.collection("users").document(user.id).update(
+      {"password_hash": new_password_hash}
+  )
+  return True
 
 
 def validate_password(password):

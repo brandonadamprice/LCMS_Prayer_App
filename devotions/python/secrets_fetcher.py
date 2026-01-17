@@ -26,7 +26,7 @@ def _get_secret(secret_name, environment_variable, version=_SECRET_VERSION):
 
   if val:
     return val.strip()
-  
+
   print(f"Secret {secret_name} is missing or None.")
   return val
 

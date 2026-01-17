@@ -662,6 +662,70 @@ def email_login():
   return flask.redirect("/")
 
 
+@app.route("/forgot_password", methods=["GET", "POST"])
+def forgot_password_route():
+  """Handles forgotten password requests."""
+  if flask.request.method == "POST":
+    email = flask.request.form.get("email", "").strip().lower()
+    if not email:
+      flask.flash("Please enter an email address.", "error")
+      return flask.render_template("forgot_password.html")
+
+    user = users.get_user_by_email(email)
+    if user:
+      token = users.get_reset_token(email)
+      reset_link = flask.url_for(
+          "reset_password_route", token=token, _external=True
+      )
+      users.send_password_reset_email(email, reset_link)
+
+    flask.flash(
+        "If an account with that email exists, a password reset link has been"
+        " sent.",
+        "success",
+    )
+    return flask.redirect("/login")
+
+  return flask.render_template("forgot_password.html")
+
+
+@app.route("/reset_password/<token>", methods=["GET", "POST"])
+def reset_password_route(token):
+  """Handles password reset with token."""
+  email = users.verify_reset_token(token)
+  if not email:
+    flask.flash("The password reset link is invalid or has expired.", "error")
+    return flask.redirect("/forgot_password")
+
+  if flask.request.method == "POST":
+    password = flask.request.form.get("password")
+    confirm_password = flask.request.form.get("confirm_password")
+
+    if not password or not confirm_password:
+      flask.flash("Please fill out all fields.", "error")
+      return flask.render_template("reset_password.html")
+
+    if password != confirm_password:
+      flask.flash("Passwords do not match.", "error")
+      return flask.render_template("reset_password.html")
+
+    password_error = users.validate_password(password)
+    if password_error:
+      flask.flash(password_error, "error")
+      return flask.render_template("reset_password.html")
+
+    hashed_password = generate_password_hash(password)
+    if users.reset_password(email, hashed_password):
+      flask.flash(
+          "Your password has been updated! You can now log in.", "success"
+      )
+      return flask.redirect("/login")
+    else:
+      flask.flash("An error occurred. Please try again.", "error")
+
+  return flask.render_template("reset_password.html")
+
+
 @app.route("/login/merge")
 def merge_account_route():
   """Prompts user to merge accounts."""
