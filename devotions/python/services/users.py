@@ -33,7 +33,7 @@ def get_reset_token(email):
   return serializer.dumps(email, salt="password-reset-salt")
 
 
-def verify_reset_token(token, expiration=3600):
+def verify_reset_token(token, expiration=1800):
   """Verifies a password reset token."""
   serializer = URLSafeTimedSerializer(utils.secrets.get_flask_secret_key())
   try:
@@ -49,6 +49,7 @@ def send_password_reset_email(email, reset_link):
   """Sends a password reset email."""
   body = (
       f"To reset your password, visit the following link: {reset_link}\n\n"
+      "This link will expire in 30 minutes.\n\n"
       "If you did not make this request then simply ignore this email and no"
       " changes will be made."
   )
