@@ -646,7 +646,11 @@
           if(navigator.vibrate) navigator.vibrate([100, 50, 100]);
           
           // Store text for sharing
-          window.milestoneShareText = `I just reached a ${streak} day prayer streak on A Simple Way to Pray! 🔥 #Christianity #Prayer`;
+          if (message.includes("Daily Office")) {
+              window.milestoneShareText = "I just completed the Daily Office (Morning, Midday, Evening, and Close of Day Prayer) on A Simple Way to Pray! 📖 #Christianity #Prayer";
+          } else {
+              window.milestoneShareText = `I just reached a ${streak} day prayer streak on A Simple Way to Pray! 🔥 #Christianity #Prayer`;
+          }
       }
 
       function closeMilestoneModal() {
