@@ -105,7 +105,7 @@
         {{ macros.format_prayer(luthers_evening_prayer) }}
     {% endcall %}
 
-    {{ macros.prayer_complete_button() }}
+    {{ macros.prayer_complete_button('evening') }}
 
     {% call macros.card('Benediction') %}
         {{ macros.format_prayer(config['OTHER_PRAYERS']['nunc_dimittis']) }}

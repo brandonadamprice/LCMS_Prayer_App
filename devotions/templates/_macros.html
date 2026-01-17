@@ -43,16 +43,25 @@
 {% endif %}
 {% endmacro %}
 
-{% macro prayer_complete_button() %}
+{% macro prayer_complete_button(devotion_type) %}
 {% if current_user.is_authenticated %}
+{% set is_completed = current_user.completed_devotions and current_user.completed_devotions.get(devotion_type) and current_user.completed_devotions.get(devotion_type).startswith(today_ymd) %}
 <div style="text-align: center; margin-top: 30px; margin-bottom: 20px;">
-    <button id="btn-complete-prayer" class="button" onclick="markPrayerComplete()" style="background-color: #27ae60; font-size: 1.1em; padding: 12px 24px;">
+    {% if is_completed %}
+    <button class="button" disabled style="background-color: #95a5a6; cursor: not-allowed; font-size: 1.1em; padding: 12px 24px;">
+        <span style="margin-right: 8px;">✓</span> Completed
+    </button>
+    <p style="color: #7f8c8d; font-weight: bold; margin-top: 10px;">You have already completed this devotion today.</p>
+    {% else %}
+    <button id="btn-complete-prayer" class="button" onclick="markPrayerComplete('{{ devotion_type }}')" style="background-color: #27ae60; font-size: 1.1em; padding: 12px 24px;">
         <span style="margin-right: 8px;">🔥</span> Mark Prayer Complete
     </button>
     <p id="prayer-complete-msg" style="color: #27ae60; font-weight: bold; display: none; margin-top: 10px;">Prayer recorded!</p>
+    {% endif %}
 </div>
 <script>
-async function markPrayerComplete() {
+{% if not is_completed %}
+async function markPrayerComplete(devotionType) {
     const btn = document.getElementById('btn-complete-prayer');
     const msg = document.getElementById('prayer-complete-msg');
     
@@ -61,7 +70,8 @@ async function markPrayerComplete() {
     try {
         const response = await fetch('/api/complete_prayer', {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'}
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ devotion_type: devotionType })
         });
         const data = await response.json();
         
@@ -69,13 +79,21 @@ async function markPrayerComplete() {
             // Update UI
             if (msg) {
                 msg.style.display = 'block';
-                if (data.already_prayed) {
+                if (data.message) {
+                    msg.textContent = data.message;
+                } else if (data.already_prayed) {
                     msg.textContent = "You've already prayed today! Streak: " + data.streak;
                 } else {
                     msg.textContent = "Prayer recorded! Current Streak: " + data.streak + " days";
                 }
             }
-            if (btn) btn.style.display = 'none';
+            if (btn) {
+                // Change button to grayed out state immediately
+                btn.style.backgroundColor = "#95a5a6";
+                btn.style.cursor = "not-allowed";
+                btn.innerHTML = '<span style="margin-right: 8px;">✓</span> Completed';
+                // We keep it disabled as set above
+            }
             
             // Update nav counter if it exists
             const navStreak = document.getElementById('nav-streak-count');
@@ -92,6 +110,7 @@ async function markPrayerComplete() {
         alert("Failed to record prayer. Please check your connection.");
     }
 }
+{% endif %}
 
 function showMilestonePopup(message, streak) {
     // Create modal HTML dynamically if not present, or use a hidden one in base

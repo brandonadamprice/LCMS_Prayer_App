@@ -79,7 +79,7 @@
         {{ macros.format_prayer(concluding_prayer) }}
     {% endcall %}
 
-    {{ macros.prayer_complete_button() }}
+    {{ macros.prayer_complete_button('night_watch') }}
 
     {% call macros.card('Closing') %}
         {{ macros.format_prayer(config['OTHER_PRAYERS']['nunc_dimittis']) }}

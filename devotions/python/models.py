@@ -28,6 +28,7 @@ class User(flask_login.UserMixin):
       streak_count=0,
       last_prayer_date=None,
       achievements=None,
+      completed_devotions=None,
   ):
     self.id = user_id
     self.email = email
@@ -51,6 +52,7 @@ class User(flask_login.UserMixin):
     self.streak_count = streak_count
     self.last_prayer_date = last_prayer_date
     self.achievements = achievements or []
+    self.completed_devotions = completed_devotions or {}
 
   @staticmethod
   def get(user_id):
@@ -80,5 +82,6 @@ class User(flask_login.UserMixin):
           streak_count=data.get("streak_count", 0),
           last_prayer_date=data.get("last_prayer_date"),
           achievements=data.get("achievements", []),
+          completed_devotions=data.get("completed_devotions", {}),
       )
     return None

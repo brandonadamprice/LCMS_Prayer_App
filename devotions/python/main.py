@@ -129,8 +129,19 @@ def redirect_to_new_domain():
 @app.context_processor
 def inject_globals():
   """Injects global variables into all templates."""
-  eastern_timezone = pytz.timezone("America/New_York")
-  now = datetime.datetime.now(eastern_timezone)
+  timezone_str = "America/New_York"
+  if (
+      flask_login.current_user.is_authenticated
+      and flask_login.current_user.timezone
+  ):
+    timezone_str = flask_login.current_user.timezone
+
+  try:
+    tz = pytz.timezone(timezone_str)
+  except pytz.UnknownTimeZoneError:
+    tz = pytz.timezone("America/New_York")
+
+  now = datetime.datetime.now(tz)
   is_advent = now.month == 12 and 1 <= now.day <= 25
   is_new_year = (now.month == 12 and now.day == 31) or (
       now.month == 1 and now.day == 1
@@ -142,12 +153,14 @@ def inject_globals():
   is_lent = ash_wednesday <= now.date() <= easter_sunday
 
   app_menu = menu.get_menu_items(is_advent, is_new_year, is_lent)
+  today_ymd = now.strftime("%Y-%m-%d")
 
   return dict(
       is_advent=is_advent,
       is_new_year=is_new_year,
       is_lent=is_lent,
       app_menu=app_menu,
+      today_ymd=today_ymd,
   )
 
 
@@ -1708,6 +1721,8 @@ def art_recent_route():
 @flask_login.login_required
 def complete_prayer_route():
   """Marks a prayer as complete and updates the streak."""
+  data = flask.request.json
+  devotion_type = data.get("devotion_type", "unknown")
   user_id = flask_login.current_user.id
   timezone_str = flask_login.current_user.timezone or "America/New_York"
 
@@ -1720,6 +1735,7 @@ def complete_prayer_route():
   today_str = now.strftime(
       "%Y-%m-%d"
   )  # YYYY-MM-DD format for storage consistency
+  now_iso = now.isoformat()
 
   db = utils.get_db_client()
   user_ref = db.collection("users").document(user_id)
@@ -1734,6 +1750,7 @@ def complete_prayer_route():
     user_data = snapshot.to_dict()
     current_streak = user_data.get("streak_count", 0)
     current_achievements = user_data.get("achievements", [])
+    completed_devotions = user_data.get("completed_devotions", {})
     last_date_str = user_data.get(
         "last_prayer_date"
     )  # Expecting string YYYY-MM-DD
@@ -1749,17 +1766,36 @@ def complete_prayer_route():
 
     today_date = now.date()
 
+    # Update completed devotions for today
+    completed_devotions[devotion_type] = now_iso
+    
+    # Calculate how many distinct devotions done TODAY
+    devotions_today_count = 0
+    for dtype, ts_str in completed_devotions.items():
+        try:
+            # Handle ISO format
+            ts = datetime.datetime.fromisoformat(ts_str)
+            # Make timezone aware if naive (assuming it was stored from 'now' above)
+            if ts.tzinfo is None:
+                # If naive, assume user's timezone if possible, or just date match if string is enough
+                # But isoformat from aware datetime includes offset.
+                pass
+            
+            # Simple check: Does the date part match today_str?
+            # We can just compare the date strings
+            if ts_str.startswith(today_str):
+                devotions_today_count += 1
+        except ValueError:
+            pass
+
     new_streak = current_streak
     streak_updated = False
-
+    
+    # Only update streak if it hasn't been updated today
+    # But we ALWAYS update 'completed_devotions' and 'last_prayer_date'
     if last_date == today_date:
-      # Already prayed today
-      return {
-          "streak": current_streak,
-          "milestone_reached": False,
-          "already_prayed": True,
-      }
-
+      # Already prayed today, streak stays same
+      streak_updated = False # Streak count doesn't change
     elif last_date == today_date - datetime.timedelta(days=1):
       # Prayed yesterday, increment
       new_streak += 1
@@ -1768,7 +1804,7 @@ def complete_prayer_route():
       # Missed a day or more (or first time)
       new_streak = 1
       streak_updated = True
-
+    
     # Check for milestones/achievements
     milestone_reached = False
     milestone_msg = ""
@@ -1786,47 +1822,85 @@ def complete_prayer_route():
     # Helper to add achievement if not present
     def check_and_add(streak_val, title, icon="🔥"):
       nonlocal milestone_reached, milestone_msg
-      if streak_val <= new_streak:
-        # Create a slug/id for the achievement
-        ach_id = f"streak_{streak_val}"
-        # Check if user already has it
-        if not any(a["id"] == ach_id for a in current_achievements):
-          # New achievement!
-          new_achievements.append(
-              {"id": ach_id, "title": title, "date": today_str, "icon": icon}
-          )
-          # Only notify if it was just reached *now* (i.e. new_streak exactly matches)
-          if streak_val == new_streak:
-            milestone_reached = True
-            milestone_msg = f"Achievement Unlocked: {title}!"
+      # Create a slug/id for the achievement
+      ach_id = f"streak_{streak_val}"
+      # Check if user already has it
+      if not any(a["id"] == ach_id for a in current_achievements):
+        # New achievement!
+        new_achievements.append(
+            {"id": ach_id, "title": title, "date": today_str, "icon": icon}
+        )
+        milestone_reached = True
+        milestone_msg = f"Achievement Unlocked: {title}!"
 
     # Check standard milestones
     for day_count, (title, icon) in milestone_map.items():
-      check_and_add(day_count, title, icon)
+        if day_count <= new_streak:
+            check_and_add(day_count, title, icon)
 
     # Check periodic milestones > 365
     if new_streak > 365 and (new_streak - 365) % 90 == 0:
       # Dynamic title
       title = f"{new_streak} Day Streak"
-      check_and_add(new_streak, title, "👑")
+      # Only add if it's the exact day we crossed it
+      if streak_updated: # Wait, logic above was: if streak_val <= new_streak. 
+                         # We want to only trigger if we *just* reached it.
+                         # Since we only increment by 1, <= is effectively == if we haven't seen it before.
+        check_and_add(new_streak, title, "👑")
 
-    if streak_updated or new_achievements:
-      update_data = {}
-      if streak_updated:
+    # Check Daily Office Achievement
+    # Requirements: morning, midday, evening, close_of_day done TODAY
+    required_offices = ["morning", "midday", "evening", "close_of_day"]
+    daily_office_done = True
+    for office in required_offices:
+        ts_str = completed_devotions.get(office)
+        if not ts_str or not ts_str.startswith(today_str):
+            daily_office_done = False
+            break
+    
+    if daily_office_done:
+        ach_id = f"daily_office_{today_str}"
+        title = "Daily Office Completed"
+        if not any(a["id"] == ach_id for a in current_achievements):
+             new_achievements.append(
+                {"id": ach_id, "title": title, "date": today_str, "icon": "📖"}
+             )
+             # Priority to this msg if other milestones not reached, or append
+             if not milestone_reached:
+                 milestone_reached = True
+                 milestone_msg = "Achievement Unlocked: Daily Office!"
+
+    # Construct response message
+    response_msg = ""
+    if streak_updated:
+        response_msg = f"Prayer recorded! Current Streak: {new_streak} days"
+    else:
+        response_msg = f"You've already prayed today! Streak: {new_streak}"
+    
+    if devotions_today_count > 1:
+         response_msg += f". You have completed {devotions_today_count} devotions today!"
+
+    # Apply updates
+    update_data = {
+        "completed_devotions": completed_devotions,
+        "last_prayer_date": today_str # Always update last date to today
+    }
+    if streak_updated:
         update_data["streak_count"] = new_streak
-        update_data["last_prayer_date"] = today_str
-      if new_achievements:
-        # Merge with existing
+    
+    if new_achievements:
         all_achievements = current_achievements + new_achievements
         update_data["achievements"] = all_achievements
 
-      transaction.update(user_ref, update_data)
+    transaction.update(user_ref, update_data)
 
     return {
         "streak": new_streak,
         "milestone_reached": milestone_reached,
         "milestone_msg": milestone_msg,
-        "already_prayed": False,
+        "already_prayed": not streak_updated,
+        "devotions_today_count": devotions_today_count,
+        "message": response_msg
     }
 
   transaction = db.transaction()
@@ -1867,6 +1941,13 @@ def streaks_route():
 
   today_str = datetime.datetime.now(tz).strftime("%Y-%m-%d")
   prayed_today = user.last_prayer_date == today_str
+  
+  # Count devotions today
+  devotions_today_count = 0
+  if user.completed_devotions:
+      for ts_str in user.completed_devotions.values():
+          if ts_str.startswith(today_str):
+              devotions_today_count += 1
 
   # Determine recommended devotion
   now = datetime.datetime.now(tz)
@@ -1888,6 +1969,7 @@ def streaks_route():
       next_milestone=next_milestone,
       progress_percent=progress_percent,
       prayed_today=prayed_today,
+      devotions_today_count=devotions_today_count,
       achievements=user.achievements,
       recommended_devotion=recommended_devotion
   )

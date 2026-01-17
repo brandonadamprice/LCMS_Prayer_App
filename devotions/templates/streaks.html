@@ -16,6 +16,9 @@
         
         {% if prayed_today %}
             <p style="color: #27ae60; font-weight: bold;">You have prayed today! Keep it up!</p>
+            {% if devotions_today_count > 0 %}
+                <p style="color: #555; margin-top: 5px;">Devotions completed today: <strong>{{ devotions_today_count }}</strong></p>
+            {% endif %}
         {% else %}
             <p style="color: #e74c3c;">You haven't recorded a prayer yet today.</p>
             <p style="margin-bottom: 20px;">Keep your streak alive by praying <strong>{{ recommended_devotion.name }}</strong> now.</p>
