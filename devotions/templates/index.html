@@ -19,20 +19,38 @@
       }
     </style>
 
+    {% if not current_user.is_authenticated %}
+    <div class="card" style="border-left: 5px solid #2980b9;">
+        <h2>Personalize Your Prayer Life</h2>
+        <div style="text-align: center; margin: 25px 0;">
+            <a href="/login" class="button" style="background-color: #2980b9; font-size: 1.2em; padding: 15px 40px; display: inline-block;">Log In / Sign Up</a>
+            <p style="margin-top: 10px; color: #27ae60; font-weight: bold;">100% Free to Join!</p>
+        </div>
+        
+        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px;">
+            <p style="margin-top: 0; font-weight: bold; font-size: 1.1em; margin-bottom: 10px;">Create an account to:</p>
+            <ul style="margin: 0; padding-left: 20px; line-height: 1.8;">
+                <li>🔥 <strong>Track Streaks</strong> and earn achievements</li>
+                <li>⭐ <strong>Save Favorites</strong> for quick access</li>
+                <li>📝 <strong>Manage Personal Prayers</strong> securely</li>
+                <li>⚙️ <strong>Sync Settings</strong> (dark mode, fonts) across devices</li>
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if current_user.is_authenticated %}
     <div class="card">
       <h2>Favorites</h2>
-      {% if current_user.is_authenticated %}
         {% if current_user.favorites %}
           {% for fav in current_user.favorites %}
             <a href="{{ fav.path }}" class="button">{{ fav.title }}</a>
           {% endfor %}
         {% else %}
-          <p>Click the favorite button in a devotion to add it to your favorites.</p>
+          <p>Click the favorite button (⭐) in a devotion to add it to your favorites.</p>
         {% endif %}
-      {% else %}
-        <p><a href="/login">Sign in</a> or <a href="/register">register</a> to add to your favorites.</p>
-      {% endif %}
     </div>
+    {% endif %}
 
     <div class="card">
       <h2>Suggested Devotions</h2>
