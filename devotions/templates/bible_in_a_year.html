@@ -3,6 +3,28 @@
 
 {% block title %}Bible in a Year{% endblock %}
 
+{% block head %}
+<style>
+    .catch-up-box {
+        margin-top: 20px;
+        background-color: #e8f6f3;
+        border: 1px solid #27ae60;
+    }
+    body.dark-mode .catch-up-box {
+        background-color: #1b4d2e;
+        border-color: #2e7d32;
+        color: #e0e0e0;
+    }
+    .progress-label {
+        font-weight: bold;
+        color: #555;
+    }
+    body.dark-mode .progress-label {
+        color: #ccc;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
     <div class="page-header">
       <h1>Bible in a Year</h1>
@@ -38,7 +60,7 @@
     {% if current_user.is_authenticated %}
     <div class="card" style="text-align: center;">
         <div style="margin-bottom: 20px;">
-            <p style="font-weight: bold; color: #555;">Your Bible Reading Progress</p>
+            <p class="progress-label">Your Bible Reading Progress</p>
             <div style="background-color: #eee; border-radius: 10px; height: 20px; overflow: hidden; max-width: 400px; margin: 0 auto;">
                 <div id="progress-bar" style="background-color: #2980b9; width: 0%; height: 100%; transition: width 0.5s ease; text-align: center; color: white; font-size: 0.8em; line-height: 20px;">0%</div>
             </div>
@@ -52,7 +74,7 @@
         </button>
         <p id="completion-msg" style="color: #27ae60; font-weight: bold; display: none; margin-top: 10px;"></p>
         
-        <div id="catch-up-container" class="card" style="display:none; background-color: #e8f6f3; border-color: #27ae60; margin-top: 20px;">
+        <div id="catch-up-container" class="card catch-up-box" style="display:none;">
             <p style="margin-top: 0;"><strong>Catch Up Available</strong></p>
             <p id="catch-up-msg">It looks like you're on day {{ day_number|default(1) }}, but some of your older readings haven't been marked as completed. Would you like to mark them all as completed?</p>
             <button class="button" onclick="catchUpReadings()" style="background-color: #27ae60;">Mark All Previous As Completed</button>
