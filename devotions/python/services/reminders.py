@@ -380,9 +380,7 @@ def _send_email(user_data, devotion_url, devotion_key, reading_type):
       data = night_watch.get_night_watch_devotion_data(user_data.get("id"))
       template_name = "night_watch_devotion.html"
     elif devotion_key == "bible_in_a_year":
-      data = bible_in_a_year.get_bible_in_a_year_devotion_data(
-          user_data.get("id")
-      )
+      data = utils.get_bible_in_a_year_devotion_data(user_data.get("id"))
       template_name = "bible_in_a_year.html"
     elif devotion_key == "lent":
       data = lent.get_lent_devotion_data()

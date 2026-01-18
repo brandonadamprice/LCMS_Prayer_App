@@ -28,6 +28,7 @@ OTHER_PRAYERS_JSON_PATH = os.path.join(DATA_DIR, "other_prayers.json")
 INAPPROPRIATE_WORDS_CSV_PATH = os.path.join(DATA_DIR, "inappropriate_words.csv")
 MID_WEEK_READINGS_JSON_PATH = os.path.join(DATA_DIR, "mid_week_readings.json")
 LITURGICAL_YEAR_JSON_PATH = os.path.join(DATA_DIR, "liturgical_year.json")
+BIBLE_IN_A_YEAR_JSON_PATH = os.path.join(DATA_DIR, "bible_in_a_year.json")
 
 
 def get_db_client():
@@ -150,6 +151,12 @@ def load_mid_week_readings():
       if "church_season/day" in item:
         item["church_season_day"] = item.pop("church_season/day")
     return {"extended_mid_week_devotions": data}
+
+
+def load_bible_in_a_year_data():
+  """Loads Bible in a Year data from JSON file."""
+  with open(BIBLE_IN_A_YEAR_JSON_PATH, "r", encoding="utf-8") as f:
+    return json.load(f)
 
 
 CATECHISM_SECTIONS = load_catechism()
@@ -759,3 +766,140 @@ def get_mid_week_reading_for_date(now: datetime.datetime) -> Optional[dict]:
     if reading["week_number"] == week_num:
       return reading
   return None
+
+
+def save_bia_progress(user_id: str, day: int, last_visit_str: str):
+  """Saves Bible in a Year progress for a user."""
+  db = get_db_client()
+  user_ref = db.collection("users").document(user_id)
+  user_ref.set(
+      {"bia_progress": {"current_day": day, "last_visit_str": last_visit_str}},
+      merge=True,
+  )
+
+
+def get_bible_in_a_year_devotion_data(user_id=None):
+  """Generates data for the Bible in a Year devotion for email/reminders."""
+  eastern_timezone = pytz.timezone("America/New_York")
+  now = datetime.datetime.now(eastern_timezone)
+  bible_in_a_year_data = load_bible_in_a_year_data()
+
+  current_day = now.timetuple().tm_yday  # Default to day of year
+
+  if user_id:
+    db = get_db_client()
+    doc = db.collection("users").document(user_id).get()
+    if doc.exists:
+      bia_progress = doc.to_dict().get("bia_progress")
+      if bia_progress and "current_day" in bia_progress:
+        current_day = int(bia_progress["current_day"])
+
+  # Ensure day is within range 1-365
+  current_day = max(1, min(current_day, 365))
+
+  day_data = bible_in_a_year_data[current_day - 1]
+
+  ot_ref = day_data["Old Testament"]
+  nt_ref = day_data["New Testament"]
+  psp_ref = day_data["Psalms & Proverbs"]
+
+  try:
+    texts = fetch_passages([ot_ref, nt_ref, psp_ref])
+    ot_text = texts[0]
+    nt_text = texts[1]
+    psp_text = texts[2]
+  except Exception as e:
+    print(f"Error fetching passages for Bible in a Year: {e}")
+    ot_text = "Text not available"
+    nt_text = "Text not available"
+    psp_text = "Text not available"
+
+  return {
+      "date_str": now.strftime("%A, %B %d, %Y"),
+      "day_number": current_day,
+      "ot_ref": ot_ref,
+      "ot_text": ot_text,
+      "nt_ref": nt_ref,
+      "nt_text": nt_text,
+      "psp_ref": psp_ref,
+      "psp_text": psp_text,
+  }
+
+
+def get_office_devotion_data(user_id, office_name):
+  """Generates data for an office devotion (Morning, Evening, etc.)."""
+  eastern_timezone = pytz.timezone("America/New_York")
+  now = datetime.datetime.now(eastern_timezone)
+  cy = ChurchYear(now.year)
+  key = cy.get_liturgical_key(now)
+
+  readings_key = f"{office_name}_readings"
+  psalms_key = f"{office_name}_psalms"
+
+  reading_ref = get_deterministic_choice(OFFICE_READINGS[readings_key], now)
+  psalm_options = OFFICE_READINGS.get(psalms_key, [])
+  psalm_ref = get_deterministic_choice(psalm_options, now)
+
+  # Daily Lectionary
+  lectionary_data = load_lectionary(LECTIONARY_JSON_PATH)
+  l_readings = lectionary_data.get(
+      key, {"OT": "Reading not found", "NT": "Reading not found"}
+  )
+  daily_lectionary_readings = [
+      r
+      for r in [l_readings["OT"], l_readings["NT"]]
+      if r != "Reading not found"
+  ]
+
+  # Bible in a Year
+  bible_in_a_year_data = get_bible_in_a_year_devotion_data(user_id)
+
+  all_refs = [reading_ref, psalm_ref] + daily_lectionary_readings
+  all_texts = fetch_passages(all_refs)
+  reading_text = all_texts[0]
+  psalm_text = all_texts[1]
+  lectionary_texts = all_texts[2:]
+
+  # Base data
+  data = {
+      "date_str": now.strftime("%A, %B %d, %Y"),
+      "key": key,
+      "is_trinity_sunday": now.date() == cy.holy_trinity,
+      "daily_lectionary_readings": daily_lectionary_readings,
+      "lectionary_texts": lectionary_texts,
+      "bible_in_a_year_reading": bible_in_a_year_data,
+      "reading_ref": reading_ref,
+      "reading_options": OFFICE_READINGS[readings_key],
+      "reading_text": reading_text,
+      "psalm_ref": psalm_ref,
+      "psalm_options": psalm_options,
+      "psalm_text": psalm_text,
+  }
+
+  # Add Catechism if enabled and not Night Watch (which usually doesn't have it)
+  if office_name != "night_watch":
+    catechism_data = get_catechism_for_day(now, rotation="daily")
+    data.update(catechism_data)
+
+  # Add Concluding Prayer
+  concluding_prayer_key = f"{office_name}_prayers"
+  if concluding_prayer_key in OTHER_PRAYERS:
+    data["concluding_prayer"] = OTHER_PRAYERS[concluding_prayer_key]
+
+  # Add Personal Prayers if logged in
+  all_personal_prayers = get_all_personal_prayers_for_user(user_id)
+  data["all_personal_prayers"] = all_personal_prayers
+
+  # Specific prayers for certain offices
+  if office_name == "morning":
+    data["luthers_morning_prayer"] = OTHER_PRAYERS["luthers_morning_prayer"]
+  elif office_name == "close_of_day":
+    data["luthers_evening_prayer"] = OTHER_PRAYERS["luthers_evening_prayer"]
+    # Weekly prayer topic for Close of Day
+    weekly_prayer_data = get_weekly_prayer_for_day(now, user_id)
+    data.update(weekly_prayer_data)
+  elif office_name == "night_watch":
+    data["protection_prayer"] = OTHER_PRAYERS["night_watch_protection_prayers"]
+    data["concluding_prayer"] = OTHER_PRAYERS["night_watch_concluding_prayers"]
+
+  return data

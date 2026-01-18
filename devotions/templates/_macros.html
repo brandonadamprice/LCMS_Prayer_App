@@ -43,6 +43,172 @@
 {% endif %}
 {% endmacro %}
 
+{% macro reading_card(reading_ref, reading_text, reading_options, daily_lectionary_readings, lectionary_texts, bible_in_a_year_reading) %}
+    {% call card('Reading') %}
+        <div id="office-reading-container">
+            <span class="ref" id="ref-reading">{{ reading_ref }}</span>
+            <p id="text-reading">{{ reading_text|safe }}</p>
+            <button class="button picker-toggle-button" id="office-picker-btn" onclick="togglePicker(this, 'reading')">Select Reading</button>
+            <div id="picker-reading" class="item-picker">
+                {% for r in reading_options %}
+                <button class="button picker-select-button" onclick="selectRef('{{ r }}', 'reading')">{{ r }}</button>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div id="lectionary-reading-container" style="display: none;">
+            {% if daily_lectionary_readings %}
+                <p class="subheader"><strong>Old Testament Reading</strong></p>
+                <span class="ref">{{ daily_lectionary_readings[0] }}</span>
+                <p>{{ lectionary_texts[0]|safe }}</p>
+                {% if daily_lectionary_readings|length > 1 %}
+                    <hr>
+                    <p class="subheader"><strong>New Testament Reading</strong></p>
+                    <span class="ref">{{ daily_lectionary_readings[1] }}</span>
+                    <p>{{ lectionary_texts[1]|safe }}</p>
+                {% endif %}
+            {% else %}
+                <p><em>No Daily Lectionary readings available for today.</em></p>
+            {% endif %}
+        </div>
+
+        <div id="bible-year-reading-container" style="display: none;">
+            {% if bible_in_a_year_reading %}
+                <p class="subheader"><strong>Old Testament</strong></p>
+                <span class="ref">{{ bible_in_a_year_reading.ot_ref }}</span>
+                <p>{{ bible_in_a_year_reading.ot_text|safe }}</p>
+                <hr>
+                <p class="subheader"><strong>New Testament</strong></p>
+                <span class="ref">{{ bible_in_a_year_reading.nt_ref }}</span>
+                <p>{{ bible_in_a_year_reading.nt_text|safe }}</p>
+                <hr>
+                <p class="subheader"><strong>Psalms & Proverbs</strong></p>
+                <span class="ref">{{ bible_in_a_year_reading.psp_ref }}</span>
+                <p>{{ bible_in_a_year_reading.psp_text|safe }}</p>
+            {% else %}
+                 <p><em>Bible in a Year reading not available.</em></p>
+            {% endif %}
+        </div>
+
+        <div style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 10px;">
+            <label for="reading-mode-select" style="font-weight: bold; align-self: center;">Reading Plan:</label>
+            <select id="reading-mode-select" onchange="setReadingMode(this.value)" class="form-input" style="width: auto; padding: 5px;">
+                <option value="office">Office Reading (Rotating)</option>
+                <option value="lectionary">Daily Lectionary (Church Year)</option>
+                <option value="bible_year">Bible in a Year (Day {{ bible_in_a_year_reading.day_number }})</option>
+            </select>
+        </div>
+    {% endcall %}
+{% endmacro %}
+
+{% macro reading_mode_js(bible_year_day) %}
+    // Store current reading mode
+    let currentReadingMode = 'office';
+    const bibleYearDay = {{ bible_year_day|tojson }};
+
+    function setReadingMode(mode) {
+       const officeContainer = document.getElementById('office-reading-container');
+       const lectionaryContainer = document.getElementById('lectionary-reading-container');
+       const bibleYearContainer = document.getElementById('bible-year-reading-container');
+       const select = document.getElementById('reading-mode-select');
+       
+       // Close picker if open
+       const picker = document.getElementById('picker-reading');
+       const pickerBtn = document.getElementById('office-picker-btn');
+       if (picker && picker.classList.contains('visible')) {
+           togglePicker(pickerBtn, 'reading');
+       }
+
+       // Hide all first
+       if(officeContainer) officeContainer.style.display = 'none';
+       if(lectionaryContainer) lectionaryContainer.style.display = 'none';
+       if(bibleYearContainer) bibleYearContainer.style.display = 'none';
+
+       if (mode === 'office') {
+           if(officeContainer) officeContainer.style.display = 'block';
+           currentReadingMode = 'office';
+       } else if (mode === 'lectionary') {
+           if(lectionaryContainer) lectionaryContainer.style.display = 'block';
+           currentReadingMode = 'lectionary';
+       } else if (mode === 'bible_year') {
+           if(bibleYearContainer) bibleYearContainer.style.display = 'block';
+           currentReadingMode = 'bible_year';
+       }
+       
+       if (select) select.value = mode;
+    }
+    
+    // Override standard markPrayerComplete to include bible data
+    const originalMarkPrayerComplete = window.markPrayerComplete;
+    
+    window.markPrayerComplete = async function(devotionType) {
+        const btn = document.getElementById('btn-complete-prayer');
+        const msg = document.getElementById('prayer-complete-msg');
+        
+        if (btn) btn.disabled = true;
+        
+        const payload = { devotion_type: devotionType };
+        
+        // If current mode is Bible Year, add the day number
+        if (currentReadingMode === 'bible_year') {
+            payload.bible_year_day = bibleYearDay;
+        }
+        
+        try {
+            const response = await fetch('/api/complete_prayer', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            });
+            const data = await response.json();
+            
+            if (data.streak !== undefined) {
+                // Update UI
+                if (msg) {
+                    msg.style.display = 'block';
+                    if (data.message) {
+                        msg.textContent = data.message;
+                    } else if (data.already_prayed) {
+                        msg.textContent = "You've already prayed today! Streak: " + data.streak;
+                    } else {
+                        msg.textContent = "Prayer recorded! Current Streak: " + data.streak + " days";
+                    }
+                    
+                    if (data.bible_milestone_reached) {
+                        // Append bible milestone info
+                         msg.textContent += " (Bible Reading Recorded!)";
+                    }
+                }
+                if (btn) {
+                    btn.style.backgroundColor = "#95a5a6";
+                    btn.style.cursor = "not-allowed";
+                    btn.innerHTML = '<span style="margin-right: 8px;">✓</span> Completed';
+                }
+                
+                const navStreak = document.getElementById('nav-streak-count');
+                if (navStreak) navStreak.textContent = data.streak;
+                
+                if (data.milestone_reached) {
+                    showMilestonePopup(data.milestone_msg, data.streak);
+                }
+            }
+        } catch (e) {
+            console.error("Error marking prayer complete:", e);
+            if (btn) btn.disabled = false;
+            alert("Failed to record prayer. Please check your connection.");
+        }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('reading_type') === 'lectionary') {
+            setReadingMode('lectionary');
+        } else if (urlParams.get('reading_type') === 'bible_in_a_year') {
+            setReadingMode('bible_year');
+        }
+    });
+{% endmacro %}
+
 {% macro prayer_complete_button(devotion_type) %}
 {% if current_user.is_authenticated %}
 {% set is_completed = current_user.completed_devotions and current_user.completed_devotions.get(devotion_type) and current_user.completed_devotions.get(devotion_type).startswith(today_ymd) %}

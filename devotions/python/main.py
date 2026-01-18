@@ -1010,9 +1010,7 @@ def save_bia_progress_route():
   last_visit = data.get("last_visit")
   if isinstance(day, int) and last_visit:
     try:
-      bible_in_a_year.save_bia_progress(
-          flask_login.current_user.id, day, last_visit
-      )
+      utils.save_bia_progress(flask_login.current_user.id, day, last_visit)
       return flask.jsonify({"success": True})
     except Exception as e:
       app.logger.error("Failed to save BIA progress: %s", e)
