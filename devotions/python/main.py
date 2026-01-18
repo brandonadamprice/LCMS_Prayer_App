@@ -732,8 +732,10 @@ def complete_prayer_email_route(token):
   data = users.verify_completion_token(token)
   if not data:
     return (
-        "Invalid or expired token. You may have already completed this prayer"
-        " or waited too long.",
+        (
+            "Invalid or expired token. You may have already completed this"
+            " prayer or waited too long."
+        ),
         400,
     )
 
@@ -976,7 +978,7 @@ def bible_in_a_year_route():
   bia_progress = None
   completed_days = []
   bible_streak = 0
-  
+
   if flask_login.current_user.is_authenticated:
     db = utils.get_db_client()
     doc = db.collection("users").document(flask_login.current_user.id).get()
@@ -985,8 +987,10 @@ def bible_in_a_year_route():
       bia_progress = data.get("bia_progress")
       completed_days = data.get("completed_bible_days", [])
       bible_streak = data.get("bible_streak_count", 0)
-      
-  return bible_in_a_year.generate_bible_in_a_year_page(bia_progress, completed_days, bible_streak)
+
+  return bible_in_a_year.generate_bible_in_a_year_page(
+      bia_progress, completed_days, bible_streak
+  )
 
 
 @app.route("/daily_lectionary")
@@ -1717,16 +1721,16 @@ def complete_bible_reading_route():
   data = flask.request.json
   day = data.get("day")
   if not day:
-      return flask.jsonify({"error": "Missing day"}), 400
-  
+    return flask.jsonify({"error": "Missing day"}), 400
+
   user_id = flask_login.current_user.id
   timezone_str = flask_login.current_user.timezone or "America/New_York"
 
   result = users.process_bible_reading_completion(user_id, day, timezone_str)
   if result:
-      return flask.jsonify(result)
+    return flask.jsonify(result)
   else:
-      return flask.jsonify({"error": "Failed to update"}), 500
+    return flask.jsonify({"error": "Failed to update"}), 500
 
 
 @app.route("/api/catch_up_bible_readings", methods=["POST"])
@@ -1768,7 +1772,7 @@ def streaks_route():
   progress_percent = min(100, (current_streak / next_milestone) * 100)
 
   # Bible Streak Logic
-  bible_streak = getattr(user, 'bible_streak_count', 0)
+  bible_streak = getattr(user, "bible_streak_count", 0)
   bible_next_milestone = 7
   for m in milestones:
     if bible_streak < m:
@@ -1776,9 +1780,9 @@ def streaks_route():
       break
   if bible_streak >= 365:
     bible_next_milestone = bible_streak + (90 - ((bible_streak - 365) % 90))
-  
+
   bible_progress_percent = min(100, (bible_streak / bible_next_milestone) * 100)
-  
+
   # Determine if prayed today
   timezone_str = user.timezone or "America/New_York"
   try:
@@ -1788,7 +1792,7 @@ def streaks_route():
 
   today_str = datetime.datetime.now(tz).strftime("%Y-%m-%d")
   prayed_today = user.last_prayer_date == today_str
-  
+
   # Determine if read bible today
   read_bible_today = user.last_bible_reading_date == today_str
 
@@ -1837,7 +1841,7 @@ def streaks_route():
       bible_streak=bible_streak,
       read_bible_today=read_bible_today,
       bible_next_milestone=bible_next_milestone,
-      bible_progress_percent=bible_progress_percent
+      bible_progress_percent=bible_progress_percent,
   )
 
 
