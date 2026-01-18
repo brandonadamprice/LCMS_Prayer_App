@@ -425,3 +425,196 @@ def process_prayer_completion(user_id, devotion_type, timezone_str):
 
   transaction = db.transaction()
   return update_streak_in_transaction(transaction, user_ref)
+
+
+def process_bible_reading_completion(user_id, day_number, timezone_str):
+  """Marks a Bible reading as complete and updates the Bible streak."""
+  try:
+    tz = pytz.timezone(timezone_str)
+  except pytz.UnknownTimeZoneError:
+    tz = pytz.timezone("America/New_York")
+
+  now = datetime.datetime.now(tz)
+  today_str = now.strftime("%Y-%m-%d")
+  
+  db = utils.get_db_client()
+  user_ref = db.collection("users").document(user_id)
+
+  @firestore.transactional
+  def update_bible_streak_in_transaction(transaction, user_ref):
+    snapshot = next(transaction.get(user_ref))
+    if not snapshot.exists:
+      return None
+
+    user_data = snapshot.to_dict()
+    current_bible_streak = user_data.get("bible_streak_count", 0)
+    current_achievements = user_data.get("achievements", [])
+    completed_bible_days = user_data.get("completed_bible_days", [])
+    last_bible_date_str = user_data.get("last_bible_reading_date")
+
+    # Update completed days
+    if day_number not in completed_bible_days:
+      completed_bible_days.append(day_number)
+      completed_bible_days.sort()
+
+    last_bible_date = None
+    if last_bible_date_str:
+      try:
+        last_bible_date = datetime.datetime.strptime(
+            last_bible_date_str, "%Y-%m-%d"
+        ).date()
+      except ValueError:
+        pass
+
+    today_date = now.date()
+    new_bible_streak = current_bible_streak
+    streak_updated = False
+
+    if last_bible_date == today_date:
+      streak_updated = False
+    elif last_bible_date == today_date - datetime.timedelta(days=1):
+      new_bible_streak += 1
+      streak_updated = True
+    else:
+      new_bible_streak = 1
+      streak_updated = True
+
+    # Achievements
+    new_achievements = []
+    milestone_reached = False
+    milestone_msg = ""
+
+    # Helper to add achievement
+    def check_and_add(ach_id, title, icon):
+      nonlocal milestone_reached, milestone_msg
+      if not any(a["id"] == ach_id for a in current_achievements):
+        new_achievements.append({
+            "id": ach_id,
+            "title": title,
+            "date": today_str,
+            "icon": icon,
+        })
+        milestone_reached = True
+        milestone_msg = f"Achievement Unlocked: {title}!"
+
+    # Streak Milestones
+    streak_milestones = {
+        7: ("1 Week Bible Streak", "📚"),
+        30: ("1 Month Bible Streak", "🕯️"),
+        90: ("3 Months Bible Streak", "📜"),
+        180: ("6 Months Bible Streak", "🏛️"),
+        365: ("1 Year Bible Streak", "⛪"),
+    }
+
+    for days, (title, icon) in streak_milestones.items():
+      if days <= new_bible_streak:
+        check_and_add(f"bible_streak_{days}", title, icon)
+
+    # Progress Milestones (Total 365 days)
+    total_completed = len(completed_bible_days)
+    progress_pct = (total_completed / 365) * 100
+
+    if progress_pct >= 25:
+      check_and_add("bible_25_percent", "25% Bible Completed", "🌱")
+    if progress_pct >= 50:
+      check_and_add("bible_50_percent", "50% Bible Completed", "🌿")
+    if progress_pct >= 75:
+      check_and_add("bible_75_percent", "75% Bible Completed", "🌳")
+    if total_completed >= 365:
+      check_and_add("bible_100_percent", "Bible in a Year Completed", "👑")
+
+    # Update Data
+    update_data = {
+        "completed_bible_days": completed_bible_days,
+        "last_bible_reading_date": today_str,
+        "bia_progress": { # Sync with old tracking for continuity
+            "current_day": day_number,
+            "last_visit_str": today_str
+        }
+    }
+    if streak_updated:
+      update_data["bible_streak_count"] = new_bible_streak
+    
+    if new_achievements:
+      update_data["achievements"] = current_achievements + new_achievements
+
+    transaction.update(user_ref, update_data)
+
+    return {
+        "bible_streak": new_bible_streak,
+        "total_completed": total_completed,
+        "milestone_reached": milestone_reached,
+        "milestone_msg": milestone_msg,
+        "progress_pct": progress_pct
+    }
+
+  transaction = db.transaction()
+  return update_bible_streak_in_transaction(transaction, user_ref)
+
+
+def mark_bible_days_completed(user_id, days):
+  """Marks specific Bible days as completed in bulk."""
+  db = utils.get_db_client()
+  user_ref = db.collection("users").document(user_id)
+
+  @firestore.transactional
+  def update_bulk_transaction(transaction, user_ref):
+    snapshot = next(transaction.get(user_ref))
+    if not snapshot.exists:
+      return None
+
+    user_data = snapshot.to_dict()
+    completed_bible_days = user_data.get("completed_bible_days", [])
+    current_achievements = user_data.get("achievements", [])
+
+    # Add new days
+    updated = False
+    for day in days:
+      if day not in completed_bible_days:
+        completed_bible_days.append(day)
+        updated = True
+
+    if not updated:
+      return {"message": "No new days to mark."}
+
+    completed_bible_days.sort()
+
+    # Check Progress Milestones (Total 365 days)
+    new_achievements = []
+    # Use timezone aware now if possible, or just UTC for achievements date
+    today_str = datetime.datetime.now().strftime("%Y-%m-%d")
+
+    def check_and_add(ach_id, title, icon):
+      if not any(a["id"] == ach_id for a in current_achievements):
+        new_achievements.append({
+            "id": ach_id,
+            "title": title,
+            "date": today_str,
+            "icon": icon,
+        })
+
+    total_completed = len(completed_bible_days)
+    progress_pct = (total_completed / 365) * 100
+
+    if progress_pct >= 25:
+      check_and_add("bible_25_percent", "25% Bible Completed", "🌱")
+    if progress_pct >= 50:
+      check_and_add("bible_50_percent", "50% Bible Completed", "🌿")
+    if progress_pct >= 75:
+      check_and_add("bible_75_percent", "75% Bible Completed", "🌳")
+    if total_completed >= 365:
+      check_and_add("bible_100_percent", "Bible in a Year Completed", "👑")
+
+    update_data = {"completed_bible_days": completed_bible_days}
+    if new_achievements:
+      update_data["achievements"] = current_achievements + new_achievements
+
+    transaction.update(user_ref, update_data)
+    return {
+        "success": True,
+        "total_completed": total_completed,
+        "new_achievements": len(new_achievements),
+    }
+
+  transaction = db.transaction()
+  return update_bulk_transaction(transaction, user_ref)

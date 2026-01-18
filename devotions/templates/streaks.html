@@ -38,6 +38,24 @@
 </div>
 
 <div class="card">
+    <div style="text-align: center; margin-bottom: 30px;">
+        <div style="font-size: 4em; margin-bottom: 10px;">
+            {% if read_bible_today %}📖{% else %}📕{% endif %}
+        </div>
+        <h2 style="border-bottom: none; font-size: 2.5em; margin: 0; color: #27ae60;">{{ bible_streak }} Days</h2>
+        <p style="color: #7f8c8d; margin-top: 5px;">Bible Reading Streak</p>
+
+        {% if read_bible_today %}
+            <p style="color: #27ae60; font-weight: bold;">You have read the Bible today! Excellent!</p>
+        {% else %}
+            <p style="color: #e74c3c;">You haven't marked your reading complete today.</p>
+            <p style="margin-bottom: 20px;">Continue your journey through the Word.</p>
+            <a href="/bible_in_a_year" class="button" style="background-color: #2980b9;">Go to Bible Reading</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card">
     <h2>Achievements</h2>
     {% if achievements %}
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin-top: 20px;">

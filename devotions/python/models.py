@@ -29,6 +29,9 @@ class User(flask_login.UserMixin):
       last_prayer_date=None,
       achievements=None,
       completed_devotions=None,
+      bible_streak_count=0,
+      last_bible_reading_date=None,
+      completed_bible_days=None,
   ):
     self.id = user_id
     self.email = email
@@ -53,6 +56,9 @@ class User(flask_login.UserMixin):
     self.last_prayer_date = last_prayer_date
     self.achievements = achievements or []
     self.completed_devotions = completed_devotions or {}
+    self.bible_streak_count = bible_streak_count
+    self.last_bible_reading_date = last_bible_reading_date
+    self.completed_bible_days = completed_bible_days or []
 
   @staticmethod
   def get(user_id):
@@ -83,5 +89,8 @@ class User(flask_login.UserMixin):
           last_prayer_date=data.get("last_prayer_date"),
           achievements=data.get("achievements", []),
           completed_devotions=data.get("completed_devotions", {}),
+          bible_streak_count=data.get("bible_streak_count", 0),
+          last_bible_reading_date=data.get("last_bible_reading_date"),
+          completed_bible_days=data.get("completed_bible_days", []),
       )
     return None

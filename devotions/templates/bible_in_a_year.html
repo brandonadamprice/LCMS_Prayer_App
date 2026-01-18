@@ -34,12 +34,44 @@
         <span class="ref" id="psp-ref">{{ psp_ref }}</span>
         <p id="psp-text">{% if psp_text %}{{ psp_text|safe }}{% else %}<em>Loading...</em>{% endif %}</p>
     {% endcall %}
+    
+    {% if current_user.is_authenticated %}
+    <div class="card" style="text-align: center;">
+        <div style="margin-bottom: 20px;">
+            <p style="font-weight: bold; color: #555;">Your Bible Reading Progress</p>
+            <div style="background-color: #eee; border-radius: 10px; height: 20px; overflow: hidden; max-width: 400px; margin: 0 auto;">
+                <div id="progress-bar" style="background-color: #2980b9; width: 0%; height: 100%; transition: width 0.5s ease; text-align: center; color: white; font-size: 0.8em; line-height: 20px;">0%</div>
+            </div>
+            <p style="font-size: 0.9em; color: #7f8c8d; margin-top: 5px;">
+                Bible Streak: <strong id="bible-streak-display" style="color: #e67e22;">{{ bible_streak }}</strong> Days
+            </p>
+        </div>
+
+        <button id="btn-mark-complete" class="button" onclick="markReadingComplete()" style="background-color: #27ae60; font-size: 1.1em; padding: 12px 24px;">
+             Mark Reading as Complete
+        </button>
+        <p id="completion-msg" style="color: #27ae60; font-weight: bold; display: none; margin-top: 10px;"></p>
+        
+        <div id="catch-up-container" class="card" style="display:none; background-color: #e8f6f3; border-color: #27ae60; margin-top: 20px;">
+            <p style="margin-top: 0;"><strong>Catch Up Available</strong></p>
+            <p id="catch-up-msg">It looks like you're on day {{ day_number|default(1) }}, but some of your older readings haven't been marked as completed. Would you like to mark them all as completed?</p>
+            <button class="button" onclick="catchUpReadings()" style="background-color: #27ae60;">Mark All Previous As Completed</button>
+            <button class="button" onclick="dismissCatchUp()" style="background-color: #7f8c8d; margin-left: 10px;">Dismiss</button>
+        </div>
+    </div>
+    {% else %}
+    <div class="card" style="text-align: center;">
+        <p>Log in to track your Bible reading progress and streaks!</p>
+        <a href="/login" class="button">Log In</a>
+    </div>
+    {% endif %}
 
 {% endblock %}
 
 {% block extra_js %}
 window.suppressDefaultArt = true;
 const schedule = JSON.parse('{{ schedule|safe }}');
+const completedDays = JSON.parse('{{ completed_days|safe }}');
 const dayDisplay = document.getElementById('day-display');
 const daySelect = document.getElementById('day-select');
 const otRef = document.getElementById('ot-ref');
@@ -89,9 +121,178 @@ function loadReadingsForDay(day) {
     fetchPassage(dayData["Psalms & Proverbs"], pspText);
 
     saveProgress(day);
+    updateCompletionUI();
 
     // Fetch background art based on NT reading
     fetchArt(dayData["New Testament"]);
+}
+
+function updateCompletionUI() {
+    if (!isAuthenticated) return;
+    
+    const btn = document.getElementById('btn-mark-complete');
+    const msg = document.getElementById('completion-msg');
+    const progressBar = document.getElementById('progress-bar');
+    
+    // Update Progress Bar
+    const totalDays = 365;
+    const completedCount = completedDays.length;
+    const pct = Math.round((completedCount / totalDays) * 100);
+    if(progressBar) {
+        progressBar.style.width = pct + '%';
+        progressBar.textContent = pct + '%';
+    }
+
+    // Update Button State
+    if (completedDays.includes(currentDay)) {
+        if(btn) {
+            btn.innerHTML = '<span style="margin-right: 8px;">✓</span> Completed';
+            btn.style.backgroundColor = "#95a5a6";
+            btn.disabled = true;
+            btn.style.cursor = "not-allowed";
+        }
+        if(msg) msg.style.display = 'none';
+    } else {
+        if(btn) {
+            btn.innerHTML = 'Mark Reading as Complete';
+            btn.style.backgroundColor = "#27ae60";
+            btn.disabled = false;
+            btn.style.cursor = "pointer";
+        }
+        if(msg) msg.style.display = 'none';
+    }
+    
+    checkCatchUp();
+}
+
+function checkCatchUp() {
+    if (!isAuthenticated) return;
+    const container = document.getElementById('catch-up-container');
+    if (!container) return;
+    
+    if (localStorage.getItem('catchUpDismissed') === 'true') {
+        container.style.display = 'none';
+        return;
+    }
+
+    if (currentDay > 1) {
+        let missing = false;
+        for (let i = 1; i < currentDay; i++) {
+            if (!completedDays.includes(i)) {
+                missing = true;
+                break;
+            }
+        }
+        if (missing) {
+             const txt = document.getElementById('catch-up-msg');
+             if(txt) txt.textContent = `It looks like you're on day ${currentDay}, but some of your older readings haven't been marked as completed. Would you like to mark them all as completed?`;
+             container.style.display = 'block';
+        } else {
+             container.style.display = 'none';
+        }
+    } else {
+        container.style.display = 'none';
+    }
+}
+
+async function catchUpReadings() {
+    if (!confirm("Are you sure you want to mark all previous days as completed?")) return;
+    
+    const missingDays = [];
+    for (let i = 1; i < currentDay; i++) {
+        if (!completedDays.includes(i)) {
+            missingDays.push(i);
+        }
+    }
+    
+    if (missingDays.length === 0) return;
+
+    try {
+        const response = await fetch('/api/catch_up_bible_readings', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ days: missingDays })
+        });
+        const result = await response.json();
+        
+        if (result.success) {
+            missingDays.forEach(d => {
+                if(!completedDays.includes(d)) completedDays.push(d);
+            });
+            completedDays.sort((a,b) => a-b);
+            
+            updateCompletionUI();
+            
+            if (result.new_achievements > 0) {
+                 if (window.triggerMilestoneModal) {
+                     window.triggerMilestoneModal("You've unlocked new Bible reading achievements!", "N/A");
+                } else {
+                     alert("You've unlocked new Bible reading achievements!");
+                }
+            } else {
+                alert("Readings updated successfully!");
+            }
+        } else {
+            alert("Error: " + (result.error || "Unknown error"));
+        }
+    } catch(e) {
+        console.error(e);
+        alert("Failed to update readings.");
+    }
+}
+
+function dismissCatchUp() {
+    const container = document.getElementById('catch-up-container');
+    if(container) container.style.display = 'none';
+    localStorage.setItem('catchUpDismissed', 'true');
+}
+
+async function markReadingComplete() {
+    const btn = document.getElementById('btn-mark-complete');
+    const msg = document.getElementById('completion-msg');
+    const streakDisplay = document.getElementById('bible-streak-display');
+    
+    if(btn) btn.disabled = true;
+    
+    try {
+        const response = await fetch('/api/complete_bible_reading', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ day: currentDay })
+        });
+        const result = await response.json();
+        
+        if (result.bible_streak !== undefined) {
+            // Update local state
+            if (!completedDays.includes(currentDay)) {
+                completedDays.push(currentDay);
+            }
+            
+            updateCompletionUI();
+            
+            if(streakDisplay) streakDisplay.textContent = result.bible_streak;
+            
+            if(msg) {
+                msg.style.display = 'block';
+                msg.textContent = "Reading recorded!";
+            }
+            
+            if (result.milestone_reached) {
+                if (window.triggerMilestoneModal) {
+                     window.triggerMilestoneModal(result.milestone_msg, result.bible_streak);
+                } else {
+                     alert(result.milestone_msg);
+                }
+            }
+        } else {
+            alert("Error: " + (result.error || "Unknown error"));
+            if(btn) btn.disabled = false;
+        }
+    } catch(e) {
+        console.error(e);
+        alert("Failed to mark complete.");
+        if(btn) btn.disabled = false;
+    }
 }
 
 async function fetchArt(ref) {

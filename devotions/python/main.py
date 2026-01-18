@@ -974,12 +974,19 @@ def liturgical_calendar_route():
 def bible_in_a_year_route():
   """Returns Bible in a Year page."""
   bia_progress = None
+  completed_days = []
+  bible_streak = 0
+  
   if flask_login.current_user.is_authenticated:
     db = utils.get_db_client()
     doc = db.collection("users").document(flask_login.current_user.id).get()
     if doc.exists:
-      bia_progress = doc.to_dict().get("bia_progress")
-  return bible_in_a_year.generate_bible_in_a_year_page(bia_progress)
+      data = doc.to_dict()
+      bia_progress = data.get("bia_progress")
+      completed_days = data.get("completed_bible_days", [])
+      bible_streak = data.get("bible_streak_count", 0)
+      
+  return bible_in_a_year.generate_bible_in_a_year_page(bia_progress, completed_days, bible_streak)
 
 
 @app.route("/daily_lectionary")
@@ -1703,13 +1710,50 @@ def complete_prayer_route():
     return flask.jsonify({"error": "User not found"}), 404
 
 
+@app.route("/api/complete_bible_reading", methods=["POST"])
+@flask_login.login_required
+def complete_bible_reading_route():
+  """Marks a Bible reading as complete."""
+  data = flask.request.json
+  day = data.get("day")
+  if not day:
+      return flask.jsonify({"error": "Missing day"}), 400
+  
+  user_id = flask_login.current_user.id
+  timezone_str = flask_login.current_user.timezone or "America/New_York"
+
+  result = users.process_bible_reading_completion(user_id, day, timezone_str)
+  if result:
+      return flask.jsonify(result)
+  else:
+      return flask.jsonify({"error": "Failed to update"}), 500
+
+
+@app.route("/api/catch_up_bible_readings", methods=["POST"])
+@flask_login.login_required
+def catch_up_bible_readings_route():
+  """Marks multiple Bible readings as complete."""
+  data = flask.request.json
+  days = data.get("days")
+  if not days or not isinstance(days, list):
+    return flask.jsonify({"error": "Invalid days list"}), 400
+
+  user_id = flask_login.current_user.id
+  result = users.mark_bible_days_completed(user_id, days)
+
+  if result:
+    return flask.jsonify(result)
+  else:
+    return flask.jsonify({"error": "Failed to update"}), 500
+
+
 @app.route("/streaks")
 @flask_login.login_required
 def streaks_route():
   """Renders the streaks and achievements page."""
   user = flask_login.current_user
 
-  # Calculate next milestone
+  # Prayer Streak Logic
   current_streak = user.streak_count
   next_milestone = 7
   milestones = [7, 30, 90, 180, 270, 365]
@@ -1723,6 +1767,9 @@ def streaks_route():
 
   progress_percent = min(100, (current_streak / next_milestone) * 100)
 
+  # Bible Streak Logic
+  bible_streak = getattr(user, 'bible_streak_count', 0)
+  
   # Determine if prayed today
   timezone_str = user.timezone or "America/New_York"
   try:
@@ -1732,6 +1779,9 @@ def streaks_route():
 
   today_str = datetime.datetime.now(tz).strftime("%Y-%m-%d")
   prayed_today = user.last_prayer_date == today_str
+  
+  # Determine if read bible today
+  read_bible_today = user.last_bible_reading_date == today_str
 
   # Count devotions today
   devotions_today_count = 0
@@ -1775,6 +1825,8 @@ def streaks_route():
       devotions_today_count=devotions_today_count,
       achievements=user.achievements,
       recommended_devotion=recommended_devotion,
+      bible_streak=bible_streak,
+      read_bible_today=read_bible_today
   )
 
 
