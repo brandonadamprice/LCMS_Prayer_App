@@ -79,8 +79,31 @@
             {% endif %}
         </div>
 
-        <div style="margin-top: 10px;">
-            <button id="btn-toggle-lectionary" class="button" onclick="toggleLectionaryReadings()" style="background-color: #2980b9;">Switch to Daily Lectionary</button>
+        <div id="bible-year-reading-container" style="display: none;">
+            {% if bible_in_a_year_reading %}
+                <p class="subheader"><strong>Old Testament</strong></p>
+                <span class="ref">{{ bible_in_a_year_reading.ot_ref }}</span>
+                <p>{{ bible_in_a_year_reading.ot_text|safe }}</p>
+                <hr>
+                <p class="subheader"><strong>New Testament</strong></p>
+                <span class="ref">{{ bible_in_a_year_reading.nt_ref }}</span>
+                <p>{{ bible_in_a_year_reading.nt_text|safe }}</p>
+                <hr>
+                <p class="subheader"><strong>Psalms & Proverbs</strong></p>
+                <span class="ref">{{ bible_in_a_year_reading.psp_ref }}</span>
+                <p>{{ bible_in_a_year_reading.psp_text|safe }}</p>
+            {% else %}
+                 <p><em>Bible in a Year reading not available.</em></p>
+            {% endif %}
+        </div>
+
+        <div style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 10px;">
+            <label for="reading-mode-select" style="font-weight: bold; align-self: center;">Reading Plan:</label>
+            <select id="reading-mode-select" onchange="setReadingMode(this.value)" class="form-input" style="width: auto; padding: 5px;">
+                <option value="office">Office Reading (Rotating)</option>
+                <option value="lectionary">Daily Lectionary (Church Year)</option>
+                <option value="bible_year">Bible in a Year (Day {{ bible_in_a_year_reading.day_number }})</option>
+            </select>
         </div>
     {% endcall %}
 
@@ -145,41 +168,111 @@
 
 {% block extra_js %}
     window.suppressDefaultArt = true;
-    let isLectionaryMode = false;
+    
+    // Store current reading mode
+    let currentReadingMode = 'office';
+    const bibleYearDay = {{ bible_in_a_year_reading.day_number|tojson }};
+
+    function setReadingMode(mode) {
+       const officeContainer = document.getElementById('office-reading-container');
+       const lectionaryContainer = document.getElementById('lectionary-reading-container');
+       const bibleYearContainer = document.getElementById('bible-year-reading-container');
+       const select = document.getElementById('reading-mode-select');
+       
+       // Close picker if open
+       const picker = document.getElementById('picker-reading');
+       const pickerBtn = document.getElementById('office-picker-btn');
+       if (picker && picker.classList.contains('visible')) {
+           togglePicker(pickerBtn, 'reading');
+       }
+
+       // Hide all first
+       if(officeContainer) officeContainer.style.display = 'none';
+       if(lectionaryContainer) lectionaryContainer.style.display = 'none';
+       if(bibleYearContainer) bibleYearContainer.style.display = 'none';
+
+       if (mode === 'office') {
+           if(officeContainer) officeContainer.style.display = 'block';
+           currentReadingMode = 'office';
+       } else if (mode === 'lectionary') {
+           if(lectionaryContainer) lectionaryContainer.style.display = 'block';
+           currentReadingMode = 'lectionary';
+       } else if (mode === 'bible_year') {
+           if(bibleYearContainer) bibleYearContainer.style.display = 'block';
+           currentReadingMode = 'bible_year';
+       }
+       
+       if (select) select.value = mode;
+    }
+    
+    const originalMarkPrayerComplete = window.markPrayerComplete;
+    
+    window.markPrayerComplete = async function(devotionType) {
+        const btn = document.getElementById('btn-complete-prayer');
+        const msg = document.getElementById('prayer-complete-msg');
+        
+        if (btn) btn.disabled = true;
+        
+        const payload = { devotion_type: devotionType };
+        
+        // If current mode is Bible Year, add the day number
+        if (currentReadingMode === 'bible_year') {
+            payload.bible_year_day = bibleYearDay;
+        }
+        
+        try {
+            const response = await fetch('/api/complete_prayer', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            });
+            const data = await response.json();
+            
+            if (data.streak !== undefined) {
+                // Update UI
+                if (msg) {
+                    msg.style.display = 'block';
+                    if (data.message) {
+                        msg.textContent = data.message;
+                    } else if (data.already_prayed) {
+                        msg.textContent = "You've already prayed today! Streak: " + data.streak;
+                    } else {
+                        msg.textContent = "Prayer recorded! Current Streak: " + data.streak + " days";
+                    }
+                    
+                    if (data.bible_milestone_reached) {
+                        // Append bible milestone info
+                         msg.textContent += " (Bible Reading Recorded!)";
+                    }
+                }
+                if (btn) {
+                    btn.style.backgroundColor = "#95a5a6";
+                    btn.style.cursor = "not-allowed";
+                    btn.innerHTML = '<span style="margin-right: 8px;">✓</span> Completed';
+                }
+                
+                const navStreak = document.getElementById('nav-streak-count');
+                if (navStreak) navStreak.textContent = data.streak;
+                
+                if (data.milestone_reached) {
+                    showMilestonePopup(data.milestone_msg, data.streak);
+                }
+            }
+        } catch (e) {
+            console.error("Error marking prayer complete:", e);
+            if (btn) btn.disabled = false;
+            alert("Failed to record prayer. Please check your connection.");
+        }
+    };
 
     document.addEventListener('DOMContentLoaded', () => {
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('reading_type') === 'lectionary') {
-            toggleLectionaryReadings();
+            setReadingMode('lectionary');
+        } else if (urlParams.get('reading_type') === 'bible_in_a_year') {
+            setReadingMode('bible_year');
         }
     });
-
-    function toggleLectionaryReadings() {
-       const btn = document.getElementById('btn-toggle-lectionary');
-       const officeContainer = document.getElementById('office-reading-container');
-       const lectionaryContainer = document.getElementById('lectionary-reading-container');
-       const picker = document.getElementById('picker-reading');
-       const pickerBtn = document.getElementById('office-picker-btn');
-
-       if (isLectionaryMode) {
-           // Swap back to Office
-           officeContainer.style.display = 'block';
-           lectionaryContainer.style.display = 'none';
-           btn.innerText = "Switch to Daily Lectionary";
-           isLectionaryMode = false;
-       } else {
-           // Swap to Lectionary
-           // Close picker if open to reset state
-           if (picker.classList.contains('visible')) {
-               togglePicker(pickerBtn, 'reading');
-           }
-           
-           officeContainer.style.display = 'none';
-           lectionaryContainer.style.display = 'block';
-           btn.innerText = "Back to Office Reading";
-           isLectionaryMode = true;
-       }
-    }
 
     document.addEventListener('DOMContentLoaded', async () => {
         const readingRef = "{{ reading_ref }}";

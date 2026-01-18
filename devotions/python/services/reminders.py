@@ -13,6 +13,7 @@ from devotional_content import morning
 from devotional_content import night_watch
 import flask
 import pytz
+from services import users
 import utils
 
 REMINDERS_COLLECTION = "reminders"
@@ -420,10 +421,23 @@ def _send_email(user_data, devotion_url, devotion_key, reading_type):
         now = datetime.datetime.now(eastern_timezone)
         today_str = now.strftime("%Y-%m-%d")
 
-        # Map devotion key to the 'devotion_type' expected by users.process_prayer_completion
-        # They seem to match (morning, evening, etc.)
+        # Determine Bible Year Day if applicable
+        bible_year_day = None
+        if reading_type == "bible_in_a_year":
+          # If the user selected 'bible_in_a_year' reading for a standard devotion
+          # We need to find what day they are on.
+          # The data dictionary should contain 'bible_in_a_year_data' if we added it to get_morning_devotion_data etc.
+          # But we haven't done that yet.
+          # However, get_bible_in_a_year_devotion_data ALREADY returns 'day_number'
+          if devotion_key == "bible_in_a_year":
+            bible_year_day = data.get("day_number")
+          # For other devotions, we need to fetch it if reading_type is set.
+          # We will implement logic in the devotion generators to include this data.
+          elif data.get("bible_in_a_year_reading"):
+            bible_year_day = data["bible_in_a_year_reading"].get("day_number")
+
         token = users.get_completion_token(
-            user_data["id"], devotion_key, today_str
+            user_data["id"], devotion_key, today_str, bible_year_day
         )
         base_url = "https://www.asimplewaytopray.com"
         completion_link = f"{base_url}/complete_prayer_email/{token}"

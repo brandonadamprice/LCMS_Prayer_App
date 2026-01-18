@@ -1,6 +1,7 @@
 """Functions for generating the midday devotion."""
 
 import datetime
+from devotional_content import bible_in_a_year
 import flask
 import pytz
 import utils
@@ -30,6 +31,11 @@ def get_midday_devotion_data(user_id=None):
       if r != "Reading not found"
   ]
 
+  # Bible in a Year
+  bible_in_a_year_data = bible_in_a_year.get_bible_in_a_year_devotion_data(
+      user_id
+  )
+
   all_refs = [reading_ref, psalm_ref] + daily_lectionary_readings
   all_texts = utils.fetch_passages(all_refs)
   reading_text = all_texts[0]
@@ -43,6 +49,7 @@ def get_midday_devotion_data(user_id=None):
       "date_str": now.strftime("%A, %B %d, %Y"),
       "daily_lectionary_readings": daily_lectionary_readings,
       "lectionary_texts": lectionary_texts,
+      "bible_in_a_year_reading": bible_in_a_year_data,
       "key": key,
       "reading_ref": reading_ref,
       "reading_options": utils.OFFICE_READINGS["midday_readings"],

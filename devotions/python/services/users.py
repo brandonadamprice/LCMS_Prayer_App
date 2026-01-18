@@ -77,10 +77,12 @@ def reset_password(email, new_password_hash):
   return True
 
 
-def get_completion_token(user_id, devotion_type, date_str):
+def get_completion_token(user_id, devotion_type, date_str, bible_year_day=None):
   """Generates a token for marking a prayer as complete."""
   serializer = URLSafeTimedSerializer(utils.secrets.get_flask_secret_key())
   data = {"uid": user_id, "dt": devotion_type, "d": date_str}
+  if bible_year_day:
+    data["byd"] = bible_year_day
   return serializer.dumps(data, salt="prayer-completion-salt")
 
 
@@ -245,7 +247,9 @@ def handle_oauth_login(user_info, provider):
   return create_new_user_doc(user_data, provider)
 
 
-def process_prayer_completion(user_id, devotion_type, timezone_str):
+def process_prayer_completion(
+    user_id, devotion_type, timezone_str, bible_year_day=None
+):
   """Marks a prayer as complete and updates the streak."""
   try:
     tz = pytz.timezone(timezone_str)
@@ -257,6 +261,22 @@ def process_prayer_completion(user_id, devotion_type, timezone_str):
       "%Y-%m-%d"
   )  # YYYY-MM-DD format for storage consistency
   now_iso = now.isoformat()
+
+  # If Bible in a Year reading was included, mark it as complete too.
+  # We do this outside the prayer streak transaction to avoid complexity,
+  # or we could do it serially. Since they affect different fields/logic
+  # (and process_bible_reading_completion is its own transactional function),
+  # calling it here is fine.
+  bible_res = {}
+  if bible_year_day:
+    try:
+      # Ensure bible_year_day is int
+      day_num = int(bible_year_day)
+      bible_res = process_bible_reading_completion(
+          user_id, day_num, timezone_str
+      )
+    except Exception as e:
+      logger.error(f"Failed to mark bible reading complete: {e}")
 
   db = utils.get_db_client()
   user_ref = db.collection("users").document(user_id)
@@ -414,7 +434,7 @@ def process_prayer_completion(user_id, devotion_type, timezone_str):
 
     transaction.update(user_ref, update_data)
 
-    return {
+    result = {
         "streak": new_streak,
         "milestone_reached": milestone_reached,
         "milestone_msg": milestone_msg,
@@ -422,6 +442,22 @@ def process_prayer_completion(user_id, devotion_type, timezone_str):
         "devotions_today_count": devotions_today_count,
         "message": response_msg,
     }
+
+    # Merge bible results if any
+    if bible_res:
+      result["bible_streak"] = bible_res.get("bible_streak")
+      result["bible_milestone_reached"] = bible_res.get("milestone_reached")
+      if bible_res.get("milestone_reached"):
+        # Combine messages if both reached?
+        if result["milestone_reached"]:
+          result["milestone_msg"] += (
+              f" Also: {bible_res.get('milestone_msg')}"
+          )
+        else:
+          result["milestone_reached"] = True
+          result["milestone_msg"] = bible_res.get("milestone_msg")
+
+    return result
 
   transaction = db.transaction()
   return update_streak_in_transaction(transaction, user_ref)

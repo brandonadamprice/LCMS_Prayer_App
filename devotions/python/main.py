@@ -741,7 +741,7 @@ def complete_prayer_email_route(token):
 
   user_id = data.get("uid")
   devotion_type = data.get("dt")
-  # date_str = data.get("d") # Not strictly needed if we just use 'now' for the record, but good for context if logic changes
+  bible_year_day = data.get("byd")
 
   # We use the user's stored timezone or default
   user = models.User.get(user_id)
@@ -749,7 +749,9 @@ def complete_prayer_email_route(token):
     return "User not found.", 404
 
   timezone_str = user.timezone or "America/New_York"
-  result = users.process_prayer_completion(user_id, devotion_type, timezone_str)
+  result = users.process_prayer_completion(
+      user_id, devotion_type, timezone_str, bible_year_day
+  )
 
   if result:
     msg = result.get("message", "Prayer recorded!")
@@ -1703,10 +1705,14 @@ def complete_prayer_route():
   """Marks a prayer as complete and updates the streak."""
   data = flask.request.json
   devotion_type = data.get("devotion_type", "unknown")
+  bible_year_day = data.get("bible_year_day")
+
   user_id = flask_login.current_user.id
   timezone_str = flask_login.current_user.timezone or "America/New_York"
 
-  result = users.process_prayer_completion(user_id, devotion_type, timezone_str)
+  result = users.process_prayer_completion(
+      user_id, devotion_type, timezone_str, bible_year_day
+  )
 
   if result:
     return flask.jsonify(result)
