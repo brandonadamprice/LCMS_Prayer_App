@@ -412,6 +412,23 @@ def _send_email(user_data, devotion_url, devotion_key, reading_type):
       )
       data["devotion_url"] = devotion_url
 
+      # Generate Completion Link
+      if "id" in user_data:
+        # We need the current date for the streak calculation in process_prayer_completion
+        # Ideally, we use the date for which the devotion was generated (today)
+        eastern_timezone = pytz.timezone("America/New_York")
+        now = datetime.datetime.now(eastern_timezone)
+        today_str = now.strftime("%Y-%m-%d")
+
+        # Map devotion key to the 'devotion_type' expected by users.process_prayer_completion
+        # They seem to match (morning, evening, etc.)
+        token = users.get_completion_token(
+            user_data["id"], devotion_key, today_str
+        )
+        base_url = "https://www.asimplewaytopray.com"
+        completion_link = f"{base_url}/complete_prayer_email/{token}"
+        data["completion_link"] = completion_link
+
       body = flask.render_template(
           template_name, parent_template="email_base.html", **data
       )

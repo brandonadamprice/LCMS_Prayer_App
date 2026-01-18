@@ -726,6 +726,61 @@ def reset_password_route(token):
   return flask.render_template("reset_password.html")
 
 
+@app.route("/complete_prayer_email/<token>")
+def complete_prayer_email_route(token):
+  """Marks prayer as complete from an email link."""
+  data = users.verify_completion_token(token)
+  if not data:
+    return (
+        "Invalid or expired token. You may have already completed this prayer"
+        " or waited too long.",
+        400,
+    )
+
+  user_id = data.get("uid")
+  devotion_type = data.get("dt")
+  # date_str = data.get("d") # Not strictly needed if we just use 'now' for the record, but good for context if logic changes
+
+  # We use the user's stored timezone or default
+  user = models.User.get(user_id)
+  if not user:
+    return "User not found.", 404
+
+  timezone_str = user.timezone or "America/New_York"
+  result = users.process_prayer_completion(user_id, devotion_type, timezone_str)
+
+  if result:
+    msg = result.get("message", "Prayer recorded!")
+    streak = result.get("streak", 0)
+    # Simple HTML response
+    return f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <style>
+                body {{ font-family: sans-serif; text-align: center; padding: 40px 20px; background-color: #f9f8f4; }}
+                .card {{ background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 400px; margin: 0 auto; }}
+                h1 {{ color: #27ae60; }}
+                p {{ color: #555; font-size: 1.1em; }}
+                .streak {{ font-size: 2em; font-weight: bold; color: #e67e22; margin: 20px 0; }}
+                .button {{ display: inline-block; padding: 10px 20px; background-color: #2980b9; color: white; text-decoration: none; border-radius: 5px; margin-top: 20px; }}
+            </style>
+        </head>
+        <body>
+            <div class="card">
+                <h1>✓ Prayer Recorded</h1>
+                <p>{msg}</p>
+                <div class="streak">🔥 {streak} Day Streak</div>
+                <a href="/" class="button">Go to App</a>
+            </div>
+        </body>
+        </html>
+        """
+  else:
+    return "Failed to record prayer.", 500
+
+
 @app.route("/login/merge")
 def merge_account_route():
   """Prompts user to merge accounts."""

@@ -77,6 +77,25 @@ def reset_password(email, new_password_hash):
   return True
 
 
+def get_completion_token(user_id, devotion_type, date_str):
+  """Generates a token for marking a prayer as complete."""
+  serializer = URLSafeTimedSerializer(utils.secrets.get_flask_secret_key())
+  data = {"uid": user_id, "dt": devotion_type, "d": date_str}
+  return serializer.dumps(data, salt="prayer-completion-salt")
+
+
+def verify_completion_token(token, expiration=86400 * 2):
+  """Verifies a prayer completion token (valid for 2 days)."""
+  serializer = URLSafeTimedSerializer(utils.secrets.get_flask_secret_key())
+  try:
+    data = serializer.loads(
+        token, salt="prayer-completion-salt", max_age=expiration
+    )
+    return data
+  except Exception:
+    return None
+
+
 def validate_password(password):
   """Checks password complexity."""
   if len(password) < 8:

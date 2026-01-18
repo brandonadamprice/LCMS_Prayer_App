@@ -102,6 +102,15 @@
 <body>
     {% block content %}{% endblock %}
 
+    {% if completion_link %}
+    <div style="text-align: center; margin: 30px 0;">
+        <a href="{{ completion_link }}" style="display: inline-block; padding: 12px 24px; background-color: #27ae60; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; font-family: sans-serif;">
+            ✓ Mark Devotion as Complete
+        </a>
+        <p style="font-size: 0.8em; color: #7f8c8d; margin-top: 10px;">Clicking this will record your prayer and update your streak.</p>
+    </div>
+    {% endif %}
+
     <div class="footer">
         <p>Sent by A Simple Way to Pray</p>
         <p>
