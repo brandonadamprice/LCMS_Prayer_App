@@ -1769,6 +1769,15 @@ def streaks_route():
 
   # Bible Streak Logic
   bible_streak = getattr(user, 'bible_streak_count', 0)
+  bible_next_milestone = 7
+  for m in milestones:
+    if bible_streak < m:
+      bible_next_milestone = m
+      break
+  if bible_streak >= 365:
+    bible_next_milestone = bible_streak + (90 - ((bible_streak - 365) % 90))
+  
+  bible_progress_percent = min(100, (bible_streak / bible_next_milestone) * 100)
   
   # Determine if prayed today
   timezone_str = user.timezone or "America/New_York"
@@ -1826,7 +1835,9 @@ def streaks_route():
       achievements=user.achievements,
       recommended_devotion=recommended_devotion,
       bible_streak=bible_streak,
-      read_bible_today=read_bible_today
+      read_bible_today=read_bible_today,
+      bible_next_milestone=bible_next_milestone,
+      bible_progress_percent=bible_progress_percent
   )
 
 

@@ -81,7 +81,9 @@ def get_bible_in_a_year_devotion_data(user_id=None):
   }
 
 
-def generate_bible_in_a_year_page(bia_progress=None, completed_days=None, bible_streak=0):
+def generate_bible_in_a_year_page(
+    bia_progress=None, completed_days=None, bible_streak=0
+):
   """Generates HTML for the Bible in a Year page."""
   bible_in_a_year_data = load_bible_in_a_year_data()
 
@@ -93,7 +95,7 @@ def generate_bible_in_a_year_page(bia_progress=None, completed_days=None, bible_
       "schedule": json.dumps(bible_in_a_year_data),
       "bia_progress": json.dumps(bia_progress) if bia_progress else "null",
       "completed_days": json.dumps(completed_days) if completed_days else "[]",
-      "bible_streak": bible_streak
+      "bible_streak": bible_streak,
   }
 
   print("Generated Bible in a Year HTML")

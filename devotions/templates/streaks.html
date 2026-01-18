@@ -53,6 +53,16 @@
             <a href="/bible_in_a_year" class="button" style="background-color: #2980b9;">Go to Bible Reading</a>
         {% endif %}
     </div>
+    
+    <div style="margin-bottom: 20px;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.9em; color: #555;">
+            <span>Next Milestone: {{ bible_next_milestone }} Days</span>
+            <span>{{ bible_progress_percent|round|int }}%</span>
+        </div>
+        <div style="background-color: #eee; border-radius: 10px; height: 15px; overflow: hidden;">
+            <div style="background-color: #27ae60; width: {{ bible_progress_percent }}%; height: 100%; transition: width 1s ease-in-out;"></div>
+        </div>
+    </div>
 </div>
 
 <div class="card">

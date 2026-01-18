@@ -159,9 +159,17 @@ function updateCompletionUI() {
     // Update Progress Bar
     const totalDays = 365;
     const completedCount = completedDays.length;
-    const pct = Math.round((completedCount / totalDays) * 100);
+    let pct = Math.round((completedCount / totalDays) * 100);
+    
+    // Ensure visibility for small progress
+    let displayWidth = pct;
+    if (completedCount > 0 && pct < 1) {
+         displayWidth = 1; // Min 1% width
+         if (pct === 0) pct = "<1"; // Show <1% text
+    }
+    
     if(progressBar) {
-        progressBar.style.width = pct + '%';
+        progressBar.style.width = displayWidth + '%';
         progressBar.textContent = pct + '%';
     }
 
