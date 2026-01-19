@@ -69,6 +69,12 @@ class User(flask_login.UserMixin):
 
     now_date = datetime.datetime.now(tz).date()
 
+    # Capture best streak before potential reset (for legacy data)
+    self.best_streak_count = max(best_streak_count, streak_count)
+    self.best_bible_streak_count = max(
+        best_bible_streak_count, bible_streak_count
+    )
+
     # Prayer Streak Logic
     if last_prayer_date:
       try:
@@ -84,7 +90,6 @@ class User(flask_login.UserMixin):
       streak_count = 0
 
     self.streak_count = streak_count
-    self.best_streak_count = max(best_streak_count, streak_count)
     self.last_prayer_date = last_prayer_date
 
     # Bible Streak Logic
@@ -101,9 +106,6 @@ class User(flask_login.UserMixin):
       bible_streak_count = 0
 
     self.bible_streak_count = bible_streak_count
-    self.best_bible_streak_count = max(
-        best_bible_streak_count, bible_streak_count
-    )
     self.last_bible_reading_date = last_bible_reading_date
 
   @staticmethod

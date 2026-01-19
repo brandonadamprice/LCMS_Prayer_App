@@ -297,6 +297,10 @@ def process_prayer_completion(
         "last_prayer_date"
     )  # Expecting string YYYY-MM-DD
 
+    # Correction for legacy data or if best wasn't updated
+    if current_streak > best_streak:
+      best_streak = current_streak
+
     # Parse last_date if it exists
     last_date = None
     if last_date_str:
@@ -493,6 +497,9 @@ def process_bible_reading_completion(user_id, day_number, timezone_str):
     current_achievements = user_data.get("achievements", [])
     completed_bible_days = user_data.get("completed_bible_days", [])
     last_bible_date_str = user_data.get("last_bible_reading_date")
+
+    if current_bible_streak > best_bible_streak:
+      best_bible_streak = current_bible_streak
 
     # Update completed days
     if day_number not in completed_bible_days:
