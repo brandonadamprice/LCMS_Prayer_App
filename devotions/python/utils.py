@@ -282,6 +282,7 @@ def generate_category_page_data(json_path: str) -> list[dict]:
 
 
 # Re-export ChurchYear for backward compatibility
+# TODO(baprice): Remove this once all references are updated.
 ChurchYear = liturgy.ChurchYear
 
 
@@ -310,7 +311,7 @@ def get_devotion_data(now: datetime.datetime) -> dict:
   # Debugging: Uncomment to test a specific date
   # now = datetime.datetime(2025, 2, 26) # Ash Wednesday 2025 example
 
-  cy = ChurchYear(now.year)
+  cy = liturgy.ChurchYear(now.year)
 
   # 2. Determine Key
   key = cy.get_liturgical_key(now)
@@ -424,7 +425,7 @@ def get_all_personal_prayers_for_user(user_id=None) -> dict:
 
 def get_mid_week_reading_for_date(now: datetime.datetime) -> Optional[dict]:
   """Returns mid week reading data for given date based on week of church year."""
-  cy = ChurchYear(now.year)
+  cy = liturgy.ChurchYear(now.year)
   week_num = cy.get_week_of_church_year(now.date()) + 1
 
   max_week = 53
@@ -507,7 +508,7 @@ def get_office_devotion_data(user_id, office_name):
   """Generates data for an office devotion (Morning, Evening, etc.)."""
   eastern_timezone = pytz.timezone("America/New_York")
   now = datetime.datetime.now(eastern_timezone)
-  cy = ChurchYear(now.year)
+  cy = liturgy.ChurchYear(now.year)
   key = cy.get_liturgical_key(now)
 
   readings_key = f"{office_name}_readings"

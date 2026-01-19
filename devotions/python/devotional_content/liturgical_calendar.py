@@ -4,6 +4,7 @@ import calendar
 import datetime
 import json
 import flask
+import liturgy
 import pytz
 import utils
 
@@ -225,7 +226,7 @@ def generate_calendar_data(year, month):
     week_data = []
     for day in week:
       # Note: day might be from prev/next month
-      day_cy = utils.ChurchYear(day.year)
+      day_cy = liturgy.ChurchYear(day.year)
       key = day_cy.get_liturgical_key(day)
 
       # Refine key for display if it is a date string

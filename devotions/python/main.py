@@ -39,6 +39,7 @@ from services import prayer_requests
 from services import reminders
 from services import users
 from twilio.twiml.messaging_response import MessagingResponse
+import liturgy
 import utils
 import werkzeug.middleware.proxy_fix
 from werkzeug.security import check_password_hash
@@ -146,7 +147,7 @@ def inject_globals():
       now.month == 1 and now.day == 1
   )
 
-  cy = utils.ChurchYear(now.year)
+  cy = liturgy.ChurchYear(now.year)
   ash_wednesday = cy.ash_wednesday
   easter_sunday = cy.easter_date
   is_lent = ash_wednesday <= now.date() <= easter_sunday

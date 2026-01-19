@@ -3,6 +3,7 @@
 import datetime
 import logging
 import flask
+import liturgy
 import pytz
 import utils
 
@@ -14,8 +15,8 @@ def generate_daily_lectionary_page():
   eastern_timezone = pytz.timezone("America/New_York")
   now = datetime.datetime.now(eastern_timezone)
 
-  # Reuse utils logic to get key and readings
-  cy = utils.ChurchYear(now.year)
+  # Use liturgical calendar logic to get key and utils to fetch readings
+  cy = liturgy.ChurchYear(now.year)
   key = cy.get_liturgical_key(now)
 
   data = utils.load_lectionary(utils.LECTIONARY_JSON_PATH)

@@ -4,6 +4,7 @@ import datetime
 import json
 import os
 import flask
+import liturgy
 import pytz
 import utils
 
@@ -22,7 +23,7 @@ def get_lent_devotion_data():
   now = datetime.datetime.now(eastern_timezone)
   today = now.date()
 
-  cy = utils.ChurchYear(today.year)
+  cy = liturgy.ChurchYear(today.year)
   ash_wednesday = cy.ash_wednesday
   easter_sunday = cy.easter_date
 
