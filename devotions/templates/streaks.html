@@ -13,6 +13,7 @@
         </div>
         <h2 style="border-bottom: none; font-size: 2.5em; margin: 0; color: #e67e22;">{{ current_streak }} Days</h2>
         <p style="color: #7f8c8d; margin-top: 5px;">Current Streak</p>
+        <p style="color: #95a5a6; font-size: 0.9em; margin-top: -5px;">(Best: {{ current_user.best_streak_count }} Days)</p>
         
         {% if prayed_today %}
             <p style="color: #27ae60; font-weight: bold;">You have prayed today! Keep it up!</p>
@@ -44,6 +45,7 @@
         </div>
         <h2 style="border-bottom: none; font-size: 2.5em; margin: 0; color: #27ae60;">{{ bible_streak }} Days</h2>
         <p style="color: #7f8c8d; margin-top: 5px;">Bible Reading Streak</p>
+        <p style="color: #95a5a6; font-size: 0.9em; margin-top: -5px;">(Best: {{ current_user.best_bible_streak_count }} Days)</p>
 
         {% if read_bible_today %}
             <p style="color: #27ae60; font-weight: bold;">You have read the Bible today! Excellent!</p>

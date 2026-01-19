@@ -290,6 +290,7 @@ def process_prayer_completion(
 
     user_data = snapshot.to_dict()
     current_streak = user_data.get("streak_count", 0)
+    best_streak = user_data.get("best_streak_count", 0)
     current_achievements = user_data.get("achievements", [])
     completed_devotions = user_data.get("completed_devotions", {})
     last_date_str = user_data.get(
@@ -336,6 +337,9 @@ def process_prayer_completion(
       # Missed a day or more (or first time)
       new_streak = 1
       streak_updated = True
+    
+    if new_streak > best_streak:
+        best_streak = new_streak
 
     # Check for milestones/achievements
     milestone_reached = False
@@ -424,6 +428,7 @@ def process_prayer_completion(
     update_data = {
         "completed_devotions": completed_devotions,
         "last_prayer_date": today_str,  # Always update last date to today
+        "best_streak_count": best_streak,
     }
     if streak_updated:
       update_data["streak_count"] = new_streak
@@ -484,6 +489,7 @@ def process_bible_reading_completion(user_id, day_number, timezone_str):
 
     user_data = snapshot.to_dict()
     current_bible_streak = user_data.get("bible_streak_count", 0)
+    best_bible_streak = user_data.get("best_bible_streak_count", 0)
     current_achievements = user_data.get("achievements", [])
     completed_bible_days = user_data.get("completed_bible_days", [])
     last_bible_date_str = user_data.get("last_bible_reading_date")
@@ -514,6 +520,9 @@ def process_bible_reading_completion(user_id, day_number, timezone_str):
     else:
       new_bible_streak = 1
       streak_updated = True
+      
+    if new_bible_streak > best_bible_streak:
+        best_bible_streak = new_bible_streak
 
     # Achievements
     new_achievements = []
@@ -566,7 +575,8 @@ def process_bible_reading_completion(user_id, day_number, timezone_str):
         "bia_progress": { # Sync with old tracking for continuity
             "current_day": day_number,
             "last_visit_str": today_str
-        }
+        },
+        "best_bible_streak_count": best_bible_streak,
     }
     if streak_updated:
       update_data["bible_streak_count"] = new_bible_streak

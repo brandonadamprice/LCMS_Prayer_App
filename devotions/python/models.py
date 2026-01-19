@@ -1,6 +1,8 @@
 """Data models for the application."""
 
+import datetime
 import flask_login
+import pytz
 import utils
 
 
@@ -26,10 +28,12 @@ class User(flask_login.UserMixin):
       timezone=None,
       background_art=True,
       streak_count=0,
+      best_streak_count=0,
       last_prayer_date=None,
       achievements=None,
       completed_devotions=None,
       bible_streak_count=0,
+      best_bible_streak_count=0,
       last_bible_reading_date=None,
       completed_bible_days=None,
   ):
@@ -52,13 +56,55 @@ class User(flask_login.UserMixin):
     self.google_id = google_id
     self.timezone = timezone
     self.background_art = background_art
-    self.streak_count = streak_count
-    self.last_prayer_date = last_prayer_date
     self.achievements = achievements or []
     self.completed_devotions = completed_devotions or {}
-    self.bible_streak_count = bible_streak_count
-    self.last_bible_reading_date = last_bible_reading_date
     self.completed_bible_days = completed_bible_days or []
+
+    # Calculate effective streaks based on current date
+    tz_str = self.timezone or "America/New_York"
+    try:
+      tz = pytz.timezone(tz_str)
+    except pytz.UnknownTimeZoneError:
+      tz = pytz.timezone("America/New_York")
+
+    now_date = datetime.datetime.now(tz).date()
+
+    # Prayer Streak Logic
+    if last_prayer_date:
+      try:
+        last_date = datetime.datetime.strptime(
+            last_prayer_date, "%Y-%m-%d"
+        ).date()
+        # If last prayer was before yesterday (gap > 1 day), streak is broken
+        if last_date < now_date - datetime.timedelta(days=1):
+          streak_count = 0
+      except ValueError:
+        pass
+    else:
+      streak_count = 0
+
+    self.streak_count = streak_count
+    self.best_streak_count = max(best_streak_count, streak_count)
+    self.last_prayer_date = last_prayer_date
+
+    # Bible Streak Logic
+    if last_bible_reading_date:
+      try:
+        last_bible = datetime.datetime.strptime(
+            last_bible_reading_date, "%Y-%m-%d"
+        ).date()
+        if last_bible < now_date - datetime.timedelta(days=1):
+          bible_streak_count = 0
+      except ValueError:
+        pass
+    else:
+      bible_streak_count = 0
+
+    self.bible_streak_count = bible_streak_count
+    self.best_bible_streak_count = max(
+        best_bible_streak_count, bible_streak_count
+    )
+    self.last_bible_reading_date = last_bible_reading_date
 
   @staticmethod
   def get(user_id):
@@ -86,10 +132,12 @@ class User(flask_login.UserMixin):
           timezone=data.get("timezone"),
           background_art=data.get("background_art", True),
           streak_count=data.get("streak_count", 0),
+          best_streak_count=data.get("best_streak_count", 0),
           last_prayer_date=data.get("last_prayer_date"),
           achievements=data.get("achievements", []),
           completed_devotions=data.get("completed_devotions", {}),
           bible_streak_count=data.get("bible_streak_count", 0),
+          best_bible_streak_count=data.get("best_bible_streak_count", 0),
           last_bible_reading_date=data.get("last_bible_reading_date"),
           completed_bible_days=data.get("completed_bible_days", []),
       )
