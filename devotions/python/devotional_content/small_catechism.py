@@ -5,6 +5,7 @@ import json
 import os
 import re
 import flask
+import flask_login
 import utils
 
 CATECHISM_EXPLANATION_PATH = os.path.join(
@@ -362,8 +363,8 @@ def generate_small_catechism_page():
   grouped_catechism = get_grouped_catechism()
   completed_sections = []
 
-  if flask.g.user.is_authenticated:
-    completed_sections = flask.g.user.completed_catechism_sections
+  if flask_login.current_user.is_authenticated:
+    completed_sections = flask_login.current_user.completed_catechism_sections
 
   print("Generated Small Catechism HTML")
   return flask.render_template(
