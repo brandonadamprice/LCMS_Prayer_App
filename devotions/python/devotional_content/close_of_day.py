@@ -5,16 +5,16 @@ import flask_login
 import utils
 
 
-def get_close_of_day_devotion_data(user_id=None):
+def get_close_of_day_devotion_data(user_id=None, date_obj=None):
   """Generates data for the close of day devotion."""
-  return utils.get_office_devotion_data(user_id, "close_of_day")
+  return utils.get_office_devotion_data(user_id, "close_of_day", date_obj)
 
 
-def generate_close_of_day_devotion():
+def generate_close_of_day_devotion(date_obj=None):
   """Generates HTML for the close of day devotion for the current date."""
   user_id = None
   if flask_login.current_user.is_authenticated:
     user_id = flask_login.current_user.id
-  template_data = get_close_of_day_devotion_data(user_id)
+  template_data = get_close_of_day_devotion_data(user_id, date_obj)
   print("Generated Close of Day HTML")
   return flask.render_template("close_of_day_devotion.html", **template_data)

@@ -10,10 +10,10 @@ import utils
 logger = logging.getLogger(__name__)
 
 
-def generate_daily_lectionary_page():
+def generate_daily_lectionary_page(date_obj=None):
   """Generates HTML for the Daily Lectionary page."""
   eastern_timezone = pytz.timezone("America/New_York")
-  now = datetime.datetime.now(eastern_timezone)
+  now = date_obj or datetime.datetime.now(eastern_timezone)
 
   # Use liturgical calendar logic to get key and utils to fetch readings
   cy = liturgy.ChurchYear(now.year)

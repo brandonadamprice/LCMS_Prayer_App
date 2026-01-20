@@ -16,10 +16,10 @@ def load_advent_devotions():
     return json.load(f)
 
 
-def generate_advent_devotion():
+def generate_advent_devotion(date_obj=None):
   """Generates HTML for the Advent devotion."""
   eastern_timezone = pytz.timezone("America/New_York")
-  now = datetime.datetime.now(eastern_timezone)
+  now = date_obj or datetime.datetime.now(eastern_timezone)
   day_of_month = now.day
 
   advent_devotions = load_advent_devotions()

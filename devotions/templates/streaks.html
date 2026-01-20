@@ -68,6 +68,30 @@
 </div>
 
 <div class="card">
+    <h2>Stats Dashboard</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; text-align: center;">
+        <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #eee;">
+            <div style="font-size: 2em;">🙏</div>
+            <div style="font-weight: bold; font-size: 1.5em; color: #333;">{{ prayed_for_others_count }}</div>
+            <div style="font-size: 0.8em; color: #7f8c8d;">Prayers for Others</div>
+        </div>
+        <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #eee;">
+            <div style="font-size: 2em;">🧠</div>
+            <div style="font-weight: bold; font-size: 1.5em; color: #333;">{{ memorized_verses_count }}</div>
+            <div style="font-size: 0.8em; color: #7f8c8d;">Verses Memorized</div>
+        </div>
+        <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #eee;">
+            <div style="font-size: 2em;">📘</div>
+            <div style="font-weight: bold; font-size: 1.5em; color: #333;">{{ catechism_pct }}%</div>
+            <div style="font-size: 0.8em; color: #7f8c8d;">Catechism Progress</div>
+            <div style="background-color: #eee; border-radius: 5px; height: 5px; overflow: hidden; margin-top: 5px;">
+                <div style="background-color: #2980b9; width: {{ catechism_pct }}%; height: 100%;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
     <h2>Achievements</h2>
     {% if achievements %}
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin-top: 20px;">

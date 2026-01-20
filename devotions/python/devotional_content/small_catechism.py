@@ -66,8 +66,9 @@ def get_grouped_catechism():
       "Christian Questions with Their Answers": [],
   }
 
-  for section in sections:
+  for idx, section in enumerate(sections):
     title = section["title"]
+    section["index"] = idx  # Add original index for tracking
 
     # Inject explanation data if available
     if title in explanations_map:
@@ -359,9 +360,14 @@ def _inject_christian_questions_scripture(qa_list):
 def generate_small_catechism_page():
   """Generates HTML for the Small Catechism page."""
   grouped_catechism = get_grouped_catechism()
+  completed_sections = []
+
+  if flask.g.user.is_authenticated:
+    completed_sections = flask.g.user.completed_catechism_sections
 
   print("Generated Small Catechism HTML")
   return flask.render_template(
       "small_catechism.html",
       grouped_catechism=grouped_catechism,
+      completed_sections=completed_sections,
   )

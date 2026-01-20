@@ -341,9 +341,9 @@ def process_prayer_completion(
       # Missed a day or more (or first time)
       new_streak = 1
       streak_updated = True
-    
+
     if new_streak > best_streak:
-        best_streak = new_streak
+      best_streak = new_streak
 
     # Check for milestones/achievements
     milestone_reached = False
@@ -459,9 +459,7 @@ def process_prayer_completion(
       if bible_res.get("milestone_reached"):
         # Combine messages if both reached?
         if result["milestone_reached"]:
-          result["milestone_msg"] += (
-              f" Also: {bible_res.get('milestone_msg')}"
-          )
+          result["milestone_msg"] += f" Also: {bible_res.get('milestone_msg')}"
         else:
           result["milestone_reached"] = True
           result["milestone_msg"] = bible_res.get("milestone_msg")
@@ -481,7 +479,7 @@ def process_bible_reading_completion(user_id, day_number, timezone_str):
 
   now = datetime.datetime.now(tz)
   today_str = now.strftime("%Y-%m-%d")
-  
+
   db = utils.get_db_client()
   user_ref = db.collection("users").document(user_id)
 
@@ -527,9 +525,9 @@ def process_bible_reading_completion(user_id, day_number, timezone_str):
     else:
       new_bible_streak = 1
       streak_updated = True
-      
+
     if new_bible_streak > best_bible_streak:
-        best_bible_streak = new_bible_streak
+      best_bible_streak = new_bible_streak
 
     # Achievements
     new_achievements = []
@@ -579,15 +577,15 @@ def process_bible_reading_completion(user_id, day_number, timezone_str):
     update_data = {
         "completed_bible_days": completed_bible_days,
         "last_bible_reading_date": today_str,
-        "bia_progress": { # Sync with old tracking for continuity
+        "bia_progress": {  # Sync with old tracking for continuity
             "current_day": day_number,
-            "last_visit_str": today_str
+            "last_visit_str": today_str,
         },
         "best_bible_streak_count": best_bible_streak,
     }
     if streak_updated:
       update_data["bible_streak_count"] = new_bible_streak
-    
+
     if new_achievements:
       update_data["achievements"] = current_achievements + new_achievements
 
@@ -598,7 +596,7 @@ def process_bible_reading_completion(user_id, day_number, timezone_str):
         "total_completed": total_completed,
         "milestone_reached": milestone_reached,
         "milestone_msg": milestone_msg,
-        "progress_pct": progress_pct
+        "progress_pct": progress_pct,
     }
 
   transaction = db.transaction()
@@ -671,3 +669,202 @@ def mark_bible_days_completed(user_id, days):
 
   transaction = db.transaction()
   return update_bulk_transaction(transaction, user_ref)
+
+
+def record_prayer_for_others(user_id, request_id, operation):
+  """Updates user's prayed_request_ids and checks for achievements."""
+  db = utils.get_db_client()
+  user_ref = db.collection("users").document(user_id)
+
+  @firestore.transactional
+  def update_transaction(transaction, user_ref):
+    snapshot = next(transaction.get(user_ref))
+    if not snapshot.exists:
+      return None
+
+    user_data = snapshot.to_dict()
+    prayed_ids = user_data.get("prayed_request_ids", [])
+    current_achievements = user_data.get("achievements", [])
+    today_str = datetime.datetime.now().strftime("%Y-%m-%d")
+
+    # Update list
+    if operation == "increment":
+      if request_id not in prayed_ids:
+        prayed_ids.append(request_id)
+    elif operation == "decrement":
+      if request_id in prayed_ids:
+        prayed_ids.remove(request_id)
+
+    prayed_count = len(prayed_ids)
+    new_achievements = []
+    milestone_reached = False
+    milestone_msg = ""
+
+    def check_and_add(ach_id, title, icon):
+      nonlocal milestone_reached, milestone_msg
+      if not any(a["id"] == ach_id for a in current_achievements):
+        new_achievements.append({
+            "id": ach_id,
+            "title": title,
+            "date": today_str,
+            "icon": icon,
+        })
+        milestone_reached = True
+        milestone_msg = f"Achievement Unlocked: {title}!"
+
+    # Milestones (only on increment)
+    if operation == "increment":
+      if prayed_count >= 10:
+        check_and_add("prayer_warrior_10", "Prayed for 10 Others", "🙏")
+      if prayed_count >= 50:
+        check_and_add("prayer_warrior_50", "Prayed for 50 Others", "🕊️")
+      if prayed_count >= 100:
+        check_and_add("prayer_warrior_100", "Prayed for 100 Others", "🔥")
+
+    transaction.update(
+        user_ref,
+        {
+            "prayed_request_ids": prayed_ids,
+            "achievements": current_achievements + new_achievements,
+        },
+    )
+
+    return {
+        "milestone_reached": milestone_reached,
+        "milestone_msg": milestone_msg,
+    }
+
+  transaction = db.transaction()
+  return update_transaction(transaction, user_ref)
+
+
+def toggle_memorized_verse(user_id, verse_id):
+  """Toggles the memorized status of a verse."""
+  db = utils.get_db_client()
+  user_ref = db.collection("users").document(user_id)
+
+  @firestore.transactional
+  def update_transaction(transaction, user_ref):
+    snapshot = next(transaction.get(user_ref))
+    if not snapshot.exists:
+      return None
+
+    user_data = snapshot.to_dict()
+    memorized_verses = user_data.get("memorized_verses", [])
+    current_achievements = user_data.get("achievements", [])
+    today_str = datetime.datetime.now().strftime("%Y-%m-%d")
+
+    # Toggle
+    is_memorized = False
+    if verse_id in memorized_verses:
+      memorized_verses.remove(verse_id)
+      is_memorized = False
+    else:
+      memorized_verses.append(verse_id)
+      is_memorized = True
+
+    memorized_count = len(memorized_verses)
+    new_achievements = []
+    milestone_reached = False
+    milestone_msg = ""
+
+    def check_and_add(ach_id, title, icon):
+      nonlocal milestone_reached, milestone_msg
+      if not any(a["id"] == ach_id for a in current_achievements):
+        new_achievements.append({
+            "id": ach_id,
+            "title": title,
+            "date": today_str,
+            "icon": icon,
+        })
+        milestone_reached = True
+        milestone_msg = f"Achievement Unlocked: {title}!"
+
+    if memorized_count >= 5:
+      check_and_add("memory_5", "Memorized 5 Verses", "🧠")
+    if memorized_count >= 10:
+      check_and_add("memory_10", "Memorized 10 Verses", "💡")
+    if memorized_count >= 25:
+      check_and_add("memory_25", "Memorized 25 Verses", "📜")
+
+    transaction.update(
+        user_ref,
+        {
+            "memorized_verses": memorized_verses,
+            "achievements": current_achievements + new_achievements,
+        },
+    )
+
+    return {
+        "is_memorized": is_memorized,
+        "count": memorized_count,
+        "milestone_reached": milestone_reached,
+        "milestone_msg": milestone_msg,
+    }
+
+  transaction = db.transaction()
+  return update_transaction(transaction, user_ref)
+
+
+def mark_catechism_complete(user_id, section_index):
+  """Marks a catechism section as complete."""
+  db = utils.get_db_client()
+  user_ref = db.collection("users").document(user_id)
+
+  @firestore.transactional
+  def update_transaction(transaction, user_ref):
+    snapshot = next(transaction.get(user_ref))
+    if not snapshot.exists:
+      return None
+
+    user_data = snapshot.to_dict()
+    completed_sections = user_data.get("completed_catechism_sections", [])
+    current_achievements = user_data.get("achievements", [])
+    today_str = datetime.datetime.now().strftime("%Y-%m-%d")
+
+    section_id = str(section_index)
+    if section_id not in completed_sections:
+      completed_sections.append(section_id)
+
+    completed_count = len(completed_sections)
+    total_sections = len(utils.CATECHISM_SECTIONS)
+
+    new_achievements = []
+    milestone_reached = False
+    milestone_msg = ""
+
+    def check_and_add(ach_id, title, icon):
+      nonlocal milestone_reached, milestone_msg
+      if not any(a["id"] == ach_id for a in current_achievements):
+        new_achievements.append({
+            "id": ach_id,
+            "title": title,
+            "date": today_str,
+            "icon": icon,
+        })
+        milestone_reached = True
+        milestone_msg = f"Achievement Unlocked: {title}!"
+
+    # Simple achievements for progress
+    progress_pct = (completed_count / total_sections) * 100
+    if progress_pct >= 50:
+      check_and_add("catechism_50", "Catechism Halfway", "📘")
+    if completed_count >= total_sections:
+      check_and_add("catechism_100", "Catechism Completed", "🎓")
+
+    transaction.update(
+        user_ref,
+        {
+            "completed_catechism_sections": completed_sections,
+            "achievements": current_achievements + new_achievements,
+        },
+    )
+
+    return {
+        "completed_sections": completed_sections,
+        "milestone_reached": milestone_reached,
+        "milestone_msg": milestone_msg,
+    }
+
+  transaction = db.transaction()
+  return update_transaction(transaction, user_ref)

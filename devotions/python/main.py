@@ -29,6 +29,7 @@ from devotional_content import small_catechism
 import flask
 import flask_login
 from google.cloud import firestore
+import liturgy
 import menu
 import models
 import pytz
@@ -39,7 +40,6 @@ from services import prayer_requests
 from services import reminders
 from services import users
 from twilio.twiml.messaging_response import MessagingResponse
-import liturgy
 import utils
 import werkzeug.middleware.proxy_fix
 from werkzeug.security import check_password_hash
@@ -847,70 +847,84 @@ def logout():
   return flask.redirect("/")
 
 
+def get_date_from_request():
+  """Parses 'date' query parameter."""
+  date_str = flask.request.args.get("date")
+  if date_str:
+    try:
+      return datetime.datetime.strptime(date_str, "%Y-%m-%d")
+    except ValueError:
+      pass
+  return None
+
+
 @app.route("/extended_evening_devotion")
 def extended_evening_devotion_route():
   """Returns the generated devotion HTML."""
-  return extended_evening.generate_extended_evening_devotion()
+  return extended_evening.generate_extended_evening_devotion(
+      get_date_from_request()
+  )
 
 
 @app.route("/morning_devotion")
 def morning_devotion_route():
   """Returns the generated devotion HTML."""
-  return morning.generate_morning_devotion()
+  return morning.generate_morning_devotion(get_date_from_request())
 
 
 @app.route("/midday_devotion")
 def midday_devotion_route():
   """Returns the generated devotion HTML."""
-  return midday.generate_midday_devotion()
+  return midday.generate_midday_devotion(get_date_from_request())
 
 
 @app.route("/evening_devotion")
 def evening_devotion_route():
   """Returns the generated devotion HTML."""
-  return evening.generate_evening_devotion()
+  return evening.generate_evening_devotion(get_date_from_request())
 
 
 @app.route("/close_of_day_devotion")
 def close_of_day_devotion_route():
   """Returns the generated devotion HTML."""
-  return close_of_day.generate_close_of_day_devotion()
+  return close_of_day.generate_close_of_day_devotion(get_date_from_request())
 
 
 @app.route("/mid_week_devotion")
 def mid_week_devotion_route():
   """Returns the generated mid-week devotion HTML."""
-  return mid_week.generate_mid_week_devotion()
+  return mid_week.generate_mid_week_devotion(get_date_from_request())
 
 
 @app.route("/advent_devotion")
 def advent_devotion_route():
   """Returns the generated devotion HTML."""
-  return advent.generate_advent_devotion()
+  return advent.generate_advent_devotion(get_date_from_request())
 
 
 @app.route("/lent_devotion")
 def lent_devotion_route():
   """Returns the generated devotion HTML."""
-  return lent.generate_lent_devotion()
+  return lent.generate_lent_devotion(get_date_from_request())
 
 
 @app.route("/new_year_devotion")
 def new_year_devotion_route():
   """Returns the generated devotion HTML."""
-  return new_year.generate_new_year_devotion()
+  return new_year.generate_new_year_devotion(get_date_from_request())
 
 
 @app.route("/childrens_devotion")
 def childrens_devotion_route():
   """Returns the generated children's devotion HTML."""
+  # Children's devotion doesn't vary by date in the same way, but could if needed.
   return childrens_devotion.generate_childrens_devotion()
 
 
 @app.route("/night_watch_devotion")
 def night_watch_devotion_route():
   """Returns the generated devotion HTML."""
-  return night_watch.generate_night_watch_devotion()
+  return night_watch.generate_night_watch_devotion(get_date_from_request())
 
 
 @app.route("/prayer_requests")
@@ -1071,22 +1085,16 @@ def update_pray_count_route():
   success = prayer_requests.update_pray_count(request_id, operation)
 
   if success:
-    # 1. Update current user's prayed history
+    # 1. Update current user's prayed history and check achievements
     if flask_login.current_user.is_authenticated:
       try:
-        db = utils.get_db_client()
-        user_ref = db.collection("users").document(flask_login.current_user.id)
-        if operation == "increment":
-          user_ref.update(
-              {"prayed_request_ids": firestore.ArrayUnion([request_id])}
-          )
-        elif operation == "decrement":
-          user_ref.update(
-              {"prayed_request_ids": firestore.ArrayRemove([request_id])}
-          )
+        # This handles both updating the list and checking achievements
+        users.record_prayer_for_others(
+            flask_login.current_user.id, request_id, operation
+        )
       except Exception as e:
         app.logger.error(
-            "Failed to update prayed_request_ids for user %s: %s",
+            "Failed to record prayer for others user %s: %s",
             flask_login.current_user.id,
             e,
         )
@@ -1756,6 +1764,38 @@ def catch_up_bible_readings_route():
     return flask.jsonify({"error": "Failed to update"}), 500
 
 
+@app.route("/api/toggle_memorized_verse", methods=["POST"])
+@flask_login.login_required
+def toggle_memorized_verse_route():
+  """Toggles the memorized status of a verse."""
+  data = flask.request.json
+  verse_id = data.get("verse_id")
+  if not verse_id:
+    return flask.jsonify({"error": "Missing verse_id"}), 400
+
+  result = users.toggle_memorized_verse(flask_login.current_user.id, verse_id)
+  if result:
+    return flask.jsonify(result)
+  return flask.jsonify({"error": "Failed"}), 500
+
+
+@app.route("/api/mark_catechism_complete", methods=["POST"])
+@flask_login.login_required
+def mark_catechism_complete_route():
+  """Marks a catechism section as complete."""
+  data = flask.request.json
+  section_index = data.get("section_index")
+  if section_index is None:
+    return flask.jsonify({"error": "Missing section_index"}), 400
+
+  result = users.mark_catechism_complete(
+      flask_login.current_user.id, section_index
+  )
+  if result:
+    return flask.jsonify(result)
+  return flask.jsonify({"error": "Failed"}), 500
+
+
 @app.route("/streaks")
 @flask_login.login_required
 def streaks_route():
@@ -1787,6 +1827,16 @@ def streaks_route():
     bible_next_milestone = bible_streak + (90 - ((bible_streak - 365) % 90))
 
   bible_progress_percent = min(100, (bible_streak / bible_next_milestone) * 100)
+
+  # Gamification Stats
+  prayed_for_others_count = len(user.prayed_request_ids)
+  memorized_verses_count = len(user.memorized_verses)
+  
+  catechism_total = len(utils.CATECHISM_SECTIONS)
+  catechism_completed = len(user.completed_catechism_sections)
+  catechism_pct = 0
+  if catechism_total > 0:
+      catechism_pct = int((catechism_completed / catechism_total) * 100)
 
   # Determine if prayed today
   timezone_str = user.timezone or "America/New_York"
@@ -1847,6 +1897,11 @@ def streaks_route():
       read_bible_today=read_bible_today,
       bible_next_milestone=bible_next_milestone,
       bible_progress_percent=bible_progress_percent,
+      prayed_for_others_count=prayed_for_others_count,
+      memorized_verses_count=memorized_verses_count,
+      catechism_completed=catechism_completed,
+      catechism_total=catechism_total,
+      catechism_pct=catechism_pct,
   )
 
 

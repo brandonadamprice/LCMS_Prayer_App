@@ -17,10 +17,10 @@ def load_lent_devotions():
     return json.load(f)
 
 
-def get_lent_devotion_data():
+def get_lent_devotion_data(date_obj=None):
   """Generates data for the Lenten devotion."""
   eastern_timezone = pytz.timezone("America/New_York")
-  now = datetime.datetime.now(eastern_timezone)
+  now = date_obj or datetime.datetime.now(eastern_timezone)
   today = now.date()
 
   cy = liturgy.ChurchYear(today.year)
@@ -81,8 +81,8 @@ def get_lent_devotion_data():
   }
 
 
-def generate_lent_devotion():
+def generate_lent_devotion(date_obj=None):
   """Generates HTML for the Lenten devotion."""
-  template_data = get_lent_devotion_data()
+  template_data = get_lent_devotion_data(date_obj)
   print("Generated Lent HTML")
   return flask.render_template("lent_devotion.html", **template_data)

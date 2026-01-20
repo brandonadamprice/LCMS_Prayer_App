@@ -5,16 +5,16 @@ import flask_login
 import utils
 
 
-def get_morning_devotion_data(user_id=None):
+def get_morning_devotion_data(user_id=None, date_obj=None):
   """Generates data for the morning devotion."""
-  return utils.get_office_devotion_data(user_id, "morning")
+  return utils.get_office_devotion_data(user_id, "morning", date_obj)
 
 
-def generate_morning_devotion():
+def generate_morning_devotion(date_obj=None):
   """Generates HTML for the morning devotion for the current date."""
   user_id = None
   if flask_login.current_user.is_authenticated:
     user_id = flask_login.current_user.id
-  template_data = get_morning_devotion_data(user_id)
+  template_data = get_morning_devotion_data(user_id, date_obj)
   print("Generated Morning HTML")
   return flask.render_template("morning_devotion.html", **template_data)

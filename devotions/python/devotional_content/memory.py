@@ -43,12 +43,21 @@ def generate_memory_page():
   """Generates HTML for the Memory Verse page."""
   predefined_verses = load_predefined_verses()
   user_verses = []
+  memorized_ids = []
+
   if flask_login.current_user.is_authenticated:
     user_verses = get_user_verses(flask_login.current_user.id)
+    memorized_ids = flask_login.current_user.memorized_verses
 
-  all_verse_metadata = [{**v, "is_user": False} for v in predefined_verses] + [
-      {**v, "is_user": True} for v in user_verses
-  ]
+  # Add indices to predefined verses for stable IDs
+  for i, v in enumerate(predefined_verses):
+    v["id"] = f"predefined_{i}"
+    v["is_user"] = False
+
+  for v in user_verses:
+    v["is_user"] = True
+
+  all_verse_metadata = predefined_verses + user_verses
 
   refs = list(
       dict.fromkeys([v["ref"] for v in all_verse_metadata])
@@ -74,14 +83,14 @@ def generate_memory_page():
     html, clean = ref_to_text_map.get(v["ref"], ("Not found", "Not found"))
     clean_text_single_line = re.sub(r"\s+", " ", clean).strip()
     verse_item = {
+        "id": v["id"],
         "ref": v["ref"],
         "topic": v["topic"],
         "text_html": html,
         "clean_text": clean_text_single_line,
         "is_user": v["is_user"],
+        "is_memorized": v["id"] in memorized_ids,
     }
-    if v["is_user"]:
-      verse_item["id"] = v["id"]
     verses_for_template.append(verse_item)
 
   template_data = {"verses": verses_for_template}

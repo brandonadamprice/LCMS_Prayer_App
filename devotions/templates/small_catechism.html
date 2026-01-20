@@ -138,6 +138,17 @@
                         {% endif %}
                     </div>
                     {% endif %}
+                    
+                    {% if current_user.is_authenticated %}
+                    <div style="margin-top: 15px; text-align: right;">
+                        <button class="button mark-complete-btn" 
+                                data-index="{{ section.index }}"
+                                onclick="toggleCatechismComplete(this, {{ section.index }})"
+                                style="background-color: {% if section.index|string in completed_sections %}#27ae60{% else %}#bdc3c7{% endif %}; font-size: 0.8em; padding: 5px 10px;">
+                            {% if section.index|string in completed_sections %}Completed{% else %}Mark Complete{% endif %}
+                        </button>
+                    </div>
+                    {% endif %}
                 {% endcall %}
             {% endfor %}
         {% endif %}
@@ -271,6 +282,48 @@ function checkQuizAnswer(btn, correctAnswer) {
         feedback.classList.remove('success');
     }
     feedback.style.display = 'block';
+}
+
+async function toggleCatechismComplete(btn, index) {
+    // Optimistic Update
+    const isCompleted = btn.textContent.trim() === 'Completed';
+    const newState = !isCompleted;
+    
+    if (newState) {
+        btn.textContent = 'Completed';
+        btn.style.backgroundColor = '#27ae60';
+    } else {
+        // We don't support unmarking via this API yet, but let's assume it's just marking complete
+        // Actually, let's keep it simple: only mark complete.
+        // If they want to unmark, we'd need an unmark API.
+        // For now, let's just allow marking complete.
+    }
+
+    try {
+        const response = await fetch('/api/mark_catechism_complete', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ section_index: index })
+        });
+        const data = await response.json();
+        
+        if (data.milestone_reached) {
+             if (window.triggerMilestoneModal) {
+                 window.triggerMilestoneModal(data.milestone_msg, "N/A");
+            } else {
+                 alert(data.milestone_msg);
+            }
+        }
+        
+        // Ensure UI matches server state (if we implemented toggle)
+    } catch (e) {
+        console.error("Error marking catechism complete:", e);
+        // Revert on error
+        if (newState) {
+             btn.textContent = 'Mark Complete';
+             btn.style.backgroundColor = '#bdc3c7';
+        }
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {

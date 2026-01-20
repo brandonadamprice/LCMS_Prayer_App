@@ -456,10 +456,10 @@ def save_bia_progress(user_id: str, day: int, last_visit_str: str):
   )
 
 
-def get_bible_in_a_year_devotion_data(user_id=None):
+def get_bible_in_a_year_devotion_data(user_id=None, date_obj=None):
   """Generates data for the Bible in a Year devotion for email/reminders."""
   eastern_timezone = pytz.timezone("America/New_York")
-  now = datetime.datetime.now(eastern_timezone)
+  now = date_obj or datetime.datetime.now(eastern_timezone)
   bible_in_a_year_data = load_bible_in_a_year_data()
 
   current_day = now.timetuple().tm_yday  # Default to day of year
@@ -468,9 +468,11 @@ def get_bible_in_a_year_devotion_data(user_id=None):
     db = get_db_client()
     doc = db.collection("users").document(user_id).get()
     if doc.exists:
-      bia_progress = doc.to_dict().get("bia_progress")
-      if bia_progress and "current_day" in bia_progress:
-        current_day = int(bia_progress["current_day"])
+      user_data = doc.to_dict()
+      if user_data:
+        bia_progress = user_data.get("bia_progress")
+        if bia_progress and "current_day" in bia_progress:
+          current_day = int(bia_progress["current_day"])
 
   # Ensure day is within range 1-365
   current_day = max(1, min(current_day, 365))
@@ -504,10 +506,10 @@ def get_bible_in_a_year_devotion_data(user_id=None):
   }
 
 
-def get_office_devotion_data(user_id, office_name):
+def get_office_devotion_data(user_id, office_name, date_obj=None):
   """Generates data for an office devotion (Morning, Evening, etc.)."""
   eastern_timezone = pytz.timezone("America/New_York")
-  now = datetime.datetime.now(eastern_timezone)
+  now = date_obj or datetime.datetime.now(eastern_timezone)
   cy = liturgy.ChurchYear(now.year)
   key = cy.get_liturgical_key(now)
 
@@ -530,7 +532,7 @@ def get_office_devotion_data(user_id, office_name):
   ]
 
   # Bible in a Year
-  bible_in_a_year_data = get_bible_in_a_year_devotion_data(user_id)
+  bible_in_a_year_data = get_bible_in_a_year_devotion_data(user_id, now)
 
   all_refs = [reading_ref, psalm_ref] + daily_lectionary_readings
   all_texts = fetch_passages(all_refs)

@@ -262,6 +262,15 @@
 </div>
 
 <div class="card">
+    <h2>Offline Access</h2>
+    <p>Download prayer content for the next few days to use when you don't have an internet connection.</p>
+    <button id="btn-download-offline" class="button" onclick="downloadOfflineContent()" style="background-color: #2980b9;">
+        Download Next 3 Days
+    </button>
+    <p id="offline-status" style="font-size: 0.9em; color: #7f8c8d; margin-top: 10px;"></p>
+</div>
+
+<div class="card">
     <h2>Data Management</h2>
     <p>Download a copy of your personal data.</p>
     <a href="/settings/export_data" class="button" target="_blank" style="background-color: #27ae60;">Export My Prayers</a>
@@ -493,6 +502,79 @@
             }
         });
     });
+
+    async function downloadOfflineContent() {
+        const btn = document.getElementById('btn-download-offline');
+        const status = document.getElementById('offline-status');
+        
+        btn.disabled = true;
+        status.textContent = "Starting download...";
+        
+        const urlsToCache = [];
+        const endpoints = [
+            '/morning_devotion',
+            '/midday_devotion',
+            '/evening_devotion',
+            '/close_of_day_devotion',
+            '/daily_lectionary'
+        ];
+        
+        // Generate dates for next 3 days
+        const today = new Date();
+        for (let i = 0; i < 3; i++) {
+            const d = new Date(today);
+            d.setDate(today.getDate() + i);
+            const dateStr = d.toISOString().split('T')[0];
+            
+            endpoints.forEach(ep => {
+                urlsToCache.push(`${ep}?date=${dateStr}`);
+            });
+        }
+        
+        // Also add static assets just in case
+        urlsToCache.push('/');
+        urlsToCache.push('/static/styles.css');
+        urlsToCache.push('/static/favicon.svg');
+
+        if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+             // Send message to SW to cache these URLs? 
+             // Or just fetch them here? Fetching here populates the cache if SW handles fetch.
+             // Our SW handles navigation requests network-first.
+             // We can manually open the cache and add them.
+             
+             try {
+                 const cache = await caches.open('prayer-app-v8');
+                 let completed = 0;
+                 const total = urlsToCache.length;
+                 
+                 // Fetch sequentially to avoid overwhelming
+                 for (const url of urlsToCache) {
+                     status.textContent = `Downloading ${completed + 1}/${total}...`;
+                     try {
+                         await cache.add(url);
+                     } catch(e) {
+                         console.warn("Failed to cache " + url, e);
+                     }
+                     completed++;
+                 }
+                 
+                 status.textContent = "Download complete! You can now access these devotions offline.";
+                 btn.textContent = "Download Complete";
+                 setTimeout(() => {
+                     btn.disabled = false;
+                     btn.textContent = "Download Next 3 Days";
+                 }, 3000);
+                 
+             } catch (e) {
+                 console.error("Cache error:", e);
+                 status.textContent = "Error accessing offline cache.";
+                 btn.disabled = false;
+             }
+        } else {
+            status.textContent = "Service Worker not active. Offline mode unavailable.";
+            btn.disabled = false;
+        }
+    }
 </script>
 {% else %}
 <div class="card">

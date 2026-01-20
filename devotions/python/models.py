@@ -36,6 +36,9 @@ class User(flask_login.UserMixin):
       best_bible_streak_count=0,
       last_bible_reading_date=None,
       completed_bible_days=None,
+      prayed_request_ids=None,
+      memorized_verses=None,
+      completed_catechism_sections=None,
   ):
     self.id = user_id
     self.email = email
@@ -59,6 +62,9 @@ class User(flask_login.UserMixin):
     self.achievements = achievements or []
     self.completed_devotions = completed_devotions or {}
     self.completed_bible_days = completed_bible_days or []
+    self.prayed_request_ids = prayed_request_ids or []
+    self.memorized_verses = memorized_verses or []
+    self.completed_catechism_sections = completed_catechism_sections or []
 
     # Calculate effective streaks based on current date
     tz_str = self.timezone or "America/New_York"
@@ -142,5 +148,8 @@ class User(flask_login.UserMixin):
           best_bible_streak_count=data.get("best_bible_streak_count", 0),
           last_bible_reading_date=data.get("last_bible_reading_date"),
           completed_bible_days=data.get("completed_bible_days", []),
+          prayed_request_ids=data.get("prayed_request_ids", []),
+          memorized_verses=data.get("memorized_verses", []),
+          completed_catechism_sections=data.get("completed_catechism_sections", []),
       )
     return None

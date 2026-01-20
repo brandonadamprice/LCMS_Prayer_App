@@ -44,6 +44,15 @@
   <button class="button" id="btn-fill-blank" disabled>Fill-in-the-Blank</button>
   <button class="button" id="btn-first-letter" disabled>First Letters</button>
   <button class="button" id="btn-word-order" disabled>Word Order</button>
+  
+  {% if current_user.is_authenticated %}
+  <hr style="margin: 20px 0;">
+  <div style="text-align: center;">
+      <button id="btn-mark-memorized" class="button" style="background-color: #f39c12; font-size: 1.1em; display: none;" onclick="toggleMemorized()">
+          Mark as Memorized
+      </button>
+  </div>
+  {% endif %}
 </div>
 
 {% if current_user.is_authenticated %}
@@ -104,10 +113,13 @@ const btnFirstLetter = document.getElementById('btn-first-letter');
 const btnWordOrder = document.getElementById('btn-word-order');
 const btnReset = document.getElementById('btn-reset');
 const userVersesList = document.getElementById('user-verses-list');
+const btnMarkMemorized = document.getElementById('btn-mark-memorized');
 
 let currentVerseIndex = -1;
 let currentCleanText = "";
 let currentHtmlText = "";
+let currentVerseId = null;
+let currentVerseMemorized = false;
 let wordOrderCorrectList = [];
 let wordOrderCurrentIndex = 0;
 
@@ -174,13 +186,67 @@ function loadVerse(index) {
         currentCleanText = "";
         currentHtmlText = "";
         setDrillButtonsEnabled(false);
+        if(btnMarkMemorized) btnMarkMemorized.style.display = 'none';
     } else {
         const verse = verses[index];
         drillRef.textContent = verse.ref;
         drillText.innerHTML = verse.text_html;
         currentCleanText = verse.clean_text;
         currentHtmlText = verse.text_html;
+        currentVerseId = verse.id;
+        currentVerseMemorized = verse.is_memorized;
+        
         setDrillButtonsEnabled(true);
+        updateMemorizedButton();
+    }
+}
+
+function updateMemorizedButton() {
+    if(!btnMarkMemorized) return;
+    btnMarkMemorized.style.display = 'inline-block';
+    if(currentVerseMemorized) {
+        btnMarkMemorized.innerHTML = '<span style="margin-right: 5px;">🧠</span> Memorized (Tap to undo)';
+        btnMarkMemorized.style.backgroundColor = "#27ae60";
+    } else {
+        btnMarkMemorized.innerHTML = 'Mark as Memorized';
+        btnMarkMemorized.style.backgroundColor = "#f39c12";
+    }
+}
+
+async function toggleMemorized() {
+    if(!currentVerseId) return;
+    
+    // Optimistic UI update
+    currentVerseMemorized = !currentVerseMemorized;
+    updateMemorizedButton();
+    // Update data array
+    if(verses[currentVerseIndex]) {
+        verses[currentVerseIndex].is_memorized = currentVerseMemorized;
+    }
+
+    try {
+        const response = await fetch('/api/toggle_memorized_verse', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ verse_id: currentVerseId })
+        });
+        const data = await response.json();
+        
+        if (data.milestone_reached) {
+             if (window.triggerMilestoneModal) {
+                 window.triggerMilestoneModal(data.milestone_msg, data.count);
+            } else {
+                 alert(data.milestone_msg);
+            }
+        }
+    } catch (e) {
+        console.error("Error toggling memorized:", e);
+        // Revert
+        currentVerseMemorized = !currentVerseMemorized;
+        updateMemorizedButton();
+        if(verses[currentVerseIndex]) {
+            verses[currentVerseIndex].is_memorized = currentVerseMemorized;
+        }
     }
 }
 
