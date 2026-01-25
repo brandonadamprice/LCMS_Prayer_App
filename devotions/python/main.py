@@ -22,6 +22,7 @@ from devotional_content import mid_week
 from devotional_content import midday
 from devotional_content import morning
 from devotional_content import new_year
+from devotional_content import nicene_creed_study
 from devotional_content import night_watch
 from devotional_content import psalms_by_category
 from devotional_content import short_prayers
@@ -977,6 +978,12 @@ def small_catechism_route():
   return small_catechism.generate_small_catechism_page()
 
 
+@app.route("/nicene_creed_study")
+def nicene_creed_study_route():
+  """Returns Nicene Creed Study page."""
+  return nicene_creed_study.generate_nicene_creed_study_page()
+
+
 @app.route("/litany")
 def litany_route():
   """Returns the Litany page HTML."""
@@ -1831,12 +1838,12 @@ def streaks_route():
   # Gamification Stats
   prayed_for_others_count = len(user.prayed_request_ids)
   memorized_verses_count = len(user.memorized_verses)
-  
+
   catechism_total = len(utils.CATECHISM_SECTIONS)
   catechism_completed = len(user.completed_catechism_sections)
   catechism_pct = 0
   if catechism_total > 0:
-      catechism_pct = int((catechism_completed / catechism_total) * 100)
+    catechism_pct = int((catechism_completed / catechism_total) * 100)
 
   # Determine if prayed today
   timezone_str = user.timezone or "America/New_York"

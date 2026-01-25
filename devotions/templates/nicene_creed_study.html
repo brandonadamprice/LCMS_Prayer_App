@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% import "_macros.html" as macros with context %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>{{ title }}</h1>
+  <p>{{ description }}</p>
+</div>
+
+{% call macros.card('Historical Context', collapsed=False) %}
+    <h4>Origins</h4>
+    <p><strong>Council of Nicaea (325 AD):</strong> {{ historical_context.origins.council_of_nicaea_325 }}</p>
+    <p><strong>Council of Constantinople (381 AD):</strong> {{ historical_context.origins.council_of_constantinople_381 }}</p>
+    <p><strong>Council of Chalcedon (451 AD):</strong> {{ historical_context.origins.chalcedon_451 }}</p>
+    <h4>Terminology Debates</h4>
+    <p><strong>Ousia vs. Hypostasis:</strong> {{ historical_context.terminology_debates.ousia_vs_hypostasis }}</p>
+    <p><strong>Rule of Faith:</strong> {{ historical_context.terminology_debates.rule_of_faith }}</p>
+{% endcall %}
+
+{% for article in articles %}
+    {% call macros.card(article.article, collapsed=True) %}
+        <p><em>{{ article.text }}</em></p>
+        <hr>
+        <h4>Biblical Foundations</h4>
+        <ul>
+        {% for foundation in article.biblical_foundations %}
+            <li><strong>{{ foundation.reference }}:</strong> {{ foundation.text }}</li>
+        {% endfor %}
+        </ul>
+        <h4>Theological Analysis</h4>
+        {% for key, value in article.theological_analysis.items() %}
+            <p><strong>{{ key|replace("_", " ")|title }}:</strong> {{ value }}</p>
+        {% endfor %}
+        <h4>Key Concepts</h4>
+        {% for key, value in article.key_concepts.items() %}
+            <p><strong>{{ key|replace("_", " ")|title }}:</strong> {{ value }}</p>
+        {% endfor %}
+    {% endcall %}
+{% endfor %}
+
+{% call macros.card('Confessional Standards', collapsed=True) %}
+    <p><strong>Book of Concord:</strong> {{ confessional_standards.book_of_concord }}</p>
+    <p><strong>Augsburg Confession:</strong> {{ confessional_standards.augsburg_confession }}</p>
+    <p><strong>Formula of Concord:</strong> {{ confessional_standards.formula_of_concord }}</p>
+{% endcall %}
+
+{% call macros.card('Application', collapsed=True) %}
+    <p><strong>Worship:</strong> {{ application.worship }}</p>
+    <p><strong>Pastoral Care:</strong> {{ application.pastoral_care }}</p>
+{% endcall %}
+
+{% endblock %}

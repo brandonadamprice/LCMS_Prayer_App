@@ -150,6 +150,8 @@ class User(flask_login.UserMixin):
           completed_bible_days=data.get("completed_bible_days", []),
           prayed_request_ids=data.get("prayed_request_ids", []),
           memorized_verses=data.get("memorized_verses", []),
-          completed_catechism_sections=data.get("completed_catechism_sections", []),
+          completed_catechism_sections=data.get(
+              "completed_catechism_sections", []
+          ),
       )
     return None

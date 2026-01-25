@@ -71,12 +71,17 @@ def get_menu_items(is_advent, is_new_year, is_lent):
           ],
       },
       {
-          "label": "Catechism",
+          "label": "Education",
           "type": "dropdown",
           "submenu": [
               {
                   "label": "Small Catechism",
                   "url": "/small_catechism",
+                  "enabled": True,
+              },
+              {
+                  "label": "Nicene Creed Study",
+                  "url": "/nicene_creed_study",
                   "enabled": True,
               },
           ],
