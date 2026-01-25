@@ -508,6 +508,18 @@ def authorize():
     user = result
     flask_login.login_user(user, remember=True)
     flask.session.permanent = True
+    if (
+        user.created_at
+        and (
+            datetime.datetime.now(datetime.timezone.utc) - user.created_at
+        ).total_seconds()
+        < 60
+    ):
+      flask.flash(
+          'Welcome! Visit <a href="/settings">Settings</a> to manage'
+          " notification preferences.",
+          "success",
+      )
     return flask.redirect("/")
   except Exception as e:
     app.logger.warning("Google OAuth Error: %s", e)
@@ -610,7 +622,11 @@ def register_verify():
           "name": pending_data["name"],
       })
       user = models.User.get(user_id)
-      flask.flash("Account verified and updated!", "success")
+      flask.flash(
+          'Account verified and updated! Visit <a href="/settings">Settings</a>'
+          " to manage notification preferences.",
+          "success",
+      )
     else:
       # Create new user
       user_data = {
@@ -620,7 +636,11 @@ def register_verify():
           "created_at": datetime.datetime.now(datetime.timezone.utc),
       }
       user = users.create_new_user_doc(user_data, "email")
-      flask.flash("Account created successfully!", "success")
+      flask.flash(
+          'Account created successfully! Visit <a href="/settings">Settings</a>'
+          " to manage notification preferences.",
+          "success",
+      )
 
     flask_login.login_user(user, remember=True)
     flask.session.pop("pending_registration", None)
@@ -830,6 +850,11 @@ def merge_account_confirm_route():
   # We trust update_existing_user_doc to merge fields
   user = users.update_existing_user_doc(existing_doc.id, user_data)
 
+  flask.flash(
+      'Accounts linked successfully! Visit <a href="/settings">Settings</a> to'
+      " manage notification preferences.",
+      "success",
+  )
   flask_login.login_user(user, remember=True)
   flask.session.permanent = True
 

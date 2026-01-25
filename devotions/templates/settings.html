@@ -137,6 +137,18 @@
                       <input type="checkbox" name="prayed_sms" {% if current_user.notification_preferences.get('prayed_for_me', {}).get('sms') %}checked{% endif %} {% if not current_user.phone_number %}disabled title="Add phone number to enable"{% endif %}>
                   </td>
               </tr>
+              <tr style="border-top: 1px solid #eee;">
+                  <td style="padding: 10px 0;">Site Updates & Messages</td>
+                  <td style="text-align: center;">
+                      <input type="checkbox" name="site_messages_push" {% if current_user.notification_preferences.get('site_messages', {}).get('push') %}checked{% endif %}>
+                  </td>
+                  <td style="text-align: center;">
+                      <input type="checkbox" name="site_messages_email" {% if current_user.notification_preferences.get('site_messages', {}).get('email') %}checked{% endif %}>
+                  </td>
+                  <td style="text-align: center;">
+                      <input type="checkbox" name="site_messages_sms" {% if current_user.notification_preferences.get('site_messages', {}).get('sms') %}checked{% endif %} {% if not current_user.phone_number %}disabled title="Add phone number to enable"{% endif %}>
+                  </td>
+              </tr>
           </tbody>
       </table>
 
@@ -445,6 +457,11 @@
                   "push": document.querySelector('input[name="prayed_push"]').checked,
                   "email": document.querySelector('input[name="prayed_email"]').checked,
                   "sms": document.querySelector('input[name="prayed_sms"]').checked
+              },
+              "site_messages": {
+                  "push": document.querySelector('input[name="site_messages_push"]').checked,
+                  "email": document.querySelector('input[name="site_messages_email"]').checked,
+                  "sms": document.querySelector('input[name="site_messages_sms"]').checked
               }
           };
 

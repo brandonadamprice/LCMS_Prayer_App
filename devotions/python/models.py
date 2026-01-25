@@ -39,6 +39,7 @@ class User(flask_login.UserMixin):
       prayed_request_ids=None,
       memorized_verses=None,
       completed_catechism_sections=None,
+      created_at=None,
   ):
     self.id = user_id
     self.email = email
@@ -52,8 +53,9 @@ class User(flask_login.UserMixin):
     self.selected_pic_source = selected_pic_source
     self.phone_number = phone_number
     self.notification_preferences = notification_preferences or {
-        "prayer_reminders": {"push": True, "sms": False},
-        "prayed_for_me": {"push": True, "sms": False},
+        "prayer_reminders": {"push": True, "email": False, "sms": False},
+        "prayed_for_me": {"push": True, "email": False, "sms": False},
+        "site_messages": {"push": True, "email": True, "sms": False},
     }
     self.password_hash = password_hash
     self.google_id = google_id
@@ -65,6 +67,7 @@ class User(flask_login.UserMixin):
     self.prayed_request_ids = prayed_request_ids or []
     self.memorized_verses = memorized_verses or []
     self.completed_catechism_sections = completed_catechism_sections or []
+    self.created_at = created_at
 
     # Calculate effective streaks based on current date
     tz_str = self.timezone or "America/New_York"
@@ -153,5 +156,6 @@ class User(flask_login.UserMixin):
           completed_catechism_sections=data.get(
               "completed_catechism_sections", []
           ),
+          created_at=data.get("created_at"),
       )
     return None
