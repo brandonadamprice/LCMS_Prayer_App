@@ -53,7 +53,7 @@ class User(flask_login.UserMixin):
     self.selected_pic_source = selected_pic_source
     self.phone_number = phone_number
     self.notification_preferences = notification_preferences or {
-        "prayer_reminders": {"push": True, "email": False, "sms": False},
+        "prayer_reminders": {"push": True, "email": True, "sms": False},
         "prayed_for_me": {"push": True, "email": False, "sms": False},
         "site_messages": {"push": True, "email": True, "sms": False},
     }

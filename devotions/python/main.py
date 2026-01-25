@@ -1515,66 +1515,6 @@ def edit_prayer_request_route(request_id):
     return flask.jsonify({"success": False, "error": error_message}), 400
 
 
-@app.route("/admin/batch_update_prefs")
-@flask_login.login_required
-def batch_update_prefs_route():
-  """One-time route to update notification preferences for all users."""
-  if not app.config.get(
-      "ADMIN_USER_ID"
-  ) or flask_login.current_user.id != app.config.get("ADMIN_USER_ID"):
-    return flask.abort(403)
-
-  try:
-    db = utils.get_db_client()
-    users_ref = db.collection("users")
-    docs = users_ref.stream()
-    batch = db.batch()
-    commit_count = 0
-    updated_count = 0
-
-    for doc in docs:
-      doc_data = doc.to_dict()
-      prefs = doc_data.get("notification_preferences", {})
-      site_messages = prefs.get("site_messages", {})
-
-      should_update = False
-      if "site_messages" not in prefs:
-        prefs["site_messages"] = {}
-        should_update = True
-      if not prefs["site_messages"].get("push"):
-        prefs["site_messages"]["push"] = True
-        should_update = True
-      if not prefs["site_messages"].get("email"):
-        prefs["site_messages"]["email"] = True
-        should_update = True
-      if "sms" not in prefs["site_messages"]:
-        prefs["site_messages"]["sms"] = False
-        should_update = True
-
-      if should_update:
-        batch.update(doc.reference, {"notification_preferences": prefs})
-        commit_count += 1
-        updated_count += 1
-
-        if commit_count >= 499:
-          app.logger.info(f"Committing batch of {commit_count} updates...")
-          batch.commit()
-          batch = db.batch()
-          commit_count = 0
-
-    if commit_count > 0:
-      app.logger.info(f"Committing final batch of {commit_count} updates...")
-      batch.commit()
-
-    msg = f"Successfully processed preferences for {updated_count} users."
-    flask.flash(msg, "success")
-    return flask.redirect("/settings")
-  except Exception as e:
-    app.logger.error(f"Batch update failed: {e}")
-    flask.flash(f"Batch update failed: {e}", "error")
-    return flask.redirect("/settings")
-
-
 @app.route("/admin/traffic")
 @flask_login.login_required
 def admin_traffic_route():
