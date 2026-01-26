@@ -142,48 +142,50 @@ def inject_references_in_text(text):
     return text
 
   text = re.sub(r"\*\*([^\*]+?)\*\*", r"<strong>\1</strong>", text)
-  text = re.sub(r"\*([^\*]+?)\*", r"<strong>\1</strong>", text)
+  text = re.sub(
+      r"(?<!\*)\*([^\*]+?)\*(?!\*)", r"<strong>\1</strong>", text
+  )  # handle single asterisk bold
   text = re.sub(r"\bOT\b", "Old Testament", text)
-  # Detects a valid Bible reference in the text. Don't ask how this works.
-  pattern = r"\b((?:[1-3]\s)?[A-Za-z]+(?:(?:\s(?:of\s)?)?[A-Za-z]+){0,3}\s+\d+(?::\d+(?:(?:-)\d+)*)?(?:ff|f)?)\b"
+  # Detects a valid Bible reference in the text.
+  # This pattern requires Book C:V format, and limits book names to 1-3 words.
+  pattern = r"\b((?:[1-3]\s)?[A-Za-z][A-Za-z\.]+(?:\s[A-Za-z][A-Za-z\.]+){0,2}\s+\d+:\d+(?:(?:–|-)\d+|ff)?)\b"
 
-  matches = list(set(re.findall(pattern, text)))
+  matches = re.findall(pattern, text)
   if not matches:
     return text
 
-  # Clean refs for API
-  clean_refs = []
-  for m in matches:
-    clean = m.replace("–", "-").replace("ff", "").replace("f", "").strip()
-    clean_refs.append(clean)
+  # Process unique matches, longest first to avoid substring issues in replacement
+  unique_matches = sorted(list(set(matches)), key=len, reverse=True)
+
+  refs_for_api = [
+      m.replace("–", "-").replace("ff", "").strip() for m in unique_matches
+  ]
 
   try:
     texts = fetch_passages(
-        clean_refs, include_verse_numbers=False, include_copyright=False
+        refs_for_api, include_verse_numbers=False, include_copyright=False
     )
-    ref_map = dict(zip(matches, texts))
+    ref_map = dict(zip(unique_matches, texts))
 
-    def replace_match(m):
-      ref_str = m.group(1)
-      if ref_str not in ref_map:
-        return ref_str
-
-      scripture_text = ref_map[ref_str]
+    for ref in unique_matches:
+      scripture_text = ref_map.get(ref)
       if (
-          "Reading not available" in scripture_text
+          not scripture_text
+          or "Reading not available" in scripture_text
           or "ESV API" in scripture_text
       ):
-        return ref_str
+        continue
 
+      display_ref = ref.replace("ff", "")
       escaped_text = scripture_text.replace('"', "&quot;")
-      return (
-          f'<span class="scripture-tooltip" data-text="{ref_str} &mdash;'
-          f' {escaped_text}">{ref_str}</span>'
+      replacement = (
+          f'<span class="scripture-tooltip" data-text="{display_ref} &mdash;'
+          f' {escaped_text}">{display_ref}</span>'
       )
-
-    # Use re.sub with a callback to safely replace in one pass
-    # This avoids nested replacements if one reference is a substring of another
-    text = re.sub(pattern, replace_match, text)
+      # Use word boundaries for replacement to avoid partial matches on words like 'Regarding'
+      text = re.sub(
+          r"(?<![-\w])" + re.escape(ref) + r"(?![-\w])", replacement, text
+      )
 
   except Exception as e:
     print(f"Error injecting references: {e}")
