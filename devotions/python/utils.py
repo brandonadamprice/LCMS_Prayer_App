@@ -176,8 +176,8 @@ def inject_references_in_text(text):
 
       escaped_text = scripture_text.replace('"', "&quot;")
       return (
-          f'<span class="scripture-tooltip" data-text="{ref_str} &mdash; {escaped_text}">'
-          f"{ref_str}</span>"
+          f'<span class="scripture-tooltip" data-text="{ref_str} &mdash;'
+          f' {escaped_text}">{ref_str}</span>'
       )
 
     # Use re.sub with a callback to safely replace in one pass
