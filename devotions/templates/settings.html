@@ -507,16 +507,18 @@
 </script>
 
 <script>
-    const radios = document.querySelectorAll('input[name="pic_source"]');
-    const customInputDiv = document.getElementById('custom-url-input');
+    document.addEventListener('DOMContentLoaded', () => {
+        const radios = document.querySelectorAll('input[name="pic_source"]');
+        const customInputDiv = document.getElementById('custom-url-input');
 
-    radios.forEach(radio => {
-        radio.addEventListener('change', function() {
-            if (this.value === 'custom') {
-                customInputDiv.style.display = 'block';
-            } else {
-                customInputDiv.style.display = 'none';
-            }
+        radios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.value === 'custom') {
+                    customInputDiv.style.display = 'block';
+                } else {
+                    customInputDiv.style.display = 'none';
+                }
+            });
         });
     });
 
@@ -533,6 +535,7 @@
             '/office/midday',
             '/office/evening',
             '/office/close_of_day',
+            '/office/night_watch',
             '/daily_lectionary'
         ];
         
