@@ -143,8 +143,8 @@ def inject_references_in_text(text):
 
   text = re.sub(r"\*\*(.*?)\*\*", r"<strong>\1</strong>", text)
   text = re.sub(r"\bOT\b", "Old Testament", text)
-
-  pattern = r"\b((?:1|2|3|I|II|III)?\s*(?!Gospel)[A-Z][a-z]+\.?\s+\d+(?::\d+)?(?:[-–]\d+)?(?:ff|f)?)"
+  # Detects a valid Bible reference in the text. Don't ask me how this works.
+  pattern = r"(?<![a-zA-Z])((?:(?:1|2|3)\s)?[A-Za-z]+\.?\s+\d+(?::\d+)?(?:(?:–|-)\d+)?(?:ff)?)(?!\w)"
 
   matches = list(set(re.findall(pattern, text)))
   if not matches:

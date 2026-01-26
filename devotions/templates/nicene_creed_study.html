@@ -26,7 +26,7 @@
         <h4>Biblical Foundations</h4>
         <ul>
         {% for foundation in article.biblical_foundations %}
-            <li><strong>{{ foundation.reference }}:</strong> {{ foundation.text }}</li>
+            <li><strong>{{ foundation.reference|safe }}:</strong> {{ foundation.text|safe }}</li>
         {% endfor %}
         </ul>
         <h4>Theological Analysis</h4>
