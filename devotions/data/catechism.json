@@ -144,7 +144,7 @@
     "questions_and_answers": [
       {
         "question": "What Does God Say of All These Commandments?",
-        "answer": "He says thus (Exod. 20:5f): I the Lord, thy God, am a jealous God, visiting the iniquity of the fathers upon the children unto the third and fourth generation of them that hate Me, and showing mercy unto thousands of them that love Me and keep My commandments."
+        "answer": "He says thus (<bible-ref>Exod. 20:5f</bible-ref>): I the Lord, thy God, am a jealous God, visiting the iniquity of the fathers upon the children unto the third and fourth generation of them that hate Me, and showing mercy unto thousands of them that love Me and keep My commandments."
       },
       {
         "question": "What does this mean?",
@@ -348,7 +348,7 @@
       },
       {
         "question": "Which is that word of God?",
-        "answer": "Christ, our Lord, says in the last chapter of Matthew : Go ye into all the world and teach all nations, baptizing them in the name of the Father, and of the Son, and of the Holy Ghost."
+        "answer": "Christ, our Lord, says in the last chapter of Matthew (<bible-ref>Matthew 28:19</bible-ref>): Go ye into all the world and teach all nations, baptizing them in the name of the Father, and of the Son, and of the Holy Ghost."
       }
     ],
     "prayers": [
@@ -366,7 +366,7 @@
       },
       {
         "question": "Which are such words and promises of God?",
-        "answer": "Christ, our Lord, says in the last chapter of Mark : He that believeth and is baptized shall be saved; but he that believeth not shall be damned."
+        "answer": "Christ, our Lord, says in the last chapter of Mark (<bible-ref>Mark 16:16</bible-ref>): He that believeth and is baptized shall be saved; but he that believeth not shall be damned."
       }
     ],
     "prayers": [
@@ -380,7 +380,7 @@
     "questions_and_answers": [
       {
         "question": "How can water do such great things?",
-        "answer": "It is not the water indeed that does them, but the word of God which is in and with the water, and faith, which trusts such word of God in the water. For without the word of God the water is simple water and no baptism. But with the word of God it is a baptism, that is, a gracious water of life and a washing of regeneration in the Holy Ghost, as St. Paul says, Titus, chapter three: By the washing of regeneration and renewing of the Holy Ghost, which He shed on us abundantly through Jesus Christ, our Savior, that, being justified by His grace, we should be made heirs according to the hope of eternal life. This is a faithful saying."
+        "answer": "It is not the water indeed that does them, but the word of God which is in and with the water, and faith, which trusts such word of God in the water. For without the word of God the water is simple water and no baptism. But with the word of God it is a baptism, that is, a gracious water of life and a washing of regeneration in the Holy Ghost, as St. Paul says, <bible-ref>Titus 3:5-8</bible-ref>: By the washing of regeneration and renewing of the Holy Ghost, which He shed on us abundantly through Jesus Christ, our Savior, that, being justified by His grace, we should be made heirs according to the hope of eternal life. This is a faithful saying."
       }
     ],
     "prayers": [
@@ -398,7 +398,7 @@
       },
       {
         "question": "Where is this written?",
-        "answer": "St. Paul says Romans, chapter 6 : We are buried with Christ by Baptism into death, that, like as He was raised up from the dead by the glory of the Father, even so we also should walk in newness of life."
+        "answer": "St. Paul says <bible-ref>Romans 6:4</bible-ref>: We are buried with Christ by Baptism into death, that, like as He was raised up from the dead by the glory of the Father, even so we also should walk in newness of life."
       }
     ],
     "prayers": [
@@ -543,19 +543,19 @@
   },
   {
     "title": "Table of Duties: Concerning Civil Government",
-    "text": "Let every soul be subject unto the higher powers. For the power which exists anywhere is ordained of God. Whosoever resisteth the power resisteth the ordinance of God; and they that resist shall receive to themselves damnation. For he beareth not the sword in vain; for he is the minister of God, a revenger to execute wrath upon him that doeth evil. Rom. 13:1-4.",
+    "text": "Let every soul be subject unto the higher powers. For the power which exists anywhere is ordained of God. Whosoever resisteth the power resisteth the ordinance of God; and they that resist shall receive to themselves damnation. For he beareth not the sword in vain; for he is the minister of God, a revenger to execute wrath upon him that doeth evil. <bible-ref>Rom. 13:1-4</bible-ref>.",
     "questions_and_answers": [],
     "prayers": []
   },
   {
     "title": "Table of Duties: What Subjects Owe to the Magistrates",
-    "text": "Render unto Caesar the things which are Caesar's. Matt. 22:21. Let every soul be subject unto the higher powers, etc. Wherefore ye must needs be subject, not only for wrath, but also for conscience' sake. For, for this cause pay ye tribute also; for they are God's ministers, attending continually upon this very thing. Render therefore to all their dues: tribute to whom tribute is due; custom, to whom custom; fear, to whom fear; honor, to whom honor. Rom. 13:1,5ff. I exhort, therefore, that, first of all, supplications, prayers, intercessions, and giving of thanks be made for all men; for kings and for all that are in authority, that we may lead a quiet and peaceable life in all godliness and honesty. 1 Tim. 2:1f Put them in mind to be subject to principalities and powers, etc. Titus 3:1. Submit yourselves to every ordinance of man for the Lord's sake, whether it be to the king as supreme, or unto governors as unto them that are sent by him, etc. 1 Pet. 2:13f",
+    "text": "Render unto Caesar the things which are Caesar's. <bible-ref>Matthew 22:21</bible-ref>. Let every soul be subject unto the higher powers, etc. Wherefore ye must needs be subject, not only for wrath, but also for conscience' sake. For, for this cause pay ye tribute also; for they are God's ministers, attending continually upon this very thing. Render therefore to all their dues: tribute to whom tribute is due; custom, to whom custom; fear, to whom fear; honor, to whom honor. <bible-ref>Rom. 13:1,5ff</bible-ref>. I exhort, therefore, that, first of all, supplications, prayers, intercessions, and giving of thanks be made for all men; for kings and for all that are in authority, that we may lead a quiet and peaceable life in all godliness and honesty. <bible-ref>1 Tim. 2:1f</bible-ref> Put them in mind to be subject to principalities and powers, etc. <bible-ref>Titus 3:1</bible-ref>. Submit yourselves to every ordinance of man for the Lord's sake, whether it be to the king as supreme, or unto governors as unto them that are sent by him, etc. <bible-ref>1 Pet. 2:13f</bible-ref>",
     "questions_and_answers": [],
     "prayers": []
   },
   {
     "title": "Table of Duties: For Husbands",
-    "text": "Ye husbands, dwell with your wives according to knowledge, giving honor unto the wife, as unto the weaker vessel, and as being heirs together of the grace of life, that your prayers be not hindered. <bible-ref>1 Pet. 3:7</bible-ref>. And be not bitter against them. <bible-ref>Col. 3:9</bible-ref>.",
+    "text": "Ye husbands, dwell with your wives according to knowledge, giving honor unto the wife, as unto the weaker vessel, and as being heirs together of the grace of life, that your prayers be not hindered. <bible-ref>1 Pet. 3:7</bible-ref>. And be not bitter against them. <bible-ref>Col. 3:19</bible-ref>.",
     "questions_and_answers": [],
     "prayers": []
   },
@@ -625,7 +625,7 @@
       },
       {
         "question": "4. What have you deserved from God because of your sins?",
-        "answer": "His wrath and displeasure, temporal death, and eternal damnation. See <bible-ref>Romans 6:21</bible-ref>,<bible-ref>23</bible-ref>."
+        "answer": "His wrath and displeasure, temporal death, and eternal damnation. See <bible-ref>Romans 6:21, 23</bible-ref>."
       },
       {
         "question": "5. Do you hope to be saved?",
@@ -677,7 +677,7 @@
       },
       {
         "question": "17. What motivated Christ to die and make full payment for your sins?",
-        "answer": "His great love for His Father and for me and other sinners, as it is written in John 14; Romans 5; Galatians 2 and Ephesians 5."
+        "answer": "His great love for His Father and for me and other sinners, as it is written in <bible-ref>John 14</bible-ref>; <bible-ref>Romans 5</bible-ref>; <bible-ref>Galatians 2</bible-ref> and <bible-ref>Ephesians 5</bible-ref>."
       },
       {
         "question": "18. Finally, why do you wish to go to the Sacrament?",
@@ -689,7 +689,7 @@
       },
       {
         "question": "20. But what should you do if you are not aware of this need and have no hunger and thirst for the Sacrament?",
-        "answer": "To such a person no better advice can be given than this: first, he should touch his body to see if he still has flesh and blood. Then he should believe what the Scriptures say of it in Galatians 5 and Romans 7. Second, he should look around to see whether he is still in the world, and remember that there will be no lack of sin and trouble, as the Scriptures say in John 15-16 and in 1 John 2 and 5. Third, he will certainly have the devil also around him, who with his lying and murdering day and night will let him have no peace, within or without, as the Scriptures picture him in John 8 and 16; 1 Peter 5; Ephesians 6; and 2 Timothy 2."
+        "answer": "To such a person no better advice can be given than this: first, he should touch his body to see if he still has flesh and blood. Then he should believe what the Scriptures say of it in <bible-ref>Galatians 5</bible-ref> and <bible-ref>Romans 7</bible-ref>. Second, he should look around to see whether he is still in the world, and remember that there will be no lack of sin and trouble, as the Scriptures say in <bible-ref>John 15-16</bible-ref> and in <bible-ref>1 John 2</bible-ref> and <bible-ref>1 John 5</bible-ref>. Third, he will certainly have the devil also around him, who with his lying and murdering day and night will let him have no peace, within or without, as the Scriptures picture him in <bible-ref>John 8</bible-ref> and <bible-ref>John 16</bible-ref>; <bible-ref>1 Peter 5</bible-ref>; <bible-ref>Ephesians 6</bible-ref>; and <bible-ref>2 Timothy 2</bible-ref>."
       }
     ],
     "prayers": []
