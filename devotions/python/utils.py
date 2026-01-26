@@ -141,7 +141,7 @@ def inject_references_in_text(text):
   if not text:
     return text
 
-  text = re.sub(r"\*([^\*]+)\*", r"<strong>\1</strong>", text)
+  text = re.sub(r"\*\*(.*?)\*\*", r"<strong>\1</strong>", text)
   text = re.sub(r"\bOT\b", "Old Testament", text)
 
   pattern = r"\b((?:1|2|3|I|II|III)?\s*(?!Gospel)[A-Z][a-z]+\.?\s+\d+(?::\d+)?(?:[-–]\d+)?(?:ff|f)?)"
@@ -176,7 +176,7 @@ def inject_references_in_text(text):
 
       escaped_text = scripture_text.replace('"', "&quot;")
       return (
-          f'<span class="scripture-tooltip" data-text="{escaped_text}">'
+          f'<span class="scripture-tooltip" data-text="{ref_str} &mdash; {escaped_text}">'
           f"{ref_str}</span>"
       )
 

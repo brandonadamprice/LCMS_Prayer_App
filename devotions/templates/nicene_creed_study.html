@@ -11,12 +11,12 @@
 
 {% call macros.card('Historical Context', collapsed=False) %}
     <h4>Origins</h4>
-    <p><strong>Council of Nicaea (325 AD):</strong> {{ historical_context.origins.council_of_nicaea_325 }}</p>
-    <p><strong>Council of Constantinople (381 AD):</strong> {{ historical_context.origins.council_of_constantinople_381 }}</p>
-    <p><strong>Council of Chalcedon (451 AD):</strong> {{ historical_context.origins.chalcedon_451 }}</p>
+    <p><strong>Council of Nicaea (325 AD):</strong> {{ historical_context.origins.council_of_nicaea_325|safe }}</p>
+    <p><strong>Council of Constantinople (381 AD):</strong> {{ historical_context.origins.council_of_constantinople_381|safe }}</p>
+    <p><strong>Council of Chalcedon (451 AD):</strong> {{ historical_context.origins.chalcedon_451|safe }}</p>
     <h4>Terminology Debates</h4>
-    <p><strong>Ousia vs. Hypostasis:</strong> {{ historical_context.terminology_debates.ousia_vs_hypostasis }}</p>
-    <p><strong>Rule of Faith:</strong> {{ historical_context.terminology_debates.rule_of_faith }}</p>
+    <p><strong>Ousia vs. Hypostasis:</strong> {{ historical_context.terminology_debates.ousia_vs_hypostasis|safe }}</p>
+    <p><strong>Rule of Faith:</strong> {{ historical_context.terminology_debates.rule_of_faith|safe }}</p>
 {% endcall %}
 
 {% for article in articles %}
@@ -31,24 +31,24 @@
         </ul>
         <h4>Theological Analysis</h4>
         {% for key, value in article.theological_analysis.items() %}
-            <p><strong>{{ key|replace("_", " ")|title }}:</strong> {{ value }}</p>
+            <p><strong>{{ key|replace("_", " ")|title }}:</strong> {{ value|safe }}</p>
         {% endfor %}
         <h4>Key Concepts</h4>
         {% for key, value in article.key_concepts.items() %}
-            <p><strong>{{ key|replace("_", " ")|title }}:</strong> {{ value }}</p>
+            <p><strong>{{ key|replace("_", " ")|title }}:</strong> {{ value|safe }}</p>
         {% endfor %}
     {% endcall %}
 {% endfor %}
 
 {% call macros.card('Confessional Standards', collapsed=True) %}
-    <p><strong>Book of Concord:</strong> {{ confessional_standards.book_of_concord }}</p>
-    <p><strong>Augsburg Confession:</strong> {{ confessional_standards.augsburg_confession }}</p>
-    <p><strong>Formula of Concord:</strong> {{ confessional_standards.formula_of_concord }}</p>
+    <p><strong>Book of Concord:</strong> {{ confessional_standards.book_of_concord|safe }}</p>
+    <p><strong>Augsburg Confession:</strong> {{ confessional_standards.augsburg_confession|safe }}</p>
+    <p><strong>Formula of Concord:</strong> {{ confessional_standards.formula_of_concord|safe }}</p>
 {% endcall %}
 
 {% call macros.card('Application', collapsed=True) %}
-    <p><strong>Worship:</strong> {{ application.worship }}</p>
-    <p><strong>Pastoral Care:</strong> {{ application.pastoral_care }}</p>
+    <p><strong>Worship:</strong> {{ application.worship|safe }}</p>
+    <p><strong>Pastoral Care:</strong> {{ application.pastoral_care|safe }}</p>
 {% endcall %}
 
 {% endblock %}
