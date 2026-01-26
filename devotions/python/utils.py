@@ -135,7 +135,7 @@ def load_catechism():
   """Loads catechism data from JSON file."""
   with open(CATECHISM_JSON_PATH, "r", encoding="utf-8") as f:
     catechism_data = json.load(f)
-  return catechism_data
+  return process_node(catechism_data)
 
 
 def load_other_prayers():
@@ -193,6 +193,72 @@ def decrypt_text(token: str) -> str:
   except Exception as e:
     print(f"Error decrypting token: {e}")
     return "[Error decrypting prayer]"
+
+
+def inject_references_in_text(text):
+  """Finds scripture references in text and replaces them with tooltip spans."""
+  if not text:
+    return text
+
+  text = re.sub(r"\*([^\*]+)\*", r"<strong>\1</strong>", text)
+  text = re.sub(r"\bOT\b", "Old Testament", text)
+
+  pattern = r"\b((?:1|2|3|I|II|III)?\s*(?!Gospel)[A-Z][a-z]+\.?\s+\d+(?::\d+)?(?:[-–]\d+)?(?:ff|f)?)"
+
+  matches = list(set(re.findall(pattern, text)))
+  if not matches:
+    return text
+
+  # Clean refs for API
+  clean_refs = []
+  for m in matches:
+    clean = m.replace("–", "-").replace("ff", "").replace("f", "").strip()
+    clean_refs.append(clean)
+
+  try:
+    texts = fetch_passages(
+        clean_refs, include_verse_numbers=False, include_copyright=False
+    )
+    ref_map = dict(zip(matches, texts))
+
+    def replace_match(m):
+      ref_str = m.group(1)
+      if ref_str not in ref_map:
+        return ref_str
+
+      scripture_text = ref_map[ref_str]
+      if (
+          "Reading not available" in scripture_text
+          or "ESV API" in scripture_text
+      ):
+        return ref_str
+
+      escaped_text = scripture_text.replace('"', "&quot;")
+      return (
+          f'<span class="scripture-tooltip" data-text="{escaped_text}">'
+          f"{ref_str}</span>"
+      )
+
+    # Use re.sub with a callback to safely replace in one pass
+    # This avoids nested replacements if one reference is a substring of another
+    text = re.sub(pattern, replace_match, text)
+
+  except Exception as e:
+    print(f"Error injecting references: {e}")
+
+  return text
+
+
+def process_node(node):
+  """Recursively processes nodes to inject tooltips into string values."""
+  if isinstance(node, dict):
+    return {k: process_node(v) for k, v in node.items()}
+  elif isinstance(node, list):
+    return [process_node(i) for i in node]
+  elif isinstance(node, str):
+    return inject_references_in_text(node)
+  else:
+    return node
 
 
 def get_deterministic_choice(options: list, date_obj: datetime.datetime) -> any:

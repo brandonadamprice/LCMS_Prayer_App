@@ -1,7 +1,9 @@
 """Functions for generating the Nicene Creed study page."""
 
+from functools import lru_cache
 import json
 import os
+
 import flask
 import utils
 
@@ -10,10 +12,12 @@ NICENE_CREED_STUDY_JSON_PATH = os.path.join(
 )
 
 
+@lru_cache(maxsize=1)
 def load_nicene_creed_study_data():
   """Loads Nicene Creed study data from JSON file."""
   with open(NICENE_CREED_STUDY_JSON_PATH, "r", encoding="utf-8") as f:
-    return json.load(f)
+    data = json.load(f)
+  return utils.process_node(data)
 
 
 def generate_nicene_creed_study_page():
