@@ -84,6 +84,11 @@ def get_menu_items(is_advent, is_new_year, is_lent):
                   "url": "/nicene_creed_study",
                   "enabled": True,
               },
+              {
+                  "label": "Trinity Study",
+                  "url": "/trinity_study",
+                  "enabled": True,
+              },
           ],
       },
       {

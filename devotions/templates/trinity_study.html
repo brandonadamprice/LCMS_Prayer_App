@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% import "_macros.html" as macros with context %}
+
+{% block title %}{{ study.title }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>{{ study.title }}</h1>
+  <p>{{ study.description|safe }}</p>
+</div>
+
+{% for section_key, section_value in study.items() %}
+  {% if section_key not in ['title', 'description'] %}
+    {% call macros.card(section_key|replace("_", " ")|title, collapsed=True) %}
+      {% for sub_key, sub_value in section_value.items() %}
+        {% if sub_value is string %}
+          <p><strong>{{ sub_key|replace("_", " ")|title }}:</strong> {{ sub_value|safe }}</p>
+        {% elif sub_value is mapping %}
+           <h4 style="margin-top: 20px; border-bottom: 1px solid #eee; padding-bottom: 5px;">{{ sub_key|replace("_", " ")|title }}</h4>
+           {% for item_key, item_value in sub_value.items() %}
+              <p><strong>{{ item_key|replace("_", " ")|title }}:</strong> {{ item_value|safe }}</p>
+           {% endfor %}
+        {% endif %}
+      {% endfor %}
+    {% endcall %}
+  {% endif %}
+{% endfor %}
+{% endblock %}

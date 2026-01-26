@@ -27,6 +27,7 @@ from devotional_content import night_watch
 from devotional_content import psalms_by_category
 from devotional_content import short_prayers
 from devotional_content import small_catechism
+from devotional_content import trinity_study
 import flask
 import flask_login
 from google.cloud import firestore
@@ -1007,6 +1008,12 @@ def small_catechism_route():
 def nicene_creed_study_route():
   """Returns Nicene Creed Study page."""
   return nicene_creed_study.generate_nicene_creed_study_page()
+
+
+@app.route("/trinity_study")
+def trinity_study_route():
+  """Returns Trinity Study page."""
+  return trinity_study.generate_trinity_study_page()
 
 
 @app.route("/litany")
