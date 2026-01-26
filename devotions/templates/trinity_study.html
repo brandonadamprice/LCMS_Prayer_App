@@ -11,7 +11,13 @@
 
 {% for section_key, section_value in study.items() %}
   {% if section_key not in ['title', 'description'] %}
-    {% call macros.card(section_key|replace("_", " ")|title, collapsed=True) %}
+    {% set title_parts = section_key.split('_', 1) %}
+    {% if title_parts|length > 1 and title_parts[0] in ['I', 'II', 'III', 'IV', 'V', 'VI'] %}
+      {% set card_title = title_parts[1]|replace("_", " ")|title %}
+    {% else %}
+      {% set card_title = section_key|replace("_", " ")|title %}
+    {% endif %}
+    {% call macros.card(card_title, collapsed=True) %}
       {% for sub_key, sub_value in section_value.items() %}
         {% if sub_value is string %}
           <p><strong>{{ sub_key|replace("_", " ")|title }}:</strong> {{ sub_value|safe }}</p>

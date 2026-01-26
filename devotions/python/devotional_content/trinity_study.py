@@ -17,6 +17,10 @@ def _inject_references_in_text(text):
   """Finds scripture references in text and replaces them with tooltip spans."""
   if not text:
     return text
+
+  text = re.sub(r'\*([^\*]+)\*', r'<strong>\1</strong>', text)
+  text = re.sub(r'\bOT\b', 'Old Testament', text)
+
   # Pattern to find refs like: Gen 1:26, Deut 6:4, 1 John 5:7, 2 Cor 13:14
   pattern = re.compile(r"""\b((?:[1-3]\s)?[A-Za-z]+\s\d+:\d+(?:(?:–|-)\d+)?)\b""")
   matches = list(set(pattern.findall(text)))
