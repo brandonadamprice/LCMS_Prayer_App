@@ -10,20 +10,15 @@ from authlib.integrations.flask_client import OAuth
 from devotional_content import advent
 from devotional_content import bible_in_a_year
 from devotional_content import childrens_devotion
-from devotional_content import close_of_day
 from devotional_content import daily_lectionary_page
-from devotional_content import evening
 from devotional_content import extended_evening
 from devotional_content import gospels_by_category
 from devotional_content import lent
 from devotional_content import liturgical_calendar
 from devotional_content import memory
 from devotional_content import mid_week
-from devotional_content import midday
-from devotional_content import morning
 from devotional_content import new_year
 from devotional_content import nicene_creed_study
-from devotional_content import night_watch
 from devotional_content import psalms_by_category
 from devotional_content import short_prayers
 from devotional_content import small_catechism
@@ -894,27 +889,59 @@ def extended_evening_devotion_route():
 
 
 @app.route("/morning_devotion")
-def morning_devotion_route():
-  """Returns the generated devotion HTML."""
-  return morning.generate_morning_devotion(get_date_from_request())
+def morning_devotion_route_old():
+  """Redirects old morning devotion URL to new one."""
+  return flask.redirect(
+      flask.url_for("office_devotion_route", office_name="morning")
+  )
 
 
 @app.route("/midday_devotion")
-def midday_devotion_route():
-  """Returns the generated devotion HTML."""
-  return midday.generate_midday_devotion(get_date_from_request())
+def midday_devotion_route_old():
+  """Redirects old midday devotion URL to new one."""
+  return flask.redirect(
+      flask.url_for("office_devotion_route", office_name="midday")
+  )
 
 
 @app.route("/evening_devotion")
-def evening_devotion_route():
-  """Returns the generated devotion HTML."""
-  return evening.generate_evening_devotion(get_date_from_request())
+def evening_devotion_route_old():
+  """Redirects old evening devotion URL to new one."""
+  return flask.redirect(
+      flask.url_for("office_devotion_route", office_name="evening")
+  )
 
 
 @app.route("/close_of_day_devotion")
-def close_of_day_devotion_route():
-  """Returns the generated devotion HTML."""
-  return close_of_day.generate_close_of_day_devotion(get_date_from_request())
+def close_of_day_devotion_route_old():
+  """Redirects old close of day devotion URL to new one."""
+  return flask.redirect(
+      flask.url_for("office_devotion_route", office_name="close_of_day")
+  )
+
+
+@app.route("/night_watch_devotion")
+def night_watch_devotion_route_old():
+  """Redirects old night watch devotion URL to new one."""
+  return flask.redirect(
+      flask.url_for("office_devotion_route", office_name="night_watch")
+  )
+
+
+@app.route("/office/<string:office_name>")
+def office_devotion_route(office_name):
+  """Returns the generated devotion HTML for morning, midday, evening, etc."""
+  offices = {"morning", "midday", "evening", "close_of_day", "night_watch"}
+  if office_name not in offices:
+    flask.abort(404)
+  user_id = (
+      flask_login.current_user.id
+      if flask_login.current_user.is_authenticated
+      else None
+  )
+  date_obj = get_date_from_request()
+  template_data = utils.get_office_devotion_data(user_id, office_name, date_obj)
+  return flask.render_template(f"{office_name}_devotion.html", **template_data)
 
 
 @app.route("/mid_week_devotion")
@@ -946,12 +973,6 @@ def childrens_devotion_route():
   """Returns the generated children's devotion HTML."""
   # Children's devotion doesn't vary by date in the same way, but could if needed.
   return childrens_devotion.generate_childrens_devotion()
-
-
-@app.route("/night_watch_devotion")
-def night_watch_devotion_route():
-  """Returns the generated devotion HTML."""
-  return night_watch.generate_night_watch_devotion(get_date_from_request())
 
 
 @app.route("/prayer_requests")

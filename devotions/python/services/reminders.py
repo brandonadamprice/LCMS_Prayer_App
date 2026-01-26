@@ -5,12 +5,7 @@ import uuid
 
 import communication
 from devotional_content import bible_in_a_year
-from devotional_content import close_of_day
-from devotional_content import evening
 from devotional_content import lent
-from devotional_content import midday
-from devotional_content import morning
-from devotional_content import night_watch
 import flask
 import liturgy
 import pytz
@@ -30,11 +25,11 @@ DEVOTION_NAMES = {
 }
 
 DEVOTION_URLS = {
-    "morning": "/morning_devotion",
-    "midday": "/midday_devotion",
-    "evening": "/evening_devotion",
-    "close_of_day": "/close_of_day_devotion",
-    "night_watch": "/night_watch_devotion",
+    "morning": "/office/morning",
+    "midday": "/office/midday",
+    "evening": "/office/evening",
+    "close_of_day": "/office/close_of_day",
+    "night_watch": "/office/night_watch",
     "bible_in_a_year": "/bible_in_a_year",
     "lent": "/lent_devotion",
 }
@@ -365,21 +360,15 @@ def _send_email(user_data, devotion_url, devotion_key, reading_type):
     title = DEVOTION_NAMES.get(devotion_key, "Daily Prayer")
     template_name = None
 
-    if devotion_key == "morning":
-      data = morning.get_morning_devotion_data(user_data.get("id"))
-      template_name = "morning_devotion.html"
-    elif devotion_key == "midday":
-      data = midday.get_midday_devotion_data(user_data.get("id"))
-      template_name = "midday_devotion.html"
-    elif devotion_key == "evening":
-      data = evening.get_evening_devotion_data(user_data.get("id"))
-      template_name = "evening_devotion.html"
-    elif devotion_key == "close_of_day":
-      data = close_of_day.get_close_of_day_devotion_data(user_data.get("id"))
-      template_name = "close_of_day_devotion.html"
-    elif devotion_key == "night_watch":
-      data = night_watch.get_night_watch_devotion_data(user_data.get("id"))
-      template_name = "night_watch_devotion.html"
+    if devotion_key in [
+        "morning",
+        "midday",
+        "evening",
+        "close_of_day",
+        "night_watch",
+    ]:
+      data = utils.get_office_devotion_data(user_data.get("id"), devotion_key)
+      template_name = f"{devotion_key}_devotion.html"
     elif devotion_key == "bible_in_a_year":
       data = utils.get_bible_in_a_year_devotion_data(user_data.get("id"))
       template_name = "bible_in_a_year.html"

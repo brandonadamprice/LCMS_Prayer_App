@@ -8,17 +8,17 @@ def get_menu_items(is_advent, is_new_year, is_lent):
           "label": "Daily Prayer",
           "type": "dropdown",
           "submenu": [
-              {"label": "Morning", "url": "/morning_devotion", "enabled": True},
-              {"label": "Midday", "url": "/midday_devotion", "enabled": True},
-              {"label": "Evening", "url": "/evening_devotion", "enabled": True},
+              {"label": "Morning", "url": "/office/morning", "enabled": True},
+              {"label": "Midday", "url": "/office/midday", "enabled": True},
+              {"label": "Evening", "url": "/office/evening", "enabled": True},
               {
                   "label": "Close of Day",
-                  "url": "/close_of_day_devotion",
+                  "url": "/office/close_of_day",
                   "enabled": True,
               },
               {
                   "label": "Night Watch",
-                  "url": "/night_watch_devotion",
+                  "url": "/office/night_watch",
                   "enabled": True,
               },
               {
