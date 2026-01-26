@@ -1,6 +1,6 @@
 Flask==3.1.2
 gunicorn==23.0.0
-Werkzeug==3.0.3
+Werkzeug==3.1.0
 google-cloud-secret-manager==2.25.0
 google-cloud-firestore==2.19.0
 firebase-admin==6.2.0
