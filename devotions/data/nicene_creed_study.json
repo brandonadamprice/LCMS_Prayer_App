@@ -19,19 +19,19 @@
         "text": "I believe in one God, the Father Almighty, Maker of heaven and earth and of all things visible and invisible.",
         "biblical_foundations": [
           {
-            "reference": "Deuteronomy 6:4",
+            "reference": "<bible-ref>Deuteronomy 6:4</bible-ref>",
             "text": "Hear, O Israel: The Lord our God, the Lord is one."
           },
           {
-            "reference": "1 Corinthians 8:6",
+            "reference": "<bible-ref>1 Corinthians 8:6</bible-ref>",
             "text": "Yet for us there is one God, the Father, from whom are all things and for whom we exist."
           },
           {
-            "reference": "Genesis 1:1",
+            "reference": "<bible-ref>Genesis 1:1</bible-ref>",
             "text": "In the beginning, God created the heavens and the earth."
           },
           {
-            "reference": "Exodus 3:14",
+            "reference": "<bible-ref>Exodus 3:14</bible-ref>",
             "text": "I AM WHO I AM. God alone truly 'is' as absolute being."
           }
         ],
@@ -50,19 +50,19 @@
         "text": "And in one Lord Jesus Christ, the only-begotten Son of God... God of God, Light of Light... being of one substance with the Father... Who for us men and for our salvation came down...",
         "biblical_foundations": [
           {
-            "reference": "John 1:1-3",
+            "reference": "<bible-ref>John 1:1-3</bible-ref>",
             "text": "The Word was with God, and the Word was God... All things were made through him."
           },
           {
-            "reference": "John 10:30",
+            "reference": "<bible-ref>John 10:30</bible-ref>",
             "text": "I and the Father are one."
           },
           {
-            "reference": "Colossians 2:9",
+            "reference": "<bible-ref>Colossians 2:9</bible-ref>",
             "text": "For in him the whole fullness of deity dwells bodily."
           },
           {
-            "reference": "1 John 4:2",
+            "reference": "<bible-ref>1 John 4:2</bible-ref>",
             "text": "Every spirit that confesses that Jesus Christ has come in the flesh is from God."
           }
         ],
@@ -83,19 +83,19 @@
         "text": "And I believe in the Holy Spirit, the Lord and Giver of life, who proceeds from the Father and the Son...",
         "biblical_foundations": [
           {
-            "reference": "2 Corinthians 3:17",
+            "reference": "<bible-ref>2 Corinthians 3:17</bible-ref>",
             "text": "Now the Lord is the Spirit."
           },
           {
-            "reference": "John 15:26",
+            "reference": "<bible-ref>John 15:26</bible-ref>",
             "text": "The Spirit of truth, who proceeds from the Father, he will bear witness about me."
           },
           {
-            "reference": "Galatians 4:6",
+            "reference": "<bible-ref>Galatians 4:6</bible-ref>",
             "text": "God has sent the Spirit of his Son into our hearts."
           },
           {
-            "reference": "Romans 8:9",
+            "reference": "<bible-ref>Romans 8:9</bible-ref>",
             "text": "Anyone who does not have the Spirit of Christ does not belong to him."
           }
         ],
@@ -114,19 +114,19 @@
         "text": "And I believe in one holy Christian and apostolic Church. I acknowledge one Baptism for the remission of sins. And I look for the resurrection of the dead...",
         "biblical_foundations": [
           {
-            "reference": "Ephesians 4:4-5",
+            "reference": "<bible-ref>Ephesians 4:4-5</bible-ref>",
             "text": "There is one body and one Spirit... one Lord, one faith, one baptism."
           },
           {
-            "reference": "Ephesians 2:20",
+            "reference": "<bible-ref>Ephesians 2:20</bible-ref>",
             "text": "Built on the foundation of the apostles and prophets, Christ Jesus himself being the cornerstone."
           },
           {
-            "reference": "Matthew 16:18",
+            "reference": "<bible-ref>Matthew 16:18</bible-ref>",
             "text": "On this rock I will build my church."
           },
           {
-            "reference": "Acts 2:38",
+            "reference": "<bible-ref>Acts 2:38</bible-ref>",
             "text": "Repent and be baptized... for the forgiveness of your sins."
           }
         ],

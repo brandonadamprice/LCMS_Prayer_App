@@ -114,7 +114,7 @@
       "explanation": "This commandment prohibits murder and physical harm, but also targets the roots of violence: **anger, hatred, and bitterness**. Positively, Luther emphasizes that we should **assist and serve our neighbor in every bodily danger or need**. A Christian is called to have a patient and gentle heart, doing good even to those who are enemies. Any harm done to a neighbor, including through the manipulation of laws to damage their well-being, stands condemned under this heading.",
       "questions": [
         {
-          "question": "What is the positive requirement for a Christian regarding their neighbor’s life?",
+          "question": "What is the positive requirement for a Christian regarding their neighbor's life?",
           "options": [
             "To ignore their physical needs and focus on their soul",
             "To assist and serve them in every bodily danger or need",
@@ -192,7 +192,7 @@
     {
       "title": "The Eighth Commandment",
       "commandment": "The Eighth Commandment: Thou shalt not bear false witness against thy neighbor.",
-      "explanation": "The focus here is on **governing the tongue** and protecting the neighbor's reputation. It forbids lying about, slandering, or betraying others. Christians are commanded to defend their neighbor, speak well of them, and **put the best construction on everything they do**. Luther emphasizes the 'order of the Gospel' from Matthew 18, which instructs that a brother's fault should be addressed privately before being made public, using the tongue to cover infirmities rather than expose them.",
+      "explanation": "The focus here is on **governing the tongue** and protecting the neighbor's reputation. It forbids lying about, slandering, or betraying others. Christians are commanded to defend their neighbor, speak well of them, and **put the best construction on everything they do**. Luther emphasizes the 'order of the Gospel' from <bible-ref>Matthew 18</bible-ref>, which instructs that a brother's fault should be addressed privately before being made public, using the tongue to cover infirmities rather than expose them.",
       "questions": [
         {
           "question": "What is the 'best construction' rule in the Eighth Commandment?",
@@ -246,7 +246,7 @@
     {
       "title": "The Tenth Commandment",
       "commandment": "The Tenth Commandment: Thou shalt not covet thy neighbor's wife, nor his man-servant, nor his maid-servant, nor his cattle, nor anything that is his.",
-      "explanation": "The Tenth Commandment focuses on the **alienation or enticement** of the people and creatures that serve the neighbor. It forbids driving away or forcing a neighbor’s spouse or workers to leave. Luther emphasizes that we should instead **urge them to stay and do their duty** in the places where God has put them. These final commandments serve as a mirror to show that no one is fully pure in heart, pointing the believer to the need for the forgiveness found in the Gospel.",
+      "explanation": "The Tenth Commandment focuses on the **alienation or enticement** of the people and creatures that serve the neighbor. It forbids driving away or forcing a neighbor's spouse or workers to leave. Luther emphasizes that we should instead **urge them to stay and do their duty** in the places where God has put them. These final commandments serve as a mirror to show that no one is fully pure in heart, pointing the believer to the need for the forgiveness found in the Gospel.",
       "questions": [
         {
           "question": "What is the positive requirement regarding a neighbor's workers?",
@@ -279,7 +279,7 @@
   "apostles_creed": [
     {
       "title": "The Apostles' Creed - First Article",
-      "explanation": "The First Article confesses God as **Father, Almighty, and Maker**. Luther’s explanation in the Small Catechism emphasizes a personal realization: **'I believe that God has made me and all creatures.'** This means God has provided not only the soul and body but also every faculty, including **eyes, ears, reason, and senses**, and continues to preserve them daily. The Large Catechism notes that we recognize God as our Father because He provides for us out of **sheer fatherly and divine goodness and mercy**, without any merit or worthiness in us. This article encompasses all temporal goods—clothing, shoes, food, drink, house, and home—and asserts that God **defends us against all danger** and guards us from all evil. Thus, the duty of the Christian is to **thank, praise, serve, and obey Him**.",
+      "explanation": "The First Article confesses God as **Father, Almighty, and Maker**. Luther's explanation in the Small Catechism emphasizes a personal realization: **'I believe that God has made me and all creatures.'** This means God has provided not only the soul and body but also every faculty, including **eyes, ears, reason, and senses**, and continues to preserve them daily. The Large Catechism notes that we recognize God as our Father because He provides for us out of **sheer fatherly and divine goodness and mercy**, without any merit or worthiness in us. This article encompasses all temporal goods—clothing, shoes, food, drink, house, and home—and asserts that God **defends us against all danger** and guards us from all evil. Thus, the duty of the Christian is to **thank, praise, serve, and obey Him**.",
       "questions": [
         {
           "question": "According to the Small Catechism, what is the basis for God providing all that we need?",
@@ -375,7 +375,7 @@
     },
     {
       "title": "The Lord's Prayer - First Petition",
-      "explanation": "God’s name is **holy in itself**, but we pray that it may be **kept holy among us**. This occurs when the **Word of God is taught in its truth and purity** and when we, as children of God, **lead holy lives according to it**. Conversely, anyone who teaches or lives contrary to God’s Word **profanes the name of God** among us. The Large Catechism identifies this as the spiritual defense against false teachers and an evil life.",
+      "explanation": "God's name is **holy in itself**, but we pray that it may be **kept holy among us**. This occurs when the **Word of God is taught in its truth and purity** and when we, as children of God, **lead holy lives according to it**. Conversely, anyone who teaches or lives contrary to God's Word **profanes the name of God** among us. The Large Catechism identifies this as the spiritual defense against false teachers and an evil life.",
       "questions": [
         {
           "question": "How is God's name kept holy among us?",
@@ -407,7 +407,7 @@
     },
     {
       "title": "The Lord's Prayer - Third Petition",
-      "explanation": "God’s **good and gracious will** is done even without our prayer, but we pray that it may be **done among us**. God’s will is done when He **breaks and hinders every evil plan and purpose** of the devil, the world, and our sinful nature. It is also done when He **strengthens and keeps us firm in His Word and faith** until we die. We pray against our own will and the devil's will, which seek to block God's name and kingdom.",
+      "explanation": "God's **good and gracious will** is done even without our prayer, but we pray that it may be **done among us**. God's will is done when He **breaks and hinders every evil plan and purpose** of the devil, the world, and our sinful nature. It is also done when He **strengthens and keeps us firm in His Word and faith** until we die. We pray against our own will and the devil's will, which seek to block God's name and kingdom.",
       "questions": [
         {
           "question": "According to the Small Catechism, what does God do to ensure His will is done?",
@@ -505,7 +505,7 @@
   "sacrament_of_holy_baptism": [
     {
       "title": "Holy Baptism - Part 1",
-      "explanation": "Baptism is defined in the Small Catechism as **not just plain water**, but water included in **God's command and combined with God's word**. The Large Catechism explains that when the Word of God is added to the element of water, it becomes a **sacrament—a holy, divine thing**. The specific 'Word of God' referred to is the **Great Commission** from Matthew 28:19, where Christ commands the church to baptize in the name of the **Father, Son, and Holy Spirit**. Without this divine mandate, the water is no different from water used for cooking or a 'bath-keeper's baptism'.",
+      "explanation": "Baptism is defined in the Small Catechism as **not just plain water**, but water included in **God's command and combined with God's word**. The Large Catechism explains that when the Word of God is added to the element of water, it becomes a **sacrament—a holy, divine thing**. The specific 'Word of God' referred to is the **Great Commission** from <bible-ref>Matthew 28:19</bible-ref>, where Christ commands the church to baptize in the name of the **Father, Son, and Holy Spirit**. Without this divine mandate, the water is no different from water used for cooking or a 'bath-keeper's baptism'.",
       "questions": [
         {
           "question": "What two things together constitute Baptism according to the Small Catechism?",
@@ -531,7 +531,7 @@
     },
     {
       "title": "Holy Baptism - Part 2",
-      "explanation": "Baptism is a **true means of grace** that works the **forgiveness of sins, rescues from death and the devil, and gives eternal salvation**. The sources emphasize that these benefits are given to all who believe, as declared in **Mark 16:16**. The Large Catechism teaches that to be saved through baptism is to be **delivered from the tyranny of sin, death, and Satan** and to be transferred into the kingdom of Christ to live with Him forever. It is not a human work, but a **treasure God gives and faith receives**.",
+      "explanation": "Baptism is a **true means of grace** that works the **forgiveness of sins, rescues from death and the devil, and gives eternal salvation**. The sources emphasize that these benefits are given to all who believe, as declared in **<bible-ref>Mark 16:16</bible-ref>**. The Large Catechism teaches that to be saved through baptism is to be **delivered from the tyranny of sin, death, and Satan** and to be transferred into the kingdom of Christ to live with Him forever. It is not a human work, but a **treasure God gives and faith receives**.",
       "questions": [
         {
           "question": "What is the primary power or 'work' of Baptism described in the Small Catechism?",
@@ -557,7 +557,7 @@
     },
     {
       "title": "Holy Baptism - Part 3",
-      "explanation": "The sources state clearly that **'water indeed does not do it'**, but rather the **Word of God** which accompanies the water and the **faith** which trusts that Word. The water is sanctified by the Word to become a **'gracious water of life'** and a **'washing of regeneration'**. Citing Titus 3:5, the catechism explains that God saves us through the **renewing of the Holy Spirit**, whom He poured out on us generously through Jesus Christ. The power of the sacrament rests entirely on the **objective promise of God**, which faith then grasps.",
+      "explanation": "The sources state clearly that **'water indeed does not do it'**, but rather the **Word of God** which accompanies the water and the **faith** which trusts that Word. The water is sanctified by the Word to become a **'gracious water of life'** and a **'washing of regeneration'**. Citing <bible-ref>Titus 3:5</bible-ref>, the catechism explains that God saves us through the **renewing of the Holy Spirit**, whom He poured out on us generously through Jesus Christ. The power of the sacrament rests entirely on the **objective promise of God**, which faith then grasps.",
       "questions": [
         {
           "question": "What biblical passage is used to describe Baptism as the 'washing of regeneration'?",
@@ -578,7 +578,7 @@
     },
     {
       "title": "Holy Baptism - Part 4",
-      "explanation": "Baptizing with water signifies that the **Old Adam in us**, with all sins and evil desires, should be **drowned and die through daily contrition and repentance**. In its place, a **new man should daily emerge and arise** to live before God in righteousness and purity forever. This is based on **Romans 6:4**, which teaches that we are **buried with Christ by baptism into death** so that we may walk in newness of life. The Large Catechism adds that the Christian life is nothing else than a **daily baptism**, begun once but continuing ever after.",
+      "explanation": "Baptizing with water signifies that the **Old Adam in us**, with all sins and evil desires, should be **drowned and die through daily contrition and repentance**. In its place, a **new man should daily emerge and arise** to live before God in righteousness and purity forever. This is based on **<bible-ref>Romans 6:4</bible-ref>** which teaches that we are **buried with Christ by baptism into death** so that we may walk in newness of life. The Large Catechism adds that the Christian life is nothing else than a **daily baptism**, begun once but continuing ever after.",
       "questions": [
         {
           "question": "According to Romans 6, we are buried with Christ by baptism into what?",
@@ -627,7 +627,7 @@
     },
     {
       "title": "The Office of the Keys",
-      "explanation": "The Office of the Keys is the **special authority which Christ has given to His Church** to forgive the sins of repentant sinners and withhold forgiveness from the unrepentant. Its foundation is **John 20:22-23**, where the risen Lord breathed on His disciples and commanded them to remit and retain sins. The Book of Concord clarifies that this power belongs **principally and immediately to the whole Church**, which then calls ministers to exercise it publicly. Lutheran teaching insists that the pastor's absolution is as **valid and certain in heaven** as if Christ our dear Lord dealt with us Himself.",
+      "explanation": "The Office of the Keys is the **special authority which Christ has given to His Church** to forgive the sins of repentant sinners and withhold forgiveness from the unrepentant. Its foundation is **<bible-ref>John 20:22-23</bible-ref>**, where the risen Lord breathed on His disciples and commanded them to remit and retain sins. The Book of Concord clarifies that this power belongs **principally and immediately to the whole Church**, which then calls ministers to exercise it publicly. Lutheran teaching insists that the pastor's absolution is as **valid and certain in heaven** as if Christ our dear Lord dealt with us Himself.",
       "questions": [
         {
           "question": "Which scriptural passage is the primary 'word of institution' for the Office of the Keys?",
@@ -813,7 +813,7 @@
     },
     {
       "title": "Asking a Blessing",
-      "explanation": "Before eating, the household gathers and recites **Psalm 145:15-16**, acknowledging that God gives food to all creatures in due season. The prayer follows: **'Lord God, heavenly Father, bless us and these Your gifts'**. This practice emphasizes that even physical food is a gift from **God's bountiful goodness** and is to be received with prayer and thanksgiving, recognizing God as the **Provider of all daily bread**.",
+      "explanation": "Before eating, the household gathers and recites **<bible-ref>Psalm 145:15-16</bible-ref>**, acknowledging that God gives food to all creatures in due season. The prayer follows: **'Lord God, heavenly Father, bless us and these Your gifts'**. This practice emphasizes that even physical food is a gift from **God's bountiful goodness** and is to be received with prayer and thanksgiving, recognizing God as the **Provider of all daily bread**.",
       "questions": [
         {
           "question": "Which Psalm is traditionally used when asking a blessing before a meal?",
@@ -834,7 +834,7 @@
     },
     {
       "title": "Returning Thanks",
-      "explanation": "After the meal, the family gives thanks, often using **Psalm 136:1**: **'Give thanks to the Lord, for He is good; His love endures forever'**. This prayer acknowledges that God **provides food for every creature** and expresses gratitude for His mercy. It serves as a practical application of the **First Article of the Creed**, confessing that God is the Creator who richly and daily provides all that we need for body and life.",
+      "explanation": "After the meal, the family gives thanks, often using **<bible-ref>Psalm 136:1</bible-ref>**: **'Give thanks to the Lord, for He is good; His love endures forever'**. This prayer acknowledges that God **provides food for every creature** and expresses gratitude for His mercy. It serves as a practical application of the **First Article of the Creed**, confessing that God is the Creator who richly and daily provides all that we need for body and life.",
       "questions": [
         {
           "question": "What attribute of God is highlighted in the prayer after a meal?",
@@ -862,7 +862,7 @@
   "table_of_duties": [
     {
       "title": "Table of Duties: For Bishops, Pastors, and Preachers",
-      "explanation": "A **bishop or pastor must be blameless**, the husband of one wife, vigilant, sober, and of good behavior. He is to be **given to hospitality and apt to teach**, ensuring he is not a brawler or greedy for money. He must rule his own house well, keeping his children in subjection, for if he cannot manage his family, he cannot care for the Church of God. Crucially, he must **hold fast the faithful Word** as he has been taught, so that he may use sound doctrine to exhort and convince those who contradict it.",
+      "explanation": "A **bishop or pastor must be blameless**, the husband of one wife, vigilant, sober, and of good behavior. He is to be **given to hospitality and apt to teach**, ensuring he is not a brawler or greedy for money. He must rule his own house well, keeping his children in subjection, for if he cannot manage his family, he cannot care for the Church of God. Crucially, he must **hold fast the faithful Word** as he has been taught, so that he may use sound doctrine to exhort and convince those who contradict it (<bible-ref>1 Timothy 3:2-7</bible-ref>; <bible-ref>Titus 1:6-9</bible-ref>).",
       "questions": [
         {
           "question": "Which of the following is a specific requirement for a bishop according to the Table of Duties?",
@@ -888,7 +888,7 @@
     },
     {
       "title": "Table of Duties: What the Hearers Owe to Their Pastors",
-      "explanation": "The Lord has ordained that those who **preach the Gospel should live of the Gospel**. Hearers are commanded to **communicate in all good things** with their teachers and to count elders who rule well worthy of **double honor**, especially those who labor in Word and doctrine. This includes **obeying and submitting** to them, as they watch for souls and must give an account to God. The goal is for them to do their work with **joy and not with grief**, as the latter is unprofitable for the congregation.",
+      "explanation": "The Lord has ordained that those who **preach the Gospel should live of the Gospel** (<bible-ref>1 Corinthians 9:14</bible-ref>). Hearers are commanded to **communicate in all good things** with their teachers (<bible-ref>Galatians 6:6</bible-ref>) and to count elders who rule well worthy of **double honor**, especially those who labor in Word and doctrine (<bible-ref>1 Timothy 5:17-18</bible-ref>). This includes **obeying and submitting** to them, as they watch for souls and must give an account to God (<bible-ref>Hebrews 13:17</bible-ref>). The goal is for them to do their work with **joy and not with grief**, as the latter is unprofitable for the congregation.",
       "questions": [
         {
           "question": "What does the Scripture mean by 'double honor' for those who labor in the Word?",
@@ -914,7 +914,7 @@
     },
     {
       "title": "Table of Duties: Concerning Civil Government",
-      "explanation": "Every soul is to be **subject to the higher powers**, for all authority that exists is **ordained of God**. The civil ruler is described as **God's minister** for the good of the citizens. The government is given the **power of the sword** to act as a revenger and execute wrath upon those who do evil. Resisting the power of the state is viewed as **resisting the ordinance of God**, which brings damnation upon the resistor.",
+      "explanation": "Every soul is to be **subject to the higher powers**, for all authority that exists is **ordained of God** (<bible-ref>Romans 13:1</bible-ref>). The civil ruler is described as **God's minister** for the good of the citizens. The government is given the **power of the sword** to act as a revenger and execute wrath upon those who do evil (<bible-ref>Romans 13:4</bible-ref>). Resisting the power of the state is viewed as **resisting the ordinance of God**, which brings damnation upon the resistor (<bible-ref>Romans 13:2</bible-ref>).",
       "questions": [
         {
           "question": "What is the primary role of the civil magistrate according to Romans 13?",
@@ -940,7 +940,7 @@
     },
     {
       "title": "Table of Duties: What Subjects Owe to the Magistrates",
-      "explanation": "Citizens are commanded to **render unto Caesar the things that are Caesar's**, which includes paying **tribute, custom, and taxes**. Subjection to authorities is a matter of **conscience**, not just a fear of punishment. Christians are encouraged to offer **supplications, prayers, and thanksgivings** for all in authority so that society may lead a quiet and peaceable life in all godliness. In all matters, they are to **honor the king** and governors as those sent for the praise of them that do well.",
+      "explanation": "Citizens are commanded to **render unto Caesar the things that are Caesar's** (<bible-ref>Matthew 22:21</bible-ref>), which includes paying **tribute, custom, and taxes** (<bible-ref>Romans 13:6-7</bible-ref>). Subjection to authorities is a matter of **conscience** (<bible-ref>Romans 13:5</bible-ref>), not just a fear of punishment. Christians are encouraged to offer **supplications, prayers, and thanksgivings** for all in authority (<bible-ref>1 Timothy 2:1-2</bible-ref>) so that society may lead a quiet and peaceable life in all godliness. In all matters, they are to **honor the king** (<bible-ref>1 Peter 2:17</bible-ref>) and governors as those sent for the praise of them that do well (<bible-ref>1 Peter 2:13-14</bible-ref>).",
       "questions": [
         {
           "question": "Why does the Small Catechism say citizens should be subject to government?",
@@ -953,7 +953,7 @@
           "answer": "Not only for wrath, but also for conscience' sake"
         },
         {
-          "question": "What specific act should Christians perform for their rulers according to 1 Timothy 2?",
+          "question": "What specific act should Christians perform for their rulers according to 1 Timothy 2:1-2?",
           "options": [
             "Build monuments to them",
             "Offer prayers, intercessions, and thanksgivings",
@@ -966,7 +966,7 @@
     },
     {
       "title": "Table of Duties: For Husbands",
-      "explanation": "Husbands are to **dwell with their wives according to knowledge**, giving **honor to the wife as the weaker vessel**. They are reminded that they are **heirs together of the grace of life**, and they are warned that if they fail in this duty, their **prayers will be hindered**. Furthermore, they are commanded to **love their wives** as Christ loved the Church and to **never be bitter** against them.",
+      "explanation": "Husbands are to **dwell with their wives according to knowledge**, giving **honor to the wife as the weaker vessel**. They are reminded that they are **heirs together of the grace of life**, and they are warned that if they fail in this duty, their **prayers will be hindered** (<bible-ref>1 Peter 3:7</bible-ref>). Furthermore, they are commanded to **love their wives** as Christ loved the Church (<bible-ref>Ephesians 5:25</bible-ref>) and to **never be bitter** against them (<bible-ref>Colossians 3:19</bible-ref>).",
       "questions": [
         {
           "question": "What is the consequence of a husband not honoring his wife?",
@@ -992,7 +992,7 @@
     },
     {
       "title": "Table of Duties: For Wives",
-      "explanation": "Wives are exhorted to **submit themselves to their own husbands as unto the Lord**. This submission is modeled after **Sarah**, who obeyed Abraham and called him 'lord'. Wives are encouraged to maintain a **chaste conversation** and the ornament of a **meek and quiet spirit**, which is of great price in the sight of God. This subjection is to be done 'in the Lord', acknowledging the husband as the head of the wife just as Christ is the head of the Church.",
+      "explanation": "Wives are exhorted to **submit themselves to their own husbands as unto the Lord** (<bible-ref>Ephesians 5:22</bible-ref>). This submission is modeled after **Sarah**, who obeyed Abraham and called him 'lord' (<bible-ref>1 Peter 3:5-6</bible-ref>). Wives are encouraged to maintain a **chaste conversation** and the ornament of a **meek and quiet spirit**, which is of great price in the sight of God. This subjection is to be done 'in the Lord', acknowledging the husband as the head of the wife just as Christ is the head of the Church.",
       "questions": [
         {
           "question": "Who is presented as a biblical model for wives in the Table of Duties?",
@@ -1013,7 +1013,7 @@
     },
     {
       "title": "Table of Duties: For Parents",
-      "explanation": "Fathers are specifically commanded **not to provoke their children to wrath**. Instead of being harsh or overbearing, they are to **bring them up in the nurture and admonition of the Lord**. This involves providing for both the bodily and spiritual needs of the children, acting as 'bishop' and 'bishopress' in the home to ensure the children learn the fear and knowledge of God.",
+      "explanation": "Fathers are specifically commanded **not to provoke their children to wrath**. Instead of being harsh or overbearing, they are to **bring them up in the nurture and admonition of the Lord** (<bible-ref>Ephesians 6:4</bible-ref>). This involves providing for both the bodily and spiritual needs of the children, acting as 'bishop' and 'bishopress' in the home to ensure the children learn the fear and knowledge of God.",
       "questions": [
         {
           "question": "What are parents forbidden from doing to their children?",
@@ -1039,7 +1039,7 @@
     },
     {
       "title": "Table of Duties: For Children",
-      "explanation": "Children are commanded to **obey their parents in the Lord**, for this is right. They are to **honor their father and mother**, which is the first commandment with a promise: that it may be **well with them** and they may **live long on the earth**. This obedience is seen as a holy and precious work in the sight of God, far surpassing self-chosen religious works.",
+      "explanation": "Children are commanded to **obey their parents in the Lord**, for this is right. They are to **honor their father and mother**, which is the first commandment with a promise: that it may be **well with them** and they may **live long on the earth** (<bible-ref>Ephesians 6:1-3</bible-ref>). This obedience is seen as a holy and precious work in the sight of God, far surpassing self-chosen religious works.",
       "questions": [
         {
           "question": "What is the promise attached to the commandment to honor parents?",
@@ -1065,7 +1065,7 @@
     },
     {
       "title": "Table of Duties: For Male and Female Servants, Hired Men, and Laborers",
-      "explanation": "Servants and laborers are to be **obedient to their masters** with fear, trembling, and **singleness of heart**, as unto Christ. They should work **not with eye-service as men-pleasers**, but as the servants of Christ, doing the **will of God from the heart**. They are promised that whatever good thing they do, they will **receive the same from the Lord**, regardless of their status as bond or free.",
+      "explanation": "Servants and laborers are to be **obedient to their masters** with fear, trembling, and **singleness of heart**, as unto Christ. They should work **not with eye-service as men-pleasers**, but as the servants of Christ, doing the **will of God from the heart** (<bible-ref>Ephesians 6:5-7</bible-ref>). They are promised that whatever good thing they do, they will **receive the same from the Lord**, regardless of their status as bond or free (<bible-ref>Ephesians 6:8</bible-ref>).",
       "questions": [
         {
           "question": "How should a Christian worker perform their duties?",
@@ -1091,7 +1091,7 @@
     },
     {
       "title": "Table of Duties: For Masters and Mistresses",
-      "explanation": "Masters are to do the **same things** toward their workers, **forbearing threatening**. They must remember that they also have a **Master in heaven**, and that there is **no respect of persons with Him**. This requires them to treat their servants with **justice and equality**, recognizing that in God's eyes, both master and servant stand on a common ground of need and grace.",
+      "explanation": "Masters are to do the **same things** toward their workers, **forbearing threatening**. They must remember that they also have a **Master in heaven**, and that there is **no respect of persons with Him** (<bible-ref>Ephesians 6:9</bible-ref>; <bible-ref>Colossians 4:1</bible-ref>). This requires them to treat their servants with **justice and equality**, recognizing that in God's eyes, both master and servant stand on a common ground of need and grace.",
       "questions": [
         {
           "question": "What are masters specifically commanded to 'forbear'?",
@@ -1117,12 +1117,12 @@
     },
     {
       "title": "Table of Duties: For Young Persons in General",
-      "explanation": "Young people are to **submit themselves to the elder** and be clothed with **humility**, for God resists the proud but gives **grace to the humble**.",
+      "explanation": "Young people are to **submit themselves to the elder** and be clothed with **humility**, for God resists the proud but gives **grace to the humble** (<bible-ref>1 Peter 5:5-6</bible-ref>).",
       "questions": []
     },
     {
       "title": "Table of Duties: For Widows",
-      "explanation": "**Widows** who are 'widows indeed' are to trust in God and continue in **supplications and prayers** night and day.",
+      "explanation": "**Widows** who are 'widows indeed' are to trust in God and continue in **supplications and prayers** night and day (<bible-ref>1 Timothy 5:5-6</bible-ref>).",
       "questions": [
         {
           "question": "What is the duty of a 'widow indeed'?",
@@ -1138,7 +1138,7 @@
     },
     {
       "title": "Table of Duties: For All in Common",
-      "explanation": "**Everyone** is bound by the summary commandment: **'Thou shalt love thy neighbor as thyself.'** All other duties and commandments are briefly comprehended in this one rule of love.",
+      "explanation": "**Everyone** is bound by the summary commandment: **'Thou shalt love thy neighbor as thyself.'** All other duties and commandments are briefly comprehended in this one rule of love (<bible-ref>Romans 13:8-10</bible-ref>; <bible-ref>1 Timothy 2:1</bible-ref>).",
       "questions": [
         {
           "question": "What is the summary of all 'Relative Duties' to one's neighbor?",
@@ -1196,7 +1196,7 @@
     {
       "question_number": 3,
       "question_text": "Are you sorry for your sins?",
-      "explanation": "True repentance involves being **genuinely sorry** for having sinned against God. This sorrow is a sacrifice with which God is pleased, as seen in the example of King David.",
+      "explanation": "True repentance involves being **genuinely sorry** for having sinned against God. This sorrow is a sacrifice with which God is pleased, as seen in the example of King David (<bible-ref>Psalm 51:17</bible-ref>).",
       "questions": [
         {
           "question": "What characterizes the heart of a person rightly prepared for the Sacrament?",
@@ -1213,7 +1213,7 @@
     {
       "question_number": 4,
       "question_text": "What have you deserved from God because of your sins?",
-      "explanation": "The Law teaches that sin deserves God’s **wrath and displeasure, temporal death, and eternal damnation**. This realization is necessary to understand the magnitude of the grace offered in the Gospel.",
+      "explanation": "The Law teaches that sin deserves God's **wrath and displeasure, temporal death, and eternal damnation** (<bible-ref>Romans 6:23</bible-ref>). This realization is necessary to understand the magnitude of the grace offered in the Gospel.",
       "questions": [
         {
           "question": "What are the consequences of sin according to the Small Catechism?",
@@ -1293,7 +1293,7 @@
     {
       "question_number": 9,
       "question_text": "What has Christ done for you that you trust in Him?",
-      "explanation": "Christ **died and shed His blood** on the cross for the **forgiveness of sins**. This objective act of redemption is the sole ground for the believer’s justification.",
+      "explanation": "Christ **died and shed His blood** on the cross for the **forgiveness of sins**. This objective act of redemption is the sole ground for the believer's justification.",
       "questions": [
         {
           "question": "What specific act of Christ provides the basis for trust in Him?",
@@ -1429,7 +1429,7 @@
     {
       "question_number": 17,
       "question_text": "What should a person do if they feel their faith is weak or they have a troubled conscience?",
-      "explanation": "The Sacrament is intended precisely for **terrified consciences** and those who feel their weakness. They are encouraged to seek the **comfort and strength** found at the Lord’s Table.",
+      "explanation": "The Sacrament is intended precisely for **terrified consciences** and those who feel their weakness. They are encouraged to seek the **comfort and strength** found at the Lord's Table.",
       "questions": [
         {
           "question": "For whom is the Lord's Supper especially intended?",
@@ -1480,7 +1480,7 @@
     {
       "question_number": 20,
       "question_text": "But what should you do if you are not aware of this need and have no hunger and thirst for the Sacrament?",
-      "explanation": "The sources suggest three physical and spiritual checks: **touch your body** to see if you are still flesh and blood; **look at the world** to see its sin and trouble; and **remember the devil** who seeks to murder the soul. These realities drive a person to seek the **strength of the Sacrament**.",
+      "explanation": "The sources suggest three physical and spiritual checks: **touch your body** to see if you are still flesh and blood (<bible-ref>Galatians 5:19-21</bible-ref>; <bible-ref>Romans 7:18</bible-ref>); **look at the world** to see its sin and trouble (<bible-ref>John 15:18-19</bible-ref>; <bible-ref>1 John 2:15-17</bible-ref>); and **remember the devil** who seeks to murder the soul (<bible-ref>1 Peter 5:8-9</bible-ref>). These realities drive a person to seek the **strength of the Sacrament**.",
       "questions": [
         {
           "question": "What is the advice for those who lack hunger for the Lord's Supper?",

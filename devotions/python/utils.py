@@ -138,25 +138,19 @@ def fetch_passages(
 
 def inject_references_in_text(text):
   """Finds scripture references in text and replaces them with tooltip spans."""
-  if not text:
+  if not text or "<bible-ref>" not in text:
     return text
 
   text = re.sub(r"\*\*([^\*]+?)\*\*", r"<strong>\1</strong>", text)
-  text = re.sub(
-      r"(?<!\*)\*([^\*]+?)\*(?!\*)", r"<strong>\1</strong>", text
-  )  # handle single asterisk bold
+  text = re.sub(r"(?<!\*)\*([^\*]+?)\*(?!\*)", r"<strong>\1</strong>", text)
   text = re.sub(r"\bOT\b", "Old Testament", text)
-  # Detects a valid Bible reference in the text.
-  # This pattern requires Book C:V format, and limits book names to 1-3 words.
-  pattern = r"\b((?:[1-3]\s)?[A-Za-z][A-Za-z\.]+(?:\s[A-Za-z][A-Za-z\.]+){0,2}\s+\d+:\d+(?:(?:–|-)\d+|ff)?)\b"
 
+  pattern = r"<bible-ref>(.+?)</bible-ref>"
   matches = re.findall(pattern, text)
   if not matches:
     return text
 
-  # Process unique matches, longest first to avoid substring issues in replacement
   unique_matches = sorted(list(set(matches)), key=len, reverse=True)
-
   refs_for_api = [
       m.replace("–", "-").replace("ff", "").strip() for m in unique_matches
   ]
@@ -169,26 +163,27 @@ def inject_references_in_text(text):
 
     for ref in unique_matches:
       scripture_text = ref_map.get(ref)
+      tag_to_replace = f"<bible-ref>{ref}</bible-ref>"
+
       if (
-          not scripture_text
-          or "Reading not available" in scripture_text
-          or "ESV API" in scripture_text
+          scripture_text
+          and "Reading not available" not in scripture_text
+          and "ESV API" not in scripture_text
       ):
-        continue
-
-      display_ref = ref.replace("ff", "")
-      escaped_text = scripture_text.replace('"', "&quot;")
-      replacement = (
-          f'<span class="scripture-tooltip" data-text="{display_ref} &mdash;'
-          f' {escaped_text}">{display_ref}</span>'
-      )
-      # Use word boundaries for replacement to avoid partial matches on words like 'Regarding'
-      text = re.sub(
-          r"(?<![-\w])" + re.escape(ref) + r"(?![-\w])", replacement, text
-      )
-
+        display_ref = ref.replace("ff", "")
+        escaped_text = scripture_text.replace('"', "&quot;")
+        replacement = (
+            f'<span class="scripture-tooltip" data-text="{display_ref} &mdash;'
+            f' {escaped_text}">{display_ref}</span>'
+        )
+        text = text.replace(tag_to_replace, replacement)
+      else:
+        # If ref is invalid or fetch failed, replace tag with just the text content
+        text = text.replace(tag_to_replace, ref)
   except Exception as e:
     print(f"Error injecting references: {e}")
+    # Fallback: remove all tags on error
+    text = re.sub(pattern, r"\1", text)
 
   return text
 
