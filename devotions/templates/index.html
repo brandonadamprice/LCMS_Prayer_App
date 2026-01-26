@@ -104,15 +104,15 @@
           // 1. Primary Time-based Devotion
           let primary = {};
           if (hour >= 5 && hour < 11) {
-              primary = {name: "Morning Prayer", url: "/morning_devotion"};
+              primary = {name: "Morning Prayer", url: "/office/morning"};
           } else if (hour >= 11 && hour < 15) {
-              primary = {name: "Midday Prayer", url: "/midday_devotion"};
+              primary = {name: "Midday Prayer", url: "/office/midday"};
           } else if (hour >= 15 && hour < 20) {
-              primary = {name: "Evening Prayer", url: "/evening_devotion"};
+              primary = {name: "Evening Prayer", url: "/office/evening"};
           } else if (hour >= 0 && hour < 5) {
-              primary = {name: "Night Watch", url: "/night_watch_devotion"};
+              primary = {name: "Night Watch", url: "/office/night_watch"};
           } else {
-              primary = {name: "Close of the Day", url: "/close_of_day_devotion"};
+              primary = {name: "Close of the Day", url: "/office/close_of_day"};
           }
           const primaryBtn = createBtn(primary.name, primary.url);
           

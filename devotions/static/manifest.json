@@ -18,12 +18,12 @@
   "shortcuts": [
     {
       "name": "Morning Prayer",
-      "url": "/morning_devotion",
+      "url": "/office/morning",
       "description": "Start your day with prayer"
     },
     {
       "name": "Evening Prayer",
-      "url": "/evening_devotion",
+      "url": "/office/evening",
       "description": "Close your day with prayer"
     },
     {
