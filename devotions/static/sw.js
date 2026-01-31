@@ -1,6 +1,11 @@
-const CACHE_NAME = 'prayer-app-v8';
-const ASSETS_TO_CACHE =
-    ['/static/styles.css', '/static/favicon.svg', '/static/banner.jpg'];
+const CACHE_NAME = 'prayer-app-v9';
+const ASSETS_TO_CACHE = [
+  '/static/styles.css',
+  '/static/banner.jpg',
+  '/static/icons/favicon.ico',
+  '/static/icons/android-chrome-192x192.png',
+  '/static/icons/android-chrome-512x512.png'
+];
 
 // Install event: Cache static assets
 self.addEventListener('install', (event) => {
@@ -74,8 +79,8 @@ self.addEventListener('push', function(event) {
 
     const options = {
       body: body,
-      icon: '/static/favicon.svg',
-      badge: '/static/favicon.svg',
+      icon: '/static/icons/android-chrome-192x192.png',
+      badge: '/static/icons/android-chrome-192x192.png',
       data: {url: url}
     };
     event.waitUntil(self.registration.showNotification(title, options));
