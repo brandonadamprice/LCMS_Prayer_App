@@ -1,8 +1,8 @@
 """Functions for generating the Catechism Memorization page."""
 
 from bs4 import BeautifulSoup
+from devotional_content import small_catechism
 import flask
-import utils
 
 
 def strip_html(html_content):
@@ -13,7 +13,7 @@ def strip_html(html_content):
 
 def generate_catechism_memory_page():
   """Generates HTML for the Catechism Memorization page."""
-  catechism_data = utils.get_grouped_catechism()
+  catechism_data = small_catechism.get_grouped_catechism()
   memorization_items = []
 
   # Flatten the grouped catechism into memorizable items

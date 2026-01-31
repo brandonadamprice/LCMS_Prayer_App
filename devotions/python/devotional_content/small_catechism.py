@@ -3,7 +3,6 @@
 import copy
 import json
 import os
-import re
 import flask
 import flask_login
 import utils

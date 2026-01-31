@@ -1,5 +1,6 @@
 """Shared utility functions and data for devotions."""
 
+import copy
 import csv
 import datetime
 import functools
@@ -23,6 +24,9 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(SCRIPT_DIR, "..", "data")
 LECTIONARY_JSON_PATH = os.path.join(DATA_DIR, "daily_lectionary.json")
 CATECHISM_JSON_PATH = os.path.join(DATA_DIR, "catechism.json")
+CATECHISM_EXPLANATION_PATH = os.path.join(
+    DATA_DIR, "catechism_explaination.json"
+)
 WEEKLY_PRAYERS_JSON_PATH = os.path.join(DATA_DIR, "weekly_prayers.json")
 OFFICE_READINGS_JSON_PATH = os.path.join(DATA_DIR, "office_readings.json")
 OTHER_PRAYERS_JSON_PATH = os.path.join(DATA_DIR, "other_prayers.json")
