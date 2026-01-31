@@ -9,6 +9,7 @@ import secrets
 from authlib.integrations.flask_client import OAuth
 from devotional_content import advent
 from devotional_content import bible_in_a_year
+from devotional_content import catechism_memory
 from devotional_content import childrens_devotion
 from devotional_content import daily_lectionary_page
 from devotional_content import extended_evening
@@ -1011,6 +1012,12 @@ def gospels_by_category_route():
 def memory_route():
   """Returns Scripture Memorization page."""
   return memory.generate_memory_page()
+
+
+@app.route("/catechism_memory")
+def catechism_memory_route():
+  """Returns Catechism Memorization page."""
+  return catechism_memory.generate_catechism_memory_page()
 
 
 @app.route("/short_prayers")

@@ -115,7 +115,18 @@ def get_menu_items(is_advent, is_new_year, is_lent):
                   "url": "/bible_in_a_year",
                   "enabled": True,
               },
-              {"label": "Memorization", "url": "/memory", "enabled": True},
+          ],
+      },
+      {
+          "label": "Memorization",
+          "type": "dropdown",
+          "submenu": [
+              {"label": "Scripture", "url": "/memory", "enabled": True},
+              {
+                  "label": "Catechism",
+                  "url": "/catechism_memory",
+                  "enabled": True,
+              },
           ],
       },
       {

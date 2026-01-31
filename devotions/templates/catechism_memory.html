@@ -1,0 +1,266 @@
+{% extends "base.html" %}
+{% import "_macros.html" as macros %}
+
+{% block title %}Catechism Memorization{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Catechism Memorization</h1>
+  <p>Select a part of the Catechism to memorize.</p>
+</div>
+
+<div class="card">
+  <h2>Select Section</h2>
+  <select
+    id="section-select"
+    style="
+      width: 100%;
+      padding: 8px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+      margin-bottom: 10px;
+    "
+  >
+    <option value="-1">-- Select a section --</option>
+  </select>
+</div>
+
+<div class="card">
+  <h2>Memorization Drill</h2>
+  <p class="ref" id="drill-ref"></p>
+  <div
+    id="drill-text"
+    style="
+      min-height: 50px;
+      margin-bottom: 15px;
+      font-size: 1.1em;
+      line-height: 1.8;
+    "
+  >
+    Select a section above to start.
+  </div>
+  <button class="button" id="btn-reset" disabled>Reset</button>
+  <button class="button" id="btn-fill-blank" disabled>Fill-in-the-Blank</button>
+  <button class="button" id="btn-first-letter" disabled>First Letters</button>
+  <button class="button" id="btn-word-order" disabled>Word Order</button>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+const items = {{ items|tojson }};
+const sectionSelect = document.getElementById('section-select');
+const drillRef = document.getElementById('drill-ref');
+const drillText = document.getElementById('drill-text');
+const btnFillBlank = document.getElementById('btn-fill-blank');
+const btnFirstLetter = document.getElementById('btn-first-letter');
+const btnWordOrder = document.getElementById('btn-word-order');
+const btnReset = document.getElementById('btn-reset');
+
+let currentItemIndex = -1;
+let currentCleanText = "";
+let currentHtmlText = "";
+let wordOrderCorrectList = [];
+let wordOrderCurrentIndex = 0;
+
+function populateSectionSelect() {
+    // Group items by category
+    const categories = {};
+    items.forEach((item, index) => {
+        if (!categories[item.category]) {
+            categories[item.category] = [];
+        }
+        categories[item.category].push({ index, title: item.title });
+    });
+
+    for (const [category, sectionItems] of Object.entries(categories)) {
+        const group = document.createElement('optgroup');
+        group.label = category;
+        sectionItems.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item.index;
+            option.textContent = item.title;
+            group.appendChild(option);
+        });
+        sectionSelect.appendChild(group);
+    }
+}
+
+function setDrillButtonsEnabled(enabled) {
+    btnFillBlank.disabled = !enabled;
+    btnFirstLetter.disabled = !enabled;
+    btnWordOrder.disabled = !enabled;
+    btnReset.disabled = !enabled;
+}
+
+function loadItem(index) {
+    currentItemIndex = index;
+    if (index === -1) {
+        drillRef.textContent = '';
+        drillText.innerHTML = 'Select a section above to start.';
+        currentCleanText = "";
+        currentHtmlText = "";
+        setDrillButtonsEnabled(false);
+    } else {
+        const item = items[index];
+        drillRef.textContent = item.title;
+        drillText.innerHTML = item.text_html;
+        currentCleanText = item.clean_text;
+        currentHtmlText = item.text_html;
+        setDrillButtonsEnabled(true);
+    }
+}
+
+function resetItem() {
+    if (currentItemIndex !== -1) {
+        drillText.innerHTML = currentHtmlText;
+    }
+}
+
+function triggerFireworks(bursts = 4, particlesPerBurst = 25) {
+    const colors = ['#FFC107', '#FF5722', '#4CAF50', '#2196F3', '#9C27B0', '#F44336', '#00BCD4'];
+    const createParticle = (x, y) => {
+        const particle = document.createElement('div');
+        particle.classList.add('particle');
+        particle.style.left = `${x}px`;
+        particle.style.top = `${y}px`;
+        particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+        const angle = Math.random() * 360;
+        const distance = Math.random() * 120 + 50; 
+        particle.style.setProperty('--dx', `${Math.cos(angle * Math.PI / 180) * distance}px`);
+        particle.style.setProperty('--dy', `${Math.sin(angle * Math.PI / 180) * distance}px`);
+        document.body.appendChild(particle);
+        setTimeout(() => particle.remove(), 1200); 
+    };
+
+    for(let i = 0; i < bursts; i++) {
+        setTimeout(() => {
+            const burstX = Math.random() * (window.innerWidth * 0.8) + (window.innerWidth * 0.1); 
+            const burstY = Math.random() * (window.innerHeight * 0.7) + (window.innerHeight * 0.1); 
+            for(let j = 0; j < particlesPerBurst; j++) {
+                createParticle(burstX, burstY);
+            }
+        }, i * 150); 
+    }
+}
+
+function checkAnswer(event) {
+    const input = event.target;
+    const answer = input.dataset.answer.toLowerCase();
+    const value = input.value.toLowerCase();
+
+    if (value === '') {
+        input.classList.remove('wrong');
+        input.classList.remove('correct');
+    } else if (answer === value) {
+        input.classList.remove('wrong');
+        input.classList.add('correct');
+        const inputs = drillText.querySelectorAll('.memory-input');
+        const currentIndex = Array.from(inputs).indexOf(input);
+        if (currentIndex > -1 && currentIndex < inputs.length - 1) {
+            inputs[currentIndex + 1].focus();
+        } else if (currentIndex === inputs.length - 1) {
+             if (Array.from(inputs).every(i => i.classList.contains('correct'))) {
+                triggerFireworks();
+            }
+        }
+    } else if (answer.startsWith(value)) {
+        input.classList.remove('wrong');
+        input.classList.remove('correct');
+    } else {
+        input.classList.add('wrong');
+        input.classList.remove('correct');
+    }
+}
+
+function createDrill(isFirstLetter) {
+    if (!currentCleanText) return;
+    drillText.innerHTML = ''; 
+    const words = currentCleanText.split(/([,\.\?!;:" ]+)/); 
+
+    words.forEach(word => {
+        const shouldBeBlank = isFirstLetter ? true : Math.random() < 0.3;
+        if (word.match(/^\w+$/) && shouldBeBlank) {
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.classList.add('memory-input');
+            input.dataset.answer = word;
+            input.style.width = `${word.length + 1}ch`;
+            if(isFirstLetter) {
+                input.placeholder = word.charAt(0);
+            }
+            input.addEventListener('input', checkAnswer);
+            drillText.appendChild(input);
+        } else {
+            drillText.appendChild(document.createTextNode(word));
+        }
+    });
+}
+
+function fillInTheBlank() {
+    createDrill(false);
+}
+
+function firstLetters() {
+    createDrill(true);
+}
+
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+function onWordBankClick(event) {
+    const btn = event.target;
+    if (btn.textContent === wordOrderCorrectList[wordOrderCurrentIndex]) {
+        const built = document.getElementById('built-sentence');
+        built.textContent += btn.textContent + ' ';
+        btn.disabled = true;
+        wordOrderCurrentIndex++;
+        if(wordOrderCurrentIndex === wordOrderCorrectList.length) {
+            triggerFireworks();
+        }
+    } else {
+        btn.classList.add('wrong');
+        setTimeout(() => btn.classList.remove('wrong'), 500);
+    }
+}
+
+function wordOrder() {
+    if (!currentCleanText) return;
+    
+    wordOrderCorrectList = currentCleanText.split(/(\s+)/).filter(w => w.trim().length > 0);
+    // Actually simpler split by space for word bank usually
+    wordOrderCorrectList = currentCleanText.split(' ').filter(w => w);
+    
+    wordOrderCurrentIndex = 0;
+    const shuffled = shuffle([...wordOrderCorrectList]);
+
+    drillText.innerHTML = `<div id="built-sentence"></div><div id="word-bank" style="margin-top:15px; border-top: 1px solid #eee; padding-top: 10px;"></div>`;
+    const bank = document.getElementById('word-bank');
+    shuffled.forEach(word => {
+        const btn = document.createElement('button');
+        btn.className = 'button';
+        btn.textContent = word;
+        btn.onclick = onWordBankClick;
+        bank.appendChild(btn);
+    });
+}
+
+sectionSelect.addEventListener('change', (e) => {
+    loadItem(parseInt(e.target.value, 10));
+});
+
+btnFillBlank.addEventListener('click', () => fillInTheBlank());
+btnFirstLetter.addEventListener('click', () => firstLetters());
+btnWordOrder.addEventListener('click', () => wordOrder());
+btnReset.addEventListener('click', () => resetItem());
+
+document.addEventListener('DOMContentLoaded', () => {
+    populateSectionSelect();
+    loadItem(-1);
+});
+{% endblock %}
