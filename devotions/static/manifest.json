@@ -28,11 +28,6 @@
       "src": "/static/icons/favicon-16x16.png",
       "sizes": "16x16",
       "type": "image/png"
-    },
-    {
-      "src": "/static/favicon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml"
     }
   ],
   "shortcuts": [

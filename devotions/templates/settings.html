@@ -554,7 +554,9 @@
         // Also add static assets just in case
         urlsToCache.push('/');
         urlsToCache.push('/static/styles.css');
-        urlsToCache.push('/static/favicon.svg');
+        urlsToCache.push('/static/icons/favicon.ico');
+        urlsToCache.push('/static/icons/android-chrome-192x192.png');
+        urlsToCache.push('/static/icons/android-chrome-512x512.png');
 
         if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
              // Send message to SW to cache these URLs? 
