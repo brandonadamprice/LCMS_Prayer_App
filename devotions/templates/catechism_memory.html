@@ -11,19 +11,25 @@
 
 <div class="card">
   <h2>Select Section</h2>
-  <select
-    id="section-select"
-    style="
-      width: 100%;
-      padding: 8px;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-      box-sizing: border-box;
-      margin-bottom: 10px;
-    "
-  >
-    <option value="-1">-- Select a section --</option>
-  </select>
+  <div style="display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: nowrap;">
+      <button class="button" onclick="navigate(-1)" id="btn-prev" disabled style="margin: 0; padding: 10px 15px; flex-shrink: 0;" aria-label="Previous Section">&laquo;</button>
+      <div style="flex-grow: 1; min-width: 0;">
+          <select
+            id="section-select"
+            style="
+              width: 100%;
+              padding: 8px;
+              border-radius: 4px;
+              border: 1px solid #ccc;
+              box-sizing: border-box;
+              text-overflow: ellipsis;
+            "
+          >
+            <option value="-1">-- Select a section --</option>
+          </select>
+      </div>
+      <button class="button" onclick="navigate(1)" id="btn-next" disabled style="margin: 0; padding: 10px 15px; flex-shrink: 0;" aria-label="Next Section">&raquo;</button>
+  </div>
 </div>
 
 <div class="card">
@@ -63,6 +69,49 @@ let currentHtmlText = "";
 let wordOrderCorrectList = [];
 let wordOrderCurrentIndex = 0;
 
+function updateNavButtons() {
+    const btnPrev = document.getElementById('btn-prev');
+    const btnNext = document.getElementById('btn-next');
+    
+    // items is the array of all memorization items.
+    // However, the select has groups. But the values correspond to indices in 'items'.
+    
+    if (currentItemIndex <= 0) {
+        btnPrev.disabled = true;
+        btnPrev.style.opacity = "0.5";
+    } else {
+        btnPrev.disabled = false;
+        btnPrev.style.opacity = "1";
+    }
+
+    if (currentItemIndex >= items.length - 1 || currentItemIndex === -1) { 
+        // If -1 (none selected), we can go Next to 0. 
+        if (currentItemIndex === -1 && items.length > 0) {
+             btnNext.disabled = false;
+             btnNext.style.opacity = "1";
+        } else {
+             btnNext.disabled = true;
+             btnNext.style.opacity = "0.5";
+        }
+    } else {
+        btnNext.disabled = false;
+        btnNext.style.opacity = "1";
+    }
+}
+
+function navigate(delta) {
+    let newIndex = currentItemIndex + delta;
+    if (currentItemIndex === -1 && delta === 1) {
+        newIndex = 0;
+    }
+    
+    if (newIndex >= 0 && newIndex < items.length) {
+        // Update select value
+        sectionSelect.value = newIndex;
+        loadItem(newIndex);
+    }
+}
+
 function populateSectionSelect() {
     // Group items by category
     const categories = {};
@@ -95,6 +144,8 @@ function setDrillButtonsEnabled(enabled) {
 
 function loadItem(index) {
     currentItemIndex = index;
+    updateNavButtons();
+    
     if (index === -1) {
         drillRef.textContent = '';
         drillText.innerHTML = 'Select a section above to start.';
