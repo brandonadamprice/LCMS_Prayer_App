@@ -412,9 +412,13 @@ def _send_email(
           "close_of_day",
           "night_watch",
       ]:
-        if reading_type == "lectionary" and data.get("daily_lectionary_readings"):
+        if reading_type == "lectionary" and data.get(
+            "daily_lectionary_readings"
+        ):
           data["lectionary_reading_style"] = "display: block;"
-        elif reading_type == "bible_in_a_year" and data.get("bible_in_a_year_reading"):
+        elif reading_type == "bible_in_a_year" and data.get(
+            "bible_in_a_year_reading"
+        ):
           data["bible_year_reading_style"] = "display: block;"
         elif reading_type == "memento" and data.get("memento_reading"):
           data["memento_reading_style"] = "display: block;"
@@ -426,6 +430,11 @@ def _send_email(
         data["office_reading_style"] = "display: block;"
 
       # Also need user info for potential personalization
+      # We add is_authenticated=True to mimic flask_login.current_user behavior in templates
+      # This prevents "Object of type Undefined is not JSON serializable" when templates try to serialize it.
+      if user_data:
+        user_data["is_authenticated"] = True
+
       data["current_user"] = (
           user_data  # Though templates use flask_login.current_user usually
       )
