@@ -272,7 +272,7 @@ async function forceReminders() {
         const result = await response.json();
         if (result.success) {
             e.target.reset();
-            updateReadingTypeVisibility();
+            updateOptionsVisibility();
             loadReminders();
         } else {
             alert("Error: " + result.error);
