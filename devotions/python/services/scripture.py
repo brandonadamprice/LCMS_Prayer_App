@@ -47,16 +47,12 @@ def _preprocess_ref(ref: str) -> str:
     else:
       book = ""
 
-  if not book:
-    return ref
-
   # Check for chapter range in first_part, e.g. "Matthew 1-4"
   # (Must NOT be "Matthew 1:1-4")
   # Regex for "Book Name (C1)-(C2)"
   # Capture Groups: 1=Book, 2=Start, 3=End
-  chapter_range_match = re.match(
-      r"^((?:[1-3]\s)?[a-zA-Z\s]+)\s+(\d+)-(\d+)$", first_part
-  )
+  # Using permissive regex to catch more cases
+  chapter_range_match = re.match(r"^(.+?)\s+(\d+)-(\d+)$", first_part)
 
   single_chapter_books = {"Obadiah", "Philemon", "2 John", "3 John", "Jude"}
 
