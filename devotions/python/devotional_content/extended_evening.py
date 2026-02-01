@@ -2,6 +2,7 @@
 
 import datetime
 import flask
+import flask_login
 import pytz
 import utils
 
@@ -18,7 +19,14 @@ def generate_extended_evening_devotion(date_obj=None):
   """
   eastern_timezone = pytz.timezone("America/New_York")
   now = date_obj or datetime.datetime.now(eastern_timezone)
-  template_data = utils.get_devotion_data(now)
+
+  user_id = (
+      flask_login.current_user.id
+      if flask_login.current_user.is_authenticated
+      else None
+  )
+
+  template_data = utils.get_devotion_data(now, user_id=user_id)
   template_data["concluding_prayer"] = utils.OTHER_PRAYERS[
       "close_of_day_prayers"
   ]
