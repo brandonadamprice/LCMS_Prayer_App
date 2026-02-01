@@ -1756,6 +1756,8 @@ def add_reminder_route():
       data.get("devotion"),
       data.get("methods"),
       data.get("timezone"),
+      data.get("reading_type"),
+      data.get("psalm_type"),
   )
   if success:
     return flask.jsonify({"success": True})

@@ -43,7 +43,7 @@
     {% endcall %}
 
     {% call macros.card('Psalmody') %}
-        <div id="office-psalm-container">
+        <div id="office-psalm-container" style="{{ office_psalm_style|default('display: block;') }}">
             <span class="ref" id="ref-psalm">{{ psalm_ref }}</span>
             <div id="text-psalm">{{ psalm_text|safe }}</div>
             {% if psalm_options %}
@@ -56,7 +56,7 @@
             {% endif %}
         </div>
         
-        <div id="memento-psalm-container" style="display: none;">
+        <div id="memento-psalm-container" style="{{ memento_psalm_style|default('display: none;') }}">
             {% if memento_reading %}
                 <span class="ref">{{ memento_reading.psalms_ref }}</span>
                 <div>{{ memento_reading.psalms_text|safe }}</div>

@@ -40,6 +40,15 @@
         <option value="office">Office Reading (Rotating)</option>
         <option value="lectionary">Daily Lectionary (Church Year)</option>
         <option value="bible_in_a_year">Bible in a Year</option>
+        <option value="memento">Memento Mori (Lent 2026)</option>
+      </select>
+    </div>
+
+    <div id="psalm-type-group" style="margin-bottom: 10px; display: none;">
+      <label for="psalm_type">Psalm Type:</label><br>
+      <select id="psalm_type" name="psalm_type" class="form-input">
+        <option value="office">Office Psalm (Rotating)</option>
+        <option value="memento">Memento Mori (Lent 2026)</option>
       </select>
     </div>
 
@@ -151,10 +160,20 @@ async function forceReminders() {
         let html = '<ul style="list-style: none; padding: 0;">';
         reminders.forEach(r => {
             let details = r.devotion_name;
+            let options = [];
             if (r.reading_type === 'lectionary') {
-                details += ' (Daily Lectionary)';
+                options.push('Daily Lectionary');
             } else if (r.reading_type === 'office') {
-                details += ' (Office Reading)';
+                options.push('Office Reading');
+            } else if (r.reading_type === 'memento') {
+                options.push('Memento Mori Reading');
+            }
+            if (r.psalm_type === 'memento') {
+                options.push('Memento Mori Psalm');
+            }
+            
+            if (options.length > 0) {
+                details += ' (' + options.join(', ') + ')';
             }
             
             html += `
@@ -199,17 +218,20 @@ async function forceReminders() {
   
   const devotionSelect = document.getElementById('devotion');
   const readingTypeGroup = document.getElementById('reading-type-group');
+  const psalmTypeGroup = document.getElementById('psalm-type-group');
   
-  function updateReadingTypeVisibility() {
+  function updateOptionsVisibility() {
       const val = devotionSelect.value;
-      if (['morning', 'midday', 'evening', 'close_of_day', 'night_watch'].includes(val)) {
+      if (['morning', 'midday', 'evening', 'close_of_day', 'night_watch', 'extended_evening'].includes(val)) {
           readingTypeGroup.style.display = 'block';
+          psalmTypeGroup.style.display = 'block';
       } else {
           readingTypeGroup.style.display = 'none';
+          psalmTypeGroup.style.display = 'none';
       }
   }
   
-  devotionSelect.addEventListener('change', updateReadingTypeVisibility);
+  devotionSelect.addEventListener('change', updateOptionsVisibility);
 
   document.getElementById('reminder-form').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -235,9 +257,10 @@ async function forceReminders() {
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
     };
     
-    // Include reading type if visible
+    // Include reading/psalm type if visible
     if (readingTypeGroup.style.display !== 'none') {
         data.reading_type = formData.get('reading_type');
+        data.psalm_type = formData.get('psalm_type');
     }
 
     try {
@@ -263,7 +286,7 @@ async function forceReminders() {
   document.addEventListener('DOMContentLoaded', () => {
       initFirebase();
       loadReminders();
-      updateReadingTypeVisibility();
+      updateOptionsVisibility();
 
       // Auto-populate from URL params
       const urlParams = new URLSearchParams(window.location.search);
@@ -278,7 +301,7 @@ async function forceReminders() {
       if (devotionParam) {
           if (devotionSelect) {
               devotionSelect.value = devotionParam;
-              updateReadingTypeVisibility();
+              updateOptionsVisibility();
           }
       }
   });

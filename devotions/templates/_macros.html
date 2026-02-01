@@ -45,7 +45,7 @@
 
 {% macro reading_card(reading_ref, reading_text, reading_options, daily_lectionary_readings, lectionary_texts, bible_in_a_year_reading, memento_reading=None) %}
     {% call card('Reading') %}
-        <div id="office-reading-container">
+        <div id="office-reading-container" style="{{ office_reading_style|default('display: block;') }}">
             <span class="ref" id="ref-reading">{{ reading_ref }}</span>
             <div id="text-reading">{{ reading_text|safe }}</div>
             <button class="button picker-toggle-button" id="office-picker-btn" onclick="togglePicker(this, 'reading')">Select Reading</button>
@@ -56,7 +56,7 @@
             </div>
         </div>
 
-        <div id="lectionary-reading-container" style="display: none;">
+        <div id="lectionary-reading-container" style="{{ lectionary_reading_style|default('display: none;') }}">
             {% if daily_lectionary_readings %}
                 <p class="subheader"><strong>Old Testament Reading</strong></p>
                 <span class="ref">{{ daily_lectionary_readings[0] }}</span>
@@ -72,7 +72,7 @@
             {% endif %}
         </div>
 
-        <div id="bible-year-reading-container" style="display: none;">
+        <div id="bible-year-reading-container" style="{{ bible_year_reading_style|default('display: none;') }}">
             {% if bible_in_a_year_reading %}
                 <p class="subheader"><strong>Old Testament</strong></p>
                 <span class="ref">{{ bible_in_a_year_reading.ot_ref }}</span>
@@ -90,7 +90,7 @@
             {% endif %}
         </div>
 
-        <div id="memento-reading-container" style="display: none;">
+        <div id="memento-reading-container" style="{{ memento_reading_style|default('display: none;') }}">
             {% if memento_reading %}
                 <span class="ref">{{ memento_reading.nt_ref }}</span>
                 <div>{{ memento_reading.nt_text|safe }}</div>

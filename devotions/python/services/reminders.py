@@ -56,7 +56,13 @@ def calculate_next_run(time_str, timezone_str):
 
 
 def add_reminder(
-    user_id, time_str, devotion, methods, timezone, reading_type=None
+    user_id,
+    time_str,
+    devotion,
+    methods,
+    timezone,
+    reading_type=None,
+    psalm_type=None,
 ):
   """Adds a new reminder for a user."""
   if not user_id or not time_str or not devotion or not methods:
@@ -86,6 +92,7 @@ def add_reminder(
       "methods": methods,
       "timezone": timezone,
       "reading_type": reading_type,
+      "psalm_type": psalm_type,
       "created_at": datetime.datetime.now(datetime.timezone.utc),
       "next_run_utc": next_run_utc,
   }
@@ -341,6 +348,7 @@ def send_notification(method, reminder_data, user_data, devotion_url):
           devotion_url,
           reminder_data.get("devotion"),
           reminder_data.get("reading_type"),
+          reminder_data.get("psalm_type"),
       )
     else:
       flask.current_app.logger.info(
@@ -349,7 +357,9 @@ def send_notification(method, reminder_data, user_data, devotion_url):
       )
 
 
-def _send_email(user_data, devotion_url, devotion_key, reading_type):
+def _send_email(
+    user_data, devotion_url, devotion_key, reading_type, psalm_type=None
+):
   """Sends an email with the devotion content."""
   email = user_data.get("email")
   if not email:
@@ -377,23 +387,43 @@ def _send_email(user_data, devotion_url, devotion_key, reading_type):
       template_name = "lent_devotion.html"
 
     if data and template_name:
-      if reading_type == "lectionary" and devotion_key in [
+      if psalm_type:
+        data["default_psalm_mode"] = psalm_type
+        if psalm_type == "memento" and data.get("memento_reading"):
+          data["office_psalm_style"] = "display: none;"
+          data["memento_psalm_style"] = "display: block;"
+        else:
+          data["office_psalm_style"] = "display: block;"
+          data["memento_psalm_style"] = "display: none;"
+      else:
+        data["office_psalm_style"] = "display: block;"
+        data["memento_psalm_style"] = "display: none;"
+
+      # Initialize all reading styles to hidden
+      data["office_reading_style"] = "display: none;"
+      data["lectionary_reading_style"] = "display: none;"
+      data["bible_year_reading_style"] = "display: none;"
+      data["memento_reading_style"] = "display: none;"
+
+      if devotion_key in [
           "morning",
           "midday",
           "evening",
           "close_of_day",
           "night_watch",
       ]:
-        # Swap reading references and texts to lectionary versions if available
-        if data.get("daily_lectionary_readings"):
-          data["office_reading_style"] = "display: none;"
+        if reading_type == "lectionary" and data.get("daily_lectionary_readings"):
           data["lectionary_reading_style"] = "display: block;"
+        elif reading_type == "bible_in_a_year" and data.get("bible_in_a_year_reading"):
+          data["bible_year_reading_style"] = "display: block;"
+        elif reading_type == "memento" and data.get("memento_reading"):
+          data["memento_reading_style"] = "display: block;"
         else:
+          # Default to office reading
           data["office_reading_style"] = "display: block;"
-          data["lectionary_reading_style"] = "display: none;"
       else:
+        # For non-office devotions (like Lent or BiaY standalone), usually office_reading_style is used or irrelevant
         data["office_reading_style"] = "display: block;"
-        data["lectionary_reading_style"] = "display: none;"
 
       # Also need user info for potential personalization
       data["current_user"] = (
