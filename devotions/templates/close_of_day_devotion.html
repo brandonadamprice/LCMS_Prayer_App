@@ -61,10 +61,14 @@
         {% if memento_reading %}
         <div style="margin-top: 15px;">
             <label for="psalm-mode-select" style="font-weight: bold;">Psalmody Plan:</label>
+            {% if parent_template == 'email_base.html' %}
+                <span>{{ psalm_plan_name }}</span>
+            {% else %}
             <select id="psalm-mode-select" onchange="setPsalmMode(this.value)" class="form-input" style="width: auto; padding: 5px;">
                 <option value="office">Office Psalm (Rotating)</option>
                 <option value="memento">Memento Mori (Lent 2026)</option>
             </select>
+            {% endif %}
         </div>
         <script>
             async function setPsalmMode(mode) {

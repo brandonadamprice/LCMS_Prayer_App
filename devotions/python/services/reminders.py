@@ -440,6 +440,25 @@ def _send_email(
       )
       data["devotion_url"] = devotion_url
 
+      # Helper for email display names
+      reading_names = {
+          "office": "Office Reading (Rotating)",
+          "lectionary": "Daily Lectionary (Church Year)",
+          "bible_in_a_year": "Bible in a Year",
+          "memento": "Memento Mori (Lent 2026)",
+      }
+      psalm_names = {
+          "office": "Office Psalm (Rotating)",
+          "memento": "Memento Mori (Lent 2026)",
+      }
+      # Default to office if not specified or unknown
+      data["reading_plan_name"] = reading_names.get(
+          reading_type, reading_names["office"]
+      )
+      data["psalm_plan_name"] = psalm_names.get(
+          psalm_type, psalm_names["office"]
+      )
+
       # Generate Completion Link
       if "id" in user_data:
         # We need the current date for the streak calculation in process_prayer_completion

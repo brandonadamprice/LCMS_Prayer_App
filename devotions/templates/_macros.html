@@ -101,6 +101,9 @@
 
         <div style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 10px;">
             <label for="reading-mode-select" style="font-weight: bold; align-self: center;">Reading Plan:</label>
+            {% if parent_template == 'email_base.html' %}
+                <span style="align-self: center;">{{ reading_plan_name }}</span>
+            {% else %}
             <select id="reading-mode-select" onchange="setReadingMode(this.value)" class="form-input" style="width: auto; padding: 5px;">
                 <option value="office">Office Reading (Rotating)</option>
                 <option value="lectionary">Daily Lectionary (Church Year)</option>
@@ -109,6 +112,7 @@
                 <option value="memento">Memento Mori (Lent 2026)</option>
                 {% endif %}
             </select>
+            {% endif %}
         </div>
     {% endcall %}
 {% endmacro %}
