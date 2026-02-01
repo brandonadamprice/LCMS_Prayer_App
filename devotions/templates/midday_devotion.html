@@ -142,7 +142,7 @@
 
 {% block extra_js %}
     window.suppressDefaultArt = true;
-    {{ macros.reading_mode_js(bible_in_a_year_reading.day_number) }}
+    {{ macros.reading_mode_js(bible_in_a_year_reading.day_number, default_reading_mode) }}
 
     document.addEventListener('DOMContentLoaded', async () => {
         const readingRef = "{{ reading_ref }}";

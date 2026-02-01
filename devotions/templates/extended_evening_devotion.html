@@ -245,18 +245,20 @@
 {% endblock %}
 
 {% block extra_js %}
-window.suppressDefaultArt = true;
-document.addEventListener('DOMContentLoaded', async () => {
-    const readingRef = "{{ nt_reading_ref }}";
-    const theme = "Evening";
-    try {
-        const response = await fetch(`/api/lectionary/art?ref=${encodeURIComponent(readingRef)}&theme=${encodeURIComponent(theme)}`);
-        const data = await response.json();
-        if (data && data.image_url) {
-            displayBackgroundArt(data);
+    window.suppressDefaultArt = true;
+    {{ macros.reading_mode_js(bible_in_a_year_reading.day_number, default_reading_mode) }}
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        const readingRef = "{{ nt_reading_ref }}";
+        const theme = "Evening";
+        try {
+            const response = await fetch(`/api/lectionary/art?ref=${encodeURIComponent(readingRef)}&theme=${encodeURIComponent(theme)}`);
+            const data = await response.json();
+            if (data && data.image_url) {
+                displayBackgroundArt(data);
+            }
+        } catch (e) {
+            console.error("Failed to fetch background art", e);
         }
-    } catch (e) {
-        console.error("Failed to fetch background art", e);
-    }
-});
+    });
 {% endblock %}
