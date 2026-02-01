@@ -1,0 +1,380 @@
+[
+  {
+    "day": 1,
+    "date": "Sun, Feb 01, 2026",
+    "nt_reading": "Matthew 1-4",
+    "psalms_reading": "Psalm 1-3"
+  },
+  {
+    "day": 2,
+    "date": "Mon, Feb 02, 2026",
+    "nt_reading": "Matthew 5-8",
+    "psalms_reading": "Psalm 4-6"
+  },
+  {
+    "day": 3,
+    "date": "Tue, Feb 03, 2026",
+    "nt_reading": "Matthew 9-12",
+    "psalms_reading": "Psalm 7-9"
+  },
+  {
+    "day": 4,
+    "date": "Wed, Feb 04, 2026",
+    "nt_reading": "Matthew 13-16",
+    "psalms_reading": "Psalm 10-12"
+  },
+  {
+    "day": 5,
+    "date": "Thu, Feb 05, 2026",
+    "nt_reading": "Matthew 17-20",
+    "psalms_reading": "Psalm 13-15"
+  },
+  {
+    "day": 6,
+    "date": "Fri, Feb 06, 2026",
+    "nt_reading": "Matthew 21-24",
+    "psalms_reading": "Psalm 16-18"
+  },
+  {
+    "day": 7,
+    "date": "Sat, Feb 07, 2026",
+    "nt_reading": "Matthew 25-28",
+    "psalms_reading": "Psalm 19-21"
+  },
+  {
+    "day": 8,
+    "date": "Sun, Feb 08, 2026",
+    "nt_reading": "James 1-4",
+    "psalms_reading": "Psalm 22-24"
+  },
+  {
+    "day": 9,
+    "date": "Mon, Feb 09, 2026",
+    "nt_reading": "James 5, 1 Thessalonians 1-3",
+    "psalms_reading": "Psalm 25-27"
+  },
+  {
+    "day": 10,
+    "date": "Tue, Feb 10, 2026",
+    "nt_reading": "1 Thessalonians 4-5, 2 Thessalonians 1-2",
+    "psalms_reading": "Psalm 28-30"
+  },
+  {
+    "day": 11,
+    "date": "Wed, Feb 11, 2026",
+    "nt_reading": "2 Thessalonians 3, Galatians 1-3",
+    "psalms_reading": "Psalm 31-33"
+  },
+  {
+    "day": 12,
+    "date": "Thu, Feb 12, 2026",
+    "nt_reading": "Galatians 4-6, Mark 1",
+    "psalms_reading": "Psalm 34-36"
+  },
+  {
+    "day": 13,
+    "date": "Fri, Feb 13, 2026",
+    "nt_reading": "Mark 2-5",
+    "psalms_reading": "Psalm 37-39"
+  },
+  {
+    "day": 14,
+    "date": "Sat, Feb 14, 2026",
+    "nt_reading": "Mark 6-9",
+    "psalms_reading": "Psalm 40-42"
+  },
+  {
+    "day": 15,
+    "date": "Sun, Feb 15, 2026",
+    "nt_reading": "Mark 10-13",
+    "psalms_reading": "Psalm 43-45"
+  },
+  {
+    "day": 16,
+    "date": "Mon, Feb 16, 2026",
+    "nt_reading": "Mark 14-16, Philippians 1",
+    "psalms_reading": "Psalm 46-48"
+  },
+  {
+    "day": 17,
+    "date": "Tue, Feb 17, 2026",
+    "nt_reading": "Philippians 2-4, Colossians 1",
+    "psalms_reading": "Psalm 49-51"
+  },
+  {
+    "day": 18,
+    "date": "Wed, Feb 18, 2026",
+    "nt_reading": "Colossians 2-4, Philemon 1",
+    "psalms_reading": "Psalm 52-54"
+  },
+  {
+    "day": 19,
+    "date": "Thu, Feb 19, 2026",
+    "nt_reading": "1 Corinthians 1-4",
+    "psalms_reading": "Psalm 55-57"
+  },
+  {
+    "day": 20,
+    "date": "Fri, Feb 20, 2026",
+    "nt_reading": "1 Corinthians 5-8",
+    "psalms_reading": "Psalm 58-60"
+  },
+  {
+    "day": 21,
+    "date": "Sat, Feb 21, 2026",
+    "nt_reading": "1 Corinthians 9-12",
+    "psalms_reading": "Psalm 61-63"
+  },
+  {
+    "day": 22,
+    "date": "Sun, Feb 22, 2026",
+    "nt_reading": "1 Corinthians 14-16, 2 Corinthians 1",
+    "psalms_reading": "Psalm 64-66"
+  },
+  {
+    "day": 23,
+    "date": "Mon, Feb 23, 2026",
+    "nt_reading": "2 Corinthians 2-5",
+    "psalms_reading": "Psalm 67-69"
+  },
+  {
+    "day": 24,
+    "date": "Tue, Feb 24, 2026",
+    "nt_reading": "2 Corinthians 6-9",
+    "psalms_reading": "Psalm 70-72"
+  },
+  {
+    "day": 25,
+    "date": "Wed, Feb 25, 2026",
+    "nt_reading": "2 Corinthians 10-13",
+    "psalms_reading": "Psalm 73-75"
+  },
+  {
+    "day": 26,
+    "date": "Thu, Feb 26, 2026",
+    "nt_reading": "Luke 1-4",
+    "psalms_reading": "Psalm 76-78"
+  },
+  {
+    "day": 27,
+    "date": "Fri, Feb 27, 2026",
+    "nt_reading": "Luke 5-9",
+    "psalms_reading": "Psalm 79-81"
+  },
+  {
+    "day": 28,
+    "date": "Sat, Feb 28, 2026",
+    "nt_reading": "Luke 10-13",
+    "psalms_reading": "Psalm 82-84"
+  },
+  {
+    "day": 29,
+    "date": "Sun, Mar 01, 2026",
+    "nt_reading": "Luke 14-17",
+    "psalms_reading": "Psalm 85-87"
+  },
+  {
+    "day": 30,
+    "date": "Mon, Mar 02, 2026",
+    "nt_reading": "Luke 18-21",
+    "psalms_reading": "Psalm 88-90"
+  },
+  {
+    "day": 31,
+    "date": "Tue, Mar 03, 2026",
+    "nt_reading": "Luke 22-24, Acts 1",
+    "psalms_reading": "Psalm 91-93"
+  },
+  {
+    "day": 32,
+    "date": "Wed, Mar 04, 2026",
+    "nt_reading": "Acts 2-5",
+    "psalms_reading": "Psalm 94-96"
+  },
+  {
+    "day": 33,
+    "date": "Thu, Mar 05, 2026",
+    "nt_reading": "Acts 6-9",
+    "psalms_reading": "Psalm 97-99"
+  },
+  {
+    "day": 34,
+    "date": "Fri, Mar 06, 2026",
+    "nt_reading": "Acts 10-14",
+    "psalms_reading": "Psalm 100-102"
+  },
+  {
+    "day": 35,
+    "date": "Sat, Mar 07, 2026",
+    "nt_reading": "Acts 15-18",
+    "psalms_reading": "Psalm 103-104"
+  },
+  {
+    "day": 36,
+    "date": "Sun, Mar 08, 2026",
+    "nt_reading": "Acts 19-22",
+    "psalms_reading": "Psalm 105-106"
+  },
+  {
+    "day": 37,
+    "date": "Mon, Mar 09, 2026",
+    "nt_reading": "Acts 23-26",
+    "psalms_reading": "Psalm 107-108"
+  },
+  {
+    "day": 38,
+    "date": "Tue, Mar 10, 2026",
+    "nt_reading": "Acts 27-28, Romans 1-2",
+    "psalms_reading": "Psalm 109-110"
+  },
+  {
+    "day": 39,
+    "date": "Wed, Mar 11, 2026",
+    "nt_reading": "Romans 3-6",
+    "psalms_reading": "Psalm 111-113"
+  },
+  {
+    "day": 40,
+    "date": "Thu, Mar 12, 2026",
+    "nt_reading": "Romans 7-10",
+    "psalms_reading": "Psalm 114-115"
+  },
+  {
+    "day": 41,
+    "date": "Fri, Mar 13, 2026",
+    "nt_reading": "Romans 11-15",
+    "psalms_reading": "Psalm 116-117"
+  },
+  {
+    "day": 42,
+    "date": "Sat, Mar 14, 2026",
+    "nt_reading": "Romans 16, Ephesians 1-3",
+    "psalms_reading": "Psalm 118-119"
+  },
+  {
+    "day": 43,
+    "date": "Sun, Mar 15, 2026",
+    "nt_reading": "Ephesians 4-6, 1 Timothy 1",
+    "psalms_reading": "Psalm 120-121"
+  },
+  {
+    "day": 44,
+    "date": "Mon, Mar 16, 2026",
+    "nt_reading": "1 Timothy 2-5",
+    "psalms_reading": "Psalm 122-123"
+  },
+  {
+    "day": 45,
+    "date": "Tue, Mar 17, 2026",
+    "nt_reading": "1 Timothy 6, Titus 1-3",
+    "psalms_reading": "Psalm 124-125"
+  },
+  {
+    "day": 46,
+    "date": "Wed, Mar 18, 2026",
+    "nt_reading": "2 Timothy 1-4",
+    "psalms_reading": "Psalm 126-127"
+  },
+  {
+    "day": 47,
+    "date": "Thu, Mar 19, 2026",
+    "nt_reading": "John 1-4",
+    "psalms_reading": "Psalm 128-129"
+  },
+  {
+    "day": 48,
+    "date": "Fri, Mar 20, 2026",
+    "nt_reading": "John 5-9",
+    "psalms_reading": "Psalm 130-131"
+  },
+  {
+    "day": 49,
+    "date": "Sat, Mar 21, 2026",
+    "nt_reading": "John 10-13",
+    "psalms_reading": "Psalm 132-134"
+  },
+  {
+    "day": 50,
+    "date": "Sun, Mar 22, 2026",
+    "nt_reading": "John 14-17",
+    "psalms_reading": "Psalm 135-136"
+  },
+  {
+    "day": 51,
+    "date": "Mon, Mar 23, 2026",
+    "nt_reading": "John 18-21",
+    "psalms_reading": "Psalm 137-138"
+  },
+  {
+    "day": 52,
+    "date": "Tue, Mar 24, 2026",
+    "nt_reading": "Hebrews 1-4",
+    "psalms_reading": "Psalm 139-140"
+  },
+  {
+    "day": 53,
+    "date": "Wed, Mar 25, 2026",
+    "nt_reading": "Hebrews 5-8",
+    "psalms_reading": "Psalm 141-142"
+  },
+  {
+    "day": 54,
+    "date": "Thu, Mar 26, 2026",
+    "nt_reading": "Hebrews 9-12",
+    "psalms_reading": "Psalm 143-144"
+  },
+  {
+    "day": 55,
+    "date": "Fri, Mar 27, 2026",
+    "nt_reading": "Hebrews 13, 1 Peter 1-4",
+    "psalms_reading": "Psalm 145-146"
+  },
+  {
+    "day": 56,
+    "date": "Sat, Mar 28, 2026",
+    "nt_reading": "1 Peter 5, 2 Peter 1-3",
+    "psalms_reading": "Psalm 147-148"
+  },
+  {
+    "day": 57,
+    "date": "Sun, Mar 29, 2026",
+    "nt_reading": "1 John 1-4",
+    "psalms_reading": "Psalm 149-150"
+  },
+  {
+    "day": 58,
+    "date": "Mon, Mar 30, 2026",
+    "nt_reading": "1 John 5, 2 John 1, 3 John 1, Jude 1",
+    "psalms_reading": "Psalm 69, Psalm 22"
+  },
+  {
+    "day": 59,
+    "date": "Tue, Mar 31, 2026",
+    "nt_reading": "Revelation 1-4",
+    "psalms_reading": "Psalm 2, Psalm 110"
+  },
+  {
+    "day": 60,
+    "date": "Wed, Apr 01, 2026",
+    "nt_reading": "Revelation 5-8",
+    "psalms_reading": "Psalm 55, Psalm 41"
+  },
+  {
+    "day": 61,
+    "date": "Thu, Apr 02, 2026",
+    "nt_reading": "Revelation 9-12",
+    "psalms_reading": "Psalm 116, Psalm 23"
+  },
+  {
+    "day": 62,
+    "date": "Fri, Apr 03, 2026",
+    "nt_reading": "Revelation 13-17",
+    "psalms_reading": "Psalm 22, Psalm 31"
+  },
+  {
+    "day": 63,
+    "date": "Sat, Apr 04, 2026",
+    "nt_reading": "Revelation 18-22",
+    "psalms_reading": "Psalm 16, Psalm 88"
+  }
+]

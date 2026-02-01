@@ -34,6 +34,7 @@ INAPPROPRIATE_WORDS_CSV_PATH = os.path.join(DATA_DIR, "inappropriate_words.csv")
 MID_WEEK_READINGS_JSON_PATH = os.path.join(DATA_DIR, "mid_week_readings.json")
 LITURGICAL_YEAR_JSON_PATH = os.path.join(DATA_DIR, "liturgical_year.json")
 BIBLE_IN_A_YEAR_JSON_PATH = os.path.join(DATA_DIR, "bible_in_a_year.json")
+MEMENTO_READINGS_JSON_PATH = os.path.join(DATA_DIR, "memento_readings.json")
 
 
 def get_db_client():
@@ -237,6 +238,16 @@ def load_bible_in_a_year_data():
   """Loads Bible in a Year data from JSON file."""
   with open(BIBLE_IN_A_YEAR_JSON_PATH, "r", encoding="utf-8") as f:
     return json.load(f)
+
+
+def load_memento_readings():
+  """Loads memento readings from JSON file."""
+  try:
+    with open(MEMENTO_READINGS_JSON_PATH, "r", encoding="utf-8") as f:
+      return json.load(f)
+  except FileNotFoundError:
+    print(f"Warning: {MEMENTO_READINGS_JSON_PATH} not found.")
+    return []
 
 
 CATECHISM_SECTIONS = load_catechism()
@@ -574,6 +585,17 @@ def get_bible_in_a_year_devotion_data(user_id=None, date_obj=None):
   }
 
 
+def get_memento_reading_for_date(date_obj):
+  """Gets memento reading for a specific date."""
+  readings = load_memento_readings()
+  # Memento format is "Sun, Feb 01, 2026"
+  date_str = date_obj.strftime("%a, %b %d, %Y")
+  for r in readings:
+    if r["date"] == date_str:
+      return r
+  return None
+
+
 def get_office_devotion_data(user_id, office_name, date_obj=None):
   """Generates data for an office devotion (Morning, Evening, etc.)."""
   eastern_timezone = pytz.timezone("America/New_York")
@@ -602,11 +624,38 @@ def get_office_devotion_data(user_id, office_name, date_obj=None):
   # Bible in a Year
   bible_in_a_year_data = get_bible_in_a_year_devotion_data(user_id, now)
 
+  # Memento Reading
+  memento_reading = get_memento_reading_for_date(now)
+  memento_data = None
+  if memento_reading:
+    nt_ref = memento_reading["nt_reading"]
+    psalms_ref = memento_reading["psalms_reading"]
+    try:
+      # We will fetch these later with other texts or here?
+      # Let's add them to all_refs to batch fetch
+      pass
+    except Exception as e:
+      print(f"Error fetching memento passages: {e}")
+
   all_refs = [reading_ref, psalm_ref] + daily_lectionary_readings
+  
+  if memento_reading:
+      all_refs.append(memento_reading["nt_reading"])
+      all_refs.append(memento_reading["psalms_reading"])
+
   all_texts = fetch_passages(all_refs)
   reading_text = all_texts[0]
   psalm_text = all_texts[1]
-  lectionary_texts = all_texts[2:]
+  lectionary_texts = all_texts[2 : 2 + len(daily_lectionary_readings)]
+  
+  if memento_reading:
+      memento_texts_start = 2 + len(daily_lectionary_readings)
+      memento_data = {
+          "nt_ref": memento_reading["nt_reading"],
+          "nt_text": all_texts[memento_texts_start],
+          "psalms_ref": memento_reading["psalms_reading"],
+          "psalms_text": all_texts[memento_texts_start + 1]
+      }
 
   # Base data
   data = {
@@ -616,6 +665,7 @@ def get_office_devotion_data(user_id, office_name, date_obj=None):
       "daily_lectionary_readings": daily_lectionary_readings,
       "lectionary_texts": lectionary_texts,
       "bible_in_a_year_reading": bible_in_a_year_data,
+      "memento_reading": memento_data,
       "reading_ref": reading_ref,
       "reading_options": OFFICE_READINGS[readings_key],
       "reading_text": reading_text,

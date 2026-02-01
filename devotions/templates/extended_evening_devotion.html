@@ -56,11 +56,50 @@
     {% endcall %}
 
     {% call macros.card('Readings') %}
-        <span class="ref">Old Testament: {{ ot_reading_ref }}</span>
-        <p>{{ ot_text|safe }}</p>
-        <hr />
-        <span class="ref">New Testament: {{ nt_reading_ref }}</span>
-        <p>{{ nt_text|safe }}</p>
+        <div id="office-reading-container">
+            <span class="ref">Old Testament: {{ ot_reading_ref }}</span>
+            <p>{{ ot_text|safe }}</p>
+            <hr />
+            <span class="ref">New Testament: {{ nt_reading_ref }}</span>
+            <p>{{ nt_text|safe }}</p>
+        </div>
+
+        <div id="memento-reading-container" style="display: none;">
+            {% if memento_reading %}
+                <p class="subheader"><strong>New Testament Reading</strong></p>
+                <span class="ref">{{ memento_reading.nt_ref }}</span>
+                <p>{{ memento_reading.nt_text|safe }}</p>
+                <hr>
+                <p class="subheader"><strong>Psalms Reading</strong></p>
+                <span class="ref">{{ memento_reading.psalms_ref }}</span>
+                <p>{{ memento_reading.psalms_text|safe }}</p>
+            {% else %}
+                 <p><em>Memento reading not available for today.</em></p>
+            {% endif %}
+        </div>
+
+        {% if memento_reading %}
+        <div style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 10px;">
+            <label for="reading-mode-select" style="font-weight: bold; align-self: center;">Reading Plan:</label>
+            <select id="reading-mode-select" onchange="setReadingMode(this.value)" class="form-input" style="width: auto; padding: 5px;">
+                <option value="office">Office Readings</option>
+                <option value="memento">Memento Mori (Lent 2026)</option>
+            </select>
+        </div>
+        <script>
+            function setReadingMode(mode) {
+                const office = document.getElementById('office-reading-container');
+                const memento = document.getElementById('memento-reading-container');
+                if (mode === 'memento') {
+                    office.style.display = 'none';
+                    memento.style.display = 'block';
+                } else {
+                    office.style.display = 'block';
+                    memento.style.display = 'none';
+                }
+            }
+        </script>
+        {% endif %}
     {% endcall %}
 
     {% call macros.card('Creed') %}
