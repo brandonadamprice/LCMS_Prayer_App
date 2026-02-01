@@ -44,17 +44,17 @@
 
     {% call macros.card('Old Testament') %}
         <span class="ref" id="ot-ref">{{ ot_ref }}</span>
-        <p id="ot-text">{% if ot_text %}{{ ot_text|safe }}{% else %}<em>Loading...</em>{% endif %}</p>
+        <div id="ot-text">{% if ot_text %}{{ ot_text|safe }}{% else %}<em>Loading...</em>{% endif %}</div>
     {% endcall %}
 
     {% call macros.card('New Testament') %}
         <span class="ref" id="nt-ref">{{ nt_ref }}</span>
-        <p id="nt-text">{% if nt_text %}{{ nt_text|safe }}{% else %}<em>Loading...</em>{% endif %}</p>
+        <div id="nt-text">{% if nt_text %}{{ nt_text|safe }}{% else %}<em>Loading...</em>{% endif %}</div>
     {% endcall %}
 
     {% call macros.card('Psalms & Proverbs') %}
         <span class="ref" id="psp-ref">{{ psp_ref }}</span>
-        <p id="psp-text">{% if psp_text %}{{ psp_text|safe }}{% else %}<em>Loading...</em>{% endif %}</p>
+        <div id="psp-text">{% if psp_text %}{{ psp_text|safe }}{% else %}<em>Loading...</em>{% endif %}</div>
     {% endcall %}
     
     {% if current_user.is_authenticated %}

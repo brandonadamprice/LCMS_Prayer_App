@@ -43,7 +43,7 @@
     {% call macros.card('Psalmody') %}
         <div id="office-psalm-container">
             <span class="ref" id="ref-psalm">{{ psalm_ref }}</span>
-            <p id="text-psalm">{{ psalm_text|safe }}</p>
+            <div id="text-psalm">{{ psalm_text|safe }}</div>
             {% if psalm_options %}
             <button class="button picker-toggle-button" onclick="togglePicker(this, 'psalm')">Select Psalm</button>
             <div id="picker-psalm" class="item-picker">
@@ -57,7 +57,7 @@
         <div id="memento-psalm-container" style="display: none;">
             {% if memento_reading %}
                 <span class="ref">{{ memento_reading.psalms_ref }}</span>
-                <p>{{ memento_reading.psalms_text|safe }}</p>
+                <div>{{ memento_reading.psalms_text|safe }}</div>
             {% endif %}
         </div>
 

@@ -52,13 +52,13 @@
     {% call macros.card('Psalmody') %}
         <div id="office-psalm-container">
             <span class="ref">{{ psalm_ref }}</span>
-            <p>{{ psalm_text|safe }}</p>
+            <div>{{ psalm_text|safe }}</div>
         </div>
         
         <div id="memento-psalm-container" style="display: none;">
             {% if memento_reading %}
                 <span class="ref">{{ memento_reading.psalms_ref }}</span>
-                <p>{{ memento_reading.psalms_text|safe }}</p>
+                <div>{{ memento_reading.psalms_text|safe }}</div>
             {% endif %}
         </div>
 
@@ -117,21 +117,21 @@
     {% call macros.card('Readings') %}
         <div id="office-reading-container">
             <span class="ref">Old Testament: {{ ot_reading_ref }}</span>
-            <p>{{ ot_text|safe }}</p>
+            <div>{{ ot_text|safe }}</div>
             <hr />
             <span class="ref">New Testament: {{ nt_reading_ref }}</span>
-            <p>{{ nt_text|safe }}</p>
+            <div>{{ nt_text|safe }}</div>
         </div>
 
         <div id="memento-reading-container" style="display: none;">
             {% if memento_reading %}
                 <p class="subheader"><strong>New Testament Reading</strong></p>
                 <span class="ref">{{ memento_reading.nt_ref }}</span>
-                <p>{{ memento_reading.nt_text|safe }}</p>
+                <div>{{ memento_reading.nt_text|safe }}</div>
                 <hr>
                 <p class="subheader"><strong>Psalms Reading</strong></p>
                 <span class="ref">{{ memento_reading.psalms_ref }}</span>
-                <p>{{ memento_reading.psalms_text|safe }}</p>
+                <div>{{ memento_reading.psalms_text|safe }}</div>
             {% else %}
                  <p><em>Memento reading not available for today.</em></p>
             {% endif %}

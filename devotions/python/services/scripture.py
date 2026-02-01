@@ -181,7 +181,10 @@ def _fetch_passages_cached(
                   label = query_parts[i]
                   # Simple heuristic: no colon means whole chapter usually
                   if ":" not in label:
-                    p_text = f"<h4 class='chapter-header'>{label}</h4>" + p_text
+                    header_html = f"<h4 class='chapter-header'>{label}</h4>"
+                    if i > 0:
+                      header_html = f"<hr class='chapter-divider'>{header_html}"
+                    p_text = header_html + p_text
                   elif i > 0:  # Add separation for distinct verses
                     p_text = f"<strong>{label}</strong><br>" + p_text
 
