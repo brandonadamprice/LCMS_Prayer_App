@@ -92,13 +92,8 @@
 
         <div id="memento-reading-container" style="display: none;">
             {% if memento_reading %}
-                <p class="subheader"><strong>New Testament Reading</strong></p>
                 <span class="ref">{{ memento_reading.nt_ref }}</span>
                 <p>{{ memento_reading.nt_text|safe }}</p>
-                <hr>
-                <p class="subheader"><strong>Psalms Reading</strong></p>
-                <span class="ref">{{ memento_reading.psalms_ref }}</span>
-                <p>{{ memento_reading.psalms_text|safe }}</p>
             {% else %}
                  <p><em>Memento reading not available for today.</em></p>
             {% endif %}

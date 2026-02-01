@@ -436,43 +436,45 @@ def get_devotion_data(now: datetime.datetime, user_id=None) -> dict:
   # 6. Weekly Prayer - USE HELPER
   weekly_prayer_data = get_weekly_prayer_for_day(now)
   print("Populated Weekly Prayer section")
-  
+
   # Determine Default Reading Mode based on User Preferences (for extended_evening)
   default_reading_mode = "office"
   # Memento Check (if memento readings are relevant for this general devotion function)
   # This function is used by extended_evening.
   memento_reading = get_memento_reading_for_date(now)
   memento_data = None
-  
+
   if memento_reading:
-      # Fetch if needed, or pass ref. Extended evening template fetches via JS if separate,
-      # but let's be consistent and pass refs if template uses them.
-      # The template uses 'memento_reading' object with nt_ref, psalms_ref etc.
-      # We need to populate texts if we want server-side rendering, but extended evening 
-      # template seems to rely on fetching art or passed variables.
-      # Looking at `extended_evening_devotion.html`, it uses `memento_reading.nt_text`.
-      # So we must fetch texts here too.
-      
-      try:
-          mt_texts = fetch_passages([memento_reading["nt_reading"], memento_reading["psalms_reading"]])
-          memento_data = {
-              "nt_ref": memento_reading["nt_reading"],
-              "nt_text": mt_texts[0],
-              "psalms_ref": memento_reading["psalms_reading"],
-              "psalms_text": mt_texts[1]
-          }
-      except Exception as e:
-          print(f"Error fetching memento texts for extended evening: {e}")
+    # Fetch if needed, or pass ref. Extended evening template fetches via JS if separate,
+    # but let's be consistent and pass refs if template uses them.
+    # The template uses 'memento_reading' object with nt_ref, psalms_ref etc.
+    # We need to populate texts if we want server-side rendering, but extended evening
+    # template seems to rely on fetching art or passed variables.
+    # Looking at `extended_evening_devotion.html`, it uses `memento_reading.nt_text`.
+    # So we must fetch texts here too.
+
+    try:
+      mt_texts = fetch_passages(
+          [memento_reading["nt_reading"], memento_reading["psalms_reading"]]
+      )
+      memento_data = {
+          "nt_ref": memento_reading["nt_reading"],
+          "nt_text": mt_texts[0],
+          "psalms_ref": memento_reading["psalms_reading"],
+          "psalms_text": mt_texts[1],
+      }
+    except Exception as e:
+      print(f"Error fetching memento texts for extended evening: {e}")
 
   if user_id:
     user = flask_login.current_user
-    if hasattr(user, 'reading_preferences'):
-        pref = user.reading_preferences.get('extended_evening')
-        if pref:
-            default_reading_mode = pref
-            # Fallback
-            if default_reading_mode == 'memento' and not memento_reading:
-                default_reading_mode = 'office'
+    if hasattr(user, "reading_preferences"):
+      pref = user.reading_preferences.get("extended_evening")
+      if pref:
+        default_reading_mode = pref
+        # Fallback
+        if default_reading_mode == "memento" and not memento_reading:
+          default_reading_mode = "office"
 
   # 7. Combine data
   data = {
@@ -674,24 +676,24 @@ def get_office_devotion_data(user_id, office_name, date_obj=None):
       print(f"Error fetching memento passages: {e}")
 
   all_refs = [reading_ref, psalm_ref] + daily_lectionary_readings
-  
+
   if memento_reading:
-      all_refs.append(memento_reading["nt_reading"])
-      all_refs.append(memento_reading["psalms_reading"])
+    all_refs.append(memento_reading["nt_reading"])
+    all_refs.append(memento_reading["psalms_reading"])
 
   all_texts = fetch_passages(all_refs)
   reading_text = all_texts[0]
   psalm_text = all_texts[1]
   lectionary_texts = all_texts[2 : 2 + len(daily_lectionary_readings)]
-  
+
   if memento_reading:
-      memento_texts_start = 2 + len(daily_lectionary_readings)
-      memento_data = {
-          "nt_ref": memento_reading["nt_reading"],
-          "nt_text": all_texts[memento_texts_start],
-          "psalms_ref": memento_reading["psalms_reading"],
-          "psalms_text": all_texts[memento_texts_start + 1]
-      }
+    memento_texts_start = 2 + len(daily_lectionary_readings)
+    memento_data = {
+        "nt_ref": memento_reading["nt_reading"],
+        "nt_text": all_texts[memento_texts_start],
+        "psalms_ref": memento_reading["psalms_reading"],
+        "psalms_text": all_texts[memento_texts_start + 1],
+    }
 
   # Determine Default Reading Mode based on User Preferences
   default_reading_mode = "office"
@@ -701,19 +703,22 @@ def get_office_devotion_data(user_id, office_name, date_obj=None):
     # If this function is called from a context where current_user isn't valid (like reminders job),
     # we might need to fetch the user.
     # But usually get_office_devotion_data is called from routes.
-    # For reminders, we fetch user data separately. But reminder emails don't use this dynamic pref logic 
+    # For reminders, we fetch user data separately. But reminder emails don't use this dynamic pref logic
     # (they have explicit reading_type in reminder settings).
-    
-    if hasattr(user, 'reading_preferences'):
-        pref = user.reading_preferences.get(office_name)
-        if pref:
-            default_reading_mode = pref
-            
-            # Fallback logic
-            if default_reading_mode == 'memento' and not memento_reading:
-                default_reading_mode = 'office'
-            elif default_reading_mode == 'lectionary' and not daily_lectionary_readings:
-                 default_reading_mode = 'office'
+
+    if hasattr(user, "reading_preferences"):
+      pref = user.reading_preferences.get(office_name)
+      if pref:
+        default_reading_mode = pref
+
+        # Fallback logic
+        if default_reading_mode == "memento" and not memento_reading:
+          default_reading_mode = "office"
+        elif (
+            default_reading_mode == "lectionary"
+            and not daily_lectionary_readings
+        ):
+          default_reading_mode = "office"
 
   # Base data
   data = {
