@@ -697,6 +697,8 @@ def get_office_devotion_data(user_id, office_name, date_obj=None):
 
   # Determine Default Reading Mode based on User Preferences
   default_reading_mode = "office"
+  default_psalm_mode = "office"
+
   if user_id:
     user = flask_login.current_user
     # Ensure user object is fresh or accessible (flask_login.current_user works if logged in)
@@ -706,11 +708,11 @@ def get_office_devotion_data(user_id, office_name, date_obj=None):
     # For reminders, we fetch user data separately. But reminder emails don't use this dynamic pref logic
     # (they have explicit reading_type in reminder settings).
 
+    # Reading Preferences
     if hasattr(user, "reading_preferences"):
       pref = user.reading_preferences.get(office_name)
       if pref:
         default_reading_mode = pref
-
         # Fallback logic
         if default_reading_mode == "memento" and not memento_reading:
           default_reading_mode = "office"
@@ -719,12 +721,22 @@ def get_office_devotion_data(user_id, office_name, date_obj=None):
             and not daily_lectionary_readings
         ):
           default_reading_mode = "office"
+    
+    # Psalm Preferences
+    if hasattr(user, "psalm_preferences"):
+        psalm_pref = user.psalm_preferences.get(office_name)
+        if psalm_pref:
+            default_psalm_mode = psalm_pref
+            # Fallback for memento
+            if default_psalm_mode == "memento" and not memento_reading:
+                default_psalm_mode = "office"
 
   # Base data
   data = {
       "date_str": now.strftime("%A, %B %d, %Y"),
       "key": key,
       "default_reading_mode": default_reading_mode,
+      "default_psalm_mode": default_psalm_mode,
       "is_trinity_sunday": now.date() == cy.holy_trinity,
       "daily_lectionary_readings": daily_lectionary_readings,
       "lectionary_texts": lectionary_texts,

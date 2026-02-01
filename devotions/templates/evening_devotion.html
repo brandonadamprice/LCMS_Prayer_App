@@ -73,7 +73,7 @@
             </select>
         </div>
         <script>
-            function setPsalmMode(mode) {
+            async function setPsalmMode(mode) {
                 const office = document.getElementById('office-psalm-container');
                 const memento = document.getElementById('memento-psalm-container');
                 if (mode === 'memento') {
@@ -83,7 +83,32 @@
                     office.style.display = 'block';
                     memento.style.display = 'none';
                 }
+
+                // Save preference
+                if ({{ current_user.is_authenticated|tojson }}) {
+                    try {
+                        const pathParts = window.location.pathname.split('/');
+                        const devotionType = pathParts[pathParts.length - 1];
+                        
+                        await fetch('/api/save_psalm_preference', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({ devotion: devotionType, preference: mode })
+                        });
+                    } catch(e) {
+                        console.error("Failed to save psalm preference", e);
+                    }
+                }
             }
+            
+            document.addEventListener('DOMContentLoaded', () => {
+                const defaultMode = '{{ default_psalm_mode|default("office") }}';
+                const select = document.getElementById('psalm-mode-select');
+                if (select) {
+                    select.value = defaultMode;
+                    setPsalmMode(defaultMode);
+                }
+            });
         </script>
         {% endif %}
         

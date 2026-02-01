@@ -71,7 +71,7 @@
             </select>
         </div>
         <script>
-            function setPsalmMode(mode) {
+            async function setPsalmMode(mode) {
                 const office = document.getElementById('office-psalm-container');
                 const memento = document.getElementById('memento-psalm-container');
                 if (mode === 'memento') {
@@ -81,7 +81,33 @@
                     office.style.display = 'block';
                     memento.style.display = 'none';
                 }
+
+                // Save preference
+                if ({{ current_user.is_authenticated|tojson }}) {
+                    try {
+                        const devotionType = 'extended_evening'; 
+                        
+                        await fetch('/api/save_psalm_preference', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({ devotion: devotionType, preference: mode })
+                        });
+                    } catch(e) {
+                        console.error("Failed to save psalm preference", e);
+                    }
+                }
             }
+            
+            // Set initial state based on default_reading_mode passed from backend
+            // Using a unique name for init function to avoid conflict with readings block
+            window.addEventListener('DOMContentLoaded', () => {
+                const defaultMode = '{{ default_psalm_mode|default("office") }}';
+                const select = document.getElementById('psalm-mode-select');
+                if (select) {
+                    select.value = defaultMode;
+                    setPsalmMode(defaultMode);
+                }
+            });
         </script>
         {% endif %}
 

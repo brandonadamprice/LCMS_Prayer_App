@@ -20,14 +20,72 @@
     {% endcall %}
 
     {% call macros.card('Psalmody') %}
-        <span class="ref" id="ref-psalm">{{ psalm_ref }}</span>
-        <p id="text-psalm">{{ psalm_text|safe }}</p>
-        <button class="button picker-toggle-button" onclick="togglePicker(this, 'psalm')">Select Psalm</button>
-        <div id="picker-psalm" class="item-picker">
-            {% for p in psalm_options %}
-            <button class="button picker-select-button" onclick="selectRef('{{ p }}', 'psalm')">{{ p }}</button>
-            {% endfor %}
+        <div id="office-psalm-container">
+            <span class="ref" id="ref-psalm">{{ psalm_ref }}</span>
+            <p id="text-psalm">{{ psalm_text|safe }}</p>
+            <button class="button picker-toggle-button" onclick="togglePicker(this, 'psalm')">Select Psalm</button>
+            <div id="picker-psalm" class="item-picker">
+                {% for p in psalm_options %}
+                <button class="button picker-select-button" onclick="selectRef('{{ p }}', 'psalm')">{{ p }}</button>
+                {% endfor %}
+            </div>
         </div>
+        
+        <div id="memento-psalm-container" style="display: none;">
+            {% if memento_reading %}
+                <span class="ref">{{ memento_reading.psalms_ref }}</span>
+                <p>{{ memento_reading.psalms_text|safe }}</p>
+            {% endif %}
+        </div>
+
+        {% if memento_reading %}
+        <div style="margin-top: 15px;">
+            <label for="psalm-mode-select" style="font-weight: bold;">Psalmody Plan:</label>
+            <select id="psalm-mode-select" onchange="setPsalmMode(this.value)" class="form-input" style="width: auto; padding: 5px;">
+                <option value="office">Office Psalm (Rotating)</option>
+                <option value="memento">Memento Mori (Lent 2026)</option>
+            </select>
+        </div>
+        <script>
+            async function setPsalmMode(mode) {
+                const office = document.getElementById('office-psalm-container');
+                const memento = document.getElementById('memento-psalm-container');
+                if (mode === 'memento') {
+                    office.style.display = 'none';
+                    memento.style.display = 'block';
+                } else {
+                    office.style.display = 'block';
+                    memento.style.display = 'none';
+                }
+
+                // Save preference
+                if ({{ current_user.is_authenticated|tojson }}) {
+                    try {
+                        const pathParts = window.location.pathname.split('/');
+                        const devotionType = pathParts[pathParts.length - 1];
+                        
+                        await fetch('/api/save_psalm_preference', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({ devotion: devotionType, preference: mode })
+                        });
+                    } catch(e) {
+                        console.error("Failed to save psalm preference", e);
+                    }
+                }
+            }
+            
+            document.addEventListener('DOMContentLoaded', () => {
+                const defaultMode = '{{ default_psalm_mode|default("office") }}';
+                const select = document.getElementById('psalm-mode-select');
+                if (select) {
+                    select.value = defaultMode;
+                    setPsalmMode(defaultMode);
+                }
+            });
+        </script>
+        {% endif %}
+        
         {{ macros.format_prayer(config['OTHER_PRAYERS']['gloria_patri']) }}
     {% endcall %}
 

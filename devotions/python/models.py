@@ -40,6 +40,7 @@ class User(flask_login.UserMixin):
       memorized_verses=None,
       completed_catechism_sections=None,
       reading_preferences=None,
+      psalm_preferences=None,
       created_at=None,
   ):
     self.id = user_id
@@ -69,6 +70,7 @@ class User(flask_login.UserMixin):
     self.memorized_verses = memorized_verses or []
     self.completed_catechism_sections = completed_catechism_sections or []
     self.reading_preferences = reading_preferences or {}
+    self.psalm_preferences = psalm_preferences or {}
     self.created_at = created_at
 
     # Calculate effective streaks based on current date
@@ -159,6 +161,7 @@ class User(flask_login.UserMixin):
               "completed_catechism_sections", []
           ),
           reading_preferences=data.get("reading_preferences", {}),
+          psalm_preferences=data.get("psalm_preferences", {}),
           created_at=data.get("created_at"),
       )
     return None
