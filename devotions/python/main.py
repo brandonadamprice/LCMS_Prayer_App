@@ -1308,6 +1308,31 @@ def save_font_size_route():
   return flask.jsonify({"success": False, "error": "Invalid data"}), 400
 
 
+@app.route("/api/save_reading_preference", methods=["POST"])
+@flask_login.login_required
+def save_reading_preference_route():
+  """Saves reading preference for a specific devotion."""
+  data = flask.request.json
+  devotion = data.get("devotion")
+  preference = data.get("preference")
+
+  if not devotion or not preference:
+    return flask.jsonify({"success": False, "error": "Missing fields"}), 400
+
+  try:
+    db = utils.get_db_client()
+    user_ref = db.collection("users").document(flask_login.current_user.id)
+    # Update nested field in reading_preferences map
+    user_ref.update({f"reading_preferences.{devotion}": preference})
+    return flask.jsonify({"success": True})
+  except Exception as e:
+    app.logger.error("Failed to save reading preference: %s", e)
+    return (
+        flask.jsonify({"success": False, "error": "Database save failed"}),
+        500,
+    )
+
+
 @app.route("/toggle_favorite", methods=["POST"])
 @flask_login.login_required
 def toggle_favorite_route():

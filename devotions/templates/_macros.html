@@ -118,12 +118,15 @@
     {% endcall %}
 {% endmacro %}
 
-{% macro reading_mode_js(bible_year_day) %}
+{% macro reading_mode_js(bible_year_day, default_mode='office') %}
     // Store current reading mode
-    let currentReadingMode = 'office';
+    let currentReadingMode = '{{ default_mode }}';
     const bibleYearDay = {{ bible_year_day|tojson }};
+    // Devotion type extracted from URL path for saving preference
+    const pathParts = window.location.pathname.split('/');
+    const devotionType = pathParts[pathParts.length - 1]; // e.g., 'morning' from '/office/morning'
 
-    function setReadingMode(mode) {
+    async function setReadingMode(mode) {
        const officeContainer = document.getElementById('office-reading-container');
        const lectionaryContainer = document.getElementById('lectionary-reading-container');
        const bibleYearContainer = document.getElementById('bible-year-reading-container');
@@ -158,6 +161,19 @@
        }
        
        if (select) select.value = mode;
+       
+       // Save preference
+       if ({{ current_user.is_authenticated|tojson }}) {
+           try {
+               await fetch('/api/save_reading_preference', {
+                   method: 'POST',
+                   headers: {'Content-Type': 'application/json'},
+                   body: JSON.stringify({ devotion: devotionType, preference: mode })
+               });
+           } catch(e) {
+               console.error("Failed to save reading preference", e);
+           }
+       }
     }
     
     // Override standard markPrayerComplete to include bible data
@@ -223,10 +239,15 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('reading_type') === 'lectionary') {
+        const forcedMode = urlParams.get('reading_type');
+        
+        if (forcedMode === 'lectionary') {
             setReadingMode('lectionary');
-        } else if (urlParams.get('reading_type') === 'bible_in_a_year') {
+        } else if (forcedMode === 'bible_in_a_year') {
             setReadingMode('bible_year');
+        } else {
+            // Apply default from server (user preference)
+            setReadingMode('{{ default_mode }}');
         }
     });
 {% endmacro %}

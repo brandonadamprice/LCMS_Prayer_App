@@ -628,11 +628,7 @@ def get_office_devotion_data(user_id, office_name, date_obj=None):
   memento_reading = get_memento_reading_for_date(now)
   memento_data = None
   if memento_reading:
-    nt_ref = memento_reading["nt_reading"]
-    psalms_ref = memento_reading["psalms_reading"]
     try:
-      # We will fetch these later with other texts or here?
-      # Let's add them to all_refs to batch fetch
       pass
     except Exception as e:
       print(f"Error fetching memento passages: {e}")
@@ -657,10 +653,33 @@ def get_office_devotion_data(user_id, office_name, date_obj=None):
           "psalms_text": all_texts[memento_texts_start + 1]
       }
 
+  # Determine Default Reading Mode based on User Preferences
+  default_reading_mode = "office"
+  if user_id:
+    user = flask_login.current_user
+    # Ensure user object is fresh or accessible (flask_login.current_user works if logged in)
+    # If this function is called from a context where current_user isn't valid (like reminders job),
+    # we might need to fetch the user.
+    # But usually get_office_devotion_data is called from routes.
+    # For reminders, we fetch user data separately. But reminder emails don't use this dynamic pref logic 
+    # (they have explicit reading_type in reminder settings).
+    
+    if hasattr(user, 'reading_preferences'):
+        pref = user.reading_preferences.get(office_name)
+        if pref:
+            default_reading_mode = pref
+            
+            # Fallback logic
+            if default_reading_mode == 'memento' and not memento_reading:
+                default_reading_mode = 'office'
+            elif default_reading_mode == 'lectionary' and not daily_lectionary_readings:
+                 default_reading_mode = 'office'
+
   # Base data
   data = {
       "date_str": now.strftime("%A, %B %d, %Y"),
       "key": key,
+      "default_reading_mode": default_reading_mode,
       "is_trinity_sunday": now.date() == cy.holy_trinity,
       "daily_lectionary_readings": daily_lectionary_readings,
       "lectionary_texts": lectionary_texts,
