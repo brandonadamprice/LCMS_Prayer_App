@@ -55,6 +55,20 @@ h2 {
     margin-bottom: 10px;
 }
 
+.chapter-header {
+    color: #333;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.1em;
+}
+body.dark-mode .chapter-header {
+    color: #ddd;
+    border-bottom-color: #555;
+}
+
 .prayer-topic {
     color: #2980b9;
     font-weight: bold;

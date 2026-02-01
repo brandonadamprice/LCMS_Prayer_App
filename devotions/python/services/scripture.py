@@ -48,7 +48,36 @@ def _preprocess_ref(ref: str) -> str:
   if not book:
     return ref
 
-  processed_parts = [first_part]
+  # Check for chapter range in first_part, e.g. "Matthew 1-4"
+  # (Must NOT be "Matthew 1:1-4")
+  # Regex for "Book Name (C1)-(C2)"
+  # Capture Groups: 1=Book, 2=Start, 3=End
+  chapter_range_match = re.match(
+      r"^((?:[1-3]\s)?[a-zA-Z\s]+)\s+(\d+)-(\d+)$", first_part
+  )
+
+  if chapter_range_match:
+    book_name = chapter_range_match.group(1).strip()
+    start_chap = int(chapter_range_match.group(2))
+    end_chap = int(chapter_range_match.group(3))
+
+    # Limit expansion to reasonable size to prevent abuse (e.g. Psalms 1-150)
+    if end_chap > start_chap and (end_chap - start_chap) < 50:
+      expanded_parts = []
+      for c in range(start_chap, end_chap + 1):
+        expanded_parts.append(f"{book_name} {c}")
+
+      # If there are subsequent parts (separated by ; or ,), process them too
+      # But complex mixed queries like "Matt 1-4; James 1" are tricky if we just return here.
+      # The loop below handles parts[1:]. We should integrate.
+
+      # Replace first_part logic with expanded list
+      processed_parts = expanded_parts
+    else:
+      processed_parts = [first_part]
+  else:
+    processed_parts = [first_part]
+
   for part in parts[1:]:
     part = part.strip()
     # Remove f/ff suffixes for API query
@@ -131,14 +160,34 @@ def _fetch_passages_cached(
                 passage_idx : passage_idx + num_passages
             ]
             if passages_list:
-              if len(passages_list) > 1 and include_copyright:
-                processed_passages = [
-                    p.strip().removesuffix(" (ESV)") for p in passages_list[:-1]
-                ]
-                processed_passages.append(passages_list[-1].strip())
-                text_block = " ".join(processed_passages)
-              else:
-                text_block = " ".join(p.strip() for p in passages_list)
+              formatted_passages = []
+              query_parts = ref_map[ref]
+
+              for i, p in enumerate(passages_list):
+                p_text = p.strip()
+
+                # Remove intermediate (ESV) notices if multiple passages
+                if (
+                    include_copyright
+                    and len(passages_list) > 1
+                    and i < len(passages_list) - 1
+                ):
+                  p_text = p_text.removesuffix(" (ESV)")
+
+                # Insert Header if expanding a multi-chapter range
+                # We check if query_parts[i] looks like "Book Name Chapter" (no colon)
+                # AND we have multiple passages.
+                if len(passages_list) > 1:
+                  label = query_parts[i]
+                  # Simple heuristic: no colon means whole chapter usually
+                  if ":" not in label:
+                    p_text = f"<h4 class='chapter-header'>{label}</h4>" + p_text
+                  elif i > 0:  # Add separation for distinct verses
+                    p_text = f"<strong>{label}</strong><br>" + p_text
+
+                formatted_passages.append(p_text)
+
+              text_block = " ".join(formatted_passages)
 
               if include_copyright and text_block.endswith(" (ESV)"):
                 text_block = (
