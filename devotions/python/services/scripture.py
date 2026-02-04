@@ -149,88 +149,74 @@ def _fetch_passages_cached(
   }
   headers = {"Authorization": f"Token {api_key}"}
 
-  try:
-    response = requests.get(
-        "https://api.esv.org/v3/passage/text/",
-        params=params,
-        headers=headers,
-        timeout=10,
-    )
-    response.raise_for_status()
-    data = response.json()
+  response = requests.get(
+      "https://api.esv.org/v3/passage/text/",
+      params=params,
+      headers=headers,
+      timeout=10,
+  )
+  response.raise_for_status()
+  data = response.json()
 
-    if data.get("passages"):
-      passage_idx = 0
-      for ref in references_list:
-        if ref in ref_map:
-          num_passages = len(ref_map[ref])
-          if passage_idx + num_passages <= len(data["passages"]):
-            passages_list = data["passages"][
-                passage_idx : passage_idx + num_passages
-            ]
-            if passages_list:
-              formatted_passages = []
-              query_parts = ref_map[ref]
+  if data.get("passages"):
+    passage_idx = 0
+    for ref in references_list:
+      if ref in ref_map:
+        num_passages = len(ref_map[ref])
+        if passage_idx + num_passages <= len(data["passages"]):
+          passages_list = data["passages"][
+              passage_idx : passage_idx + num_passages
+          ]
+          if passages_list:
+            formatted_passages = []
+            query_parts = ref_map[ref]
 
-              for i, p in enumerate(passages_list):
-                p_text = p.strip()
+            for i, p in enumerate(passages_list):
+              p_text = p.strip()
 
-                # Remove intermediate (ESV) notices if multiple passages
-                if (
-                    include_copyright
-                    and len(passages_list) > 1
-                    and i < len(passages_list) - 1
-                ):
-                  p_text = p_text.removesuffix(" (ESV)")
+              # Remove intermediate (ESV) notices if multiple passages
+              if (
+                  include_copyright
+                  and len(passages_list) > 1
+                  and i < len(passages_list) - 1
+              ):
+                p_text = p_text.removesuffix(" (ESV)")
 
-                formatted_passages.append(p_text)
+              formatted_passages.append(p_text)
 
-              # Join multiple passages with a break to prevent merging title lines
-              text_block = "<br><br>".join(formatted_passages)
+            # Join multiple passages with a break to prevent merging title lines
+            text_block = "<br><br>".join(formatted_passages)
 
-              if include_copyright and text_block.endswith(" (ESV)"):
-                text_block = (
-                    text_block.removesuffix(" (ESV)")
-                    + ' <span class="esv-attribution">(<a'
-                    ' href="http://www.esv.org">ESV</a>)</span>'
-                )
-              elif not include_copyright and text_block.endswith(" (ESV)"):
-                text_block = text_block.removesuffix(" (ESV)")
-            else:
-              text_block = ""
-
-            if include_verse_numbers:
-              text_block = re.sub(
-                  r"\[(\d+)\]", r"<br><sup>\1</sup>", text_block
+            if include_copyright and text_block.endswith(" (ESV)"):
+              text_block = (
+                  text_block.removesuffix(" (ESV)")
+                  + ' <span class="esv-attribution">(<a'
+                  ' href="http://www.esv.org">ESV</a>)</span>'
               )
-              if text_block.startswith("<br>"):
-                text_block = text_block[4:]
-            else:
-              text_block = re.sub(r"\[\d+\]", "", text_block).strip()
-
-            passage_results[ref] = text_block
-            passage_idx += num_passages
+            elif not include_copyright and text_block.endswith(" (ESV)"):
+              text_block = text_block.removesuffix(" (ESV)")
           else:
-            passage_results[ref] = f"<i>(Text not found for {ref})</i>"
-        # If ref not in ref_map, it's already "Reading not available"
-    else:
-      for ref in ref_map:
-        passage_results[ref] = f"<i>(Text not found for {ref})</i>"
+            text_block = ""
 
-    return tuple(passage_results[ref] for ref in references_list)
+          if include_verse_numbers:
+            text_block = re.sub(
+                r"\[(\d+)\]", r"<br><sup>\1</sup>", text_block
+            )
+            if text_block.startswith("<br>"):
+              text_block = text_block[4:]
+          else:
+            text_block = re.sub(r"\[\d+\]", "", text_block).strip()
 
-  except requests.exceptions.RequestException as e:
-    print(f"Error fetching from ESV API: {e}")
-    error_msg = "<i>(Could not connect to ESV API)</i>"
+          passage_results[ref] = text_block
+          passage_idx += num_passages
+        else:
+          passage_results[ref] = f"<i>(Text not found for {ref})</i>"
+      # If ref not in ref_map, it's already "Reading not available"
+  else:
     for ref in ref_map:
-      passage_results[ref] = error_msg
-    return tuple(passage_results[ref] for ref in references_list)
-  except Exception as e:
-    print(f"Error processing ESV API response: {e}")
-    error_msg = "<i>(Error processing ESV API response)</i>"
-    for ref in ref_map:
-      passage_results[ref] = error_msg
-    return tuple(passage_results[ref] for ref in references_list)
+      passage_results[ref] = f"<i>(Text not found for {ref})</i>"
+
+  return tuple(passage_results[ref] for ref in references_list)
 
 
 def fetch_passages(
@@ -239,8 +225,27 @@ def fetch_passages(
     include_copyright: bool = True,
 ) -> list[str]:
   """Fetches multiple passages from api.esv.org in one request."""
-  return list(
-      _fetch_passages_cached(
-          tuple(references), include_verse_numbers, include_copyright
-      )
-  )
+  try:
+    return list(
+        _fetch_passages_cached(
+            tuple(references), include_verse_numbers, include_copyright
+        )
+    )
+  except requests.exceptions.RequestException as e:
+    print(f"Error fetching from ESV API: {e}")
+    results = []
+    for ref in references:
+      if ref and ref != "Daily Lectionary Not Found":
+        results.append("<i>(Could not connect to ESV API)</i>")
+      else:
+        results.append("<i>Reading not available.</i>")
+    return results
+  except Exception as e:
+    print(f"Error processing ESV API response: {e}")
+    results = []
+    for ref in references:
+      if ref and ref != "Daily Lectionary Not Found":
+        results.append("<i>(Error processing ESV API response)</i>")
+      else:
+        results.append("<i>Reading not available.</i>")
+    return results
