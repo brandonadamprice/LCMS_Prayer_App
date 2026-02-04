@@ -62,15 +62,16 @@
             {% endif %}
         </div>
 
-        {% if memento_reading %}
         <div style="margin-top: 15px;">
             <label for="psalm-mode-select" style="font-weight: bold;">Psalmody Plan:</label>
             {% if parent_template == 'email_base.html' %}
                 <span>{{ psalm_plan_name }}</span>
             {% else %}
             <select id="psalm-mode-select" onchange="setPsalmMode(this.value)" class="form-input" style="width: auto; padding: 5px;">
-                <option value="office">Office Psalm (Rotating)</option>
+                <option value="office">A Psalm a Day</option>
+                {% if memento_reading %}
                 <option value="memento">Memento Mori (Lent 2026)</option>
+                {% endif %}
             </select>
             {% endif %}
         </div>
@@ -78,12 +79,15 @@
             async function setPsalmMode(mode) {
                 const office = document.getElementById('office-psalm-container');
                 const memento = document.getElementById('memento-psalm-container');
+                
+                // Reset
+                if(office) office.style.display = 'none';
+                if(memento) memento.style.display = 'none';
+
                 if (mode === 'memento') {
-                    office.style.display = 'none';
-                    memento.style.display = 'block';
+                    if(memento) memento.style.display = 'block';
                 } else {
-                    office.style.display = 'block';
-                    memento.style.display = 'none';
+                    if(office) office.style.display = 'block';
                 }
 
                 // Save preference
@@ -126,6 +130,24 @@
             <span class="ref">New Testament: {{ nt_reading_ref }}</span>
             <div>{{ nt_text|safe }}</div>
         </div>
+        
+        <div id="bible-year-reading-container" style="display: none;">
+            {% if bible_in_a_year_reading %}
+                <p class="subheader"><strong>Old Testament</strong></p>
+                <span class="ref">{{ bible_in_a_year_reading.ot_ref }}</span>
+                <div>{{ bible_in_a_year_reading.ot_text|safe }}</div>
+                <hr>
+                <p class="subheader"><strong>New Testament</strong></p>
+                <span class="ref">{{ bible_in_a_year_reading.nt_ref }}</span>
+                <div>{{ bible_in_a_year_reading.nt_text|safe }}</div>
+                <hr>
+                <p class="subheader"><strong>Psalms & Proverbs</strong></p>
+                <span class="ref">{{ bible_in_a_year_reading.psp_ref }}</span>
+                <div>{{ bible_in_a_year_reading.psp_text|safe }}</div>
+            {% else %}
+                 <p><em>Bible in a Year reading not available.</em></p>
+            {% endif %}
+        </div>
 
         <div id="memento-reading-container" style="display: none;">
             {% if memento_reading %}
@@ -141,24 +163,36 @@
             {% endif %}
         </div>
 
-        {% if memento_reading %}
         <div style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 10px;">
             <label for="reading-mode-select" style="font-weight: bold; align-self: center;">Reading Plan:</label>
             <select id="reading-mode-select" onchange="setReadingMode(this.value)" class="form-input" style="width: auto; padding: 5px;">
-                <option value="office">Office Readings</option>
+                <option value="office">Daily Lectionary</option>
+                <option value="bible_year">Bible in a Year (Day {{ bible_in_a_year_reading.day_number }})</option>
+                {% if memento_reading %}
                 <option value="memento">Memento Mori (Lent 2026)</option>
+                {% endif %}
             </select>
         </div>
         <script>
+            let currentReadingMode = 'office'; // Default
             async function setReadingMode(mode) {
                 const office = document.getElementById('office-reading-container');
+                const bibleYear = document.getElementById('bible-year-reading-container');
                 const memento = document.getElementById('memento-reading-container');
+                
+                // Hide all
+                if(office) office.style.display = 'none';
+                if(bibleYear) bibleYear.style.display = 'none';
+                if(memento) memento.style.display = 'none';
+                
+                currentReadingMode = mode;
+
                 if (mode === 'memento') {
-                    office.style.display = 'none';
-                    memento.style.display = 'block';
+                    if(memento) memento.style.display = 'block';
+                } else if (mode === 'bible_year') {
+                    if(bibleYear) bibleYear.style.display = 'block';
                 } else {
-                    office.style.display = 'block';
-                    memento.style.display = 'none';
+                    if(office) office.style.display = 'block';
                 }
 
                 // Save preference

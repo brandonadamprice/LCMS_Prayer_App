@@ -57,6 +57,11 @@
             {% endif %}
         </div>
         
+        <div id="psalm-a-day-container" style="{{ psalm_a_day_style|default('display: none;') }}">
+            <span class="ref">{{ psalm_a_day_ref }}</span>
+            <div>{{ psalm_a_day_text|safe }}</div>
+        </div>
+        
         <div id="memento-psalm-container" style="{{ memento_psalm_style|default('display: none;') }}">
             {% if memento_reading %}
                 <span class="ref">{{ memento_reading.psalms_ref }}</span>
@@ -64,7 +69,6 @@
             {% endif %}
         </div>
 
-        {% if memento_reading %}
         <div style="margin-top: 15px;">
             <label for="psalm-mode-select" style="font-weight: bold;">Psalmody Plan:</label>
             {% if parent_template == 'email_base.html' %}
@@ -72,20 +76,30 @@
             {% else %}
             <select id="psalm-mode-select" onchange="setPsalmMode(this.value)" class="form-input" style="width: auto; padding: 5px;">
                 <option value="office">Office Psalm (Rotating)</option>
+                <option value="psalm_a_day">A Psalm a Day</option>
+                {% if memento_reading %}
                 <option value="memento">Memento Mori (Lent 2026)</option>
+                {% endif %}
             </select>
             {% endif %}
         </div>
         <script>
             async function setPsalmMode(mode) {
                 const office = document.getElementById('office-psalm-container');
+                const psalmADay = document.getElementById('psalm-a-day-container');
                 const memento = document.getElementById('memento-psalm-container');
+                
+                // Hide all
+                if(office) office.style.display = 'none';
+                if(psalmADay) psalmADay.style.display = 'none';
+                if(memento) memento.style.display = 'none';
+
                 if (mode === 'memento') {
-                    office.style.display = 'none';
-                    memento.style.display = 'block';
+                    if(memento) memento.style.display = 'block';
+                } else if (mode === 'psalm_a_day') {
+                    if(psalmADay) psalmADay.style.display = 'block';
                 } else {
-                    office.style.display = 'block';
-                    memento.style.display = 'none';
+                    if(office) office.style.display = 'block';
                 }
 
                 // Save preference

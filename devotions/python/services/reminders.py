@@ -392,12 +392,19 @@ def _send_email(
         if psalm_type == "memento" and data.get("memento_reading"):
           data["office_psalm_style"] = "display: none;"
           data["memento_psalm_style"] = "display: block;"
+          data["psalm_a_day_style"] = "display: none;"
+        elif psalm_type == "psalm_a_day":
+          data["office_psalm_style"] = "display: none;"
+          data["memento_psalm_style"] = "display: none;"
+          data["psalm_a_day_style"] = "display: block;"
         else:
           data["office_psalm_style"] = "display: block;"
           data["memento_psalm_style"] = "display: none;"
+          data["psalm_a_day_style"] = "display: none;"
       else:
         data["office_psalm_style"] = "display: block;"
         data["memento_psalm_style"] = "display: none;"
+        data["psalm_a_day_style"] = "display: none;"
 
       # Initialize all reading styles to hidden
       data["office_reading_style"] = "display: none;"
@@ -449,6 +456,7 @@ def _send_email(
       }
       psalm_names = {
           "office": "Office Psalm (Rotating)",
+          "psalm_a_day": "A Psalm a Day",
           "memento": "Memento Mori (Lent 2026)",
       }
       # Default to office if not specified or unknown

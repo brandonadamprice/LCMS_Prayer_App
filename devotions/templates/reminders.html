@@ -48,6 +48,7 @@
       <label for="psalm_type">Psalm Type:</label><br>
       <select id="psalm_type" name="psalm_type" class="form-input">
         <option value="office">Office Psalm (Rotating)</option>
+        <option value="psalm_a_day">A Psalm a Day</option>
         <option value="memento">Memento Mori (Lent 2026)</option>
       </select>
     </div>
@@ -168,8 +169,11 @@ async function forceReminders() {
             } else if (r.reading_type === 'memento') {
                 options.push('Memento Mori Reading');
             }
+            
             if (r.psalm_type === 'memento') {
                 options.push('Memento Mori Psalm');
+            } else if (r.psalm_type === 'psalm_a_day') {
+                options.push('A Psalm a Day');
             }
             
             if (options.length > 0) {

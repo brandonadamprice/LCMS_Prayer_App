@@ -656,6 +656,11 @@ def get_office_devotion_data(user_id, office_name, date_obj=None):
   psalm_options = OFFICE_READINGS.get(psalms_key, [])
   psalm_ref = get_deterministic_choice(psalm_options, now)
 
+  # Psalm a Day (1-150)
+  day_of_year = now.timetuple().tm_yday
+  psalm_num = (day_of_year - 1) % 150 + 1
+  psalm_a_day_ref = f"Psalm {psalm_num}"
+
   # Daily Lectionary
   lectionary_data = load_lectionary(LECTIONARY_JSON_PATH)
   l_readings = lectionary_data.get(
@@ -679,7 +684,7 @@ def get_office_devotion_data(user_id, office_name, date_obj=None):
     except Exception as e:
       print(f"Error fetching memento passages: {e}")
 
-  all_refs = [reading_ref, psalm_ref] + daily_lectionary_readings
+  all_refs = [reading_ref, psalm_ref, psalm_a_day_ref] + daily_lectionary_readings
 
   if memento_reading:
     all_refs.append(memento_reading["nt_reading"])
@@ -688,10 +693,11 @@ def get_office_devotion_data(user_id, office_name, date_obj=None):
   all_texts = fetch_passages(all_refs)
   reading_text = all_texts[0]
   psalm_text = all_texts[1]
-  lectionary_texts = all_texts[2 : 2 + len(daily_lectionary_readings)]
+  psalm_a_day_text = all_texts[2]
+  lectionary_texts = all_texts[3 : 3 + len(daily_lectionary_readings)]
 
   if memento_reading:
-    memento_texts_start = 2 + len(daily_lectionary_readings)
+    memento_texts_start = 3 + len(daily_lectionary_readings)
     memento_data = {
         "nt_ref": memento_reading["nt_reading"],
         "nt_text": all_texts[memento_texts_start],
@@ -752,6 +758,8 @@ def get_office_devotion_data(user_id, office_name, date_obj=None):
       "psalm_ref": psalm_ref,
       "psalm_options": psalm_options,
       "psalm_text": psalm_text,
+      "psalm_a_day_ref": psalm_a_day_ref,
+      "psalm_a_day_text": psalm_a_day_text,
   }
 
   # Add Catechism if enabled and not Night Watch (which usually doesn't have it)
