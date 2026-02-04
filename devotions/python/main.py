@@ -1600,6 +1600,25 @@ def edit_prayer_request_route(request_id):
     return flask.jsonify({"success": False, "error": error_message}), 400
 
 
+@app.route("/api/random_prayer_request")
+def random_prayer_request_route():
+  """Returns a random active prayer request."""
+  exclude_user_id = None
+  if flask_login.current_user.is_authenticated:
+    exclude_user_id = flask_login.current_user.id
+
+  prayer = prayer_requests.get_random_prayer_request(
+      exclude_user_id=exclude_user_id
+  )
+  if prayer:
+    return flask.jsonify({"success": True, "prayer": prayer})
+  else:
+    return flask.jsonify({
+        "success": False,
+        "message": "No active prayer requests found.",
+    })
+
+
 @app.route("/admin/traffic")
 @flask_login.login_required
 def admin_traffic_route():
