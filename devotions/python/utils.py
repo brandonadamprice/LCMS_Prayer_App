@@ -437,6 +437,9 @@ def get_devotion_data(now: datetime.datetime, user_id=None) -> dict:
   weekly_prayer_data = get_weekly_prayer_for_day(now)
   print("Populated Weekly Prayer section")
 
+  # Bible in a Year
+  bible_in_a_year_data = get_bible_in_a_year_devotion_data(user_id, now)
+
   # Determine Default Reading Mode based on User Preferences (for extended_evening)
   default_reading_mode = "office"
   # Memento Check (if memento readings are relevant for this general devotion function)
@@ -482,6 +485,7 @@ def get_devotion_data(now: datetime.datetime, user_id=None) -> dict:
       "date_str": now.strftime("%A, %B %d, %Y"),
       "key": key,
       "default_reading_mode": default_reading_mode,
+      "bible_in_a_year_reading": bible_in_a_year_data,
       "memento_reading": memento_data,
       "psalm_ref": psalm_ref,
       "psalm_text": psalm_text,
