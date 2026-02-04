@@ -182,6 +182,13 @@ def _fetch_passages_cached(
               ):
                 p_text = p_text.removesuffix(" (ESV)")
 
+              if include_verse_numbers:
+                p_text = re.sub(r"\[(\d+)\]", r"<br><sup>\1</sup>", p_text)
+                if p_text.startswith("<br>"):
+                  p_text = p_text[4:]
+              else:
+                p_text = re.sub(r"\[\d+\]", "", p_text).strip()
+
               formatted_passages.append(p_text)
 
             # Join multiple passages with a break to prevent merging title lines
@@ -197,15 +204,6 @@ def _fetch_passages_cached(
               text_block = text_block.removesuffix(" (ESV)")
           else:
             text_block = ""
-
-          if include_verse_numbers:
-            text_block = re.sub(
-                r"\[(\d+)\]", r"<br><sup>\1</sup>", text_block
-            )
-            if text_block.startswith("<br>"):
-              text_block = text_block[4:]
-          else:
-            text_block = re.sub(r"\[\d+\]", "", text_block).strip()
 
           passage_results[ref] = text_block
           passage_idx += num_passages
