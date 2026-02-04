@@ -5,15 +5,37 @@ import re
 import requests
 import secrets_fetcher as secrets
 
+SINGLE_CHAPTER_BOOKS = {"Obadiah", "Philemon", "2 John", "3 John", "Jude"}
+
+
+def parse_scripture_reference(text):
+  """Parses a scripture reference into book name and citation part."""
+  text = text.strip()
+  if not text:
+    return "", ""
+
+  parts = text.split()
+  if not parts:
+    return "", ""
+
+  # Heuristic: The last part usually contains the numbers (chapter/verse)
+  # e.g. "John 3:16" -> last="3:16", book="John"
+  # e.g. "1 John 1-4" -> last="1-4", book="1 John"
+  # e.g. "Song of Solomon 2" -> last="2", book="Song of Solomon"
+  last = parts[-1]
+  has_digit = any(c.isdigit() for c in last)
+
+  if has_digit:
+    citation = last
+    book = " ".join(parts[:-1])
+    return book, citation
+  else:
+    # If no digits in last part, assume it's all book name (e.g. "Jude")
+    return text, ""
+
 
 def _preprocess_ref(ref: str) -> str:
-  """Expands shorthand Bible references with semicolons and commas.
-
-  Example: '1 Cor 7:17;23-24' becomes '1 Cor 7:17;1 Cor 7:23-24'.
-  'Gen 27:30-45; 28:10-22' becomes 'Gen 27:30-45;Gen 28:10-22'.
-  '2 John 1-13; 3 John 1-15' remains '2 John 1-13;3 John 1-15'.
-  Handles verses only, or chapter:verses after semicolon.
-  """
+  """Expands shorthand Bible references with semicolons and commas."""
   splitting_delimiters = [";", ","]
   delim = ""
   for splitting_delimiter in splitting_delimiters:
@@ -21,60 +43,49 @@ def _preprocess_ref(ref: str) -> str:
       delim = splitting_delimiter
       break
   if not delim:
-    return ref
+    parts = [ref]
+  else:
+    parts = ref.split(delim)
 
-  parts = ref.split(delim)
   first_part = parts[0].strip()
-  book_chapter_if_present = ""
+  book, citation = parse_scripture_reference(first_part)
 
-  colon_idx = first_part.rfind(":")
-  if colon_idx > -1:
-    # multi-chapter book reference format, e.g. "Genesis 1:1"
-    book_chapter_if_present = first_part[:colon_idx].strip()
-    # regex to capture book name and chapter number
-    book_match = re.match(r"(.*\D)\s*(\d+)$", book_chapter_if_present)
-    if book_match:
-      book = book_match.group(1).strip()
-    else:
-      book = ""
-  else:
-    # single-chapter book reference format, like "Jude 1-4" or "2 John 10"
-    # Use regex to extract book name to handle "1 John" etc correctly
-    # Matches optional "1 ", "2 ", "3 " followed by words
-    book_match = re.match(r"^((?:[1-3]\s)?[a-zA-Z\s]+)", first_part)
-    if book_match:
-      book = book_match.group(1).strip()
-    else:
-      book = ""
+  # Fallback for logic that needs 'book' for subsequent parts
+  # If 'citation' is compound (e.g. 1:1), extract just the book.
+  # The parse_scripture_reference does exactly that.
 
-  # Check for chapter range in first_part, e.g. "Matthew 1-4"
-  # (Must NOT be "Matthew 1:1-4")
-  # Regex for "Book Name (C1)-(C2)"
-  # Using permissive regex to catch more cases
-  chapter_range_match = re.match(r"^(.+?)\s+(\d+)-(\d+)$", first_part)
+  processed_parts = [first_part]
 
-  single_chapter_books = {"Obadiah", "Philemon", "2 John", "3 John", "Jude"}
-
-  if chapter_range_match:
-    book_name = chapter_range_match.group(1).strip()
-    start_chap = int(chapter_range_match.group(2))
-    end_chap = int(chapter_range_match.group(3))
-
-    # Limit expansion to reasonable size to prevent abuse (e.g. Psalms 1-150)
-    # Also ignore single chapter books where X-Y is likely verses
+  # Check if we should expand chapters
+  # Valid expansion condition:
+  # 1. Citation is a range "X-Y"
+  # 2. No colon (which implies verses)
+  # 3. Not a single chapter book
+  if "-" in citation and ":" not in citation:
+    citation_parts = citation.split("-")
     if (
-        end_chap > start_chap
-        and (end_chap - start_chap) < 50
-        and book_name not in single_chapter_books
+        len(citation_parts) == 2
+        and citation_parts[0].isdigit()
+        and citation_parts[1].isdigit()
     ):
-      expanded_parts = []
-      for c in range(start_chap, end_chap + 1):
-        expanded_parts.append(f"{book_name} {c}")
-      processed_parts = expanded_parts
-    else:
-      processed_parts = [first_part]
-  else:
-    processed_parts = [first_part]
+      start_chap = int(citation_parts[0])
+      end_chap = int(citation_parts[1])
+
+      if (
+          end_chap > start_chap
+          and (end_chap - start_chap) < 50
+          and book not in SINGLE_CHAPTER_BOOKS
+      ):
+        expanded_parts = []
+        for c in range(start_chap, end_chap + 1):
+          expanded_parts.append(f"{book} {c}")
+        processed_parts = expanded_parts
+
+  # Handle subsequent parts (e.g. "Matt 1; 2")
+  # Use 'book' from first part if subsequent part is just number
+  book_chapter_if_present = ""
+  if ":" in citation:
+    book_chapter_if_present = f"{book} {citation.split(':')[0]}"
 
   for part in parts[1:]:
     part = part.strip()
