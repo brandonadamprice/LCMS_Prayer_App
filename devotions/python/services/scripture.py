@@ -47,7 +47,34 @@ def _preprocess_ref(ref: str) -> str:
     else:
       book = ""
 
-  processed_parts = [first_part]
+  # Check for chapter range in first_part, e.g. "Matthew 1-4"
+  # (Must NOT be "Matthew 1:1-4")
+  # Regex for "Book Name (C1)-(C2)"
+  # Using permissive regex to catch more cases
+  chapter_range_match = re.match(r"^(.+?)\s+(\d+)-(\d+)$", first_part)
+
+  single_chapter_books = {"Obadiah", "Philemon", "2 John", "3 John", "Jude"}
+
+  if chapter_range_match:
+    book_name = chapter_range_match.group(1).strip()
+    start_chap = int(chapter_range_match.group(2))
+    end_chap = int(chapter_range_match.group(3))
+
+    # Limit expansion to reasonable size to prevent abuse (e.g. Psalms 1-150)
+    # Also ignore single chapter books where X-Y is likely verses
+    if (
+        end_chap > start_chap
+        and (end_chap - start_chap) < 50
+        and book_name not in single_chapter_books
+    ):
+      expanded_parts = []
+      for c in range(start_chap, end_chap + 1):
+        expanded_parts.append(f"{book_name} {c}")
+      processed_parts = expanded_parts
+    else:
+      processed_parts = [first_part]
+  else:
+    processed_parts = [first_part]
 
   for part in parts[1:]:
     part = part.strip()
@@ -147,7 +174,8 @@ def _fetch_passages_cached(
 
                 formatted_passages.append(p_text)
 
-              text_block = " ".join(formatted_passages)
+              # Join multiple passages with a break to prevent merging title lines
+              text_block = "<br><br>".join(formatted_passages)
 
               if include_copyright and text_block.endswith(" (ESV)"):
                 text_block = (
