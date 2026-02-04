@@ -94,6 +94,21 @@ def get_prayer_wall_requests(limit: int = 10) -> list[dict]:
     return random.sample(active_requests, limit)
 
 
+def get_random_prayer_request(exclude_user_id: str = None) -> dict | None:
+  """Returns a single random active prayer request, optionally excluding a user."""
+  active_requests = get_active_prayer_requests()
+
+  if exclude_user_id:
+    active_requests = [
+        r for r in active_requests if r.get("user_id") != exclude_user_id
+    ]
+
+  if not active_requests:
+    return None
+
+  return random.choice(active_requests)
+
+
 def update_pray_count(request_id: str, operation: str) -> bool:
   """Increments or decrements the pray count for a given request."""
   db = utils.get_db_client()

@@ -23,24 +23,74 @@
 {% endmacro %}
 
 {% macro personal_prayers_toggle(all_personal_prayers) %}
-{% if all_personal_prayers %}
-<button class="button" onclick="togglePersonalPrayers(this)">Show My Personal Prayers</button>
-<div id="personal-prayers-list" class="hidden" style="margin-top: 10px;">
-  <p class="subheader"><strong>My Personal Prayers</strong></p>
-  {% for category, prayers in all_personal_prayers.items() %}
-    {% if prayers %}
-      <p><strong>{{ category }}</strong></p>
-      <ul>
-        {% for prayer in prayers %}
-        <li>
-          {% if prayer.for_whom %}<strong>(For {{ prayer.for_whom }}):</strong> {% endif %}{{ prayer.text }}
-        </li>
-        {% endfor %}
-      </ul>
+<div class="personal-prayers-section" style="margin-top: 20px;">
+    {% if all_personal_prayers %}
+    <button class="button" onclick="togglePersonalPrayers(this)">Show My Personal Prayers</button>
+    <div id="personal-prayers-list" class="hidden" style="margin-top: 10px;">
+      <p class="subheader"><strong>My Personal Prayers</strong></p>
+      {% for category, prayers in all_personal_prayers.items() %}
+        {% if prayers %}
+          <p><strong>{{ category }}</strong></p>
+          <ul>
+            {% for prayer in prayers %}
+            <li>
+              {% if prayer.for_whom %}<strong>(For {{ prayer.for_whom }}):</strong> {% endif %}{{ prayer.text }}
+            </li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      {% endfor %}
+    </div>
     {% endif %}
-  {% endfor %}
+
+    <!-- Prayer Wall Intercession Button -->
+    <div style="margin-top: 15px;">
+        <button id="btn-fetch-random-prayer" class="button" onclick="fetchRandomPrayer()" style="background-color: #3498db;">Pray for Others (Prayer Wall)</button>
+        <div id="random-prayer-display" style="display: none; margin-top: 15px; padding: 15px; background-color: #f0f4f8; border-radius: 8px; border: 1px solid #d6eaf8;">
+            <p style="margin-top: 0;"><strong>Prayer Request from <span id="random-prayer-name"></span>:</strong></p>
+            <p id="random-prayer-text" style="font-style: italic;"></p>
+            <button class="button" onclick="hideRandomPrayer()" style="font-size: 0.8em; padding: 5px 10px; background-color: #95a5a6;">Dismiss</button>
+        </div>
+    </div>
 </div>
-{% endif %}
+
+<script>
+async function fetchRandomPrayer() {
+    const btn = document.getElementById('btn-fetch-random-prayer');
+    const display = document.getElementById('random-prayer-display');
+    const nameEl = document.getElementById('random-prayer-name');
+    const textEl = document.getElementById('random-prayer-text');
+    
+    btn.disabled = true;
+    btn.textContent = "Fetching...";
+    
+    try {
+        const response = await fetch('/api/random_prayer_request');
+        const data = await response.json();
+        
+        if (data.success && data.prayer) {
+            nameEl.textContent = data.prayer.name;
+            textEl.textContent = data.prayer.request;
+            display.style.display = 'block';
+            
+            // Optionally auto-scroll to it
+            display.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        } else {
+            alert(data.message || "No prayer requests available at this time.");
+        }
+    } catch (e) {
+        console.error("Error fetching random prayer:", e);
+        alert("Failed to fetch prayer request. Please check your connection.");
+    } finally {
+        btn.disabled = false;
+        btn.textContent = "Pray for Others (Prayer Wall)";
+    }
+}
+
+function hideRandomPrayer() {
+    document.getElementById('random-prayer-display').style.display = 'none';
+}
+</script>
 {% endmacro %}
 
 {% macro reading_card(reading_ref, reading_text, reading_options, daily_lectionary_readings, lectionary_texts, bible_in_a_year_reading, memento_reading=None) %}
