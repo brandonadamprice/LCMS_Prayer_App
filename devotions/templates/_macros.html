@@ -118,12 +118,13 @@
 {% endmacro %}
 
 {% macro reading_mode_js(bible_year_day, default_mode='office') %}
-    // Store current reading mode
-    let currentReadingMode = '{{ default_mode }}';
-    const bibleYearDay = {{ bible_year_day|tojson }};
+    // Use var to allow redeclaration to avoid SyntaxErrors
+    var currentReadingMode = '{{ default_mode }}';
+    var bibleYearDay = {{ bible_year_day|tojson }};
+    
     // Devotion type extracted from URL path for saving preference
-    const pathParts = window.location.pathname.split('/');
-    const devotionType = pathParts[pathParts.length - 1]; // e.g., 'morning' from '/office/morning'
+    var pathParts = window.location.pathname.split('/');
+    var devotionType = pathParts[pathParts.length - 1]; 
 
     async function setReadingMode(mode) {
        const officeContainer = document.getElementById('office-reading-container');
@@ -176,7 +177,8 @@
     }
     
     // Override standard markPrayerComplete to include bible data
-    const originalMarkPrayerComplete = window.markPrayerComplete;
+    // Use var to avoid const redeclaration issues
+    var originalMarkPrayerComplete = window.markPrayerComplete;
     
     window.markPrayerComplete = async function(devotionType) {
         const btn = document.getElementById('btn-complete-prayer');

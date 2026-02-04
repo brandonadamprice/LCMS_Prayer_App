@@ -172,54 +172,6 @@
                 {% endif %}
             </select>
         </div>
-        <script>
-            let currentReadingMode = 'office'; // Default
-            async function setReadingMode(mode) {
-                const office = document.getElementById('office-reading-container');
-                const bibleYear = document.getElementById('bible-year-reading-container');
-                const memento = document.getElementById('memento-reading-container');
-                
-                // Hide all
-                if(office) office.style.display = 'none';
-                if(bibleYear) bibleYear.style.display = 'none';
-                if(memento) memento.style.display = 'none';
-                
-                currentReadingMode = mode;
-
-                if (mode === 'memento') {
-                    if(memento) memento.style.display = 'block';
-                } else if (mode === 'bible_year') {
-                    if(bibleYear) bibleYear.style.display = 'block';
-                } else {
-                    if(office) office.style.display = 'block';
-                }
-
-                // Save preference
-                if ({{ current_user.is_authenticated|tojson }}) {
-                    try {
-                        const devotionType = 'extended_evening'; 
-                        
-                        await fetch('/api/save_reading_preference', {
-                            method: 'POST',
-                            headers: {'Content-Type': 'application/json'},
-                            body: JSON.stringify({ devotion: devotionType, preference: mode })
-                        });
-                    } catch(e) {
-                        console.error("Failed to save reading preference", e);
-                    }
-                }
-            }
-            
-            // Set initial state based on default_reading_mode passed from backend
-            document.addEventListener('DOMContentLoaded', () => {
-                const defaultMode = '{{ default_reading_mode }}';
-                const select = document.getElementById('reading-mode-select');
-                if (select) {
-                    select.value = defaultMode;
-                    setReadingMode(defaultMode);
-                }
-            });
-        </script>
     {% endcall %}
 
     {% call macros.card('Creed') %}
