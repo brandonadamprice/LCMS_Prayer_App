@@ -65,12 +65,14 @@
               <p class="subheader"><strong>Your Personal Prayers for this Topic</strong></p>
               <ul>
               {% for p in prayer.personal_prayers %}
-                <li>{{ p.text }}</li>
+                <li>{% if p.for_whom %}<strong>(For {{ p.for_whom }}):</strong> {% endif %}{{ p.text }}</li>
               {% endfor %}
               </ul>
             {% endif %}
             {% if not loop.last %}<hr />{% endif %}
         {% endfor %}
+        <hr />
+        {{ macros.prayer_wall_widget() }}
     {% endcall %}
 
     {% call macros.card('Concluding Prayer and Dedication') %}
