@@ -22,27 +22,7 @@
 </p>
 {% endmacro %}
 
-{% macro personal_prayers_toggle(all_personal_prayers) %}
-<div class="personal-prayers-section" style="margin-top: 20px;">
-    {% if all_personal_prayers %}
-    <button class="button" onclick="togglePersonalPrayers(this)">Show My Personal Prayers</button>
-    <div id="personal-prayers-list" class="hidden" style="margin-top: 10px;">
-      <p class="subheader"><strong>My Personal Prayers</strong></p>
-      {% for category, prayers in all_personal_prayers.items() %}
-        {% if prayers %}
-          <p><strong>{{ category }}</strong></p>
-          <ul>
-            {% for prayer in prayers %}
-            <li>
-              {% if prayer.for_whom %}<strong>(For {{ prayer.for_whom }}):</strong> {% endif %}{{ prayer.text }}
-            </li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-      {% endfor %}
-    </div>
-    {% endif %}
-
+{% macro prayer_wall_widget() %}
     <!-- Prayer Wall Intercession Button -->
     <div style="margin-top: 15px;">
         <button id="btn-fetch-random-prayer" class="button" onclick="fetchRandomPrayer()" style="background-color: #3498db;">Pray for Others (Prayer Wall)</button>
@@ -52,7 +32,6 @@
             <button class="button" onclick="hideRandomPrayer()" style="font-size: 0.8em; padding: 5px 10px; background-color: #95a5a6;">Dismiss</button>
         </div>
     </div>
-</div>
 
 <script>
 async function fetchRandomPrayer() {
@@ -91,6 +70,31 @@ function hideRandomPrayer() {
     document.getElementById('random-prayer-display').style.display = 'none';
 }
 </script>
+{% endmacro %}
+
+{% macro personal_prayers_toggle(all_personal_prayers) %}
+<div class="personal-prayers-section" style="margin-top: 20px;">
+    {% if all_personal_prayers %}
+    <button class="button" onclick="togglePersonalPrayers(this)">Show My Personal Prayers</button>
+    <div id="personal-prayers-list" class="hidden" style="margin-top: 10px;">
+      <p class="subheader"><strong>My Personal Prayers</strong></p>
+      {% for category, prayers in all_personal_prayers.items() %}
+        {% if prayers %}
+          <p><strong>{{ category }}</strong></p>
+          <ul>
+            {% for prayer in prayers %}
+            <li>
+              {% if prayer.for_whom %}<strong>(For {{ prayer.for_whom }}):</strong> {% endif %}{{ prayer.text }}
+            </li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {{ prayer_wall_widget() }}
+</div>
 {% endmacro %}
 
 {% macro reading_card(reading_ref, reading_text, reading_options, daily_lectionary_readings, lectionary_texts, bible_in_a_year_reading, memento_reading=None) %}
