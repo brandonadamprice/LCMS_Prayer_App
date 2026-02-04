@@ -48,6 +48,8 @@ def generate_mid_week_devotion(date_obj=None):
           if topic not in personal_prayers_by_topic:
             personal_prayers_by_topic[topic] = []
           prayer["text"] = utils.decrypt_text(prayer["text"])
+          if prayer.get("for_whom"):
+            prayer["for_whom"] = utils.decrypt_text(prayer["for_whom"])
           personal_prayers_by_topic[topic].append(prayer)
     except Exception as e:
       print(f"Error fetching personal prayers for mid-week: {e}")
