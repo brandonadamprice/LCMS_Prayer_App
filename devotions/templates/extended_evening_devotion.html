@@ -215,14 +215,17 @@
         <p>Lord, hear our prayer. <strong>And let our cry come to you.</strong></p>
         {{ weekly_prayer_html|safe }}
         {% if personal_prayers_list %}
-          <p class="subheader"><strong>Your Personal Prayers for this Topic</strong></p>
-          <ul>
-          {% for prayer in personal_prayers_list %}
-            <li>
-              {% if prayer.for_whom %}<strong>(For {{ prayer.for_whom }}):</strong> {% endif %}{{ prayer.text }}
-            </li>
-          {% endfor %}
-          </ul>
+          <button class="button" onclick="togglePersonalPrayers(this)">Hide My Personal Prayers</button>
+          <div id="personal-prayers-list" style="margin-top: 10px;">
+            <p class="subheader"><strong>Your Personal Prayers for this Topic</strong></p>
+            <ul>
+            {% for prayer in personal_prayers_list %}
+              <li>
+                {% if prayer.for_whom %}<strong>(For {{ prayer.for_whom }}):</strong> {% endif %}{{ prayer.text }}
+              </li>
+            {% endfor %}
+            </ul>
+          </div>
         {% endif %}
         <p><em>(You may offer your own prayers at this time)</em></p>
         <hr />
