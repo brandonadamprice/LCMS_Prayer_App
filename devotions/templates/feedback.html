@@ -3,9 +3,18 @@
       <h1>Feedback</h1>
     </div>
 
+    <style>
+        .feedback-frame {
+            background-color: white; /* Ensure base is white before inversion */
+        }
+        body.dark-mode .feedback-frame {
+            filter: invert(1) hue-rotate(180deg);
+        }
+    </style>
     <div class="card">
       <div class="card-content">
         <iframe
+          class="feedback-frame"
           src="https://docs.google.com/forms/d/e/1FAIpQLScO5uvB41L8DZDovpezMcNGM97EtaDbX0Itz60nGDw25tcqGw/viewform?embedded=true"
           width="100%"
           height="950"
