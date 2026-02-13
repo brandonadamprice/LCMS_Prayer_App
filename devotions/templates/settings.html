@@ -67,7 +67,7 @@
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <div>
             <strong>Browser Push Notifications</strong><br>
-            <span style="font-size: 0.9em; color: #7f8c8d;">Required for Push notifications on this device.</span>
+            <span style="font-size: 0.9em; color: #7f8c8d;" id="notif-status-text">Required for Push notifications on this device.</span>
         </div>
         <label class="switch">
             <input type="checkbox" id="notifications-toggle">
@@ -386,7 +386,7 @@
   function updateToggleState() {
     if (!('Notification' in window)) {
         if(notifToggle) notifToggle.disabled = true;
-        if(notifStatusText) notifStatusText.textContent = "Notifications not supported";
+        if(notifStatusText) notifStatusText.textContent = "Notifications not supported on this browser/device.";
         return;
     }
 
@@ -394,21 +394,30 @@
 
     if (Notification.permission === 'granted') {
         if (localEnabled) {
-            if(notifToggle) notifToggle.checked = true;
+            if(notifToggle) {
+                notifToggle.checked = true;
+                notifToggle.disabled = false;
+            }
             if(notifStatusText) notifStatusText.textContent = "Notifications Enabled";
         } else {
-            if(notifToggle) notifToggle.checked = false;
+            if(notifToggle) {
+                notifToggle.checked = false;
+                notifToggle.disabled = false;
+            }
             if(notifStatusText) notifStatusText.textContent = "Enable Notifications";
         }
     } else if (Notification.permission === 'denied') {
         if(notifToggle) {
             notifToggle.checked = false;
-            notifToggle.disabled = true;
+            notifToggle.disabled = false; // Allow interaction to explain why
         }
-        if(notifStatusText) notifStatusText.textContent = "Notifications Denied (Check Browser Settings)";
+        if(notifStatusText) notifStatusText.textContent = "Notifications Blocked (Tap for info)";
         localStorage.setItem('notifications_enabled', 'false');
     } else {
-        if(notifToggle) notifToggle.checked = false;
+        if(notifToggle) {
+            notifToggle.checked = false;
+            notifToggle.disabled = false;
+        }
         if(notifStatusText) notifStatusText.textContent = "Enable Notifications";
         localStorage.setItem('notifications_enabled', 'false');
     }
@@ -416,6 +425,16 @@
 
   if (notifToggle) {
       notifToggle.addEventListener('change', async (e) => {
+        if (!('Notification' in window)) return;
+
+        // If explicitly denied, we can't request again. Show instructions.
+        if (Notification.permission === 'denied') {
+            e.preventDefault();
+            e.target.checked = false;
+            alert("Notifications are currently disabled for this site in your browser settings.\n\nTo enable them:\n- iOS: Go to Settings > Notifications > [This App/Browser] and Allow.\n- Android/Chrome: Tap the lock icon in the address bar > Permissions > Notifications.");
+            return;
+        }
+
         if (e.target.checked) {
             const granted = await requestPushPermission();
             if (granted) {
