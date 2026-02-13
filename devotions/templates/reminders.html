@@ -61,7 +61,7 @@
         SMS reminders are sent from <strong>+1 (844) 314-5905</strong>.
     </p>
 
-    <button type="submit" class="button">Set Reminder</button>
+    <button type="submit" class="button" id="btn-set-reminder">Set Reminder</button>
   </form>
 </div>
 
@@ -237,6 +237,10 @@ async function forceReminders() {
   
   devotionSelect.addEventListener('change', updateOptionsVisibility);
 
+  // Use a standard function for the submit handler to ensure compatibility
+  const reminderForm = document.getElementById('reminder-form');
+  const submitBtn = document.getElementById('btn-set-reminder');
+
   document.getElementById('reminder-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
@@ -245,6 +249,9 @@ async function forceReminders() {
     if (Notification.permission !== 'granted') {
         // We can just warn or let them proceed. The link at top already directs them.
     }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Setting...";
 
     // We default to 'push' for now in the backend call, but the backend 
     // now also checks user preferences. We send 'push' as a requested method
@@ -284,6 +291,9 @@ async function forceReminders() {
     } catch(e) {
         console.error(e);
         alert("An error occurred.");
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Set Reminder";
     }
   });
 
