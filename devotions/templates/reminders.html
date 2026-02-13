@@ -101,51 +101,14 @@ async function forceReminders() {
 
 {% block extra_js %}
 </script>
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-  import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging.js";
-
+<script>
+  // Core application logic - moved out of module to ensure reliability
   const remindersList = document.getElementById('reminders-list');
-  let messaging = null;
-  let cachedConfig = null;
-
-  async function initFirebase() {
-    try {
-      const response = await fetch('/firebase_config');
-      if (!response.ok) throw new Error("Failed to fetch config");
-      cachedConfig = await response.json();
-      
-      const app = initializeApp(cachedConfig);
-      messaging = getMessaging(app);
-      
-      // Handle foreground messages
-      onMessage(messaging, (payload) => {
-        console.log('Message received. ', payload);
-        let title = 'Prayer Reminder';
-        let body = '';
-        let url = '/';
-
-        if (payload.notification) {
-            title = payload.notification.title || title;
-            body = payload.notification.body;
-        } else if (payload.data) {
-            title = payload.data.title || title;
-            body = payload.data.body;
-            if(payload.data.url) url = payload.data.url;
-        }
-
-        const notificationOptions = {
-          body: body,
-          icon: '/static/icons/android-chrome-192x192.png',
-          data: { url: url }
-        };
-        new Notification(title, notificationOptions);
-      });
-      console.log("Firebase initialized");
-    } catch(e) {
-      console.error("Firebase Init Error", e);
-    }
-  }
+  const devotionSelect = document.getElementById('devotion');
+  const readingTypeGroup = document.getElementById('reading-type-group');
+  const psalmTypeGroup = document.getElementById('psalm-type-group');
+  const reminderForm = document.getElementById('reminder-form');
+  const submitBtn = document.getElementById('btn-set-reminder');
 
   async function loadReminders() {
     try {
@@ -197,8 +160,6 @@ async function forceReminders() {
     }
   }
 
-
-
   async function deleteReminder(id) {
     if (!confirm("Delete this reminder?")) return;
     try {
@@ -220,11 +181,8 @@ async function forceReminders() {
   // Expose to global scope for HTML onclick
   window.deleteReminder = deleteReminder;
   
-  const devotionSelect = document.getElementById('devotion');
-  const readingTypeGroup = document.getElementById('reading-type-group');
-  const psalmTypeGroup = document.getElementById('psalm-type-group');
-  
   function updateOptionsVisibility() {
+      if (!devotionSelect) return;
       const val = devotionSelect.value;
       if (['morning', 'midday', 'evening', 'close_of_day', 'night_watch', 'extended_evening'].includes(val)) {
           readingTypeGroup.style.display = 'block';
@@ -235,70 +193,64 @@ async function forceReminders() {
       }
   }
   
-  devotionSelect.addEventListener('change', updateOptionsVisibility);
+  if (devotionSelect) {
+      devotionSelect.addEventListener('change', updateOptionsVisibility);
+  }
 
-  // Use a standard function for the submit handler to ensure compatibility
-  const reminderForm = document.getElementById('reminder-form');
-  const submitBtn = document.getElementById('btn-set-reminder');
-
-  document.getElementById('reminder-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    
-    // Check global permission status for awareness, though backend handles the actual sending based on prefs.
-    if (Notification.permission !== 'granted') {
-        // We can just warn or let them proceed. The link at top already directs them.
-    }
-
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Setting...";
-
-    // We default to 'push' for now in the backend call, but the backend 
-    // now also checks user preferences. We send 'push' as a requested method
-    // to keep the API contract, and 'sms' if we want to support it implicitly 
-    // based on settings, but the previous API expected a list of methods.
-    // Let's send 'push', 'email' and 'sms' as requested methods, 
-    // and let the backend filter based on user preferences.
-    const methods = ['push', 'email', 'sms'];
-
-    const data = {
-        time: formData.get('time'),
-        devotion: formData.get('devotion'),
-        methods: methods,
-        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
-    };
-    
-    // Include reading/psalm type if visible
-    if (readingTypeGroup.style.display !== 'none') {
-        data.reading_type = formData.get('reading_type');
-        data.psalm_type = formData.get('psalm_type');
-    }
-
-    try {
-        const response = await fetch('/add_reminder', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(data)
-        });
-        const result = await response.json();
-        if (result.success) {
-            e.target.reset();
-            updateOptionsVisibility();
-            loadReminders();
-        } else {
-            alert("Error: " + result.error);
+  if (reminderForm) {
+      reminderForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        
+        if (Notification.permission !== 'granted') {
+            // We can just warn or let them proceed. the link at top already directs them.
         }
-    } catch(e) {
-        console.error(e);
-        alert("An error occurred.");
-    } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = "Set Reminder";
-    }
-  });
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Setting...";
+
+        // We default to 'push' for now in the backend call, but the backend 
+        // now also checks user preferences.
+        const methods = ['push', 'email', 'sms'];
+
+        const data = {
+            time: formData.get('time'),
+            devotion: formData.get('devotion'),
+            methods: methods,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+        };
+        
+        // Include reading/psalm type if visible
+        if (readingTypeGroup.style.display !== 'none') {
+            data.reading_type = formData.get('reading_type');
+            data.psalm_type = formData.get('psalm_type');
+        }
+
+        try {
+            const response = await fetch('/add_reminder', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+            const result = await response.json();
+            if (result.success) {
+                e.target.reset();
+                updateOptionsVisibility();
+                loadReminders();
+            } else {
+                alert("Error: " + result.error);
+            }
+        } catch(e) {
+            console.error(e);
+            alert("An error occurred.");
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Set Reminder";
+        }
+      });
+  }
 
   document.addEventListener('DOMContentLoaded', () => {
-      initFirebase();
       loadReminders();
       updateOptionsVisibility();
 
@@ -319,6 +271,54 @@ async function forceReminders() {
           }
       }
   });
+</script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+  import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging.js";
+
+  let messaging = null;
+  let cachedConfig = null;
+
+  async function initFirebase() {
+    try {
+      const response = await fetch('/firebase_config');
+      if (!response.ok) throw new Error("Failed to fetch config");
+      cachedConfig = await response.json();
+      
+      const app = initializeApp(cachedConfig);
+      messaging = getMessaging(app);
+      
+      // Handle foreground messages
+      onMessage(messaging, (payload) => {
+        console.log('Message received. ', payload);
+        let title = 'Prayer Reminder';
+        let body = '';
+        let url = '/';
+
+        if (payload.notification) {
+            title = payload.notification.title || title;
+            body = payload.notification.body;
+        } else if (payload.data) {
+            title = payload.data.title || title;
+            body = payload.data.body;
+            if(payload.data.url) url = payload.data.url;
+        }
+
+        const notificationOptions = {
+          body: body,
+          icon: '/static/icons/android-chrome-192x192.png',
+          data: { url: url }
+        };
+        new Notification(title, notificationOptions);
+      });
+      console.log("Firebase initialized");
+    } catch(e) {
+      console.error("Firebase Init Error", e);
+    }
+  }
+
+  initFirebase();
 </script>
 <script>
 {% endblock %}
