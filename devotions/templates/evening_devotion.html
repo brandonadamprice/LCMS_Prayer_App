@@ -120,11 +120,15 @@
             }
             
             document.addEventListener('DOMContentLoaded', () => {
+                const urlParams = new URLSearchParams(window.location.search);
+                const forcedMode = urlParams.get('psalm_type');
                 const defaultMode = '{{ default_psalm_mode|default("office") }}';
+
                 const select = document.getElementById('psalm-mode-select');
                 if (select) {
-                    select.value = defaultMode;
-                    setPsalmMode(defaultMode);
+                    const modeToUse = forcedMode || defaultMode;
+                    select.value = modeToUse;
+                    setPsalmMode(modeToUse);
                 }
             });
         </script>

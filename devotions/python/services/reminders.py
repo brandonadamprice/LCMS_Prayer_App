@@ -193,8 +193,16 @@ def _process_reminder_notification(reminder_data, user_data, reminder_id=None):
   relative_path = DEVOTION_URLS.get(devotion_key, "/")
 
   reading_type = reminder_data.get("reading_type")
-  if reading_type == "lectionary":
-    relative_path += "?reading_type=lectionary"
+  psalm_type = reminder_data.get("psalm_type")
+
+  query_params = []
+  if reading_type:
+    query_params.append(f"reading_type={reading_type}")
+  if psalm_type:
+    query_params.append(f"psalm_type={psalm_type}")
+
+  if query_params:
+    relative_path += "?" + "&".join(query_params)
 
   flask.current_app.logger.info(
       f"[REMINDER] Processing reminder {reminder_id} for devotion"

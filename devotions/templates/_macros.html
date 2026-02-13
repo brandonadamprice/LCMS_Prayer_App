@@ -300,6 +300,10 @@ function hideRandomPrayer() {
             setReadingMode('lectionary');
         } else if (forcedMode === 'bible_in_a_year') {
             setReadingMode('bible_year');
+        } else if (forcedMode === 'memento') {
+            setReadingMode('memento');
+        } else if (forcedMode === 'office') {
+            setReadingMode('office');
         } else {
             // Apply default from server (user preference)
             setReadingMode('{{ default_mode }}');
