@@ -15,10 +15,10 @@
 
 <div class="card">
   <h2>Add New Reminder</h2>
-  <form id="reminder-form">
+  <form id="reminder-form" novalidate>
     <div style="margin-bottom: 10px;">
       <label for="time">Time (15-min intervals):</label><br>
-      <input type="time" id="time" name="time" required class="form-input" style="max-width: 150px;" step="900">
+      <input type="time" id="time" name="time" required class="form-input" style="max-width: 150px;">
     </div>
     
     <div style="margin-bottom: 10px;">
@@ -52,6 +52,8 @@
         <option value="memento">Memento Mori (Lent 2026)</option>
       </select>
     </div>
+
+    <div id="status-message" style="margin: 10px 0; color: #e74c3c; display: none;"></div>
 
     <p style="font-size: 0.9em; color: #7f8c8d; margin-bottom: 5px;">
         Notification preferences (Push, Email, SMS) can be configured in your <a href="/settings">Settings</a>.
@@ -109,6 +111,24 @@ async function forceReminders() {
   const psalmTypeGroup = document.getElementById('psalm-type-group');
   const reminderForm = document.getElementById('reminder-form');
   const submitBtn = document.getElementById('btn-set-reminder');
+  const statusMessage = document.getElementById('status-message');
+  
+  // Inject user ID for logging
+  const currentUserId = "{{ current_user.id }}";
+
+  function logError(devotion, time, errorMsg) {
+      console.error(`User ${currentUserId} tried to add a reminder for ${devotion} for ${time} and it failed because: ${errorMsg}`);
+  }
+
+  function showStatus(msg, isError=true) {
+      if(statusMessage) {
+          statusMessage.textContent = msg;
+          statusMessage.style.color = isError ? '#e74c3c' : '#27ae60';
+          statusMessage.style.display = 'block';
+      } else {
+          if(isError) alert(msg);
+      }
+  }
 
   async function loadReminders() {
     try {
@@ -199,50 +219,83 @@ async function forceReminders() {
 
   if (reminderForm) {
       reminderForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
+        // Capture values early for logging
         const formData = new FormData(e.target);
-        
-        if (Notification.permission !== 'granted') {
-            // We can just warn or let them proceed. the link at top already directs them.
-        }
-
-        submitBtn.disabled = true;
-        submitBtn.textContent = "Setting...";
-
-        // We default to 'push' for now in the backend call, but the backend 
-        // now also checks user preferences.
-        const methods = ['push', 'email', 'sms'];
-
-        const data = {
-            time: formData.get('time'),
-            devotion: formData.get('devotion'),
-            methods: methods,
-            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
-        };
-        
-        // Include reading/psalm type if visible
-        if (readingTypeGroup.style.display !== 'none') {
-            data.reading_type = formData.get('reading_type');
-            data.psalm_type = formData.get('psalm_type');
-        }
+        const timeVal = formData.get('time');
+        const devotionVal = formData.get('devotion');
 
         try {
+            e.preventDefault();
+            
+            // Re-enable validation check manually if we rely on it, but here we just check empty
+            const timeInput = document.getElementById('time');
+            if (!timeInput.value) {
+                const msg = "Please select a time.";
+                showStatus(msg);
+                logError(devotionVal, "unknown time", msg);
+                return;
+            }
+            
+            // Validate 15-minute intervals
+            const [hours, minutes] = timeInput.value.split(':').map(Number);
+            if (minutes % 15 !== 0) {
+                const msg = "Please select a time in 15-minute increments (e.g. :00, :15, :30, :45).";
+                showStatus(msg);
+                logError(devotionVal, timeInput.value, msg);
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Setting...";
+            showStatus("", false); // Clear status
+
+            // We default to 'push' for now in the backend call, but the backend 
+            // now also checks user preferences.
+            const methods = ['push', 'email', 'sms'];
+
+            const data = {
+                time: timeVal,
+                devotion: devotionVal,
+                methods: methods,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+            };
+            
+            // Include reading/psalm type if visible
+            if (readingTypeGroup.style.display !== 'none') {
+                data.reading_type = formData.get('reading_type');
+                data.psalm_type = formData.get('psalm_type');
+            }
+
+            console.log(`User ${currentUserId} attempting to add reminder for ${devotionVal} at ${timeVal}...`);
+
             const response = await fetch('/add_reminder', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(data)
             });
-            const result = await response.json();
+            
+            let result;
+            try {
+                result = await response.json();
+            } catch(jsonError) {
+                throw new Error("Invalid server response (JSON parse error)");
+            }
+
             if (result.success) {
+                console.log("Reminder added successfully.");
                 e.target.reset();
                 updateOptionsVisibility();
                 loadReminders();
+                showStatus("Reminder Set!", false);
+                setTimeout(() => { if(statusMessage) statusMessage.style.display = 'none'; }, 3000);
             } else {
-                alert("Error: " + result.error);
+                showStatus("Error: " + result.error);
+                logError(devotionVal, timeVal, "Server Error: " + result.error);
             }
         } catch(e) {
             console.error(e);
-            alert("An error occurred.");
+            showStatus("An error occurred: " + e.message);
+            logError(devotionVal, timeVal, "Exception: " + e.message);
         } finally {
             submitBtn.disabled = false;
             submitBtn.textContent = "Set Reminder";
