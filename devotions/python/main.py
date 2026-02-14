@@ -1773,7 +1773,6 @@ def add_reminder_route():
       flask_login.current_user.id,
       data.get("time"),
       data.get("devotion"),
-      data.get("methods"),
       data.get("timezone"),
       data.get("reading_type"),
       data.get("psalm_type"),

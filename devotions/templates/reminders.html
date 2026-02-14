@@ -200,7 +200,7 @@ async function forceReminders() {
   
   // Expose to global scope for HTML onclick
   window.deleteReminder = deleteReminder;
-  
+
   function updateOptionsVisibility() {
       if (!devotionSelect) return;
       const val = devotionSelect.value;
@@ -216,7 +216,7 @@ async function forceReminders() {
   if (devotionSelect) {
       devotionSelect.addEventListener('change', updateOptionsVisibility);
   }
-
+  
   if (reminderForm) {
       reminderForm.addEventListener('submit', async (e) => {
         // Capture values early for logging
@@ -249,14 +249,9 @@ async function forceReminders() {
             submitBtn.textContent = "Setting...";
             showStatus("", false); // Clear status
 
-            // We default to 'push' for now in the backend call, but the backend 
-            // now also checks user preferences.
-            const methods = ['push', 'email', 'sms'];
-
             const data = {
                 time: timeVal,
                 devotion: devotionVal,
-                methods: methods,
                 timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
             };
             

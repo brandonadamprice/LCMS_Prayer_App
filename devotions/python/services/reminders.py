@@ -59,13 +59,12 @@ def add_reminder(
     user_id,
     time_str,
     devotion,
-    methods,
     timezone,
     reading_type=None,
     psalm_type=None,
 ):
   """Adds a new reminder for a user."""
-  if not user_id or not time_str or not devotion or not methods:
+  if not user_id or not time_str or not devotion:
     return False, "Missing required fields."
 
   # Basic validation of time format HH:MM
@@ -89,7 +88,6 @@ def add_reminder(
       "user_id": user_id,
       "time": time_str,
       "devotion": devotion,
-      "methods": methods,
       "timezone": timezone,
       "reading_type": reading_type,
       "psalm_type": psalm_type,
