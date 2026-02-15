@@ -1893,3 +1893,199 @@ body.dark-mode .random-prayer-box {
     border-color: #34495e;
     color: #ecf0f1;
 }
+
+/* Prayer Weaver Styles */
+.weaver-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+.weaver-card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+.dark-mode .weaver-card {
+    background: #2c3e50;
+    color: #ecf0f1;
+}
+.weaver-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+.weaver-header h1 {
+    color: #27ae60;
+    margin-bottom: 10px;
+}
+.selection-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+}
+@media (min-width: 600px) {
+    .selection-list {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+.selection-item {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.dark-mode .selection-item {
+    background: #34495e;
+    border-color: #46627f;
+}
+.selection-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border-color: #27ae60;
+}
+.selection-item h3 {
+    margin: 0 0 5px 0;
+    font-size: 1.1em;
+}
+.selection-description {
+    font-size: 0.9em;
+    color: #7f8c8d;
+}
+.dark-mode .selection-description {
+    color: #bdc3c7;
+}
+
+/* Weaver Steps */
+.step-indicator {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    position: relative;
+}
+.step-indicator::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #ddd;
+    z-index: 0;
+    transform: translateY(-50%);
+}
+.dark-mode .step-indicator::before {
+    background: #46627f;
+}
+.step-dot {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    position: relative;
+    font-weight: bold;
+    color: #555;
+}
+.dark-mode .step-dot {
+    background: #46627f;
+    color: #ccc;
+}
+.step-dot.active {
+    background: #27ae60;
+    color: white;
+}
+.step-content {
+    text-align: center;
+}
+.step-icon {
+    font-size: 3em;
+    color: #27ae60;
+    margin-bottom: 10px;
+    display: block;
+}
+.seed-thought-btn {
+    background: #e67e22;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 15px 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: background 0.2s;
+}
+.seed-thought-btn:hover {
+    background: #d35400;
+}
+textarea.prayer-input {
+    width: 100%;
+    min-height: 120px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-family: 'Lora', serif;
+    font-size: 1.1em;
+    resize: vertical;
+    margin-bottom: 20px;
+}
+.dark-mode textarea.prayer-input {
+    background: #2c3e50;
+    border-color: #46627f;
+    color: #ecf0f1;
+}
+.nav-buttons {
+    display: flex;
+    justify-content: space-between;
+}
+
+/* Completion View */
+.wreath-container {
+    padding: 20px;
+    background: #fcfcfc;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+.dark-mode .wreath-container {
+    background: #34495e;
+    border-color: #46627f;
+}
+.wreath-prayer p {
+    margin-bottom: 15px;
+    line-height: 1.6;
+    font-family: 'Lora', serif;
+}
+
+.silent-preacher-toggle {
+    background: #f0f8ff;
+    border: 1px solid #bdc3c7;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    font-size: 0.9em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.dark-mode .silent-preacher-toggle {
+    background: #2c3e50;
+    border-color: #46627f;
+}
+.hidden {
+    display: none !important;
+}
+.fade-in {
+    animation: fadeIn 0.5s;
+}
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}

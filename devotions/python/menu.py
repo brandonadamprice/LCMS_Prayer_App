@@ -134,6 +134,11 @@ def get_menu_items(is_advent, is_new_year, is_lent):
           "type": "dropdown",
           "submenu": [
               {
+                  "label": "Prayer Weaver",
+                  "url": "/prayer_weaver",
+                  "enabled": True,
+              },
+              {
                   "label": "Submit Request",
                   "url": "/prayer_requests",
                   "enabled": True,

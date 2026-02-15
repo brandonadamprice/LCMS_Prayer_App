@@ -20,6 +20,7 @@ from devotional_content import memory
 from devotional_content import mid_week
 from devotional_content import new_year
 from devotional_content import nicene_creed_study
+from devotional_content import prayer_weaver
 from devotional_content import psalms_by_category
 from devotional_content import short_prayers
 from devotional_content import small_catechism
@@ -977,9 +978,16 @@ def childrens_devotion_route():
 
 
 @app.route("/prayer_requests")
+@flask_login.login_required
 def prayer_requests_route():
-  """Returns prayer request submission page."""
+  """Renders the prayer requests page."""
   return flask.render_template("prayer_requests.html")
+
+
+@app.route("/prayer_weaver")
+def prayer_weaver_route():
+  """Renders the Prayer Weaver tool."""
+  return prayer_weaver.render_prayer_weaver_page()
 
 
 @app.route("/get_passage_text")
