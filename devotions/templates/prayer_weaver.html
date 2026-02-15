@@ -50,8 +50,6 @@
                 <strong>Source:</strong> <span id="current-source-text"></span>
             </div>
 
-            <i id="step-icon" class="fas fa-book-open step-icon"></i>
-
             <button class="seed-thought-btn" onclick="useSeedThought()">
                 <i class="fas fa-seedling"></i> Use Seed Thought
             </button>
@@ -88,10 +86,10 @@
     const WEAVER_DATA = {{ weaver_data|tojson }};
 
     const STEPS = [
-        { key: 'instruction', title: 'Instruction', question: 'What is God teaching me?', icon: 'fa-book-open' },
-        { key: 'thanksgiving', title: 'Thanksgiving', question: 'What can I thank Him for?', icon: 'fa-heart' },
-        { key: 'confession', title: 'Confession', question: 'Where have I failed?', icon: 'fa-fire' }, // Using fire as flame
-        { key: 'petition', title: 'Petition', question: 'What do I ask for?', icon: 'fa-envelope' } // Msg icon
+        { key: 'instruction', title: 'Instruction', question: 'What is God teaching me?' },
+        { key: 'thanksgiving', title: 'Thanksgiving', question: 'What can I thank Him for?' },
+        { key: 'confession', title: 'Confession', question: 'Where have I failed?' },
+        { key: 'petition', title: 'Petition', question: 'What do I ask for?' }
     ];
 
     // --- State ---
@@ -156,9 +154,7 @@
         document.getElementById('step-title').textContent = stepData.title;
         document.getElementById('step-question').textContent = stepData.question;
         
-        // Update Icon
-        const iconEl = document.getElementById('step-icon');
-        iconEl.className = `fas ${stepData.icon} step-icon`;
+
 
         // Update Textarea
         const input = document.getElementById('prayer-input');
