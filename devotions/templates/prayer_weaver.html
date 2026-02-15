@@ -46,7 +46,7 @@
             <h2 id="step-title">Instruction</h2>
             <p id="step-question" style="font-style: italic; color: #7f8c8d;">What is God teaching me?</p>
             
-            <div style="margin: 20px 0; padding: 15px; background: rgba(39, 174, 96, 0.1); border-radius: 5px;">
+            <div style="margin: 20px 0; padding: 15px; background: #f0f4f8; border-radius: 5px;">
                 <strong>Source:</strong> <span id="current-source-text"></span>
             </div>
 
@@ -65,7 +65,7 @@
 
     <!-- VIEW 3: COMPLETION -->
     <div id="completion-view" class="weaver-card hidden fade-in">
-        <h2 style="text-align: center; color: #27ae60;">Your Prayer Wreath</h2>
+        <h2 style="text-align: center; color: #2980b9;">Your Prayer Wreath</h2>
         
         <div class="wreath-container" id="wreath-result">
             <!-- Populated by JS -->
@@ -176,7 +176,16 @@
         const seed = state.selectedItem.seeds[stepKey];
         if (seed) {
             const input = document.getElementById('prayer-input');
-            input.value = seed;
+            let text = seed;
+            
+            if (stepKey === 'instruction') {
+                // Adjust seed for flow if needed
+                // E.g. "God is..." -> "Heavenly Father, Your Word teaches me that God is..."
+                text = "Heavenly Father, Your Word teaches me that " + 
+                       (seed.charAt(0).toLowerCase() + seed.slice(1)).replace('god', 'God'); 
+            }
+            
+            input.value = text;
             input.focus();
         }
     }
@@ -220,12 +229,12 @@
             <div class="wreath-prayer">
                 <h3 style="text-align: center; color: #777; margin-bottom: 20px;">${state.selectedItem.title}</h3>
                 
-                <p><strong>Lord God,</strong></p>
+                <p><strong>Heavenly Father,</strong></p>
                 <p>${state.results.instruction}</p>
                 <p>${state.results.thanksgiving}</p>
                 <p>${state.results.confession}</p>
                 <p>${state.results.petition}</p>
-                <p><strong>Amen.</strong></p>
+                <p><strong>Through Jesus Christ, our Lord. Amen.</strong></p>
             </div>
         `;
     }
@@ -249,12 +258,12 @@
             ` Prayer based on ${state.selectedItem.title}:`,
             `"${state.selectedItem.text}"`,
             "",
-            "Lord God,",
+            "Heavenly Father,",
             state.results.instruction,
             state.results.thanksgiving,
             state.results.confession,
             state.results.petition,
-            "Amen."
+            "Through Jesus Christ, our Lord. Amen."
         ].join('\n');
         
         navigator.clipboard.writeText(text).then(() => {

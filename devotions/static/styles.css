@@ -1916,7 +1916,7 @@ body.dark-mode .random-prayer-box {
     margin-bottom: 30px;
 }
 .weaver-header h1 {
-    color: #27ae60;
+    color: #333;
     margin-bottom: 10px;
 }
 .selection-list {
@@ -1944,7 +1944,7 @@ body.dark-mode .random-prayer-box {
 .selection-item:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    border-color: #27ae60;
+    border-color: #2980b9;
 }
 .selection-item h3 {
     margin: 0 0 5px 0;
@@ -1997,7 +1997,7 @@ body.dark-mode .random-prayer-box {
     color: #ccc;
 }
 .step-dot.active {
-    background: #27ae60;
+    background: #708090;
     color: white;
 }
 .step-content {
@@ -2005,12 +2005,12 @@ body.dark-mode .random-prayer-box {
 }
 .step-icon {
     font-size: 3em;
-    color: #27ae60;
+    color: #708090;
     margin-bottom: 10px;
     display: block;
 }
 .seed-thought-btn {
-    background: #e67e22;
+    background: #a52a2a;
     color: white;
     border: none;
     padding: 10px 15px;
@@ -2023,8 +2023,8 @@ body.dark-mode .random-prayer-box {
     transition: background 0.2s;
 }
 .seed-thought-btn:hover {
-    background: #d35400;
-}
+    background: #802020;
+}    color: white;
 textarea.prayer-input {
     width: 100%;
     min-height: 120px;
