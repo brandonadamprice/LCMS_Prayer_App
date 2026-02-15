@@ -2089,3 +2089,14 @@ textarea.prayer-input {
     from { opacity: 0; }
     to { opacity: 1; }
 }
+
+.source-text-container {
+    margin: 20px 0;
+    padding: 15px;
+    background: #f0f4f8;
+    border-radius: 5px;
+}
+.dark-mode .source-text-container {
+    background: #34495e;
+    color: #ecf0f1;
+}
