@@ -11,17 +11,18 @@
     <div class="weaver-header">
         <h1>The Prayer Weaver</h1>
         <p>Braid a prayer using Martin Luther’s four movements: Instruction, Thanksgiving, Confession, and Petition.</p>
-        
+
         <div class="silent-preacher-toggle">
             <i class="fas fa-info-circle" style="color: #3498db;"></i>
-            <span><strong>Luther’s Rule:</strong> If the Holy Spirit begins to preach to your heart, stop the structure and listen.</span>
+            <span><strong>Luther’s Rule:</strong> If the Holy Spirit begins to preach to your heart, stop the structure
+                and listen.</span>
         </div>
     </div>
 
     <!-- VIEW 1: SELECTION -->
     <div id="selection-view" class="fade-in">
         <h2 style="text-align: center; margin-bottom: 20px;">Choose a Source Text</h2>
-        
+
         <h3 style="margin-top: 30px; border-bottom: 2px solid #eee; padding-bottom: 5px;">The Ten Commandments</h3>
         <div class="selection-list" id="commandments-list">
             <!-- Populated by JS -->
@@ -45,7 +46,7 @@
         <div class="step-content">
             <h2 id="step-title">Instruction</h2>
             <p id="step-question" style="font-style: italic; color: #7f8c8d;">What is God teaching me?</p>
-            
+
             <div class="source-text-container">
                 <strong>Source:</strong> <span id="current-source-text"></span>
             </div>
@@ -66,7 +67,7 @@
     <!-- VIEW 3: COMPLETION -->
     <div id="completion-view" class="weaver-card hidden fade-in">
         <h2 style="text-align: center; color: #2980b9;">Your Prayer Wreath</h2>
-        
+
         <div class="wreath-container" id="wreath-result">
             <!-- Populated by JS -->
         </div>
@@ -83,13 +84,13 @@
 {% block body_scripts %}
 <script>
     // --- Data ---
-    const WEAVER_DATA = {{ weaver_data|tojson }};
+    const WEAVER_DATA = {{ weaver_data| tojson }};
 
     const STEPS = [
-        { key: 'instruction', title: 'Instruction', question: 'What is God teaching me?' },
-        { key: 'thanksgiving', title: 'Thanksgiving', question: 'What can I thank Him for?' },
-        { key: 'confession', title: 'Confession', question: 'Where have I failed?' },
-        { key: 'petition', title: 'Petition', question: 'What do I ask for?' }
+        { key: 'instruction', title: 'Instruction', question: 'What is God teaching me?', starter: 'Your Word teaches me that ' },
+        { key: 'thanksgiving', title: 'Thanksgiving', question: 'What can I thank Him for?', starter: 'I thank You for ' },
+        { key: 'confession', title: 'Confession', question: 'Where have I failed?', starter: 'I confess that I ' },
+        { key: 'petition', title: 'Petition', question: 'What do I ask for?', starter: 'I ask that You would ' }
     ];
 
     // --- State ---
@@ -138,27 +139,30 @@
         state.selectedItem = item;
         state.activeStep = 0;
         state.results = { instruction: '', thanksgiving: '', confession: '', petition: '' };
-        
+
         document.getElementById('current-source-text').textContent = item.text;
-        
+
         toggleView('selection-view', false);
         toggleView('weaver-view', true);
-        
+
         updateStepUI();
     }
 
     function updateStepUI() {
         const stepData = STEPS[state.activeStep];
-        
+
         // Update Title & Question
         document.getElementById('step-title').textContent = stepData.title;
         document.getElementById('step-question').textContent = stepData.question;
-        
-
 
         // Update Textarea
         const input = document.getElementById('prayer-input');
-        input.value = state.results[stepData.key];
+        // Use saved result if available, otherwise use starter
+        if (state.results[stepData.key]) {
+            input.value = state.results[stepData.key];
+        } else {
+            input.value = stepData.starter;
+        }
         input.focus();
 
         // Update Dots
@@ -172,19 +176,36 @@
     }
 
     function useSeedThought() {
-        const stepKey = STEPS[state.activeStep].key;
+        const stepData = STEPS[state.activeStep];
+        const stepKey = stepData.key;
         const seed = state.selectedItem.seeds[stepKey];
+
         if (seed) {
             const input = document.getElementById('prayer-input');
             let text = seed;
-            
-            if (stepKey === 'instruction') {
-                // Adjust seed for flow if needed
-                // E.g. "God is..." -> "Heavenly Father, Your Word teaches me that God is..."
-                text = "Your Word teaches me that " + 
-                       (seed.charAt(0).toLowerCase() + seed.slice(1)).replace('god', 'God'); 
+
+            // Combine starter with seed
+            if (stepData.starter) {
+                // Determine if we need to lowercase the seed (avoid lowercasing 'God', 'I', etc.)
+                let processedSeed = seed;
+
+                // Simple check: if seed starts with "God" or "I", keep it. Otherwise lowercase first char.
+                // Actually, "God is..." -> "Your Word teaches me that God is..." (Keep G)
+                // "To keep the day holy..." -> "Your Word teaches me that to keep..." (lowercase t)
+
+                const firstWord = seed.split(' ')[0];
+                const cleanFirstWord = firstWord.replace(/[^a-zA-Z]/g, '');
+
+                // List of words to KEEP capitalized at start
+                const keepCaps = ['God', 'He', 'His', 'I', 'Lord', 'Jesus', 'Christ'];
+
+                if (!keepCaps.includes(cleanFirstWord)) {
+                    processedSeed = seed.charAt(0).toLowerCase() + seed.slice(1);
+                }
+
+                text = stepData.starter + processedSeed;
             }
-            
+
             input.value = text;
             input.focus();
         }
@@ -213,7 +234,7 @@
             updateStepUI();
         } else {
             // Check if user wants to quit? 
-            if(confirm("Return to selection menu? Your current progress will be lost.")) {
+            if (confirm("Return to selection menu? Your current progress will be lost.")) {
                 resetWeaver();
             }
         }
@@ -223,20 +244,62 @@
     function finishWeaver() {
         toggleView('weaver-view', false);
         toggleView('completion-view', true);
-        
+
+        // Polish the results
+        const polished = {
+            instruction: polishText(state.results.instruction),
+            thanksgiving: polishText(state.results.thanksgiving),
+            confession: polishText(state.results.confession),
+            petition: polishText(state.results.petition)
+        };
+
         const container = document.getElementById('wreath-result');
         container.innerHTML = `
             <div class="wreath-prayer">
                 <h3 style="text-align: center; color: #777; margin-bottom: 20px;">${state.selectedItem.title}</h3>
                 
                 <p><strong>Heavenly Father,</strong></p>
-                <p>${state.results.instruction}</p>
-                <p>${state.results.thanksgiving}</p>
-                <p>${state.results.confession}</p>
-                <p>${state.results.petition}</p>
+                <p>${polished.instruction}</p>
+                <p>${polished.thanksgiving}</p>
+                <p>${polished.confession}</p>
+                <p>${polished.petition}</p>
                 <p><strong>Through Jesus Christ, our Lord. Amen.</strong></p>
             </div>
         `;
+
+        // Update the state with polished versions for clipboard copy
+        state.results = polished;
+    }
+
+    function polishText(text) {
+        if (!text) return '';
+
+        let cleaned = text.trim();
+        if (cleaned.length === 0) return '';
+
+        // Capitalize first letter
+        cleaned = cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
+
+        // Add period if missing
+        if (!/[.!?]$/.test(cleaned)) {
+            cleaned += '.';
+        }
+
+        // Capitalize common divine names and "I"
+        const replacements = [
+            { regex: /\bi\b/g, val: 'I' }, // "i" -> "I"
+            { regex: /\bgod\b/gi, val: 'God' },
+            { regex: /\bjesus\b/gi, val: 'Jesus' },
+            { regex: /\blord\b/gi, val: 'Lord' },
+            { regex: /\bchrist\b/gi, val: 'Christ' },
+            { regex: /\bholy spirit\b/gi, val: 'Holy Spirit' }
+        ];
+
+        replacements.forEach(rep => {
+            cleaned = cleaned.replace(rep.regex, rep.val);
+        });
+
+        return cleaned;
     }
 
     function resetWeaver() {
@@ -252,7 +315,7 @@
         if (show) el.classList.remove('hidden');
         else el.classList.add('hidden');
     }
-    
+
     function copyToClipboard() {
         const text = [
             ` Prayer based on ${state.selectedItem.title}:`,
@@ -265,7 +328,7 @@
             state.results.petition,
             "Through Jesus Christ, our Lord. Amen."
         ].join('\n');
-        
+
         navigator.clipboard.writeText(text).then(() => {
             alert("Prayer copied to clipboard!");
         }).catch(err => {
