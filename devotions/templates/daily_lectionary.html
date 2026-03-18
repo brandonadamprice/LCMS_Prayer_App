@@ -7,7 +7,7 @@
     <div class="page-header">
       <h1>Daily Lectionary</h1>
       <p>
-        {{ date_str }}<br />
+        {{ macros.date_nav(date_str, prev_date, next_date) }}<br />
         <span style="color: #7f8c8d">Lectionary Day: {{ key }}</span>
       </p>
     </div>

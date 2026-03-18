@@ -5,7 +5,7 @@
     <div class="page-header">
       <h1>Devotion for the New Year</h1>
       <h2>In the Name of Jesus</h2>
-      <p>{{ date_str }}</p>
+      <p>{{ macros.date_nav(date_str, prev_date, next_date) }}</p>
     </div>
 
     {% call macros.card('Invocation') %}
