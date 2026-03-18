@@ -8,7 +8,7 @@
     <div class="page-header" style="--bg-image: url('{{ url_for('static', filename='banner_close_of_day.jpg', _external=True) }}');">
       <h1>Close of the Day</h1>
       <p>
-        {{ date_str }}<br />
+        {{ macros.date_nav(date_str, prev_date, next_date) }}<br />
         <span style="color: #7f8c8d">Lectionary Day: {{ key }}</span>
       </p>
       <p style="font-style: italic; margin-top: 10px;">"Leave me alone with your worry, I have a better comforter than you and all the angels. He lies in the manger and lies at the breast of a virgin, but at the same time sits at the right hand of God the almighty Father. Therefore be at peace! Amen." — Martin Luther</p>

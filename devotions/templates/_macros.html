@@ -1,3 +1,15 @@
+{% macro date_nav(date_str, prev_date, next_date) %}
+<span class="date-nav">
+  <a href="{{ request.path }}?date={{ prev_date }}" class="date-nav-arrow" aria-label="Previous day">&#8249;</a>
+  <span>{{ date_str }}</span>
+  {% if next_date %}
+  <a href="{{ request.path }}?date={{ next_date }}" class="date-nav-arrow" aria-label="Next day">&#8250;</a>
+  {% else %}
+  <span class="date-nav-arrow--disabled" aria-hidden="true">&#8250;</span>
+  {% endif %}
+</span>
+{% endmacro %}
+
 {% macro card(title, collapsed=False) %}
 <div class="card{% if collapsed %} collapsed{% endif %}">
   <div class="card-header" onclick="toggleCard(this)">

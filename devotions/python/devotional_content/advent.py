@@ -51,8 +51,15 @@ def generate_advent_devotion(date_obj=None):
   meditation_html = f'<p>{devotion_data["brief_devotional"]}</p>'
   daily_prayer_html = f'<p>{devotion_data["short_prayer"]}</p>'
 
+  today_date = datetime.datetime.now(eastern_timezone).date()
+  prev_date = (now.date() - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
+  next_day = now.date() + datetime.timedelta(days=1)
+  next_date = next_day.strftime("%Y-%m-%d") if next_day <= today_date else None
+
   template_data = {
       "date_str": now.strftime("%A, %B %d, %Y"),
+      "prev_date": prev_date,
+      "next_date": next_date,
       "devotion_title": devotion_data["devotional_title"],
       "reading_ref": scripture_verses,
       "reading_html": reading_html,

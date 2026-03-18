@@ -8,7 +8,7 @@
     <div class="page-header" style="--bg-image: url('{{ url_for('static', filename='banner_evening.jpg', _external=True) }}');">
       <h1>Evening Devotion</h1>
       <p>
-        {{ date_str }}<br />
+        {{ macros.date_nav(date_str, prev_date, next_date) }}<br />
         <span style="color: #7f8c8d">Lectionary Day: {{ key }}</span>
       </p>
       <p style="font-style: italic; margin-top: 10px;">"If such an abundance of good thoughts comes to us we ought to disregard the other petitions, make room for such thoughts, listen in silence, and under no circumstances obstruct them. The Holy Spirit himself preaches here, and one word of his sermon is far better than a thousand of our prayers. Many times I have learned more from one prayer than I might have learned from much reading and speculation." — Martin Luther</p>
