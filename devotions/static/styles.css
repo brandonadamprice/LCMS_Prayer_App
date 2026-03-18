@@ -1072,6 +1072,36 @@ body.dark-mode .page-header {
     border: 1px solid #555555;
 }
 
+/* Day navigation arrows */
+.date-nav {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.date-nav-arrow {
+    color: rgba(255, 255, 255, 0.85);
+    text-decoration: none;
+    font-size: 1.6em;
+    font-weight: bold;
+    line-height: 1;
+    padding: 0 2px;
+    transition: color 0.2s, opacity 0.2s;
+}
+
+.date-nav-arrow:hover {
+    color: white;
+    opacity: 1;
+}
+
+.date-nav-arrow--disabled {
+    color: rgba(255, 255, 255, 0.3);
+    cursor: default;
+    font-size: 1.6em;
+    font-weight: bold;
+}
+
 #favorite-icon {
     opacity: 0.5;
     transition: opacity 0.2s, transform 0.2s;

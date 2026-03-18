@@ -8,7 +8,7 @@
     <div class="page-header" style="--bg-image: url('{{ url_for('static', filename='banner_midday.jpg', _external=True) }}');">
       <h1>Midday Devotion</h1>
       <p>
-        {{ date_str }}<br />
+        {{ macros.date_nav(date_str, prev_date, next_date) }}<br />
         <span style="color: #7f8c8d">Lectionary Day: {{ key }}</span>
       </p>
       <p style="font-style: italic; margin-top: 10px;">"What else is it but tempting God when your mouth babbles and the mind wanders to other thoughts? Like the cleric who prayed, 'Deus in adjutorium meum intende.' [Make haste, O God, to deliver me; Ps. 70:1]. 'Farmhand, did you unhitch the horses?' Domine ad adjuvandum me festina. [Make haste to help me, O Lord.] 'Maid, go out and milk the cow.' Gloria patri et filio et spiritui sancto. [Glory be to the Father and to the Son and to the Holy Spirit.] 'Hurry up, boy, I wish the ague take you!'" — Martin Luther</p>

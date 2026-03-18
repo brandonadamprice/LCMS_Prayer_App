@@ -741,10 +741,18 @@ def get_office_devotion_data(user_id, office_name, date_obj=None):
             if default_psalm_mode == "memento" and not memento_reading:
                 default_psalm_mode = "office"
 
+  # Compute prev/next date for navigation
+  today = datetime.datetime.now(eastern_timezone).date()
+  prev_date = (now.date() - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
+  next_day = now.date() + datetime.timedelta(days=1)
+  next_date = next_day.strftime("%Y-%m-%d") if next_day <= today else None
+
   # Base data
   data = {
       "date_str": now.strftime("%A, %B %d, %Y"),
       "key": key,
+      "prev_date": prev_date,
+      "next_date": next_date,
       "default_reading_mode": default_reading_mode,
       "default_psalm_mode": default_psalm_mode,
       "is_trinity_sunday": now.date() == cy.holy_trinity,
