@@ -1,11 +1,64 @@
 """Service for interacting with the ESV API."""
 
 import functools
+import hashlib
 import re
 import requests
 import secrets_fetcher as secrets
+from google.cloud import firestore
 
 SINGLE_CHAPTER_BOOKS = {"Obadiah", "Philemon", "2 John", "3 John", "Jude"}
+_CACHE_COLLECTION = "bible-verse-cache"
+
+# Module-level Firestore client (lazy singleton)
+_db_client = None
+
+
+def _get_db():
+  """Returns a lazily-initialized Firestore client, or None if unavailable."""
+  global _db_client
+  if _db_client is None:
+    try:
+      _db_client = firestore.Client(
+          project="lcms-prayer-app", database="prayer-app-datastore"
+      )
+    except Exception as e:
+      print(f"Scripture cache: failed to initialize Firestore client: {e}")
+  return _db_client
+
+
+def _firestore_cache_key(
+    references: tuple, include_verse_numbers: bool, include_copyright: bool
+) -> str:
+  """Returns a deterministic document ID for the given cache parameters."""
+  key_str = f"{repr(references)}|{include_verse_numbers}|{include_copyright}"
+  return hashlib.md5(key_str.encode()).hexdigest()
+
+
+def _read_firestore_cache(db, doc_id: str, expected_len: int):
+  """Returns cached passage tuple from Firestore, or None on miss/error."""
+  try:
+    doc = db.collection(_CACHE_COLLECTION).document(doc_id).get()
+    if doc.exists:
+      passages = doc.to_dict().get("passages")
+      if passages and len(passages) == expected_len:
+        return tuple(passages)
+  except Exception as e:
+    print(f"Scripture cache: Firestore read error: {e}")
+  return None
+
+
+def _write_firestore_cache(db, doc_id: str, passages: tuple):
+  """Persists a passage tuple to Firestore. Errors are non-fatal."""
+  try:
+    db.collection(_CACHE_COLLECTION).document(doc_id).set(
+        {
+            "passages": list(passages),
+            "cached_at": firestore.SERVER_TIMESTAMP,
+        }
+    )
+  except Exception as e:
+    print(f"Scripture cache: Firestore write error: {e}")
 
 
 def parse_scripture_reference(text):
@@ -109,9 +162,19 @@ def _fetch_passages_cached(
     include_verse_numbers: bool = True,
     include_copyright: bool = True,
 ) -> tuple[str, ...]:
-  """Cached fetching of passages from api.esv.org."""
-  passage_results = {}
+  """Fetches passages with a two-level cache: in-memory LRU then Firestore."""
   references_list = list(references)
+
+  # --- L2: Firestore persistent cache ---
+  db = _get_db()
+  if db is not None:
+    doc_id = _firestore_cache_key(references, include_verse_numbers, include_copyright)
+    cached = _read_firestore_cache(db, doc_id, len(references_list))
+    if cached is not None:
+      return cached
+
+  # --- Cache miss: fetch from ESV API ---
+  passage_results = {}
 
   # original_ref -> list of preprocessed refs for ESV
   ref_map = {}
@@ -214,7 +277,13 @@ def _fetch_passages_cached(
     for ref in ref_map:
       passage_results[ref] = f"<i>(Text not found for {ref})</i>"
 
-  return tuple(passage_results[ref] for ref in references_list)
+  result = tuple(passage_results[ref] for ref in references_list)
+
+  # Store fresh API result in Firestore for future restarts
+  if db is not None:
+    _write_firestore_cache(db, doc_id, result)
+
+  return result
 
 
 def fetch_passages(
