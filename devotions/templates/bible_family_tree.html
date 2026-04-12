@@ -3,10 +3,10 @@
 
 {% block head %}
 <link rel="preload" as="image" href="{{ url_for('static', filename='banner.jpg') }}">
+<script src="https://d3js.org/d3.v7.min.js"></script>
 <style>
   main.container { max-width: 100%; padding: 0; }
   main.container > .footer { max-width: 800px; margin: 0 auto; padding: 20px; }
-
   .page-header { margin: 20px 20px 0; }
 
   .tree-controls {
@@ -49,10 +49,8 @@
     outline: none;
     transition: border-color 0.2s, box-shadow 0.2s;
   }
-  #tree-search:focus {
-    border-color: #2980b9;
-    box-shadow: 0 0 0 3px rgba(41,128,185,0.12);
-  }
+  #tree-search:focus { border-color: #2980b9; box-shadow: 0 0 0 3px rgba(41,128,185,0.12); }
+
   .tree-btn-group { display: flex; gap: 6px; flex-wrap: wrap; }
   .tree-btn {
     padding: 6px 13px;
@@ -70,8 +68,9 @@
     white-space: nowrap;
     margin: 0;
   }
-  .tree-btn:hover { background:#f9f8f4; border-color:#2980b9; color:#2980b9; transform:none; box-shadow:none; }
-  .tree-btn.active { background:#2980b9; border-color:#2980b9; color:white; }
+  .tree-btn:hover { background: #f9f8f4; border-color: #2980b9; color: #2980b9; transform: none; box-shadow: none; }
+  .tree-btn.active { background: #2980b9; border-color: #2980b9; color: white; }
+
   .tree-legend {
     display: flex;
     gap: 14px;
@@ -84,7 +83,8 @@
   }
   .leg-dot {
     display: inline-block;
-    width: 11px; height: 11px;
+    width: 11px;
+    height: 11px;
     border-radius: 50%;
     margin-right: 5px;
     vertical-align: middle;
@@ -92,7 +92,7 @@
 
   .tree-viewport {
     width: 100%;
-    height: calc(100vh - 195px);
+    height: calc(100vh - 200px);
     min-height: 460px;
     overflow: hidden;
     background: #f9f8f4;
@@ -103,14 +103,11 @@
   .tree-viewport:active { cursor: grabbing; }
   #tree-svg { width: 100%; height: 100%; display: block; }
 
-  /* SVG styles */
-  .link { fill: none; stroke: #d5d3ce; stroke-width: 1.5px; }
-  .link.m-link { stroke: #a9cce3; stroke-width: 2px; }
+  .tree-link { fill: none; stroke: #d5d3ce; stroke-width: 1.5px; }
+  .tree-link.m-link { stroke: #a9cce3; stroke-width: 2px; }
+  .tree-node text { font-family: 'Montserrat', sans-serif; pointer-events: none; user-select: none; }
+  .tree-node circle { cursor: pointer; }
 
-  .node text { font-family: 'Montserrat', sans-serif; pointer-events: none; user-select: none; }
-  .node circle { cursor: pointer; }
-
-  /* Tooltip */
   .tree-tip {
     position: fixed;
     background: white;
@@ -126,7 +123,7 @@
     border: 1px solid #eeece8;
   }
   .tree-tip.show { opacity: 1; transform: translateY(0); }
-  .tip-name { font-family:'Montserrat',sans-serif; font-weight:700; font-size:1em; color:#333; margin:0 0 3px; }
+  .tip-name { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 1em; color: #333; margin: 0 0 3px; }
   .tip-badges { margin-bottom: 7px; }
   .tip-badge {
     display: inline-block;
@@ -139,31 +136,30 @@
     text-transform: uppercase;
     margin-right: 4px;
   }
-  .badge-m  { background:#d6eaf8; color:#2471a3; }
-  .badge-k  { background:#e8f8f5; color:#1e8449; }
-  .badge-pr { background:#fef9e7; color:#b7950b; }
-  .badge-p  { background:#f4ecf7; color:#7d3c98; }
-  .badge-x  { background:#fdedec; color:#c0392b; }
-  .tip-detail { font-family:'Lora',serif; font-size:0.84em; color:#555; line-height:1.5; margin:3px 0 0; }
-  .tip-ref    { font-family:'Montserrat',sans-serif; font-size:0.74em; color:#2980b9; margin-top:6px; }
-  .tip-hint   { font-family:'Montserrat',sans-serif; font-size:0.71em; color:#aaa; margin-top:5px; font-style:italic; }
+  .badge-m  { background: #d6eaf8; color: #2471a3; }
+  .badge-k  { background: #e8f8f5; color: #1e8449; }
+  .badge-pr { background: #fef9e7; color: #b7950b; }
+  .badge-p  { background: #f4ecf7; color: #7d3c98; }
+  .badge-x  { background: #fdedec; color: #c0392b; }
+  .tip-detail { font-family: 'Lora', serif; font-size: 0.84em; color: #555; line-height: 1.5; margin: 3px 0 0; }
+  .tip-ref    { font-family: 'Montserrat', sans-serif; font-size: 0.74em; color: #2980b9; margin-top: 6px; }
+  .tip-hint   { font-family: 'Montserrat', sans-serif; font-size: 0.71em; color: #aaa; margin-top: 5px; font-style: italic; }
 
-  /* Dark mode */
-  body.dark-mode .tree-controls { background:#3a3a3a; border-color:#555; }
-  body.dark-mode .tree-btn { background:#3a3a3a; border-color:#555; color:#ccc; }
-  body.dark-mode .tree-btn:hover { background:#444; border-color:#2980b9; color:#2980b9; }
-  body.dark-mode #tree-search { background:#3a3a3a; border-color:#555; color:#ccc; }
-  body.dark-mode .tree-viewport { background:#222; }
-  body.dark-mode .tree-tip { background:#3a3a3a; border-color:#555; box-shadow:0 4px 20px rgba(0,0,0,0.5); }
-  body.dark-mode .tip-name { color:#eee; }
-  body.dark-mode .tip-detail { color:#bbb; }
-  body.dark-mode .link { stroke:#555; }
-  body.dark-mode .link.m-link { stroke:#1f618d; }
+  body.dark-mode .tree-controls { background: #3a3a3a; border-color: #555; }
+  body.dark-mode .tree-btn { background: #3a3a3a; border-color: #555; color: #ccc; }
+  body.dark-mode .tree-btn:hover { background: #444; border-color: #2980b9; color: #2980b9; }
+  body.dark-mode #tree-search { background: #3a3a3a; border-color: #555; color: #ccc; }
+  body.dark-mode .tree-viewport { background: #222; }
+  body.dark-mode .tree-tip { background: #3a3a3a; border-color: #555; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+  body.dark-mode .tip-name { color: #eee; }
+  body.dark-mode .tip-detail { color: #bbb; }
+  body.dark-mode .tree-link { stroke: #555; }
+  body.dark-mode .tree-link.m-link { stroke: #1f618d; }
 
-  @media(max-width:600px){
-    .tree-legend{display:none;}
-    .tree-btn-group .tree-btn:nth-child(n+4){display:none;}
-    .tree-viewport{height:calc(100vh - 220px);}
+  @media (max-width: 600px) {
+    .tree-legend { display: none; }
+    .tree-btn-group .tree-btn:nth-child(n+4) { display: none; }
+    .tree-viewport { height: calc(100vh - 220px); }
   }
 </style>
 {% endblock %}
@@ -179,12 +175,12 @@
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
     </svg>
-    <input type="text" id="tree-search" placeholder="Search a person…" autocomplete="off">
+    <input type="text" id="tree-search" placeholder="Search a person..." autocomplete="off">
   </div>
 
   <div class="tree-btn-group">
-    <button class="tree-btn" id="btn-zi">＋ Zoom</button>
-    <button class="tree-btn" id="btn-zo">－ Zoom</button>
+    <button class="tree-btn" id="btn-zi">+ Zoom</button>
+    <button class="tree-btn" id="btn-zo">- Zoom</button>
     <button class="tree-btn" id="btn-rst">Reset</button>
     <button class="tree-btn active" id="btn-m">Messianic Line</button>
     <button class="tree-btn" id="btn-exp">Expand All</button>
@@ -194,7 +190,7 @@
   <div class="tree-legend">
     <span><span class="leg-dot" style="background:#2980b9;"></span>Messianic</span>
     <span><span class="leg-dot" style="background:#708090;"></span>Other</span>
-    <span><span class="leg-dot" style="background:#f9f8f4;border:2px dashed #aaa;"></span>Expandable</span>
+    <span><span class="leg-dot" style="background:#f9f8f4; border:2px dashed #aaa;"></span>Has children</span>
   </div>
 </div>
 
@@ -202,500 +198,430 @@
   <svg id="tree-svg"></svg>
 </div>
 <div class="tree-tip" id="tree-tip"></div>
-
-<script src="https://d3js.org/d3.v7.min.js"></script>
-<script>
-(function(){
-"use strict";
-
-// ── FLAT DATA ─────────────────────────────────────────────────────────────────
-// Fields: id, n (name), m (1=messianic), parent id, col (1=start collapsed),
-//         spouse, ref, desc, years, role (king/priest/prophet/messiah)
-var P = [
-  // Pre-flood Messianic line
-  {id:"adam",   n:"Adam",       m:1, parent:null,      spouse:"Eve",           ref:"Gen 1–5",    years:"930 yrs", desc:"First man, created from dust. Tended the Garden of Eden."},
-  {id:"abel",   n:"Abel",             parent:"adam",    ref:"Gen 4",    desc:"Shepherd whose offering pleased God; slain by Cain."},
-  {id:"cain",   n:"Cain",             parent:"adam",    col:1, ref:"Gen 4",    desc:"First son of Adam; murdered his brother Abel."},
-  {id:"seth",   n:"Seth",       m:1, parent:"adam",    ref:"Gen 4–5",    years:"912 yrs", desc:"Born in place of Abel; ancestor of the Messianic line."},
-  {id:"enosh",  n:"Enosh",      m:1, parent:"seth",    ref:"Gen 5:6",    years:"905 yrs", desc:"In his days men began to call on the name of the LORD."},
-  {id:"kenan",  n:"Kenan",      m:1, parent:"enosh",   ref:"Gen 5:9",    years:"910 yrs"},
-  {id:"mahal",  n:"Mahalalel",  m:1, parent:"kenan",   ref:"Gen 5:12",   years:"895 yrs"},
-  {id:"jared",  n:"Jared",      m:1, parent:"mahal",   ref:"Gen 5:15",   years:"962 yrs"},
-  {id:"enoch",  n:"Enoch",      m:1, parent:"jared",   ref:"Gen 5:21",   years:"365 yrs", desc:"Walked faithfully with God; was taken without dying."},
-  {id:"methu",  n:"Methuselah", m:1, parent:"enoch",   ref:"Gen 5:25",   years:"969 yrs", desc:"Oldest person recorded in Scripture."},
-  {id:"lamech", n:"Lamech",     m:1, parent:"methu",   ref:"Gen 5:28",   years:"777 yrs"},
-  {id:"noah",   n:"Noah",       m:1, parent:"lamech",  ref:"Gen 5–9",    years:"950 yrs", spouse:"unnamed", desc:"Found favor with God. Built the ark and survived the Great Flood."},
-
-  // Cain's line (collapsed)
-  {id:"c_enoch",  n:"Enoch (Cain)",  parent:"cain",    col:1, ref:"Gen 4:17", desc:"Cain's son; first city named for him."},
-  {id:"irad",     n:"Irad",          parent:"c_enoch", col:1},
-  {id:"mehuj",    n:"Mehujael",      parent:"irad",    col:1},
-  {id:"methu2",   n:"Methushael",    parent:"mehuj",   col:1},
-  {id:"lamech2",  n:"Lamech (Cain)", parent:"methu2",  col:1, spouse:"Adah & Zillah", ref:"Gen 4:19", desc:"First recorded polygamist."},
-  {id:"jabal",    n:"Jabal",         parent:"lamech2", col:1, desc:"Father of those who dwell in tents."},
-  {id:"jubal",    n:"Jubal",         parent:"lamech2", col:1, desc:"Father of all who play harp and flute."},
-  {id:"tubal",    n:"Tubal-cain",    parent:"lamech2", col:1, desc:"Forger of bronze and iron tools."},
-
-  // Noah's sons
-  {id:"ham",    n:"Ham",     parent:"noah",   col:1, ref:"Gen 9–10", desc:"Father of Canaan; ancestor of African and Canaanite nations."},
-  {id:"japheth",n:"Japheth", parent:"noah",   col:1, ref:"Gen 10",   desc:"Ancestor of European and northern nations."},
-  {id:"shem",   n:"Shem",   m:1, parent:"noah",   ref:"Gen 10–11", desc:"Ancestor of Semitic peoples and the Messianic line."},
-
-  // Ham's descendants (collapsed)
-  {id:"cush",   n:"Cush",    parent:"ham",    col:1},
-  {id:"nimrod", n:"Nimrod",  parent:"cush",   col:1, desc:"Mighty hunter; founded Babel."},
-  {id:"mizr",   n:"Mizraim", parent:"ham",    col:1, desc:"Egypt."},
-  {id:"put",    n:"Put",     parent:"ham",    col:1},
-  {id:"canaan", n:"Canaan",  parent:"ham",    col:1, desc:"Ancestor of the Canaanites."},
-
-  // Japheth's descendants (collapsed)
-  {id:"gomer",  n:"Gomer",   parent:"japheth",col:1},
-  {id:"magog",  n:"Magog",   parent:"japheth",col:1},
-  {id:"javan",  n:"Javan",   parent:"japheth",col:1, desc:"Ancestor of the Greeks."},
-  {id:"tubal2", n:"Tubal",   parent:"japheth",col:1},
-  {id:"meshech",n:"Meshech", parent:"japheth",col:1},
-
-  // Shem's line → Abraham
-  {id:"elam",   n:"Elam",       parent:"shem",   col:1, desc:"Ancestor of the Elamites (Persia)."},
-  {id:"asshur", n:"Asshur",     parent:"shem",   col:1, desc:"Ancestor of the Assyrians."},
-  {id:"lud",    n:"Lud",        parent:"shem",   col:1},
-  {id:"aram",   n:"Aram",       parent:"shem",   col:1, desc:"Ancestor of the Arameans/Syrians."},
-  {id:"arpa",   n:"Arpachshad", m:1, parent:"shem",   ref:"Gen 11"},
-  {id:"shelah", n:"Shelah",     m:1, parent:"arpa",   ref:"Gen 11"},
-  {id:"eber",   n:"Eber",       m:1, parent:"shelah", ref:"Gen 11",  desc:"'Hebrew' may derive from his name."},
-  {id:"joktan", n:"Joktan",        parent:"eber",   col:1, desc:"Ancestor of Arabian tribes."},
-  {id:"peleg",  n:"Peleg",      m:1, parent:"eber",   ref:"Gen 11",  desc:"In his days the earth was divided."},
-  {id:"reu",    n:"Reu",        m:1, parent:"peleg",  ref:"Gen 11"},
-  {id:"serug",  n:"Serug",      m:1, parent:"reu",    ref:"Gen 11"},
-  {id:"nahor1", n:"Nahor",      m:1, parent:"serug",  ref:"Gen 11"},
-  {id:"terah",  n:"Terah",      m:1, parent:"nahor1", ref:"Gen 11",  years:"205 yrs", desc:"Began journey toward Canaan; settled in Haran."},
-
-  // Terah's family
-  {id:"haran",  n:"Haran",    parent:"terah",  col:1, ref:"Gen 11",  desc:"Father of Lot; died in Ur."},
-  {id:"nahor2", n:"Nahor (son)",parent:"terah",col:1, ref:"Gen 11",  spouse:"Milcah"},
-  {id:"abr",    n:"Abraham",  m:1, parent:"terah",  ref:"Gen 12–25",  role:"patriarch", spouse:"Sarah, Hagar, Keturah", desc:"Father of the Faith. Called from Ur. Covenant of circumcision. Offered Isaac on Moriah."},
-
-  // Haran's line
-  {id:"lot",    n:"Lot",      parent:"haran",  col:1, desc:"Abraham's nephew; escaped Sodom."},
-  {id:"milcah", n:"Milcah",   parent:"haran",  col:1},
-
-  // Nahor's line
-  {id:"bethuel",n:"Bethuel",  parent:"nahor2", col:1},
-  {id:"laban",  n:"Laban",    parent:"bethuel",col:1, desc:"Uncle of Jacob; father of Leah and Rachel."},
-  {id:"rebecca",n:"Rebekah",  parent:"bethuel",col:1, desc:"Wife of Isaac; mother of Jacob and Esau."},
-
-  // Abraham's children
-  {id:"ishmael",n:"Ishmael",  parent:"abr",    col:1, ref:"Gen 16–17", spouse:"Egyptian woman", desc:"Son by Hagar; father of 12 princes, ancestor of Arab nations."},
-  {id:"ketura", n:"Sons by Keturah",parent:"abr",col:1,ref:"Gen 25"},
-  {id:"isaac",  n:"Isaac",    m:1, parent:"abr",    ref:"Gen 21–35",  spouse:"Rebekah", desc:"Child of promise, born to Sarah in old age. Offered on Moriah as a type of Christ."},
-
-  // Ishmael's sons
-  {id:"nebaj",  n:"Nebaioth", parent:"ishmael",col:1},
-  {id:"kedar",  n:"Kedar",    parent:"ishmael",col:1},
-  {id:"tema",   n:"Tema",     parent:"ishmael",col:1},
-  {id:"ism_rest",n:"9 more princes",parent:"ishmael",col:1,desc:"Ishmael had 12 sons total (Gen 25:13-16)."},
-
-  // Isaac's sons
-  {id:"esau",   n:"Esau",     parent:"isaac",  col:1, ref:"Gen 25–36",  spouse:"Judith, Basemath", desc:"Elder twin; sold his birthright for stew. Ancestor of the Edomites."},
-  {id:"jacob",  n:"Jacob",    m:1, parent:"isaac",  ref:"Gen 25–50",  spouse:"Leah, Rachel, Bilhah, Zilpah", desc:"Renamed Israel; wrestled with God. Father of the twelve tribes."},
-
-  // Esau's descendants
-  {id:"eliph",  n:"Eliphaz",  parent:"esau",   col:1},
-  {id:"reuel",  n:"Reuel",    parent:"esau",   col:1},
-  {id:"edomites",n:"Edomites",parent:"esau",   col:1, desc:"The nation of Edom."},
-
-  // Jacob's 12 sons (+ Dinah)
-  {id:"reuben", n:"Reuben",   parent:"jacob",  col:1, ref:"Gen 29", desc:"Firstborn by Leah; lost birthright."},
-  {id:"simeon", n:"Simeon",   parent:"jacob",  col:1, ref:"Gen 29", desc:"Second son by Leah."},
-  {id:"levi",   n:"Levi",     parent:"jacob",  col:1, ref:"Gen 29", desc:"Third son by Leah; priestly tribe."},
-  {id:"judah",  n:"Judah",    m:1, parent:"jacob",  ref:"Gen 29–38", desc:"Fourth son by Leah; tribe through which the Messiah would come."},
-  {id:"dan",    n:"Dan",      parent:"jacob",  col:1, ref:"Gen 30", desc:"Son by Bilhah; tribe of Samson."},
-  {id:"naphtali",n:"Naphtali",parent:"jacob",  col:1, ref:"Gen 30"},
-  {id:"gad",    n:"Gad",      parent:"jacob",  col:1, ref:"Gen 30"},
-  {id:"asher",  n:"Asher",    parent:"jacob",  col:1, ref:"Gen 30"},
-  {id:"issach", n:"Issachar", parent:"jacob",  col:1, ref:"Gen 30"},
-  {id:"zebulun",n:"Zebulun",  parent:"jacob",  col:1, ref:"Gen 30"},
-  {id:"dinah",  n:"Dinah",    parent:"jacob",  col:1, ref:"Gen 30", desc:"Daughter of Jacob by Leah."},
-  {id:"joseph_j",n:"Joseph",  parent:"jacob",  col:1, ref:"Gen 30–50", spouse:"Asenath", desc:"Sold into slavery, rose to rule Egypt. Preserved Israel through famine."},
-  {id:"benjamin",n:"Benjamin",parent:"jacob",  col:1, ref:"Gen 35",  desc:"Youngest son by Rachel; tribe of King Saul and Paul."},
-
-  // Levi's descendants
-  {id:"gershon",n:"Gershon",  parent:"levi",   col:1},
-  {id:"merari", n:"Merari",   parent:"levi",   col:1},
-  {id:"kohath", n:"Kohath",   parent:"levi",   col:1},
-  {id:"amram",  n:"Amram",    parent:"kohath", col:1, spouse:"Jochebed"},
-  {id:"miriam", n:"Miriam",   parent:"amram",  col:1, ref:"Exod 15",  role:"prophet", desc:"Prophetess; led the women in song at the Red Sea."},
-  {id:"aaron",  n:"Aaron",    parent:"amram",  col:1, ref:"Exod–Lev", role:"priest",  desc:"First High Priest of Israel; Moses' spokesman."},
-  {id:"moses",  n:"Moses",    parent:"amram",  col:1, ref:"Exod–Deut",role:"prophet", desc:"The great Lawgiver; led Israel out of Egypt; received the Ten Commandments."},
-
-  // Joseph's sons
-  {id:"manas",  n:"Manasseh", parent:"joseph_j",col:1, desc:"Joseph's firstborn; received Jacob's left-hand blessing."},
-  {id:"ephraim",n:"Ephraim",  parent:"joseph_j",col:1, desc:"Received Jacob's right-hand blessing; largest northern tribe."},
-
-  // Judah's children → Messianic line
-  {id:"er",     n:"Er",       parent:"judah",  col:1, ref:"Gen 38", desc:"Judah's firstborn; put to death by the LORD."},
-  {id:"onan",   n:"Onan",     parent:"judah",  col:1, ref:"Gen 38", desc:"Second son of Judah; also put to death."},
-  {id:"shelah2",n:"Shelah",   parent:"judah",  col:1, ref:"Gen 38"},
-  {id:"zerah",  n:"Zerah",    parent:"judah",  col:1, ref:"Gen 38", desc:"Twin of Perez."},
-  {id:"perez",  n:"Perez",    m:1, parent:"judah",  ref:"Gen 38", desc:"Son of Judah by Tamar; in the Messianic line."},
-
-  {id:"hezron", n:"Hezron",   m:1, parent:"perez",  ref:"1 Chr 2"},
-  {id:"ram",    n:"Ram",      m:1, parent:"hezron", ref:"Matt 1"},
-  {id:"ammi",   n:"Amminadab",m:1, parent:"ram",    ref:"Matt 1"},
-  {id:"nahshon",n:"Nahshon",  m:1, parent:"ammi",   ref:"Num 1; Matt 1", desc:"Leader of Judah in the wilderness."},
-  {id:"salmon", n:"Salmon",   m:1, parent:"nahshon",ref:"Matt 1", spouse:"Rahab", desc:"Married Rahab of Jericho."},
-  {id:"boaz",   n:"Boaz",     m:1, parent:"salmon", ref:"Ruth", spouse:"Ruth", desc:"Kinsman-redeemer; showed lovingkindness to Ruth the Moabite."},
-  {id:"obed",   n:"Obed",     m:1, parent:"boaz",   ref:"Ruth 4"},
-  {id:"jesse",  n:"Jesse",    m:1, parent:"obed",   ref:"1 Sam 16", desc:"Father of David; his many sons were passed over until the youngest."},
-
-  // Jesse's sons
-  {id:"eliab",  n:"Eliab",    parent:"jesse",  col:1, ref:"1 Sam 16", desc:"Jesse's eldest; tall but passed over by God."},
-  {id:"abin",   n:"Abinadab", parent:"jesse",  col:1},
-  {id:"sham",   n:"Shammah",  parent:"jesse",  col:1},
-  {id:"joth4",  n:"Other sons (×4)",parent:"jesse",col:1},
-  {id:"david",  n:"David",    m:1, parent:"jesse",  ref:"1 Sam 16–1 Kgs 2", role:"king", spouse:"Bathsheba, Michal, Abigail & others", desc:"Shepherd, warrior, poet, and man after God's own heart. United Israel; composed many Psalms."},
-
-  // David's sons
-  {id:"amnon",  n:"Amnon",    parent:"david",  col:1, ref:"2 Sam 13", desc:"David's firstborn; killed by Absalom."},
-  {id:"absalom",n:"Absalom",  parent:"david",  col:1, ref:"2 Sam 15", desc:"Rebelled against David; died hanging from an oak."},
-  {id:"adonij", n:"Adonijah", parent:"david",  col:1, ref:"1 Kgs 1",  desc:"Attempted to seize the throne before Solomon."},
-  {id:"nathan_d",n:"Nathan (son)",parent:"david",col:1,ref:"Luke 3:31",desc:"David's son; ancestor in Luke's genealogy of Jesus."},
-  {id:"solomon",n:"Solomon",  m:1, parent:"david",  ref:"1 Kgs 1–11", role:"king", spouse:"Daughter of Pharaoh & many others", desc:"Wisest king; built the First Temple in Jerusalem."},
-
-  // Kings of Judah — Messianic line
-  {id:"rehoboam",n:"Rehoboam",  m:1, parent:"solomon",  ref:"1 Kgs 12",  role:"king", desc:"Kingdom split under his reign."},
-  {id:"abijah",  n:"Abijah",    m:1, parent:"rehoboam", ref:"1 Kgs 15",  role:"king"},
-  {id:"asa",     n:"Asa",       m:1, parent:"abijah",   ref:"1 Kgs 15",  role:"king", desc:"Righteous king; removed idols from Judah."},
-  {id:"jehosh",  n:"Jehoshaphat",m:1,parent:"asa",      ref:"1 Kgs 22",  role:"king", desc:"Sought the LORD; reformed Judah's judiciary."},
-  {id:"joram",   n:"Joram",     m:1, parent:"jehosh",   ref:"2 Kgs 8",   role:"king", desc:"Married Athaliah (Ahab's daughter); walked in wickedness."},
-  {id:"uzziah",  n:"Uzziah",    m:1, parent:"joram",    ref:"2 Kgs 15",  role:"king", desc:"Long prosperous reign; struck with leprosy for unlawfully burning incense."},
-  {id:"jotham",  n:"Jotham",    m:1, parent:"uzziah",   ref:"2 Kgs 15",  role:"king"},
-  {id:"ahaz",    n:"Ahaz",      m:1, parent:"jotham",   ref:"2 Kgs 16",  role:"king", desc:"Wicked; sought Assyrian help instead of God. Isaiah prophesied to him (Isa 7)."},
-  {id:"hezek",   n:"Hezekiah",  m:1, parent:"ahaz",     ref:"2 Kgs 18–20",role:"king",desc:"Righteous; prayed for deliverance from Assyria. Isaiah ministered during his reign."},
-  {id:"manass",  n:"Manasseh",  m:1, parent:"hezek",    ref:"2 Kgs 21",  role:"king", desc:"Longest-reigning king of Judah; repented late in life."},
-  {id:"amon",    n:"Amon",      m:1, parent:"manass",   ref:"2 Kgs 21",  role:"king"},
-  {id:"josiah",  n:"Josiah",    m:1, parent:"amon",     ref:"2 Kgs 22–23",role:"king",desc:"Rediscovered the Book of the Law; greatest reform in Judah's history."},
-  {id:"jehoiak", n:"Jehoiakim", parent:"josiah",        col:1, ref:"2 Kgs 23", desc:"Wicked king; burned Jeremiah's scroll."},
-  {id:"jecon",   n:"Jeconiah",  m:1, parent:"josiah",   ref:"Matt 1; Jer 22",role:"king",desc:"Exiled to Babylon. The royal Davidic line continued through him."},
-
-  // Post-exile line
-  {id:"sheal",   n:"Shealtiel",  m:1, parent:"jecon",  ref:"Matt 1; Ezra 3"},
-  {id:"zerub",   n:"Zerubbabel", m:1, parent:"sheal",  ref:"Ezra 2; Hag 1", desc:"Led the first return from Babylon; laid the foundation of the Second Temple."},
-  {id:"abiud",   n:"Abiud",      m:1, parent:"zerub",  ref:"Matt 1"},
-  {id:"eliakim", n:"Eliakim",    m:1, parent:"abiud",  ref:"Matt 1"},
-  {id:"azor",    n:"Azor",       m:1, parent:"eliakim",ref:"Matt 1"},
-  {id:"zadok",   n:"Zadok",      m:1, parent:"azor",   ref:"Matt 1"},
-  {id:"achim",   n:"Achim",      m:1, parent:"zadok",  ref:"Matt 1"},
-  {id:"eliud",   n:"Eliud",      m:1, parent:"achim",  ref:"Matt 1"},
-  {id:"eleazar", n:"Eleazar",    m:1, parent:"eliud",  ref:"Matt 1"},
-  {id:"matthan", n:"Matthan",    m:1, parent:"eleazar",ref:"Matt 1"},
-  {id:"jacob2",  n:"Jacob",      m:1, parent:"matthan",ref:"Matt 1", desc:"Father of Joseph, husband of Mary."},
-  {id:"joseph",  n:"Joseph",     m:1, parent:"jacob2", ref:"Matt 1", spouse:"Mary", desc:"Righteous carpenter of Nazareth; legal father of Jesus in the royal Davidic line."},
-  {id:"jesus",   n:"Jesus Christ",m:1,parent:"joseph", ref:"Matt 1; Luke 3; John 1", role:"messiah", years:"33 yrs on earth", desc:"The Son of God, born of the Virgin Mary. Savior of the world. Fulfillment of every promise in Scripture."}
-];
-
-// ── D3 SETUP ──────────────────────────────────────────────────────────────────
-var vp  = document.getElementById('tree-viewport');
-var tip = document.getElementById('tree-tip');
-var W   = vp.clientWidth;
-var H   = vp.clientHeight;
-
-var svg = d3.select('#tree-svg').attr('width', W).attr('height', H);
-var g   = svg.append('g');
-
-var zoom = d3.zoom()
-  .scaleExtent([0.04, 3])
-  .on('zoom', function(e){ g.attr('transform', e.transform); });
-
-svg.call(zoom).on('dblclick.zoom', null);
-
-var tree = d3.tree().nodeSize([34, 210]);
-
-// Build hierarchy
-var strat = d3.stratify().id(function(d){ return d.id; }).parentId(function(d){ return d.parent; });
-var root  = strat(P);
-
-// Collapse nodes marked col:1 (collect all nodes first, then modify)
-var allNodes = root.descendants();
-allNodes.forEach(function(d){
-  if (d.children){
-    var vis = d.children.filter(function(c){ return !c.data.col; });
-    var hid = d.children.filter(function(c){ return  c.data.col; });
-    d._children = hid.length ? hid : null;
-    d.children  = vis.length ? vis  : null;
-  }
-});
-
-root.x0 = 0;
-root.y0 = 0;
-
-// ── RENDER ────────────────────────────────────────────────────────────────────
-var uid  = 0;
-var DUR  = 280;
-var showM = true;
-
-function update(src){
-  tree(root);
-
-  var nodes = root.descendants();
-  var links = root.links();
-
-  var sx = src.x0 !== undefined ? src.x0 : 0;
-  var sy = src.y0 !== undefined ? src.y0 : 0;
-
-  // — Links —
-  var link = g.selectAll('path.link').data(links, function(d){ return d.target.id; });
-
-  var lEnter = link.enter().insert('path','g')
-    .attr('class', function(d){ return 'link' + (d.source.data.m && d.target.data.m && showM ? ' m-link' : ''); })
-    .attr('d', function(){ return bez({source:{x:sx,y:sy}, target:{x:sx,y:sy}}); });
-
-  link.merge(lEnter)
-    .transition().duration(DUR)
-    .attr('class', function(d){ return 'link' + (d.source.data.m && d.target.data.m && showM ? ' m-link' : ''); })
-    .attr('d', bez);
-
-  link.exit().transition().duration(DUR)
-    .attr('d', function(){ return bez({source:{x:src.x,y:src.y}, target:{x:src.x,y:src.y}}); })
-    .remove();
-
-  // — Nodes —
-  var node = g.selectAll('g.node').data(nodes, function(d){ return d.id || (d.id = ++uid); });
-
-  var nEnter = node.enter().append('g')
-    .attr('class','node')
-    .attr('transform', function(){ return 'translate('+sy+','+sx+')'; })
-    .on('click',    function(e,d){ e.stopPropagation(); toggle(d); })
-    .on('mouseenter', showTip)
-    .on('mousemove',  moveTip)
-    .on('mouseleave', hideTip)
-    .on('touchstart', function(e,d){ e.preventDefault(); showTip(e,d); moveTip(e); });
-
-  // halo text (white stroke behind label)
-  nEnter.append('text').attr('class','halo').text(function(d){ return d.data.n; });
-  // label
-  nEnter.append('text').attr('class','lbl').text(function(d){ return d.data.n; });
-  // circle (on top so it covers halo overlap at node position)
-  nEnter.append('circle').attr('r',0);
-
-  var nAll = nEnter.merge(node);
-
-  nAll.transition().duration(DUR)
-    .attr('transform', function(d){ return 'translate('+d.y+','+d.x+')'; });
-
-  nAll.select('circle').transition().duration(DUR)
-    .attr('r',    function(d){ return d.data.n === 'Jesus Christ' ? 12 : d.data.m ? 9 : 7; })
-    .attr('fill', function(d){ return cfill(d); })
-    .attr('stroke', function(d){ return cstroke(d); })
-    .attr('stroke-width', function(d){ return d._children ? 2.5 : 2; })
-    .attr('stroke-dasharray', function(d){ return d._children ? '0' : '0'; });
-
-  var lx = function(d){ return hasKids(d) ? -14 : 14; };
-  var ta = function(d){ return hasKids(d) ? 'end' : 'start'; };
-  var fw = function(d){ return d.data.m ? '700' : '400'; };
-  var fs = function(d){ return d.data.n === 'Jesus Christ' ? '13px' : '11px'; };
-  var fc = function(d){ return d.data.n === 'Jesus Christ' ? '#1a5276' : (d.data.m ? '#1c3a52' : '#5a5a5a'); };
-
-  // Style halo
-  nAll.select('text.halo')
-    .attr('dy','0.31em')
-    .attr('x', lx).attr('text-anchor', ta)
-    .attr('font-weight', fw).attr('font-size', fs)
-    .attr('stroke','rgba(249,248,244,0.95)')
-    .attr('stroke-width', 4).attr('fill','none');
-
-  // Style label
-  nAll.select('text.lbl')
-    .attr('dy','0.31em')
-    .attr('x', lx).attr('text-anchor', ta)
-    .attr('font-weight', fw).attr('font-size', fs)
-    .attr('fill', fc);
-
-  // Add collapse indicator "▶" when node has _children
-  nAll.select('circle')
-    .attr('title', function(d){ return d._children ? 'Click to expand' : d.children ? 'Click to collapse' : ''; });
-
-  node.exit().transition().duration(DUR)
-    .attr('transform', function(){ return 'translate('+src.y+','+src.x+')'; })
-    .style('opacity',0).remove();
-
-  nodes.forEach(function(d){ d.x0 = d.x; d.y0 = d.y; });
-}
-
-function bez(d){
-  var s = d.source, t = d.target;
-  var mx = (s.y + t.y) / 2;
-  return 'M'+s.y+','+s.x+' C'+mx+','+s.x+' '+mx+','+t.x+' '+t.y+','+t.x;
-}
-
-function hasKids(d){ return d.children && d.children.length > 0; }
-
-function cfill(d){
-  if (d.data.n === 'Jesus Christ') return '#1a5276';
-  if (d.data.m && showM){
-    if (d._children && !(d.children && d.children.length)) return '#d6eaf8';
-    return '#2980b9';
-  }
-  if (d._children && !(d.children && d.children.length)) return '#f0eeea';
-  return d.data.m ? '#708090' : '#a8b4be';
-}
-
-function cstroke(d){
-  if (d.data.n === 'Jesus Christ') return '#1a5276';
-  if (d.data.m && showM) return '#2471a3';
-  return '#8fa0ac';
-}
-
-// ── TOGGLE ────────────────────────────────────────────────────────────────────
-function toggle(d){
-  if (d.children && d.children.length){
-    d._children = d.children.concat(d._children || []);
-    d.children = null;
-  } else if (d._children && d._children.length){
-    d.children  = d._children;
-    d._children = null;
-  }
-  update(d);
-}
-
-// ── TOOLTIP ───────────────────────────────────────────────────────────────────
-function showTip(event, d){
-  var da = d.data;
-  var badges = '';
-  if (da.n === 'Jesus Christ')   badges += '<span class="tip-badge badge-x">The Messiah</span>';
-  else if (da.m)                 badges += '<span class="tip-badge badge-m">Messianic Line</span>';
-  if (da.role === 'king')        badges += '<span class="tip-badge badge-k">King</span>';
-  if (da.role === 'priest')      badges += '<span class="tip-badge badge-p">Priest</span>';
-  if (da.role === 'prophet')     badges += '<span class="tip-badge badge-pr">Prophet</span>';
-  if (da.role === 'patriarch')   badges += '<span class="tip-badge badge-m">Patriarch</span>';
-
-  var hk = d.children || d._children;
-  tip.innerHTML =
-    '<div class="tip-name">'+da.n+'</div>'+
-    (badges ? '<div class="tip-badges">'+badges+'</div>' : '')+
-    (da.spouse ? '<div class="tip-detail"><strong>Spouse:</strong> '+da.spouse+'</div>' : '')+
-    (da.years  ? '<div class="tip-detail"><strong>Lived:</strong> '+da.years+'</div>' : '')+
-    (da.desc   ? '<div class="tip-detail">'+da.desc+'</div>' : '')+
-    (da.ref    ? '<div class="tip-ref">'+da.ref+'</div>' : '')+
-    (hk ? '<div class="tip-hint">'+(d.children&&d.children.length?'Click to collapse':'Click to expand children')+'</div>' : '');
-  tip.classList.add('show');
-  moveTip(event);
-}
-
-function moveTip(event){
-  var cx = event.clientX || (event.touches && event.touches[0] ? event.touches[0].clientX : 0);
-  var cy = event.clientY || (event.touches && event.touches[0] ? event.touches[0].clientY : 0);
-  var tw = 270, th = 150;
-  var x  = cx + 16, y = cy + 16;
-  if (x + tw > window.innerWidth)  x = cx - tw - 16;
-  if (y + th > window.innerHeight) y = cy - th - 16;
-  tip.style.left = x + 'px';
-  tip.style.top  = y + 'px';
-}
-
-function hideTip(){ tip.classList.remove('show'); }
-svg.on('click', hideTip);
-
-// ── CONTROLS ──────────────────────────────────────────────────────────────────
-function centerView(){
-  var t = d3.zoomIdentity.translate(80, H/2).scale(0.62);
-  svg.transition().duration(500).call(zoom.transform, t);
-}
-
-document.getElementById('btn-zi').addEventListener('click', function(){ svg.transition().duration(280).call(zoom.scaleBy, 1.45); });
-document.getElementById('btn-zo').addEventListener('click', function(){ svg.transition().duration(280).call(zoom.scaleBy, 0.69); });
-document.getElementById('btn-rst').addEventListener('click', centerView);
-
-document.getElementById('btn-m').addEventListener('click', function(){
-  showM = !showM;
-  this.classList.toggle('active', showM);
-  update(root);
-});
-
-document.getElementById('btn-exp').addEventListener('click', function(){
-  root.descendants().forEach(function(d){
-    if (d._children){ d.children = (d.children||[]).concat(d._children); d._children = null; }
+{% endblock %}
+
+{% block extra_js %}
+(function() {
+
+  var PEOPLE = [
+    {id:"adam",    n:"Adam",        m:1, par:null,       sp:"Eve",                ref:"Gen 1-5",    yrs:"930 yrs", desc:"First man, created from dust. Tended the Garden of Eden."},
+    {id:"abel",    n:"Abel",             par:"adam",      ref:"Gen 4",    desc:"Shepherd whose offering pleased God; slain by Cain."},
+    {id:"cain",    n:"Cain",             par:"adam",      col:1, ref:"Gen 4",    desc:"First son of Adam; murdered his brother Abel."},
+    {id:"seth",    n:"Seth",       m:1,  par:"adam",      ref:"Gen 4-5",    yrs:"912 yrs", desc:"Born in place of Abel; ancestor of the Messianic line."},
+    {id:"enosh",   n:"Enosh",      m:1,  par:"seth",      ref:"Gen 5:6",    yrs:"905 yrs", desc:"In his days men began to call on the name of the LORD."},
+    {id:"kenan",   n:"Kenan",      m:1,  par:"enosh",     ref:"Gen 5:9",    yrs:"910 yrs"},
+    {id:"mahal",   n:"Mahalalel",  m:1,  par:"kenan",     ref:"Gen 5:12",   yrs:"895 yrs"},
+    {id:"jared",   n:"Jared",      m:1,  par:"mahal",     ref:"Gen 5:15",   yrs:"962 yrs"},
+    {id:"enoch",   n:"Enoch",      m:1,  par:"jared",     ref:"Gen 5:21",   yrs:"365 yrs", desc:"Walked faithfully with God; was taken without dying."},
+    {id:"methu",   n:"Methuselah", m:1,  par:"enoch",     ref:"Gen 5:25",   yrs:"969 yrs", desc:"Oldest person recorded in Scripture."},
+    {id:"lamech",  n:"Lamech",     m:1,  par:"methu",     ref:"Gen 5:28",   yrs:"777 yrs"},
+    {id:"noah",    n:"Noah",       m:1,  par:"lamech",    ref:"Gen 5-9",    yrs:"950 yrs", sp:"unnamed", desc:"Found favor with God. Built the ark and survived the Great Flood."},
+    {id:"c_enoch", n:"Enoch (Cain)",     par:"cain",      col:1, ref:"Gen 4:17", desc:"First city named for him."},
+    {id:"irad",    n:"Irad",             par:"c_enoch",   col:1},
+    {id:"mehuj",   n:"Mehujael",         par:"irad",      col:1},
+    {id:"methu2",  n:"Methushael",       par:"mehuj",     col:1},
+    {id:"lam_c",   n:"Lamech (Cain)",    par:"methu2",    col:1, sp:"Adah & Zillah", ref:"Gen 4:19", desc:"First recorded polygamist."},
+    {id:"jabal",   n:"Jabal",            par:"lam_c",     col:1, desc:"Father of those who live in tents."},
+    {id:"jubal",   n:"Jubal",            par:"lam_c",     col:1, desc:"Father of all who play harp and flute."},
+    {id:"tubal",   n:"Tubal-cain",       par:"lam_c",     col:1, desc:"Forger of bronze and iron tools."},
+    {id:"ham",     n:"Ham",              par:"noah",      col:1, ref:"Gen 9-10", desc:"Father of Canaan; ancestor of African and Canaanite nations."},
+    {id:"japheth", n:"Japheth",          par:"noah",      col:1, ref:"Gen 10",   desc:"Ancestor of European and northern nations."},
+    {id:"shem",    n:"Shem",       m:1,  par:"noah",      ref:"Gen 10-11", desc:"Ancestor of Semitic peoples and the Messianic line."},
+    {id:"cush",    n:"Cush",             par:"ham",       col:1},
+    {id:"nimrod",  n:"Nimrod",           par:"cush",      col:1, desc:"Mighty hunter; founded Babel."},
+    {id:"mizr",    n:"Mizraim",          par:"ham",       col:1, desc:"Egypt."},
+    {id:"put",     n:"Put",              par:"ham",       col:1},
+    {id:"canaan",  n:"Canaan",           par:"ham",       col:1, desc:"Ancestor of the Canaanites."},
+    {id:"gomer",   n:"Gomer",            par:"japheth",   col:1},
+    {id:"magog",   n:"Magog",            par:"japheth",   col:1},
+    {id:"javan",   n:"Javan",            par:"japheth",   col:1, desc:"Ancestor of the Greeks."},
+    {id:"tubal2",  n:"Tubal",            par:"japheth",   col:1},
+    {id:"elam",    n:"Elam",             par:"shem",      col:1, desc:"Ancestor of the Elamites (Persia)."},
+    {id:"asshur",  n:"Asshur",           par:"shem",      col:1, desc:"Ancestor of the Assyrians."},
+    {id:"lud",     n:"Lud",              par:"shem",      col:1},
+    {id:"aram",    n:"Aram",             par:"shem",      col:1, desc:"Ancestor of the Arameans / Syrians."},
+    {id:"arpa",    n:"Arpachshad",  m:1, par:"shem",      ref:"Gen 11"},
+    {id:"shelah",  n:"Shelah",      m:1, par:"arpa",      ref:"Gen 11"},
+    {id:"eber",    n:"Eber",        m:1, par:"shelah",    ref:"Gen 11", desc:"Hebrew may derive from his name."},
+    {id:"joktan",  n:"Joktan",          par:"eber",       col:1, desc:"Ancestor of Arabian tribes."},
+    {id:"peleg",   n:"Peleg",      m:1, par:"eber",       ref:"Gen 11", desc:"In his days the earth was divided."},
+    {id:"reu",     n:"Reu",        m:1, par:"peleg",      ref:"Gen 11"},
+    {id:"serug",   n:"Serug",      m:1, par:"reu",        ref:"Gen 11"},
+    {id:"nahor1",  n:"Nahor",      m:1, par:"serug",      ref:"Gen 11"},
+    {id:"terah",   n:"Terah",      m:1, par:"nahor1",     ref:"Gen 11", yrs:"205 yrs", desc:"Began journey toward Canaan; settled in Haran."},
+    {id:"haran",   n:"Haran",           par:"terah",      col:1, ref:"Gen 11", desc:"Father of Lot; died in Ur."},
+    {id:"nahor2",  n:"Nahor (son)",     par:"terah",      col:1, ref:"Gen 11", sp:"Milcah"},
+    {id:"abr",     n:"Abraham",    m:1, par:"terah",      ref:"Gen 12-25", role:"patriarch", sp:"Sarah, Hagar, Keturah", desc:"Father of the Faith. Called from Ur. Covenant of circumcision. Offered Isaac on Moriah."},
+    {id:"lot",     n:"Lot",             par:"haran",      col:1, desc:"Abraham's nephew; escaped Sodom."},
+    {id:"milcah",  n:"Milcah",          par:"haran",      col:1},
+    {id:"bethuel", n:"Bethuel",         par:"nahor2",     col:1},
+    {id:"laban",   n:"Laban",           par:"bethuel",    col:1, desc:"Uncle of Jacob; father of Leah and Rachel."},
+    {id:"rebecca", n:"Rebekah",         par:"bethuel",    col:1, desc:"Wife of Isaac; mother of Jacob and Esau."},
+    {id:"ishmael", n:"Ishmael",         par:"abr",        col:1, ref:"Gen 16-17", sp:"Egyptian woman", desc:"Son by Hagar; father of 12 princes, ancestor of Arab nations."},
+    {id:"ketura",  n:"Sons by Keturah", par:"abr",        col:1, ref:"Gen 25"},
+    {id:"isaac",   n:"Isaac",      m:1, par:"abr",        ref:"Gen 21-35", sp:"Rebekah", desc:"Child of promise. Offered on Moriah as a type of Christ."},
+    {id:"nebaj",   n:"Nebaioth",        par:"ishmael",    col:1},
+    {id:"kedar",   n:"Kedar",           par:"ishmael",    col:1},
+    {id:"tema",    n:"Tema",            par:"ishmael",    col:1},
+    {id:"ism_rest",n:"9 more princes",  par:"ishmael",    col:1, desc:"Ishmael had 12 sons in total (Gen 25:13-16)."},
+    {id:"esau",    n:"Esau",            par:"isaac",      col:1, ref:"Gen 25-36", sp:"Judith, Basemath", desc:"Elder twin; sold his birthright. Ancestor of the Edomites."},
+    {id:"jacob",   n:"Jacob",      m:1, par:"isaac",      ref:"Gen 25-50", sp:"Leah, Rachel, Bilhah, Zilpah", desc:"Renamed Israel; wrestled with God. Father of the twelve tribes."},
+    {id:"eliph",   n:"Eliphaz",         par:"esau",       col:1},
+    {id:"reuel",   n:"Reuel",           par:"esau",       col:1},
+    {id:"edomites",n:"Edomites",        par:"esau",       col:1, desc:"The nation of Edom."},
+    {id:"reuben",  n:"Reuben",          par:"jacob",      col:1, ref:"Gen 29", desc:"Firstborn by Leah; lost birthright."},
+    {id:"simeon",  n:"Simeon",          par:"jacob",      col:1, ref:"Gen 29"},
+    {id:"levi",    n:"Levi",            par:"jacob",      col:1, ref:"Gen 29", desc:"Third son by Leah; priestly tribe."},
+    {id:"judah",   n:"Judah",      m:1, par:"jacob",      ref:"Gen 29-38", desc:"Fourth son by Leah; tribe through which the Messiah would come."},
+    {id:"dan",     n:"Dan",             par:"jacob",      col:1, ref:"Gen 30", desc:"Son by Bilhah; tribe of Samson."},
+    {id:"naphtali",n:"Naphtali",        par:"jacob",      col:1, ref:"Gen 30"},
+    {id:"gad",     n:"Gad",             par:"jacob",      col:1, ref:"Gen 30"},
+    {id:"asher",   n:"Asher",           par:"jacob",      col:1, ref:"Gen 30"},
+    {id:"issach",  n:"Issachar",        par:"jacob",      col:1, ref:"Gen 30"},
+    {id:"zebulun", n:"Zebulun",         par:"jacob",      col:1, ref:"Gen 30"},
+    {id:"dinah",   n:"Dinah",           par:"jacob",      col:1, ref:"Gen 30", desc:"Daughter of Jacob by Leah."},
+    {id:"joseph_j",n:"Joseph",          par:"jacob",      col:1, ref:"Gen 30-50", sp:"Asenath", desc:"Sold into slavery; rose to rule Egypt. Preserved Israel through famine."},
+    {id:"benjamin",n:"Benjamin",        par:"jacob",      col:1, ref:"Gen 35", desc:"Youngest son by Rachel; tribe of King Saul and Paul."},
+    {id:"gershon", n:"Gershon",         par:"levi",       col:1},
+    {id:"merari",  n:"Merari",          par:"levi",       col:1},
+    {id:"kohath",  n:"Kohath",          par:"levi",       col:1},
+    {id:"amram",   n:"Amram",           par:"kohath",     col:1, sp:"Jochebed"},
+    {id:"miriam",  n:"Miriam",          par:"amram",      col:1, ref:"Exod 15",   role:"prophet", desc:"Prophetess; led the women in song at the Red Sea."},
+    {id:"aaron",   n:"Aaron",           par:"amram",      col:1, ref:"Exod-Lev",  role:"priest",  desc:"First High Priest of Israel; Moses' spokesman."},
+    {id:"moses",   n:"Moses",           par:"amram",      col:1, ref:"Exod-Deut", role:"prophet", desc:"The Lawgiver; led Israel out of Egypt; received the Ten Commandments."},
+    {id:"manas",   n:"Manasseh",        par:"joseph_j",   col:1, desc:"Joseph's firstborn; received Jacob's left-hand blessing."},
+    {id:"ephraim", n:"Ephraim",         par:"joseph_j",   col:1, desc:"Received Jacob's right-hand blessing; largest northern tribe."},
+    {id:"er",      n:"Er",              par:"judah",      col:1, ref:"Gen 38", desc:"Judah's firstborn; put to death by the LORD."},
+    {id:"onan",    n:"Onan",            par:"judah",      col:1, ref:"Gen 38"},
+    {id:"shelah2", n:"Shelah",          par:"judah",      col:1, ref:"Gen 38"},
+    {id:"zerah",   n:"Zerah",           par:"judah",      col:1, ref:"Gen 38", desc:"Twin of Perez."},
+    {id:"perez",   n:"Perez",      m:1, par:"judah",      ref:"Gen 38", desc:"Son of Judah by Tamar; in the Messianic line."},
+    {id:"hezron",  n:"Hezron",     m:1, par:"perez",      ref:"1 Chr 2"},
+    {id:"ram",     n:"Ram",        m:1, par:"hezron",     ref:"Matt 1"},
+    {id:"ammi",    n:"Amminadab",  m:1, par:"ram",        ref:"Matt 1"},
+    {id:"nahshon", n:"Nahshon",    m:1, par:"ammi",       ref:"Num 1; Matt 1", desc:"Leader of Judah in the wilderness."},
+    {id:"salmon",  n:"Salmon",     m:1, par:"nahshon",    ref:"Matt 1", sp:"Rahab", desc:"Married Rahab of Jericho."},
+    {id:"boaz",    n:"Boaz",       m:1, par:"salmon",     ref:"Ruth", sp:"Ruth", desc:"Kinsman-redeemer; showed lovingkindness to Ruth the Moabite."},
+    {id:"obed",    n:"Obed",       m:1, par:"boaz",       ref:"Ruth 4"},
+    {id:"jesse",   n:"Jesse",      m:1, par:"obed",       ref:"1 Sam 16", desc:"Father of David; his sons were passed over until the youngest."},
+    {id:"eliab",   n:"Eliab",          par:"jesse",       col:1, ref:"1 Sam 16", desc:"Jesse's eldest; tall but passed over by God."},
+    {id:"abin",    n:"Abinadab",       par:"jesse",       col:1},
+    {id:"sham",    n:"Shammah",        par:"jesse",       col:1},
+    {id:"joth4",   n:"Other sons (x4)",par:"jesse",       col:1},
+    {id:"david",   n:"David",      m:1, par:"jesse",      ref:"1 Sam 16 - 1 Kgs 2", role:"king", sp:"Bathsheba, Michal, Abigail & others", desc:"Shepherd, warrior, poet, and man after God's own heart. United Israel; composed many Psalms."},
+    {id:"amnon",   n:"Amnon",          par:"david",       col:1, ref:"2 Sam 13", desc:"David's firstborn; killed by Absalom."},
+    {id:"absalom", n:"Absalom",        par:"david",       col:1, ref:"2 Sam 15", desc:"Rebelled against David; died hanging from an oak."},
+    {id:"adonij",  n:"Adonijah",       par:"david",       col:1, ref:"1 Kgs 1",  desc:"Attempted to seize the throne before Solomon."},
+    {id:"nathan_d",n:"Nathan (son)",   par:"david",       col:1, ref:"Luke 3:31",desc:"David's son; ancestor in Luke's genealogy of Jesus."},
+    {id:"solomon", n:"Solomon",    m:1, par:"david",      ref:"1 Kgs 1-11", role:"king", sp:"Daughter of Pharaoh and many others", desc:"Wisest king; built the First Temple in Jerusalem."},
+    {id:"rehoboam",n:"Rehoboam",   m:1, par:"solomon",    ref:"1 Kgs 12", role:"king", desc:"Kingdom split under his reign."},
+    {id:"abijah",  n:"Abijah",     m:1, par:"rehoboam",   ref:"1 Kgs 15", role:"king"},
+    {id:"asa",     n:"Asa",        m:1, par:"abijah",     ref:"1 Kgs 15", role:"king", desc:"Righteous king; removed idols from Judah."},
+    {id:"jehosh",  n:"Jehoshaphat",m:1, par:"asa",        ref:"1 Kgs 22", role:"king", desc:"Sought the LORD; reformed Judah's judiciary."},
+    {id:"joram",   n:"Joram",      m:1, par:"jehosh",     ref:"2 Kgs 8",  role:"king", desc:"Married Athaliah (Ahab's daughter); walked in wickedness."},
+    {id:"uzziah",  n:"Uzziah",     m:1, par:"joram",      ref:"2 Kgs 15", role:"king", desc:"Long prosperous reign; struck with leprosy for burning incense unlawfully."},
+    {id:"jotham",  n:"Jotham",     m:1, par:"uzziah",     ref:"2 Kgs 15", role:"king"},
+    {id:"ahaz",    n:"Ahaz",       m:1, par:"jotham",     ref:"2 Kgs 16", role:"king", desc:"Wicked; sought Assyrian help instead of God. Isaiah prophesied to him (Isa 7)."},
+    {id:"hezek",   n:"Hezekiah",   m:1, par:"ahaz",       ref:"2 Kgs 18-20", role:"king", desc:"Righteous; prayed for deliverance from Assyria. Isaiah ministered during his reign."},
+    {id:"manass",  n:"Manasseh",   m:1, par:"hezek",      ref:"2 Kgs 21", role:"king", desc:"Longest-reigning king of Judah; repented late in life."},
+    {id:"amon",    n:"Amon",       m:1, par:"manass",     ref:"2 Kgs 21", role:"king"},
+    {id:"josiah",  n:"Josiah",     m:1, par:"amon",       ref:"2 Kgs 22-23", role:"king", desc:"Rediscovered the Book of the Law; greatest reform in Judah's history."},
+    {id:"jehoiak", n:"Jehoiakim",      par:"josiah",      col:1, ref:"2 Kgs 23", desc:"Wicked king; burned Jeremiah's scroll."},
+    {id:"jecon",   n:"Jeconiah",   m:1, par:"josiah",     ref:"Matt 1; Jer 22", role:"king", desc:"Exiled to Babylon. The royal Davidic line continued through him."},
+    {id:"sheal",   n:"Shealtiel",  m:1, par:"jecon",      ref:"Matt 1; Ezra 3"},
+    {id:"zerub",   n:"Zerubbabel", m:1, par:"sheal",      ref:"Ezra 2; Hag 1", desc:"Led the first return from Babylon; laid the foundation of the Second Temple."},
+    {id:"abiud",   n:"Abiud",      m:1, par:"zerub",      ref:"Matt 1"},
+    {id:"eliakim", n:"Eliakim",    m:1, par:"abiud",      ref:"Matt 1"},
+    {id:"azor",    n:"Azor",       m:1, par:"eliakim",    ref:"Matt 1"},
+    {id:"zadok",   n:"Zadok",      m:1, par:"azor",       ref:"Matt 1"},
+    {id:"achim",   n:"Achim",      m:1, par:"zadok",      ref:"Matt 1"},
+    {id:"eliud",   n:"Eliud",      m:1, par:"achim",      ref:"Matt 1"},
+    {id:"eleazar", n:"Eleazar",    m:1, par:"eliud",      ref:"Matt 1"},
+    {id:"matthan", n:"Matthan",    m:1, par:"eleazar",    ref:"Matt 1"},
+    {id:"jacob2",  n:"Jacob",      m:1, par:"matthan",    ref:"Matt 1", desc:"Father of Joseph, husband of Mary."},
+    {id:"joseph",  n:"Joseph",     m:1, par:"jacob2",     ref:"Matt 1", sp:"Mary", desc:"Righteous carpenter of Nazareth; legal father of Jesus in the royal Davidic line."},
+    {id:"jesus",   n:"Jesus Christ",m:1,par:"joseph",     ref:"Matt 1; Luke 3; John 1", role:"messiah", yrs:"33 yrs on earth", desc:"The Son of God, born of the Virgin Mary. Savior of the world. Fulfillment of every promise in Scripture."}
+  ];
+
+  var vp  = document.getElementById('tree-viewport');
+  var tip = document.getElementById('tree-tip');
+  if (!vp || !tip || typeof d3 === 'undefined') { return; }
+
+  var W = vp.clientWidth;
+  var H = vp.clientHeight;
+
+  var svg = d3.select('#tree-svg').attr('width', W).attr('height', H);
+  var g   = svg.append('g');
+
+  var zoomBeh = d3.zoom()
+    .scaleExtent([0.04, 3])
+    .on('zoom', function(e) { g.attr('transform', e.transform); });
+
+  svg.call(zoomBeh).on('dblclick.zoom', null);
+
+  var treeFn = d3.tree().nodeSize([34, 210]);
+
+  var strat = d3.stratify()
+    .id(function(d) { return d.id; })
+    .parentId(function(d) { return d.par; });
+
+  var root = strat(PEOPLE);
+
+  var allNodes = root.descendants();
+  allNodes.forEach(function(d) {
+    if (d.children) {
+      var vis = d.children.filter(function(c) { return !c.data.col; });
+      var hid = d.children.filter(function(c) { return  c.data.col; });
+      d._kids = hid.length ? hid : null;
+      d.children = vis.length ? vis : null;
+    }
   });
-  update(root);
-});
 
-document.getElementById('btn-col').addEventListener('click', function(){
-  // Collapse all non-messianic branches
-  root.descendants().forEach(function(d){
-    if (d.depth > 0 && d.children){
-      // collapse non-messianic nodes that have no messianic children
-      var hasMessianicChild = d.children.some(function(c){ return c.data.m; });
-      if (!d.data.m || !hasMessianicChild){
-        d._children = (d._children||[]).concat(d.children);
-        d.children = null;
+  root.x0 = 0;
+  root.y0 = 0;
+
+  var uid   = 0;
+  var DUR   = 280;
+  var showM = true;
+
+  function cfill(d) {
+    if (d.data.n === 'Jesus Christ') { return '#1a5276'; }
+    if (d.data.m && showM) {
+      return (d._kids && !(d.children && d.children.length)) ? '#d6eaf8' : '#2980b9';
+    }
+    return (d._kids && !(d.children && d.children.length)) ? '#f0eeea' : '#a8b4be';
+  }
+  function cstroke(d) {
+    if (d.data.n === 'Jesus Christ') { return '#1a5276'; }
+    return (d.data.m && showM) ? '#2471a3' : '#8fa0ac';
+  }
+  function hasKids(d) { return d.children && d.children.length > 0; }
+
+  function bez(d) {
+    var s = d.source, t = d.target;
+    var mx = (s.y + t.y) / 2;
+    return 'M' + s.y + ',' + s.x + ' C' + mx + ',' + s.x + ' ' + mx + ',' + t.x + ' ' + t.y + ',' + t.x;
+  }
+
+  function update(src) {
+    treeFn(root);
+
+    var nodes = root.descendants();
+    var links = root.links();
+    var sx = (src.x0 !== undefined) ? src.x0 : 0;
+    var sy = (src.y0 !== undefined) ? src.y0 : 0;
+
+    var link = g.selectAll('path.tree-link').data(links, function(d) { return d.target.id; });
+
+    var lEnter = link.enter().insert('path', 'g')
+      .attr('class', function(d) {
+        return 'tree-link' + (d.source.data.m && d.target.data.m && showM ? ' m-link' : '');
+      })
+      .attr('d', function() { return bez({source:{x:sx,y:sy}, target:{x:sx,y:sy}}); });
+
+    link.merge(lEnter)
+      .transition().duration(DUR)
+      .attr('class', function(d) {
+        return 'tree-link' + (d.source.data.m && d.target.data.m && showM ? ' m-link' : '');
+      })
+      .attr('d', bez);
+
+    link.exit().transition().duration(DUR)
+      .attr('d', function() { return bez({source:{x:src.x,y:src.y}, target:{x:src.x,y:src.y}}); })
+      .remove();
+
+    var node = g.selectAll('g.tree-node').data(nodes, function(d) { return d.id || (d.id = String(++uid)); });
+
+    var nEnter = node.enter().append('g')
+      .attr('class', 'tree-node')
+      .attr('transform', function() { return 'translate(' + sy + ',' + sx + ')'; })
+      .on('click', function(e, d) { e.stopPropagation(); toggleNode(d); })
+      .on('mouseenter', showTip)
+      .on('mousemove',  moveTip)
+      .on('mouseleave', hideTip)
+      .on('touchstart', function(e, d) { e.preventDefault(); showTip(e, d); moveTip(e); });
+
+    nEnter.append('text').attr('class', 'nhalo').text(function(d) { return d.data.n; });
+    nEnter.append('text').attr('class', 'nlbl').text(function(d) { return d.data.n; });
+    nEnter.append('circle').attr('r', 0);
+
+    var nAll = nEnter.merge(node);
+
+    nAll.transition().duration(DUR)
+      .attr('transform', function(d) { return 'translate(' + d.y + ',' + d.x + ')'; });
+
+    nAll.select('circle').transition().duration(DUR)
+      .attr('r', function(d) { return d.data.n === 'Jesus Christ' ? 12 : (d.data.m ? 9 : 7); })
+      .attr('fill',   function(d) { return cfill(d); })
+      .attr('stroke', function(d) { return cstroke(d); })
+      .attr('stroke-width', 2.5);
+
+    var lx = function(d) { return hasKids(d) ? -14 : 14; };
+    var ta = function(d) { return hasKids(d) ? 'end' : 'start'; };
+    var fw = function(d) { return d.data.m ? '700' : '400'; };
+    var fs = function(d) { return d.data.n === 'Jesus Christ' ? '13px' : '11px'; };
+    var fc = function(d) { return d.data.n === 'Jesus Christ' ? '#1a5276' : (d.data.m ? '#1c3a52' : '#5a5a5a'); };
+
+    nAll.select('text.nhalo')
+      .attr('dy', '0.31em')
+      .attr('x', lx).attr('text-anchor', ta)
+      .attr('font-weight', fw).attr('font-size', fs)
+      .attr('stroke', 'rgba(249,248,244,0.95)')
+      .attr('stroke-width', 4)
+      .attr('fill', 'none');
+
+    nAll.select('text.nlbl')
+      .attr('dy', '0.31em')
+      .attr('x', lx).attr('text-anchor', ta)
+      .attr('font-weight', fw).attr('font-size', fs)
+      .attr('fill', fc);
+
+    node.exit().transition().duration(DUR)
+      .attr('transform', function() { return 'translate(' + src.y + ',' + src.x + ')'; })
+      .style('opacity', 0).remove();
+
+    nodes.forEach(function(d) { d.x0 = d.x; d.y0 = d.y; });
+  }
+
+  function toggleNode(d) {
+    if (d.children && d.children.length) {
+      d._kids = d.children.concat(d._kids || []);
+      d.children = null;
+    } else if (d._kids && d._kids.length) {
+      d.children = d._kids;
+      d._kids = null;
+    }
+    update(d);
+  }
+
+  function showTip(event, d) {
+    var da = d.data;
+    var badges = '';
+    if (da.n === 'Jesus Christ')  { badges += '<span class="tip-badge badge-x">The Messiah</span>'; }
+    else if (da.m)                { badges += '<span class="tip-badge badge-m">Messianic Line</span>'; }
+    if (da.role === 'king')       { badges += '<span class="tip-badge badge-k">King</span>'; }
+    if (da.role === 'priest')     { badges += '<span class="tip-badge badge-p">Priest</span>'; }
+    if (da.role === 'prophet')    { badges += '<span class="tip-badge badge-pr">Prophet</span>'; }
+    if (da.role === 'patriarch')  { badges += '<span class="tip-badge badge-m">Patriarch</span>'; }
+    var hk = d.children || d._kids;
+    var html = '<div class="tip-name">' + da.n + '</div>';
+    if (badges) { html += '<div class="tip-badges">' + badges + '</div>'; }
+    if (da.sp)  { html += '<div class="tip-detail"><strong>Spouse:</strong> ' + da.sp + '</div>'; }
+    if (da.yrs) { html += '<div class="tip-detail"><strong>Lived:</strong> ' + da.yrs + '</div>'; }
+    if (da.desc){ html += '<div class="tip-detail">' + da.desc + '</div>'; }
+    if (da.ref) { html += '<div class="tip-ref">' + da.ref + '</div>'; }
+    if (hk)     { html += '<div class="tip-hint">' + (d.children && d.children.length ? 'Click to collapse' : 'Click to expand children') + '</div>'; }
+    tip.innerHTML = html;
+    tip.classList.add('show');
+    moveTip(event);
+  }
+
+  function moveTip(event) {
+    var cx = event.clientX || (event.touches && event.touches[0] ? event.touches[0].clientX : 0);
+    var cy = event.clientY || (event.touches && event.touches[0] ? event.touches[0].clientY : 0);
+    var x = cx + 16, y = cy + 16;
+    if (x + 270 > window.innerWidth)  { x = cx - 270 - 16; }
+    if (y + 160 > window.innerHeight) { y = cy - 160 - 16; }
+    tip.style.left = x + 'px';
+    tip.style.top  = y + 'px';
+  }
+
+  function hideTip() { tip.classList.remove('show'); }
+  svg.on('click', hideTip);
+
+  function centerView() {
+    var t = d3.zoomIdentity.translate(80, H / 2).scale(0.62);
+    svg.transition().duration(500).call(zoomBeh.transform, t);
+  }
+
+  document.getElementById('btn-zi').addEventListener('click', function() { svg.transition().duration(280).call(zoomBeh.scaleBy, 1.45); });
+  document.getElementById('btn-zo').addEventListener('click', function() { svg.transition().duration(280).call(zoomBeh.scaleBy, 0.69); });
+  document.getElementById('btn-rst').addEventListener('click', centerView);
+
+  document.getElementById('btn-m').addEventListener('click', function() {
+    showM = !showM;
+    this.classList.toggle('active', showM);
+    update(root);
+  });
+
+  document.getElementById('btn-exp').addEventListener('click', function() {
+    root.descendants().forEach(function(d) {
+      if (d._kids) {
+        d.children = (d.children || []).concat(d._kids);
+        d._kids = null;
       }
-    }
-  });
-  update(root);
-});
-
-// ── SEARCH ────────────────────────────────────────────────────────────────────
-var searchTimer;
-document.getElementById('tree-search').addEventListener('input', function(){
-  clearTimeout(searchTimer);
-  var q = this.value.trim();
-  searchTimer = setTimeout(function(){ doSearch(q); }, 260);
-});
-
-function doSearch(q){
-  g.selectAll('circle').attr('filter', null);
-  if (!q) return;
-  var ql = q.toLowerCase();
-
-  // Find first matching node in full tree (including collapsed)
-  var found = null;
-  function seek(d){
-    if (d.data.n.toLowerCase().indexOf(ql) >= 0 && !found) found = d;
-    if (d.children) d.children.forEach(seek);
-    if (d._children) d._children.forEach(seek);
-  }
-  seek(root);
-  if (!found) return;
-
-  // Expand all ancestors
-  var ancestors = [];
-  var cur = found;
-  while (cur.parent){ ancestors.push(cur.parent); cur = cur.parent; }
-  ancestors.reverse().forEach(function(a){
-    if (!a.children || !a.children.length){
-      if (a._children){ a.children = a._children; a._children = null; }
-    } else if (a._children){
-      // make sure found node is in children
-      a.children = a.children.concat(a._children);
-      a._children = null;
-    }
-  });
-
-  update(root);
-
-  setTimeout(function(){
-    g.selectAll('g.node').each(function(d){
-      d3.select(this).select('circle')
-        .attr('filter', d.data.n.toLowerCase().indexOf(ql) >= 0
-          ? 'drop-shadow(0 0 7px #e67e22)' : null);
     });
-    if (found.x !== undefined){
-      var t = d3.zoomIdentity.translate(W/2 - found.y * 0.85, H/2 - found.x * 0.85).scale(0.85);
-      svg.transition().duration(600).call(zoom.transform, t);
+    update(root);
+  });
+
+  document.getElementById('btn-col').addEventListener('click', function() {
+    root.descendants().forEach(function(d) {
+      if (d.depth > 0 && d.children) {
+        var hasM = d.children.some(function(c) { return c.data.m; });
+        if (!d.data.m || !hasM) {
+          d._kids = (d._kids || []).concat(d.children);
+          d.children = null;
+        }
+      }
+    });
+    update(root);
+  });
+
+  var searchTimer;
+  document.getElementById('tree-search').addEventListener('input', function() {
+    clearTimeout(searchTimer);
+    var q = this.value.trim();
+    searchTimer = setTimeout(function() { doSearch(q); }, 260);
+  });
+
+  function doSearch(q) {
+    g.selectAll('circle').attr('filter', null);
+    if (!q) { return; }
+    var ql = q.toLowerCase();
+
+    var found = null;
+    function seek(d) {
+      if (d.data.n.toLowerCase().indexOf(ql) >= 0 && !found) { found = d; }
+      if (d.children) { d.children.forEach(seek); }
+      if (d._kids)    { d._kids.forEach(seek); }
     }
-  }, DUR + 60);
-}
+    seek(root);
+    if (!found) { return; }
 
-// ── RESIZE ────────────────────────────────────────────────────────────────────
-window.addEventListener('resize', function(){
-  W = vp.clientWidth; H = vp.clientHeight;
-  svg.attr('width', W).attr('height', H);
-});
+    var ancestors = [];
+    var cur = found;
+    while (cur.parent) { ancestors.push(cur.parent); cur = cur.parent; }
+    ancestors.reverse().forEach(function(a) {
+      if (!a.children || !a.children.length) {
+        if (a._kids) { a.children = a._kids; a._kids = null; }
+      } else if (a._kids) {
+        a.children = a.children.concat(a._kids);
+        a._kids = null;
+      }
+    });
 
-// ── INIT ──────────────────────────────────────────────────────────────────────
-update(root);
-centerView();
+    update(root);
 
-})();
-</script>
+    setTimeout(function() {
+      g.selectAll('g.tree-node').each(function(d) {
+        d3.select(this).select('circle')
+          .attr('filter', d.data.n.toLowerCase().indexOf(ql) >= 0 ? 'drop-shadow(0 0 7px #e67e22)' : null);
+      });
+      if (found.x !== undefined) {
+        var t = d3.zoomIdentity.translate(W / 2 - found.y * 0.85, H / 2 - found.x * 0.85).scale(0.85);
+        svg.transition().duration(600).call(zoomBeh.transform, t);
+      }
+    }, DUR + 60);
+  }
+
+  window.addEventListener('resize', function() {
+    W = vp.clientWidth;
+    H = vp.clientHeight;
+    svg.attr('width', W).attr('height', H);
+  });
+
+  update(root);
+  centerView();
+
+}());
 {% endblock %}
