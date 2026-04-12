@@ -503,6 +503,9 @@
     if (da.role === 'priest')     { badges += '<span class="tip-badge badge-p">Priest</span>'; }
     if (da.role === 'prophet')    { badges += '<span class="tip-badge badge-pr">Prophet</span>'; }
     if (da.role === 'patriarch')  { badges += '<span class="tip-badge badge-m">Patriarch</span>'; }
+    if (da.role === 'judge')      { badges += '<span class="tip-badge" style="background:#e8f5e9;color:#1b5e20;">Judge</span>'; }
+    if (da.role === 'leader')     { badges += '<span class="tip-badge" style="background:#fff3e0;color:#e65100;">Leader</span>'; }
+    if (da.role === 'mother')     { badges += '<span class="tip-badge" style="background:#fce4ec;color:#880e4f;">Blessed Mother</span>'; }
     var hk = d.children || d._kids;
     var html = '<div class="tip-name">' + da.n + '</div>';
     if (badges) { html += '<div class="tip-badges">' + badges + '</div>'; }
@@ -545,8 +548,14 @@
   });
 
   document.getElementById('btn-exp').addEventListener('click', function() {
-    root.descendants().forEach(function(d) {
-      if (d._kids) {
+    var visNodes = root.descendants();
+    var minD = Infinity;
+    visNodes.forEach(function(d) {
+      if (d._kids && d._kids.length && d.depth < minD) { minD = d.depth; }
+    });
+    if (minD === Infinity) { return; }
+    visNodes.forEach(function(d) {
+      if (d.depth === minD && d._kids && d._kids.length) {
         d.children = (d.children || []).concat(d._kids);
         d._kids = null;
       }
