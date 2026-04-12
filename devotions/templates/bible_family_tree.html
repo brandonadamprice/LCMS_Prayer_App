@@ -667,14 +667,8 @@
   });
 
   document.getElementById('btn-exp').addEventListener('click', function() {
-    var visNodes = root.descendants();
-    var minD = Infinity;
-    visNodes.forEach(function(d) {
-      if (d._kids && d._kids.length && d.depth < minD) { minD = d.depth; }
-    });
-    if (minD === Infinity) { return; }
-    visNodes.forEach(function(d) {
-      if (d.depth === minD && d._kids && d._kids.length) {
+    root.descendants().forEach(function(d) {
+      if (d._kids && d._kids.length) {
         d.children = (d.children || []).concat(d._kids);
         d._kids = null;
       }
