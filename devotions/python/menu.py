@@ -89,6 +89,11 @@ def get_menu_items(is_advent, is_new_year, is_lent):
                   "url": "/trinity_study",
                   "enabled": True,
               },
+              {
+                  "label": "Bible Family Tree",
+                  "url": "/bible_family_tree",
+                  "enabled": True,
+              },
           ],
       },
       {

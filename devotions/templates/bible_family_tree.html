@@ -1,0 +1,1033 @@
+{% extends "base.html" %}
+
+{% block title %}Bible Family Tree{% endblock %}
+
+{% block head %}
+<link rel="preload" as="image" href="{{ url_for('static', filename='banner.jpg') }}">
+<style>
+  /* Override container width for full-width tree */
+  main.container {
+    max-width: 100%;
+    padding: 0;
+  }
+  main.container > .footer {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  .tree-page-header {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 20px 0;
+  }
+
+  .page-header {
+    margin: 20px;
+    border-radius: 8px;
+  }
+
+  /* Controls bar */
+  .tree-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    background: white;
+    border-bottom: 1px solid #f0f0f0;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    position: sticky;
+    top: 60px;
+    z-index: 50;
+  }
+
+  .tree-search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 180px;
+    max-width: 280px;
+  }
+  .tree-search-wrap svg {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: #999;
+  }
+  #tree-search {
+    width: 100%;
+    padding: 8px 12px 8px 34px;
+    border: 1px solid #e0e0e0;
+    border-radius: 20px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.85em;
+    background: #f9f8f4;
+    color: #4a4a4a;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+  }
+  #tree-search:focus {
+    border-color: #2980b9;
+    box-shadow: 0 0 0 3px rgba(41,128,185,0.12);
+  }
+
+  .tree-btn-group {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .tree-btn {
+    padding: 7px 14px;
+    border: 1px solid #e0e0e0;
+    border-radius: 20px;
+    background: white;
+    color: #4a4a4a;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.78em;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    margin: 0;
+  }
+  .tree-btn:hover {
+    background: #f9f8f4;
+    border-color: #2980b9;
+    color: #2980b9;
+    transform: none;
+    box-shadow: none;
+  }
+  .tree-btn.active {
+    background: #2980b9;
+    border-color: #2980b9;
+    color: white;
+  }
+
+  .tree-legend {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.78em;
+    color: #708090;
+    margin-left: auto;
+    flex-wrap: wrap;
+  }
+  .legend-dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 5px;
+    vertical-align: middle;
+  }
+
+  /* Tree viewport */
+  .tree-viewport {
+    width: 100%;
+    height: calc(100vh - 200px);
+    min-height: 480px;
+    overflow: hidden;
+    background: #f9f8f4;
+    cursor: grab;
+    position: relative;
+  }
+  .tree-viewport:active { cursor: grabbing; }
+
+  #family-tree-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  /* Node styles (applied via D3/inline, mirrored here for reference) */
+  .node circle {
+    stroke-width: 2.5;
+    transition: r 0.15s, filter 0.15s;
+    cursor: pointer;
+  }
+  .node circle:hover {
+    filter: brightness(1.1);
+  }
+  .node text {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px;
+    pointer-events: none;
+    user-select: none;
+  }
+  .link {
+    fill: none;
+    stroke: #d0cfc9;
+    stroke-width: 1.5;
+  }
+  .link.messianic-link {
+    stroke: #aed6f1;
+    stroke-width: 2;
+  }
+
+  /* Tooltip */
+  .tree-tooltip {
+    position: fixed;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.13);
+    padding: 14px 18px;
+    max-width: 260px;
+    pointer-events: none;
+    z-index: 200;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.15s, transform 0.15s;
+    border: 1px solid #f0f0f0;
+  }
+  .tree-tooltip.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .tooltip-name {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1em;
+    font-weight: 700;
+    color: #333;
+    margin: 0 0 4px;
+  }
+  .tooltip-badge {
+    display: inline-block;
+    font-size: 0.7em;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .badge-messianic { background: #d6eaf8; color: #2980b9; }
+  .badge-prophet   { background: #fef9e7; color: #b7950b; }
+  .badge-priest    { background: #f4ecf7; color: #7d3c98; }
+  .badge-king      { background: #e8f8f5; color: #1e8449; }
+  .tooltip-detail  { font-family: 'Lora', serif; font-size: 0.85em; color: #555; margin: 4px 0 0; line-height: 1.5; }
+  .tooltip-ref     { font-family: 'Montserrat', sans-serif; font-size: 0.75em; color: #2980b9; margin-top: 6px; }
+  .tooltip-expand  { font-family: 'Montserrat', sans-serif; font-size: 0.72em; color: #999; margin-top: 6px; font-style: italic; }
+
+  /* Dark mode */
+  body.dark-mode .tree-controls {
+    background: #3a3a3a;
+    border-color: #555;
+  }
+  body.dark-mode .tree-btn {
+    background: #3a3a3a;
+    border-color: #555;
+    color: #ccc;
+  }
+  body.dark-mode .tree-btn:hover {
+    background: #444;
+    border-color: #2980b9;
+    color: #2980b9;
+  }
+  body.dark-mode #tree-search {
+    background: #3a3a3a;
+    border-color: #555;
+    color: #ccc;
+  }
+  body.dark-mode .tree-viewport { background: #2a2a2a; }
+  body.dark-mode .tree-tooltip {
+    background: #3a3a3a;
+    border-color: #555;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  }
+  body.dark-mode .tooltip-name { color: #eee; }
+  body.dark-mode .tooltip-detail { color: #bbb; }
+  body.dark-mode .link { stroke: #555; }
+  body.dark-mode .link.messianic-link { stroke: #1a5276; }
+
+  @media (max-width: 600px) {
+    .tree-controls { padding: 8px 12px; gap: 6px; }
+    .tree-legend { display: none; }
+    .tree-search-wrap { max-width: 140px; }
+    .tree-viewport { height: calc(100vh - 220px); }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header" style="margin: 20px 20px 0;">
+  <h1>Bible Family Tree</h1>
+  <p>Explore the genealogies of Scripture — from Adam to the Messiah. Click any node to expand its descendants. The blue line traces the lineage of Christ.</p>
+</div>
+
+<div class="tree-controls">
+  <div class="tree-search-wrap">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <input type="text" id="tree-search" placeholder="Search a person…" autocomplete="off" />
+  </div>
+
+  <div class="tree-btn-group">
+    <button class="tree-btn" id="btn-zoom-in" title="Zoom In">＋ Zoom</button>
+    <button class="tree-btn" id="btn-zoom-out" title="Zoom Out">－ Zoom</button>
+    <button class="tree-btn" id="btn-reset" title="Reset View">Reset</button>
+    <button class="tree-btn active" id="btn-messianic" title="Highlight the Messianic Line">Messianic Line</button>
+    <button class="tree-btn" id="btn-expand-all" title="Expand all nodes">Expand All</button>
+    <button class="tree-btn" id="btn-collapse-all" title="Collapse to messianic line">Collapse</button>
+  </div>
+
+  <div class="tree-legend">
+    <span><span class="legend-dot" style="background:#2980b9;"></span>Messianic Line</span>
+    <span><span class="legend-dot" style="background:#708090; border: 2px solid #999;"></span>Other Figure</span>
+    <span><span class="legend-dot" style="background:#f0f0f0; border: 2px solid #aaa;"></span>Has children (click to expand)</span>
+  </div>
+</div>
+
+<div class="tree-viewport" id="tree-viewport">
+  <svg id="family-tree-svg"></svg>
+</div>
+
+<div class="tree-tooltip" id="tree-tooltip"></div>
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script>
+(function() {
+"use strict";
+
+// ─── DATA ────────────────────────────────────────────────────────────────────
+// m: messianic line, role: priest/prophet/king/judge, spouse, ref, desc, years
+const RAW = {
+  n:"Adam", m:1, spouse:"Eve", ref:"Gen 1–5", years:"930 yrs",
+  desc:"First man, formed from dust. Tended the Garden of Eden.",
+  children:[
+    { n:"Cain", ref:"Gen 4", desc:"First son of Adam; killed his brother Abel.",
+      _children:[
+        { n:"Enoch (son of Cain)", ref:"Gen 4:17", desc:"Built the first city, named after him." ,
+          _children:[{ n:"Irad", _children:[{ n:"Mehujael", _children:[{ n:"Methushael",
+            _children:[{ n:"Lamech (Cain's line)", ref:"Gen 4:19", spouse:"Adah & Zillah",
+              desc:"Took two wives; father of Jabal, Jubal, and Tubal-cain.",
+              _children:[
+                { n:"Jabal", desc:"Father of those who dwell in tents." },
+                { n:"Jubal", desc:"Father of all who play harp and flute." },
+                { n:"Tubal-cain", desc:"Forger of tools of bronze and iron." },
+                { n:"Naamah" }
+              ]}
+            ]}
+          ]}
+        ]}
+      ]
+    },
+    { n:"Abel", ref:"Gen 4", desc:"Shepherd whose offering pleased God; slain by Cain." },
+    { n:"Seth", m:1, ref:"Gen 4–5", years:"912 yrs", desc:"Given by God in place of Abel; ancestor of the Messianic line.",
+      children:[
+        { n:"Enosh", m:1, ref:"Gen 5:6", years:"905 yrs", desc:"In his days men began to call on the name of the LORD.",
+          children:[
+            { n:"Kenan", m:1, ref:"Gen 5:9", years:"910 yrs",
+              children:[
+                { n:"Mahalalel", m:1, ref:"Gen 5:12", years:"895 yrs",
+                  children:[
+                    { n:"Jared", m:1, ref:"Gen 5:15", years:"962 yrs",
+                      children:[
+                        { n:"Enoch", m:1, ref:"Gen 5:21", years:"365 yrs",
+                          desc:"Walked faithfully with God; was taken by God without dying.",
+                          children:[
+                            { n:"Methuselah", m:1, ref:"Gen 5:25", years:"969 yrs",
+                              desc:"Oldest person recorded in Scripture.",
+                              children:[
+                                { n:"Lamech", m:1, ref:"Gen 5:28", years:"777 yrs",
+                                  children:[
+                                    { n:"Noah", m:1, ref:"Gen 5–9", years:"950 yrs",
+                                      desc:"Found favor with God; built the ark and survived the Great Flood.",
+                                      spouse:"unnamed",
+                                      children:[
+                                        { n:"Ham", ref:"Gen 9–10", desc:"Father of Canaan; nations of Africa and Canaan.",
+                                          _children:[
+                                            { n:"Cush", _children:[{ n:"Nimrod", desc:"Mighty hunter before the LORD; built Babel." }] },
+                                            { n:"Mizraim", desc:"Egypt." },
+                                            { n:"Put" },
+                                            { n:"Canaan", desc:"Ancestor of the Canaanites." }
+                                          ]
+                                        },
+                                        { n:"Japheth", ref:"Gen 10", desc:"Ancestor of European and northern nations.",
+                                          _children:[
+                                            { n:"Gomer" }, { n:"Magog" }, { n:"Madai" },
+                                            { n:"Javan", desc:"Ancestor of the Greeks." },
+                                            { n:"Tubal" }, { n:"Meshech" }, { n:"Tiras" }
+                                          ]
+                                        },
+                                        { n:"Shem", m:1, ref:"Gen 10–11", desc:"Ancestor of the Semitic peoples and the Messianic line.",
+                                          children:[
+                                            { n:"Elam", desc:"Ancestor of the Elamites (Persia)." },
+                                            { n:"Asshur", desc:"Ancestor of the Assyrians." },
+                                            { n:"Lud" }, { n:"Aram", desc:"Ancestor of the Arameans/Syrians." },
+                                            { n:"Arpachshad", m:1, ref:"Gen 11",
+                                              children:[
+                                                { n:"Shelah", m:1, ref:"Gen 11",
+                                                  children:[
+                                                    { n:"Eber", m:1, ref:"Gen 11", desc:"'Hebrew' may derive from his name.",
+                                                      children:[
+                                                        { n:"Joktan", desc:"Ancestor of Arabian tribes.",
+                                                          _children:[
+                                                            { n:"Almodad" },{ n:"Sheleph" },{ n:"Hazarmaveth" },
+                                                            { n:"Jerah" },{ n:"Hadoram" },{ n:"Uzal" },{ n:"Diklah" },
+                                                            { n:"Obal" },{ n:"Abimael" },{ n:"Sheba" },{ n:"Ophir" },
+                                                            { n:"Havilah" },{ n:"Jobab" }
+                                                          ]
+                                                        },
+                                                        { n:"Peleg", m:1, ref:"Gen 11", desc:"In his days the earth was divided.",
+                                                          children:[
+                                                            { n:"Reu", m:1, ref:"Gen 11",
+                                                              children:[
+                                                                { n:"Serug", m:1, ref:"Gen 11",
+                                                                  children:[
+                                                                    { n:"Nahor", m:1, ref:"Gen 11",
+                                                                      children:[
+                                                                        { n:"Terah", m:1, ref:"Gen 11", years:"205 yrs",
+                                                                          desc:"Began the journey toward Canaan; settled in Haran.",
+                                                                          children:[
+                                                                            { n:"Haran", ref:"Gen 11", desc:"Father of Lot; died in Ur.",
+                                                                              _children:[
+                                                                                { n:"Lot", desc:"Nephew of Abraham; settled in Sodom." },
+                                                                                { n:"Milcah" },
+                                                                                { n:"Iscah" }
+                                                                              ]
+                                                                            },
+                                                                            { n:"Nahor (son)", ref:"Gen 11", spouse:"Milcah",
+                                                                              _children:[
+                                                                                { n:"Uz" },{ n:"Buz" },{ n:"Kemuel" },
+                                                                                { n:"Chesed" },{ n:"Hazo" },{ n:"Pildash" },
+                                                                                { n:"Jidlaph" },
+                                                                                { n:"Bethuel", _children:[
+                                                                                  { n:"Laban", desc:"Uncle of Jacob; father of Leah and Rachel." },
+                                                                                  { n:"Rebekah", desc:"Wife of Isaac; mother of Jacob and Esau." }
+                                                                                ]}
+                                                                              ]
+                                                                            },
+                                                                            { n:"Abraham", m:1, ref:"Gen 12–25", spouse:"Sarah, Hagar, Keturah",
+                                                                              desc:"Father of the Faith. Called by God to leave Ur. Covenant of circumcision.",
+                                                                              role:"patriarch",
+                                                                              children:[
+                                                                                { n:"Ishmael", ref:"Gen 16–17", spouse:"Egyptian woman",
+                                                                                  desc:"Abraham's son by Hagar; father of 12 princes, ancestor of Arab nations.",
+                                                                                  _children:[
+                                                                                    { n:"Nebaioth" },{ n:"Kedar" },{ n:"Adbeel" },{ n:"Mibsam" },
+                                                                                    { n:"Mishma" },{ n:"Dumah" },{ n:"Massa" },{ n:"Hadad" },
+                                                                                    { n:"Tema" },{ n:"Jetur" },{ n:"Naphish" },{ n:"Kedemah" }
+                                                                                  ]
+                                                                                },
+                                                                                { n:"Sons by Keturah", ref:"Gen 25",
+                                                                                  _children:[
+                                                                                    { n:"Zimran" },{ n:"Jokshan" },{ n:"Medan" },
+                                                                                    { n:"Midian", desc:"Father of the Midianites." },
+                                                                                    { n:"Ishbak" },{ n:"Shuah" }
+                                                                                  ]
+                                                                                },
+                                                                                { n:"Isaac", m:1, ref:"Gen 21–35", spouse:"Rebekah",
+                                                                                  desc:"Child of promise, born to Sarah in her old age. Offered on Mount Moriah.",
+                                                                                  children:[
+                                                                                    { n:"Esau", ref:"Gen 25–36", spouse:"Judith, Basemath, Mahalath",
+                                                                                      desc:"Elder twin; sold his birthright for stew. Ancestor of the Edomites.",
+                                                                                      _children:[
+                                                                                        { n:"Eliphaz", _children:[{ n:"Teman" },{ n:"Omar" },{ n:"Zepho" },{ n:"Gatam" },{ n:"Kenaz" },{ n:"Amalek" }] },
+                                                                                        { n:"Reuel", _children:[{ n:"Nahath" },{ n:"Zerah" },{ n:"Shammah" },{ n:"Mizzah" }] },
+                                                                                        { n:"Jeush" },{ n:"Jalam" },{ n:"Korah" }
+                                                                                      ]
+                                                                                    },
+                                                                                    { n:"Jacob", m:1, ref:"Gen 25–50", spouse:"Leah, Rachel, Bilhah, Zilpah",
+                                                                                      desc:"Renamed Israel; wrestled with God. Father of the twelve tribes.",
+                                                                                      children:[
+                                                                                        { n:"Reuben", ref:"Gen 29", desc:"Firstborn of Jacob by Leah; lost birthright." },
+                                                                                        { n:"Simeon", ref:"Gen 29", desc:"Second son by Leah." },
+                                                                                        { n:"Levi", ref:"Gen 29", desc:"Third son by Leah; his descendants became the priestly tribe.",
+                                                                                          _children:[
+                                                                                            { n:"Gershon" }, { n:"Merari" },
+                                                                                            { n:"Kohath", _children:[
+                                                                                              { n:"Amram", spouse:"Jochebed",
+                                                                                                _children:[
+                                                                                                  { n:"Miriam", role:"prophet", desc:"Prophetess and sister of Moses; led the women in song after crossing the Red Sea.", ref:"Exod 15" },
+                                                                                                  { n:"Aaron", role:"priest", ref:"Exod–Lev", desc:"First High Priest of Israel; Moses' brother and spokesman." },
+                                                                                                  { n:"Moses", role:"prophet", ref:"Exod–Deut", desc:"The great lawgiver; led Israel out of Egypt, received the Ten Commandments on Sinai." }
+                                                                                                ]
+                                                                                              }
+                                                                                            ]}
+                                                                                          ]
+                                                                                        },
+                                                                                        { n:"Judah", m:1, ref:"Gen 29–38", desc:"Fourth son by Leah; tribe through which the Messiah would come.",
+                                                                                          children:[
+                                                                                            { n:"Er", ref:"Gen 38", desc:"Judah's firstborn; put to death by the LORD." },
+                                                                                            { n:"Onan", ref:"Gen 38", desc:"Second son of Judah; also put to death." },
+                                                                                            { n:"Shelah", ref:"Gen 38" },
+                                                                                            { n:"Perez", m:1, ref:"Gen 38", desc:"Son of Judah by Tamar; in the Messianic line.",
+                                                                                              children:[
+                                                                                                { n:"Zerah", desc:"Twin of Perez." },
+                                                                                                { n:"Hezron", m:1, ref:"Ruth 4; 1 Chr 2",
+                                                                                                  children:[
+                                                                                                    { n:"Ram", m:1, ref:"Ruth 4; Matt 1",
+                                                                                                      children:[
+                                                                                                        { n:"Amminadab", m:1, ref:"Ruth 4; Matt 1",
+                                                                                                          children:[
+                                                                                                            { n:"Nahshon", m:1, ref:"Num 1; Matt 1", desc:"Leader of the tribe of Judah in the wilderness.",
+                                                                                                              children:[
+                                                                                                                { n:"Salmon", m:1, ref:"Ruth 4; Matt 1", spouse:"Rahab",
+                                                                                                                  desc:"Son of Nahshon; married Rahab of Jericho.",
+                                                                                                                  children:[
+                                                                                                                    { n:"Boaz", m:1, ref:"Ruth", spouse:"Ruth",
+                                                                                                                      desc:"Kinsman-redeemer; showed lovingkindness to Ruth the Moabite.",
+                                                                                                                      children:[
+                                                                                                                        { n:"Obed", m:1, ref:"Ruth 4",
+                                                                                                                          children:[
+                                                                                                                            { n:"Jesse", m:1, ref:"1 Sam 16", desc:"Father of David; his sons were passed over until the youngest.",
+                                                                                                                              children:[
+                                                                                                                                { n:"Eliab", ref:"1 Sam 16", desc:"Jesse's eldest son; tall in appearance." },
+                                                                                                                                { n:"Abinadab" },
+                                                                                                                                { n:"Shammah" },
+                                                                                                                                { n:"Other sons (×4)" },
+                                                                                                                                { n:"David", m:1, role:"king", ref:"1 Sam 16 – 1 Kgs 2", spouse:"Bathsheba, Michal, Abigail, others",
+                                                                                                                                  desc:"Shepherd-king, poet, and man after God's own heart. United Israel; composed many Psalms.",
+                                                                                                                                  children:[
+                                                                                                                                    { n:"Amnon", ref:"2 Sam 13", desc:"David's firstborn; killed by Absalom." },
+                                                                                                                                    { n:"Absalom", ref:"2 Sam 15", desc:"Rebelled against David; died hanging from an oak tree." },
+                                                                                                                                    { n:"Adonijah", ref:"1 Kgs 1", desc:"Attempted to seize the throne before Solomon." },
+                                                                                                                                    { n:"Nathan (son of David)", ref:"Luke 3:31", desc:"David's son; ancestor in Luke's genealogy of Jesus." },
+                                                                                                                                    { n:"Solomon", m:1, role:"king", ref:"1 Kgs 1–11", spouse:"daughter of Pharaoh & 700 wives",
+                                                                                                                                      desc:"Wisest king; built the First Temple in Jerusalem.",
+                                                                                                                                      children:[
+                                                                                                                                        { n:"Rehoboam", m:1, role:"king", ref:"1 Kgs 12", desc:"Kingdom split under his reign.",
+                                                                                                                                          children:[
+                                                                                                                                            { n:"Abijah", m:1, role:"king", ref:"1 Kgs 15",
+                                                                                                                                              children:[
+                                                                                                                                                { n:"Asa", m:1, role:"king", ref:"1 Kgs 15", desc:"Righteous king; removed idols from Judah.",
+                                                                                                                                                  children:[
+                                                                                                                                                    { n:"Jehoshaphat", m:1, role:"king", ref:"1 Kgs 22", desc:"Sought the LORD; reformed the judiciary.",
+                                                                                                                                                      children:[
+                                                                                                                                                        { n:"Joram", m:1, role:"king", ref:"2 Kgs 8", desc:"Married Athaliah, daughter of Ahab.",
+                                                                                                                                                          children:[
+                                                                                                                                                            { n:"Uzziah", m:1, role:"king", ref:"2 Kgs 15; Isa 6", desc:"Long and prosperous reign; struck with leprosy for burning incense.",
+                                                                                                                                                              children:[
+                                                                                                                                                                { n:"Jotham", m:1, role:"king", ref:"2 Kgs 15",
+                                                                                                                                                                  children:[
+                                                                                                                                                                    { n:"Ahaz", m:1, role:"king", ref:"2 Kgs 16; Isa 7", desc:"Wicked king; sought help from Assyria instead of God.",
+                                                                                                                                                                      children:[
+                                                                                                                                                                        { n:"Hezekiah", m:1, role:"king", ref:"2 Kgs 18–20; Isa 36–39", desc:"Righteous king; prayed for deliverance from Assyria. Isaiah ministered during his reign.",
+                                                                                                                                                                          children:[
+                                                                                                                                                                            { n:"Manasseh", m:1, role:"king", ref:"2 Kgs 21", desc:"Longest-reigning king of Judah; repented late in life.",
+                                                                                                                                                                              children:[
+                                                                                                                                                                                { n:"Amon", m:1, role:"king", ref:"2 Kgs 21",
+                                                                                                                                                                                  children:[
+                                                                                                                                                                                    { n:"Josiah", m:1, role:"king", ref:"2 Kgs 22–23", desc:"Rediscovered the Book of the Law; greatest reform of Judah.",
+                                                                                                                                                                                      children:[
+                                                                                                                                                                                        { n:"Jehoiakim", ref:"2 Kgs 23", desc:"Wicked king; burned Jeremiah's scroll." },
+                                                                                                                                                                                        { n:"Jeconiah", m:1, role:"king", ref:"Matt 1; Jer 22", desc:"Exiled to Babylon. The royal line of David continued through him.",
+                                                                                                                                                                                          children:[
+                                                                                                                                                                                            { n:"Shealtiel", m:1, ref:"Matt 1; Ezra 3",
+                                                                                                                                                                                              children:[
+                                                                                                                                                                                                { n:"Zerubbabel", m:1, ref:"Ezra 2; Hag 1", desc:"Led the first return from Babylon; laid the foundation of the Second Temple.",
+                                                                                                                                                                                                  children:[
+                                                                                                                                                                                                    { n:"Abiud", m:1, ref:"Matt 1",
+                                                                                                                                                                                                      children:[
+                                                                                                                                                                                                        { n:"Eliakim", m:1, ref:"Matt 1",
+                                                                                                                                                                                                          children:[
+                                                                                                                                                                                                            { n:"Azor", m:1, ref:"Matt 1",
+                                                                                                                                                                                                              children:[
+                                                                                                                                                                                                                { n:"Zadok", m:1, ref:"Matt 1",
+                                                                                                                                                                                                                  children:[
+                                                                                                                                                                                                                    { n:"Achim", m:1, ref:"Matt 1",
+                                                                                                                                                                                                                      children:[
+                                                                                                                                                                                                                        { n:"Eliud", m:1, ref:"Matt 1",
+                                                                                                                                                                                                                          children:[
+                                                                                                                                                                                                                            { n:"Eleazar", m:1, ref:"Matt 1",
+                                                                                                                                                                                                                              children:[
+                                                                                                                                                                                                                                { n:"Matthan", m:1, ref:"Matt 1",
+                                                                                                                                                                                                                                  children:[
+                                                                                                                                                                                                                                    { n:"Jacob (father of Joseph)", m:1, ref:"Matt 1",
+                                                                                                                                                                                                                                      children:[
+                                                                                                                                                                                                                                        { n:"Joseph", m:1, ref:"Matt 1", spouse:"Mary",
+                                                                                                                                                                                                                                          desc:"Husband of Mary; a righteous man and carpenter of Nazareth. Legal father of Jesus in the royal line.",
+                                                                                                                                                                                                                                          children:[
+                                                                                                                                                                                                                                            { n:"Jesus Christ", m:1, role:"messiah", ref:"Matt 1; Luke 3; John 1",
+                                                                                                                                                                                                                                              desc:"The Son of God and Son of Man. Born of the Virgin Mary. Savior of the world. Fulfillment of all the promises.",
+                                                                                                                                                                                                                                              spouse:"", years:"33 yrs on earth" }
+                                                                                                                                                                                                                                          ]
+                                                                                                                                                                                                                                        }
+                                                                                                                                                                                                                                      ]
+                                                                                                                                                                                                                                    }
+                                                                                                                                                                                                                                  ]
+                                                                                                                                                                                                                                }
+                                                                                                                                                                                                                              ]
+                                                                                                                                                                                                                            }
+                                                                                                                                                                                                                          ]
+                                                                                                                                                                                                                        }
+                                                                                                                                                                                                                      ]
+                                                                                                                                                                                                                    }
+                                                                                                                                                                                                                  ]
+                                                                                                                                                                                                                }
+                                                                                                                                                                                                              ]
+                                                                                                                                                                                                            }
+                                                                                                                                                                                                          ]
+                                                                                                                                                                                                        }
+                                                                                                                                                                                                      ]
+                                                                                                                                                                                                    }
+                                                                                                                                                                                                  ]
+                                                                                                                                                                                                }
+                                                                                                                                                                                              ]
+                                                                                                                                                                                            }
+                                                                                                                                                                                          ]
+                                                                                                                                                                                        }
+                                                                                                                                                                                      ]
+                                                                                                                                                                                    }
+                                                                                                                                                                                  ]
+                                                                                                                                                                                }
+                                                                                                                                                                              ]
+                                                                                                                                                                            }
+                                                                                                                                                                          ]
+                                                                                                                                                                        }
+                                                                                                                                                                      ]
+                                                                                                                                                                    }
+                                                                                                                                                                  ]
+                                                                                                                                                                }
+                                                                                                                                                              ]
+                                                                                                                                                            }
+                                                                                                                                                          ]
+                                                                                                                                                        }
+                                                                                                                                                      ]
+                                                                                                                                                    }
+                                                                                                                                                  ]
+                                                                                                                                                }
+                                                                                                                                              ]
+                                                                                                                                            }
+                                                                                                                                          ]
+                                                                                                                                        }
+                                                                                                                                      ]
+                                                                                                                                    }
+                                                                                                                                  ]
+                                                                                                                                }
+                                                                                                                              ]
+                                                                                                                            }
+                                                                                                                          ]
+                                                                                                                        }
+                                                                                                                      ]
+                                                                                                                    }
+                                                                                                                  ]
+                                                                                                                }
+                                                                                                              ]
+                                                                                                            }
+                                                                                                          ]
+                                                                                                        }
+                                                                                                      ]
+                                                                                                    }
+                                                                                                  ]
+                                                                                                }
+                                                                                              ]
+                                                                                            }
+                                                                                          ]
+                                                                                        }
+                                                                                      ]
+                                                                                    }
+                                                                                  ]
+                                                                                }
+                                                                              ]
+                                                                            }
+                                                                          ]
+                                                                        }
+                                                                      ]
+                                                                    }
+                                                                  ]
+                                                                }
+                                                              ]
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        { n:"Dan", ref:"Gen 30", desc:"Son of Jacob by Bilhah; tribe that included Samson.",
+                          _children:[{ n:"Hushim" }]
+                        },
+                        { n:"Naphtali", ref:"Gen 30", desc:"Son of Jacob by Bilhah.",
+                          _children:[{ n:"Jahzeel" },{ n:"Guni" },{ n:"Jezer" },{ n:"Shillem" }]
+                        },
+                        { n:"Gad", ref:"Gen 30", desc:"Son of Jacob by Zilpah.",
+                          _children:[{ n:"Ziphion" },{ n:"Haggi" },{ n:"Shuni" },{ n:"Ezbon" },{ n:"Eri" },{ n:"Arodi" },{ n:"Areli" }]
+                        },
+                        { n:"Asher", ref:"Gen 30", desc:"Son of Jacob by Zilpah.",
+                          _children:[{ n:"Imnah" },{ n:"Ishvah" },{ n:"Ishvi" },{ n:"Beriah" },{ n:"Serah" }]
+                        },
+                        { n:"Issachar", ref:"Gen 30", desc:"Son of Jacob by Leah.",
+                          _children:[{ n:"Tola" },{ n:"Puah" },{ n:"Jashub" },{ n:"Shimron" }]
+                        },
+                        { n:"Zebulun", ref:"Gen 30", desc:"Son of Jacob by Leah.",
+                          _children:[{ n:"Sered" },{ n:"Elon" },{ n:"Jahleel" }]
+                        },
+                        { n:"Dinah", ref:"Gen 30", desc:"Daughter of Jacob by Leah." },
+                        { n:"Joseph", ref:"Gen 30–50", spouse:"Asenath",
+                          desc:"Son of Jacob by Rachel; sold into slavery, rose to rule Egypt. Preserved Israel through famine.",
+                          _children:[
+                            { n:"Manasseh", desc:"Joseph's firstborn; received Jacob's left-hand blessing." },
+                            { n:"Ephraim", desc:"Joseph's second son; received Jacob's right-hand blessing; largest northern tribe." }
+                          ]
+                        },
+                        { n:"Benjamin", ref:"Gen 35", desc:"Youngest son of Jacob by Rachel; tribe of King Saul and the Apostle Paul.",
+                          _children:[
+                            { n:"Belah" },{ n:"Becher" },{ n:"Ashbel" },{ n:"Gera" },{ n:"Naaman" },
+                            { n:"Ehi" },{ n:"Rosh" },{ n:"Muppim" },{ n:"Huppim" },{ n:"Ard" }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+};
+
+// ─── D3 SETUP ─────────────────────────────────────────────────────────────────
+const viewport = document.getElementById('tree-viewport');
+const svg = d3.select('#family-tree-svg');
+const tooltip = document.getElementById('tree-tooltip');
+
+let width = viewport.clientWidth;
+let height = viewport.clientHeight;
+
+svg.attr('width', width).attr('height', height);
+
+const g = svg.append('g').attr('class', 'tree-g');
+
+const zoom = d3.zoom()
+  .scaleExtent([0.05, 2.5])
+  .on('zoom', e => g.attr('transform', e.transform));
+
+svg.call(zoom).on('dblclick.zoom', null);
+
+const treeFn = d3.tree().nodeSize([36, 220]);
+
+let root, currentTransform = d3.zoomIdentity;
+let showMessianic = true;
+
+// ─── INIT ──────────────────────────────────────────────────────────────────────
+function init() {
+  root = d3.hierarchy(RAW, d => d.children);
+  root.x0 = 0; root.y0 = 0;
+
+  // Attach collapsed children to nodes that have _children
+  root.descendants().forEach(d => {
+    if (d.data._children) {
+      d._children = d.data._children.map(c => {
+        const child = d3.hierarchy(c, cd => cd.children);
+        child.parent = d;
+        child.depth = d.depth + 1;
+        assignDepths(child);
+        return child;
+      });
+    }
+  });
+
+  update(root);
+  centerRoot();
+}
+
+function assignDepths(node) {
+  node.descendants().forEach(d => {
+    d.depth = d.parent ? d.parent.depth + 1 : 0;
+    if (d.data._children) {
+      d._children = d.data._children.map(c => {
+        const child = d3.hierarchy(c, cd => cd.children);
+        child.parent = d;
+        assignDepths(child);
+        return child;
+      });
+    }
+  });
+}
+
+function centerRoot() {
+  const initialScale = 0.72;
+  const tx = 80;
+  const ty = height / 2;
+  const t = d3.zoomIdentity.translate(tx, ty).scale(initialScale);
+  svg.call(zoom.transform, t);
+}
+
+// ─── UPDATE ────────────────────────────────────────────────────────────────────
+let nodeId = 0;
+const duration = 300;
+
+function update(source) {
+  const treeData = treeFn(root);
+  const nodes = treeData.descendants();
+  const links = treeData.links();
+
+  // ── Links ──
+  const link = g.selectAll('path.link')
+    .data(links, d => d.target.id);
+
+  const linkEnter = link.enter().insert('path', 'g')
+    .attr('class', d => 'link' + (d.target.data.m && d.source.data.m ? ' messianic-link' : ''))
+    .attr('d', () => {
+      const o = {x: source.x0 || 0, y: source.y0 || 0};
+      return diagonal({source: o, target: o});
+    });
+
+  link.merge(linkEnter)
+    .transition().duration(duration)
+    .attr('class', d => 'link' + (d.target.data.m && d.source.data.m ? ' messianic-link' : ''))
+    .attr('d', diagonal);
+
+  link.exit().transition().duration(duration)
+    .attr('d', () => {
+      const o = {x: source.x, y: source.y};
+      return diagonal({source: o, target: o});
+    }).remove();
+
+  // ── Nodes ──
+  const node = g.selectAll('g.node')
+    .data(nodes, d => d.id || (d.id = ++nodeId));
+
+  const nodeEnter = node.enter().append('g')
+    .attr('class', 'node')
+    .attr('transform', () => `translate(${source.y0||0},${source.x0||0})`)
+    .on('click', (event, d) => { event.stopPropagation(); toggleNode(d); })
+    .on('mouseenter', showTooltip)
+    .on('mousemove', moveTooltip)
+    .on('mouseleave', hideTooltip)
+    .on('touchstart', (event, d) => { event.preventDefault(); showTooltip(event, d); });
+
+  nodeEnter.append('circle')
+    .attr('r', 0)
+    .attr('fill', d => nodeColor(d))
+    .attr('stroke', d => nodeStroke(d))
+    .attr('stroke-width', 2.5);
+
+  nodeEnter.append('text')
+    .attr('dy', '0.31em')
+    .attr('x', d => (d.children || d._children) ? -14 : 14)
+    .attr('text-anchor', d => (d.children || d._children) ? 'end' : 'start')
+    .attr('fill', d => d.data.n === 'Jesus Christ' ? '#1a5276' : '#4a4a4a')
+    .attr('font-weight', d => d.data.m ? '700' : '400')
+    .attr('font-size', d => d.data.n === 'Jesus Christ' ? '13px' : '11px')
+    .text(d => d.data.n)
+    .clone(true).lower()
+    .attr('stroke', 'rgba(249,248,244,0.85)')
+    .attr('stroke-width', 4);
+
+  const nodeUpdate = node.merge(nodeEnter);
+
+  nodeUpdate.transition().duration(duration)
+    .attr('transform', d => `translate(${d.y},${d.x})`);
+
+  nodeUpdate.select('circle')
+    .transition().duration(duration)
+    .attr('r', d => d.data.n === 'Jesus Christ' ? 12 : (d.data.m ? 9 : 7))
+    .attr('fill', d => nodeColor(d))
+    .attr('stroke', d => nodeStroke(d));
+
+  nodeUpdate.select('text')
+    .attr('x', d => (d.children || d._children) ? -14 : 14)
+    .attr('text-anchor', d => (d.children || d._children) ? 'end' : 'start');
+
+  node.exit().transition().duration(duration)
+    .attr('transform', () => `translate(${source.y},${source.x})`)
+    .remove()
+    .select('circle').attr('r', 0);
+
+  nodes.forEach(d => { d.x0 = d.x; d.y0 = d.y; });
+}
+
+function diagonal(d) {
+  return `M${d.source.y},${d.source.x}
+    C${(d.source.y + d.target.y) / 2},${d.source.x}
+     ${(d.source.y + d.target.y) / 2},${d.target.x}
+     ${d.target.y},${d.target.x}`;
+}
+
+function nodeColor(d) {
+  if (d.data.n === 'Jesus Christ') return '#1a5276';
+  if (d.data.m) return showMessianic ? '#2980b9' : '#708090';
+  if (d._children) return '#f9f8f4';
+  return '#f0eeea';
+}
+function nodeStroke(d) {
+  if (d.data.n === 'Jesus Christ') return '#1a5276';
+  if (d.data.m) return showMessianic ? '#2980b9' : '#999';
+  return '#aaa';
+}
+
+// ─── TOGGLE ───────────────────────────────────────────────────────────────────
+function toggleNode(d) {
+  if (d.children) {
+    d._children = d.children;
+    d.children = null;
+  } else if (d._children) {
+    d.children = d._children;
+    d._children = null;
+    // Recursively re-attach _children on newly visible nodes
+    d.children.forEach(c => restoreCollapsed(c));
+  }
+  update(d);
+}
+
+function restoreCollapsed(node) {
+  if (!node._children && node.data._children) {
+    node._children = node.data._children.map(c => {
+      const child = d3.hierarchy(c, cd => cd.children);
+      child.parent = node;
+      child.depth = node.depth + 1;
+      assignDepths(child);
+      return child;
+    });
+  }
+}
+
+// ─── TOOLTIP ──────────────────────────────────────────────────────────────────
+function showTooltip(event, d) {
+  const data = d.data;
+  let badge = '';
+  if (data.n === 'Jesus Christ') badge = '<span class="tooltip-badge badge-messianic">The Messiah</span>';
+  else if (data.m) badge = '<span class="tooltip-badge badge-messianic">Messianic Line</span>';
+  if (data.role === 'king')    badge += '<span class="tooltip-badge badge-king">King</span>';
+  if (data.role === 'priest')  badge += '<span class="tooltip-badge badge-priest">Priest</span>';
+  if (data.role === 'prophet') badge += '<span class="tooltip-badge badge-prophet">Prophet</span>';
+
+  const hasKids = d.children || d._children;
+
+  tooltip.innerHTML = `
+    <div class="tooltip-name">${data.n}</div>
+    ${badge ? `<div style="margin:2px 0 6px;">${badge}</div>` : ''}
+    ${data.spouse ? `<div class="tooltip-detail"><strong>Spouse:</strong> ${data.spouse}</div>` : ''}
+    ${data.years  ? `<div class="tooltip-detail"><strong>Lived:</strong> ${data.years}</div>` : ''}
+    ${data.desc   ? `<div class="tooltip-detail">${data.desc}</div>` : ''}
+    ${data.ref    ? `<div class="tooltip-ref">${data.ref}</div>` : ''}
+    ${hasKids     ? `<div class="tooltip-expand">${d.children ? 'Click to collapse' : 'Click to expand children'}</div>` : ''}
+  `;
+  tooltip.classList.add('visible');
+  moveTooltip(event);
+}
+
+function moveTooltip(event) {
+  const vw = window.innerWidth, vh = window.innerHeight;
+  let x = (event.clientX || event.touches?.[0]?.clientX || 0) + 16;
+  let y = (event.clientY || event.touches?.[0]?.clientY || 0) + 16;
+  const tw = 270, th = 160;
+  if (x + tw > vw) x = x - tw - 32;
+  if (y + th > vh) y = y - th - 32;
+  tooltip.style.left = x + 'px';
+  tooltip.style.top  = y + 'px';
+}
+
+function hideTooltip() {
+  tooltip.classList.remove('visible');
+}
+
+svg.on('click', hideTooltip);
+
+// ─── CONTROLS ─────────────────────────────────────────────────────────────────
+document.getElementById('btn-zoom-in').addEventListener('click', () => {
+  svg.transition().duration(300).call(zoom.scaleBy, 1.4);
+});
+document.getElementById('btn-zoom-out').addEventListener('click', () => {
+  svg.transition().duration(300).call(zoom.scaleBy, 0.7);
+});
+document.getElementById('btn-reset').addEventListener('click', centerRoot);
+document.getElementById('btn-messianic').addEventListener('click', function() {
+  showMessianic = !showMessianic;
+  this.classList.toggle('active', showMessianic);
+  update(root);
+});
+
+document.getElementById('btn-expand-all').addEventListener('click', () => {
+  root.descendants().forEach(d => {
+    if (d._children) { d.children = d._children; d._children = null; }
+  });
+  update(root);
+});
+
+document.getElementById('btn-collapse-all').addEventListener('click', () => {
+  root.descendants().forEach(d => {
+    if (d.depth > 0 && d.children && !d.data.m) {
+      d._children = d.children; d.children = null;
+    }
+  });
+  update(root);
+});
+
+// ─── SEARCH ───────────────────────────────────────────────────────────────────
+let searchTimeout;
+document.getElementById('tree-search').addEventListener('input', function() {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => doSearch(this.value.trim()), 250);
+});
+
+function doSearch(query) {
+  if (!query) {
+    g.selectAll('circle').attr('filter', null);
+    return;
+  }
+  const lq = query.toLowerCase();
+
+  // Expand path to first match
+  let found = null;
+  root.descendants().forEach(d => {
+    if (d.data.n.toLowerCase().includes(lq)) { found = found || d; }
+  });
+
+  if (found) {
+    // Expand ancestors
+    let node = found;
+    while (node.parent) {
+      node = node.parent;
+      if (!node.children && node._children) {
+        node.children = node._children; node._children = null;
+      }
+    }
+    update(root);
+
+    // Highlight after render
+    setTimeout(() => {
+      g.selectAll('g.node').each(function(d) {
+        d3.select(this).select('circle')
+          .attr('filter', d.data.n.toLowerCase().includes(lq)
+            ? 'drop-shadow(0 0 6px #f39c12)' : null);
+      });
+
+      // Pan to found node
+      if (found.x !== undefined) {
+        const t = d3.zoomIdentity
+          .translate(width / 2 - found.y * 0.9, height / 2 - found.x * 0.9)
+          .scale(0.9);
+        svg.transition().duration(600).call(zoom.transform, t);
+      }
+    }, duration + 50);
+  }
+}
+
+// ─── RESIZE ───────────────────────────────────────────────────────────────────
+window.addEventListener('resize', () => {
+  width = viewport.clientWidth;
+  height = viewport.clientHeight;
+  svg.attr('width', width).attr('height', height);
+});
+
+init();
+
+})();
+</script>
+{% endblock %}
