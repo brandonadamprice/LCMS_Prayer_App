@@ -667,12 +667,16 @@
   });
 
   document.getElementById('btn-exp').addEventListener('click', function() {
-    root.descendants().forEach(function(d) {
+    function expandAll(d) {
       if (d._kids && d._kids.length) {
         d.children = (d.children || []).concat(d._kids);
         d._kids = null;
       }
-    });
+      if (d.children) {
+        d.children.forEach(expandAll);
+      }
+    }
+    expandAll(root);
     update(root);
   });
 
