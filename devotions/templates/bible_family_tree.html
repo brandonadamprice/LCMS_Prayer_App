@@ -282,7 +282,7 @@
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
     </svg>
-    <input type="text" id="tree-search" placeholder="Search a person..." autocomplete="off">
+    <input type="text" id="tree-search" placeholder="Search by name or verse (e.g. Gen 5, Matt 1)..." autocomplete="off">
   </div>
 
   <div class="tree-btn-group">
@@ -615,15 +615,7 @@
 
   var root = strat(PEOPLE);
 
-  var allNodes = root.descendants();
-  allNodes.forEach(function(d) {
-    if (d.children) {
-      var vis = d.children.filter(function(c) { return !c.data.col; });
-      var hid = d.children.filter(function(c) { return  c.data.col; });
-      d._kids = hid.length ? hid : null;
-      d.children = vis.length ? vis : null;
-    }
-  });
+  // All nodes start fully expanded — _kids stays null until user collapses manually
 
   root.x0 = 0;
   root.y0 = 0;
@@ -847,30 +839,39 @@
     searchTimer = setTimeout(function() { doSearch(q); }, 260);
   });
 
+  function nodeMatchesQuery(d, ql) {
+    if (d.data.n.toLowerCase().indexOf(ql) >= 0) { return true; }
+    if (d.data.ref && d.data.ref.toLowerCase().indexOf(ql) >= 0) { return true; }
+    return false;
+  }
+
   function doSearch(q) {
     g.selectAll('circle').attr('filter', null);
     if (!q) { return; }
     var ql = q.toLowerCase();
 
-    var found = null;
+    var matches = [];
     function seek(d) {
-      if (d.data.n.toLowerCase().indexOf(ql) >= 0 && !found) { found = d; }
+      if (nodeMatchesQuery(d, ql)) { matches.push(d); }
       if (d.children) { d.children.forEach(seek); }
       if (d._kids)    { d._kids.forEach(seek); }
     }
     seek(root);
-    if (!found) { return; }
+    if (!matches.length) { return; }
 
-    var ancestors = [];
-    var cur = found;
-    while (cur.parent) { ancestors.push(cur.parent); cur = cur.parent; }
-    ancestors.reverse().forEach(function(a) {
-      if (!a.children || !a.children.length) {
-        if (a._kids) { a.children = a._kids; a._kids = null; }
-      } else if (a._kids) {
-        a.children = a.children.concat(a._kids);
-        a._kids = null;
-      }
+    // Expand ancestors of all matches
+    matches.forEach(function(found) {
+      var ancestors = [];
+      var cur = found;
+      while (cur.parent) { ancestors.push(cur.parent); cur = cur.parent; }
+      ancestors.reverse().forEach(function(a) {
+        if (!a.children || !a.children.length) {
+          if (a._kids) { a.children = a._kids; a._kids = null; }
+        } else if (a._kids) {
+          a.children = a.children.concat(a._kids);
+          a._kids = null;
+        }
+      });
     });
 
     update(root);
@@ -878,10 +879,11 @@
     setTimeout(function() {
       g.selectAll('g.tree-node').each(function(d) {
         d3.select(this).select('circle')
-          .attr('filter', d.data.n.toLowerCase().indexOf(ql) >= 0 ? 'drop-shadow(0 0 7px #e67e22)' : null);
+          .attr('filter', nodeMatchesQuery(d, ql) ? 'drop-shadow(0 0 7px #e67e22)' : null);
       });
-      if (found.x !== undefined) {
-        var t = d3.zoomIdentity.translate(W / 2 - found.x * 0.85, H / 2 - found.y * 0.85).scale(0.85);
+      var first = matches[0];
+      if (first.x !== undefined) {
+        var t = d3.zoomIdentity.translate(W / 2 - first.x * 0.85, H / 2 - first.y * 0.85).scale(0.85);
         svg.transition().duration(600).call(zoomBeh.transform, t);
       }
     }, DUR + 60);
