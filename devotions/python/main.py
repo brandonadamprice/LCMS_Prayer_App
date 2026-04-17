@@ -1052,6 +1052,12 @@ def trinity_study_route():
   return trinity_study.generate_trinity_study_page()
 
 
+@app.route("/bible_family_tree")
+def bible_family_tree_route():
+  """Returns the interactive Bible Family Tree page."""
+  return flask.render_template("bible_family_tree.html")
+
+
 @app.route("/litany")
 def litany_route():
   """Returns the Litany page HTML."""
