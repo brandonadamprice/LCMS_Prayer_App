@@ -14,10 +14,12 @@
     flex-wrap: wrap;
     align-items: center;
     gap: 10px;
-    padding: 10px 20px;
-    background: white;
-    border-bottom: 1px solid #f0f0f0;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    padding: 12px 22px;
+    background: rgba(255,255,255,0.82);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border-bottom: 1px solid rgba(200,200,200,0.3);
+    box-shadow: 0 4px 20px -6px rgba(26,82,118,0.08);
     position: sticky;
     top: 60px;
     z-index: 50;
@@ -53,10 +55,10 @@
 
   .tree-btn-group { display: flex; gap: 6px; flex-wrap: wrap; }
   .tree-btn {
-    padding: 6px 13px;
-    border: 1px solid #e0e0e0;
-    border-radius: 20px;
-    background: white;
+    padding: 7px 14px;
+    border: 1px solid rgba(200,200,200,0.45);
+    border-radius: 22px;
+    background: rgba(255,255,255,0.7);
     color: #4a4a4a;
     font-family: 'Montserrat', sans-serif;
     font-size: 0.76em;
@@ -64,12 +66,25 @@
     letter-spacing: 0.4px;
     text-transform: uppercase;
     cursor: pointer;
-    transition: all 0.18s;
+    transition: all 0.22s cubic-bezier(.34,1.56,.64,1);
     white-space: nowrap;
     margin: 0;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
   }
-  .tree-btn:hover { background: #f9f8f4; border-color: #2980b9; color: #2980b9; transform: none; box-shadow: none; }
-  .tree-btn.active { background: #2980b9; border-color: #2980b9; color: white; }
+  .tree-btn:hover {
+    background: #fff;
+    border-color: #2980b9;
+    color: #2980b9;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px -2px rgba(41,128,185,0.25);
+  }
+  .tree-btn.active {
+    background: linear-gradient(135deg, #5dade2, #1a5276);
+    border-color: #1a5276;
+    color: white;
+    box-shadow: 0 4px 14px -2px rgba(26,82,118,0.5), inset 0 1px 0 rgba(255,255,255,0.25);
+  }
+  .tree-btn.active:hover { color: white; transform: translateY(-1px); }
 
   .tree-legend {
     display: flex;
@@ -95,34 +110,78 @@
     height: calc(100vh - 200px);
     min-height: 460px;
     overflow: hidden;
-    background: #f9f8f4;
+    background:
+      radial-gradient(ellipse at top, #fdfcf8 0%, #f3efe3 55%, #e8e2d0 100%);
     cursor: grab;
     position: relative;
     user-select: none;
   }
+  .tree-viewport::before {
+    content: "";
+    position: absolute; inset: 0;
+    background-image:
+      radial-gradient(circle at 20% 15%, rgba(41,128,185,0.05) 0, transparent 40%),
+      radial-gradient(circle at 80% 85%, rgba(183,149,11,0.05) 0, transparent 40%);
+    pointer-events: none;
+  }
   .tree-viewport:active { cursor: grabbing; }
-  #tree-svg { width: 100%; height: 100%; display: block; }
+  #tree-svg { width: 100%; height: 100%; display: block; position: relative; }
 
-  .tree-link { fill: none; stroke: #d5d3ce; stroke-width: 1.5px; }
-  .tree-link.m-link { stroke: #a9cce3; stroke-width: 2px; }
-  .tree-node text { font-family: 'Montserrat', sans-serif; pointer-events: none; user-select: none; }
-  .tree-node circle { cursor: pointer; }
+  .tree-link {
+    fill: none;
+    stroke: #c9c4b6;
+    stroke-width: 1.5px;
+    stroke-linecap: round;
+    transition: stroke 0.3s, stroke-width 0.3s, opacity 0.3s;
+  }
+  .tree-link.m-link {
+    stroke: url(#msgrad);
+    stroke-width: 2.75px;
+    stroke-dasharray: 1 0;
+    filter: drop-shadow(0 0 3px rgba(41,128,185,0.35));
+  }
+  .tree-node text {
+    font-family: 'Montserrat', sans-serif;
+    pointer-events: none;
+    user-select: none;
+    letter-spacing: 0.15px;
+  }
+  .tree-node circle {
+    cursor: pointer;
+    transition: r 0.22s cubic-bezier(.34,1.56,.64,1), stroke-width 0.22s;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.18));
+  }
+  .tree-node:hover circle { stroke-width: 3.5px !important; }
+  .tree-node.m-node circle { filter: drop-shadow(0 0 6px rgba(41,128,185,0.55)) drop-shadow(0 2px 3px rgba(0,0,0,0.15)); }
+  .tree-node.jesus-node circle {
+    filter: drop-shadow(0 0 14px rgba(41,128,185,0.85)) drop-shadow(0 0 4px rgba(255,255,255,0.6));
+    animation: jesus-pulse 3s ease-in-out infinite;
+  }
+  @keyframes jesus-pulse {
+    0%, 100% { filter: drop-shadow(0 0 14px rgba(41,128,185,0.85)) drop-shadow(0 0 4px rgba(255,255,255,0.6)); }
+    50%      { filter: drop-shadow(0 0 22px rgba(41,128,185,1)) drop-shadow(0 0 7px rgba(255,255,255,0.85)); }
+  }
 
   .tree-tip {
     position: fixed;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 4px 22px rgba(0,0,0,0.13);
-    padding: 13px 17px;
-    max-width: 260px;
+    background: rgba(255,255,255,0.88);
+    backdrop-filter: blur(14px) saturate(160%);
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+    border-radius: 14px;
+    box-shadow:
+      0 14px 40px -10px rgba(26,82,118,0.28),
+      0 2px 6px rgba(0,0,0,0.08),
+      inset 0 1px 0 rgba(255,255,255,0.85);
+    padding: 15px 19px;
+    max-width: 320px;
     pointer-events: none;
     z-index: 300;
     opacity: 0;
-    transform: translateY(5px);
-    transition: opacity 0.15s, transform 0.15s;
-    border: 1px solid #eeece8;
+    transform: translateY(8px) scale(0.97);
+    transition: opacity 0.2s ease, transform 0.25s cubic-bezier(.34,1.56,.64,1);
+    border: 1px solid rgba(255,255,255,0.6);
   }
-  .tree-tip.show { opacity: 1; transform: translateY(0); }
+  .tree-tip.show { opacity: 1; transform: translateY(0) scale(1); }
   .tip-name { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 1em; color: #333; margin: 0 0 3px; }
   .tip-badges { margin-bottom: 7px; }
   .tip-badge {
@@ -145,16 +204,61 @@
   .tip-ref    { font-family: 'Montserrat', sans-serif; font-size: 0.74em; color: #2980b9; margin-top: 6px; }
   .tip-hint   { font-family: 'Montserrat', sans-serif; font-size: 0.71em; color: #aaa; margin-top: 5px; font-style: italic; }
 
-  body.dark-mode .tree-controls { background: #3a3a3a; border-color: #555; }
-  body.dark-mode .tree-btn { background: #3a3a3a; border-color: #555; color: #ccc; }
-  body.dark-mode .tree-btn:hover { background: #444; border-color: #2980b9; color: #2980b9; }
-  body.dark-mode #tree-search { background: #3a3a3a; border-color: #555; color: #ccc; }
-  body.dark-mode .tree-viewport { background: #222; }
-  body.dark-mode .tree-tip { background: #3a3a3a; border-color: #555; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+  body.dark-mode .tree-controls {
+    background: rgba(30,30,34,0.75);
+    border-color: rgba(255,255,255,0.08);
+    box-shadow: 0 4px 20px -6px rgba(0,0,0,0.4);
+  }
+  body.dark-mode .tree-btn {
+    background: rgba(50,52,58,0.75);
+    border-color: rgba(255,255,255,0.09);
+    color: #d8d8d8;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.25);
+  }
+  body.dark-mode .tree-btn:hover {
+    background: rgba(70,75,85,0.9);
+    border-color: #5dade2;
+    color: #5dade2;
+    box-shadow: 0 4px 12px -2px rgba(93,173,226,0.3);
+  }
+  body.dark-mode .tree-btn.active {
+    background: linear-gradient(135deg, #2980b9, #0e3a5b);
+    border-color: #0e3a5b;
+    color: white;
+    box-shadow: 0 4px 14px -2px rgba(41,128,185,0.5), inset 0 1px 0 rgba(255,255,255,0.15);
+  }
+  body.dark-mode #tree-search {
+    background: rgba(50,52,58,0.75);
+    border-color: rgba(255,255,255,0.09);
+    color: #e0e0e0;
+  }
+  body.dark-mode .tree-viewport {
+    background:
+      radial-gradient(ellipse at top, #1a1f2b 0%, #0f1218 55%, #060810 100%);
+  }
+  body.dark-mode .tree-viewport::before {
+    background-image:
+      radial-gradient(circle at 20% 15%, rgba(93,173,226,0.08) 0, transparent 40%),
+      radial-gradient(circle at 80% 85%, rgba(183,149,11,0.05) 0, transparent 40%),
+      radial-gradient(1px 1px at 30% 40%, rgba(255,255,255,0.5), transparent),
+      radial-gradient(1px 1px at 70% 25%, rgba(255,255,255,0.4), transparent),
+      radial-gradient(1px 1px at 55% 70%, rgba(255,255,255,0.35), transparent),
+      radial-gradient(1px 1px at 15% 80%, rgba(255,255,255,0.45), transparent),
+      radial-gradient(1px 1px at 85% 55%, rgba(255,255,255,0.4), transparent);
+  }
+  body.dark-mode .tree-tip {
+    background: rgba(30,34,42,0.82);
+    border-color: rgba(255,255,255,0.08);
+    box-shadow:
+      0 14px 40px -10px rgba(0,0,0,0.7),
+      0 2px 6px rgba(0,0,0,0.35),
+      inset 0 1px 0 rgba(255,255,255,0.08);
+  }
   body.dark-mode .tip-name { color: #eee; }
   body.dark-mode .tip-detail { color: #bbb; }
-  body.dark-mode .tree-link { stroke: #555; }
-  body.dark-mode .tree-link.m-link { stroke: #1f618d; }
+  body.dark-mode .tree-link { stroke: rgba(160,170,185,0.28); }
+  body.dark-mode .tree-link.m-link { filter: drop-shadow(0 0 4px rgba(93,173,226,0.6)); }
+  body.dark-mode .tree-legend { color: #9aa4b0; }
 
   @media (max-width: 600px) {
     .tree-legend { display: none; }
@@ -204,132 +308,133 @@
 (function() {
 
   var PEOPLE = [
-    {id:"adam",    n:"Adam",        m:1, par:null,       sp:"Eve",                ref:"Gen 1-5",    yrs:"930 yrs", desc:"First man, created from dust. Tended the Garden of Eden."},
-    {id:"abel",    n:"Abel",             par:"adam",      ref:"Gen 4",    desc:"Shepherd whose offering pleased God; slain by Cain."},
-    {id:"cain",    n:"Cain",             par:"adam",      col:1, ref:"Gen 4",    desc:"First son of Adam; murdered his brother Abel."},
-    {id:"seth",    n:"Seth",       m:1,  par:"adam",      ref:"Gen 4-5",    yrs:"912 yrs", desc:"Born in place of Abel; ancestor of the Messianic line."},
-    {id:"enosh",   n:"Enosh",      m:1,  par:"seth",      ref:"Gen 5:6",    yrs:"905 yrs", desc:"In his days men began to call on the name of the LORD."},
-    {id:"kenan",   n:"Kenan",      m:1,  par:"enosh",     ref:"Gen 5:9",    yrs:"910 yrs"},
-    {id:"mahal",   n:"Mahalalel",  m:1,  par:"kenan",     ref:"Gen 5:12",   yrs:"895 yrs"},
-    {id:"jared",   n:"Jared",      m:1,  par:"mahal",     ref:"Gen 5:15",   yrs:"962 yrs"},
-    {id:"enoch",   n:"Enoch",      m:1,  par:"jared",     ref:"Gen 5:21",   yrs:"365 yrs", desc:"Walked faithfully with God; was taken without dying."},
-    {id:"methu",   n:"Methuselah", m:1,  par:"enoch",     ref:"Gen 5:25",   yrs:"969 yrs", desc:"Oldest person recorded in Scripture."},
-    {id:"lamech",  n:"Lamech",     m:1,  par:"methu",     ref:"Gen 5:28",   yrs:"777 yrs"},
-    {id:"noah",    n:"Noah",       m:1,  par:"lamech",    ref:"Gen 5-9",    yrs:"950 yrs", sp:"unnamed", desc:"Found favor with God. Built the ark and survived the Great Flood."},
-    {id:"c_enoch", n:"Enoch (Cain)",     par:"cain",      col:1, ref:"Gen 4:17", desc:"First city named for him."},
-    {id:"irad",    n:"Irad",             par:"c_enoch",   col:1},
-    {id:"mehuj",   n:"Mehujael",         par:"irad",      col:1},
-    {id:"methu2",  n:"Methushael",       par:"mehuj",     col:1},
-    {id:"lam_c",   n:"Lamech (Cain)",    par:"methu2",    col:1, sp:"Adah & Zillah", ref:"Gen 4:19", desc:"First recorded polygamist."},
-    {id:"jabal",   n:"Jabal",            par:"lam_c",     col:1, desc:"Father of those who live in tents."},
-    {id:"jubal",   n:"Jubal",            par:"lam_c",     col:1, desc:"Father of all who play harp and flute."},
-    {id:"tubal",   n:"Tubal-cain",       par:"lam_c",     col:1, desc:"Forger of bronze and iron tools."},
-    {id:"ham",     n:"Ham",              par:"noah",      col:1, ref:"Gen 9-10", desc:"Father of Canaan; ancestor of African and Canaanite nations."},
-    {id:"japheth", n:"Japheth",          par:"noah",      col:1, ref:"Gen 10",   desc:"Ancestor of European and northern nations."},
-    {id:"shem",    n:"Shem",       m:1,  par:"noah",      ref:"Gen 10-11", desc:"Ancestor of Semitic peoples and the Messianic line."},
-    {id:"cush",    n:"Cush",             par:"ham",       col:1},
-    {id:"nimrod",  n:"Nimrod",           par:"cush",      col:1, desc:"Mighty hunter; founded Babel."},
-    {id:"mizr",    n:"Mizraim",          par:"ham",       col:1, desc:"Egypt."},
-    {id:"put",     n:"Put",              par:"ham",       col:1},
-    {id:"canaan",  n:"Canaan",           par:"ham",       col:1, desc:"Ancestor of the Canaanites."},
-    {id:"gomer",   n:"Gomer",            par:"japheth",   col:1},
-    {id:"magog",   n:"Magog",            par:"japheth",   col:1},
-    {id:"javan",   n:"Javan",            par:"japheth",   col:1, desc:"Ancestor of the Greeks."},
-    {id:"tubal2",  n:"Tubal",            par:"japheth",   col:1},
-    {id:"elam",    n:"Elam",             par:"shem",      col:1, desc:"Ancestor of the Elamites (Persia)."},
-    {id:"asshur",  n:"Asshur",           par:"shem",      col:1, desc:"Ancestor of the Assyrians."},
-    {id:"lud",     n:"Lud",              par:"shem",      col:1},
-    {id:"aram",    n:"Aram",             par:"shem",      col:1, desc:"Ancestor of the Arameans / Syrians."},
-    {id:"arpa",    n:"Arpachshad",  m:1, par:"shem",      ref:"Gen 11"},
-    {id:"shelah",  n:"Shelah",      m:1, par:"arpa",      ref:"Gen 11"},
-    {id:"eber",    n:"Eber",        m:1, par:"shelah",    ref:"Gen 11", desc:"Hebrew may derive from his name."},
-    {id:"joktan",  n:"Joktan",          par:"eber",       col:1, desc:"Ancestor of Arabian tribes."},
-    {id:"peleg",   n:"Peleg",      m:1, par:"eber",       ref:"Gen 11", desc:"In his days the earth was divided."},
-    {id:"reu",     n:"Reu",        m:1, par:"peleg",      ref:"Gen 11"},
-    {id:"serug",   n:"Serug",      m:1, par:"reu",        ref:"Gen 11"},
-    {id:"nahor1",  n:"Nahor",      m:1, par:"serug",      ref:"Gen 11"},
-    {id:"terah",   n:"Terah",      m:1, par:"nahor1",     ref:"Gen 11", yrs:"205 yrs", desc:"Began journey toward Canaan; settled in Haran."},
-    {id:"haran",   n:"Haran",           par:"terah",      col:1, ref:"Gen 11", desc:"Father of Lot; died in Ur."},
-    {id:"nahor2",  n:"Nahor (son)",     par:"terah",      col:1, ref:"Gen 11", sp:"Milcah"},
-    {id:"abr",     n:"Abraham",    m:1, par:"terah",      ref:"Gen 12-25", role:"patriarch", sp:"Sarah, Hagar, Keturah", desc:"Father of the Faith. Called from Ur. Covenant of circumcision. Offered Isaac on Moriah."},
-    {id:"lot",     n:"Lot",             par:"haran",      col:1, desc:"Abraham's nephew; escaped Sodom."},
-    {id:"milcah",  n:"Milcah",          par:"haran",      col:1},
-    {id:"bethuel", n:"Bethuel",         par:"nahor2",     col:1},
-    {id:"laban",   n:"Laban",           par:"bethuel",    col:1, desc:"Uncle of Jacob; father of Leah and Rachel."},
-    {id:"rebecca", n:"Rebekah",         par:"bethuel",    col:1, desc:"Wife of Isaac; mother of Jacob and Esau."},
-    {id:"ishmael", n:"Ishmael",         par:"abr",        col:1, ref:"Gen 16-17", sp:"Egyptian woman", desc:"Son by Hagar; father of 12 princes, ancestor of Arab nations."},
-    {id:"ketura",  n:"Sons by Keturah", par:"abr",        col:1, ref:"Gen 25"},
-    {id:"isaac",   n:"Isaac",      m:1, par:"abr",        ref:"Gen 21-35", sp:"Rebekah", desc:"Child of promise. Offered on Moriah as a type of Christ."},
+    {id:"adam",    n:"Adam",        m:1, par:null,       sp:"Eve",                ref:"Gen 1-5",    yrs:"930 yrs", desc:"First man, formed by God from the dust of the ground on the sixth day; God breathed into his nostrils the breath of life and he became a living soul. Placed in the Garden of Eden to work it and keep it. Named every beast of the field and bird of the sky. Eve was fashioned from his rib while he slept. Ate from the tree of the knowledge of good and evil; cursed to toil with the ground all his days. Exiled from Eden, the way guarded by cherubim and a flaming sword. Fathered Cain, Abel, Seth, and other sons and daughters."},
+    {id:"eve",     n:"Eve",              par:"adam",      col:1, ref:"Gen 2-4",   desc:"The woman, fashioned by God from Adam's rib; called Woman because she was taken out of Man. Named Eve by Adam, 'mother of all living.' Deceived by the serpent; ate of the forbidden fruit and gave to Adam. Sorrow in childbirth and desire for her husband became her portion. Bore Cain ('I have gotten a man with the help of the LORD'), Abel, and Seth ('God has appointed another offspring for me in place of Abel')."},
+    {id:"abel",    n:"Abel",             par:"adam",      ref:"Gen 4",    desc:"Second son of Adam; a keeper of sheep. Brought the firstlings of his flock as offering; the LORD had regard for Abel and his offering. Hated and slain in the field by his brother Cain. His blood cried out from the ground. 'By faith Abel offered a more acceptable sacrifice than Cain' (Heb 11:4)."},
+    {id:"cain",    n:"Cain",             par:"adam",      col:1, ref:"Gen 4",    desc:"Firstborn son of Adam; a tiller of the ground. His offering of fruit was not accepted; sin crouched at his door. Murdered Abel in the field. Cursed from the ground, a fugitive and wanderer; the LORD set a mark on him so none would kill him. Dwelt in the land of Nod, east of Eden; built the first city and named it for his son Enoch."},
+    {id:"seth",    n:"Seth",       m:1,  par:"adam",      ref:"Gen 4-5",    yrs:"912 yrs", desc:"Third named son of Adam, born when Adam was 130. His mother said, 'God has appointed another offspring for me in place of Abel.' In his days men began to call upon the name of the LORD. Ancestor of the righteous Sethite line and the Messianic promise."},
+    {id:"enosh",   n:"Enosh",      m:1,  par:"seth",      ref:"Gen 5:6",    yrs:"905 yrs", desc:"Son of Seth, born when Seth was 105. 'Then men began to call upon the name of the LORD' (Gen 4:26)."},
+    {id:"kenan",   n:"Kenan",      m:1,  par:"enosh",     ref:"Gen 5:9",    yrs:"910 yrs", desc:"Son of Enosh; fathered Mahalalel at 70. Also written Cainan in Luke's genealogy of Christ (Luke 3:37)."},
+    {id:"mahal",   n:"Mahalalel",  m:1,  par:"kenan",     ref:"Gen 5:12",   yrs:"895 yrs", desc:"Son of Kenan; fathered Jared at 65."},
+    {id:"jared",   n:"Jared",      m:1,  par:"mahal",     ref:"Gen 5:15",   yrs:"962 yrs", desc:"Son of Mahalalel; fathered Enoch at 162. Second-longest life recorded in Scripture."},
+    {id:"enoch",   n:"Enoch",      m:1,  par:"jared",     ref:"Gen 5:21",   yrs:"365 yrs", desc:"Walked with God three hundred years after fathering Methuselah. 'And he was not, for God took him' (Gen 5:24). By faith he was taken up so that he should not see death (Heb 11:5). Prophesied of the Lord's coming with His holy ones to execute judgment (Jude 14-15)."},
+    {id:"methu",   n:"Methuselah", m:1,  par:"enoch",     ref:"Gen 5:25",   yrs:"969 yrs", desc:"Son of Enoch and oldest man recorded in Scripture. His death in year 1656 from creation coincides with the coming of the Flood."},
+    {id:"lamech",  n:"Lamech",     m:1,  par:"methu",     ref:"Gen 5:28",   yrs:"777 yrs", desc:"Son of Methuselah; father of Noah. Prophesied at his son's birth: 'This one shall bring us relief from our work and from the painful toil of our hands, because of the ground that the LORD has cursed' (Gen 5:29)."},
+    {id:"noah",    n:"Noah",       m:1,  par:"lamech",    ref:"Gen 5-9",    yrs:"950 yrs", sp:"unnamed", desc:"A righteous man, blameless in his generation; Noah walked with God. Found favor in the eyes of the LORD. At God's command built an ark of gopher wood, 300 x 50 x 30 cubits, to preserve his household and every kind of living creature. The flood came in Noah's 600th year; waters prevailed 150 days; the ark came to rest on the mountains of Ararat. Offered burnt offerings on leaving the ark; God established the covenant of the rainbow, never again to destroy the earth by water. Planted a vineyard, became drunk; pronounced blessing on Shem and Japheth and a curse on Canaan, Ham's son."},
+    {id:"c_enoch", n:"Enoch (Cain)",     par:"cain",      col:1, ref:"Gen 4:17", desc:"Son of Cain; the first city built on earth was named for him."},
+    {id:"irad",    n:"Irad",             par:"c_enoch",   col:1, ref:"Gen 4:18"},
+    {id:"mehuj",   n:"Mehujael",         par:"irad",      col:1, ref:"Gen 4:18"},
+    {id:"methu2",  n:"Methushael",       par:"mehuj",     col:1, ref:"Gen 4:18"},
+    {id:"lam_c",   n:"Lamech (Cain)",    par:"methu2",    col:1, sp:"Adah & Zillah", ref:"Gen 4:19", desc:"First man recorded to take two wives. Boasted to Adah and Zillah: 'I have killed a man for wounding me... if Cain's revenge is sevenfold, then Lamech's is seventy-sevenfold' (Gen 4:23-24)."},
+    {id:"jabal",   n:"Jabal",            par:"lam_c",     col:1, ref:"Gen 4:20", desc:"Son of Lamech by Adah; father of those who dwell in tents and have livestock."},
+    {id:"jubal",   n:"Jubal",            par:"lam_c",     col:1, ref:"Gen 4:21", desc:"Son of Lamech by Adah; father of all who play the lyre and pipe."},
+    {id:"tubal",   n:"Tubal-cain",       par:"lam_c",     col:1, ref:"Gen 4:22", desc:"Son of Lamech by Zillah; forger of all instruments of bronze and iron. His sister was Naamah."},
+    {id:"ham",     n:"Ham",              par:"noah",      col:1, ref:"Gen 9-10", desc:"Second son of Noah. Saw the nakedness of his father and told his brothers outside; Noah's resulting curse fell on his son Canaan. Father of Cush, Mizraim (Egypt), Put, and Canaan; ancestor of the peoples of Africa and the Levant."},
+    {id:"japheth", n:"Japheth",          par:"noah",      col:1, ref:"Gen 10",   desc:"Son of Noah. With Shem he took a garment, walked backward, and covered their father's nakedness. Noah blessed him: 'May God enlarge Japheth, and let him dwell in the tents of Shem' (Gen 9:27). Father of the northern and coastland nations."},
+    {id:"shem",    n:"Shem",       m:1,  par:"noah",      ref:"Gen 10-11", desc:"Firstborn (or chief) son of Noah. With Japheth covered his father's nakedness without looking. Blessed by Noah: 'Blessed be the LORD, the God of Shem' (Gen 9:26). Fathered Arpachshad two years after the flood. Lived 600 years; ancestor of the Semitic peoples, Abraham, and the Messianic line."},
+    {id:"cush",    n:"Cush",             par:"ham",       col:1, ref:"Gen 10:6", desc:"Firstborn of Ham; father of Nimrod. Ancestor of the peoples south of Egypt (Ethiopia / upper Nile region)."},
+    {id:"nimrod",  n:"Nimrod",           par:"cush",      col:1, ref:"Gen 10:8-12", desc:"The first 'mighty one on the earth'; a mighty hunter before the LORD. The beginning of his kingdom was Babel, Erech, Accad, and Calneh in the land of Shinar. From that land he went into Assyria and built Nineveh."},
+    {id:"mizr",    n:"Mizraim",          par:"ham",       col:1, ref:"Gen 10:6", desc:"Son of Ham; the Hebrew name for Egypt. Ancestor of the Ludim, Pathrusim, Casluhim (from whom came the Philistines), and Caphtorim."},
+    {id:"put",     n:"Put",              par:"ham",       col:1, ref:"Gen 10:6", desc:"Son of Ham; later associated with Libyan / North African peoples (Jer 46:9; Ezek 27:10)."},
+    {id:"canaan",  n:"Canaan",           par:"ham",       col:1, ref:"Gen 9:25", desc:"Youngest son of Ham, cursed by Noah to be a servant of servants to his brothers. Father of Sidon, the Hittites, Jebusites, Amorites, Girgashites, Hivites, and other peoples of the land later given to Israel."},
+    {id:"gomer",   n:"Gomer",            par:"japheth",   col:1, ref:"Gen 10:2", desc:"Firstborn of Japheth; father of Ashkenaz, Riphath, and Togarmah. Later appears in Ezekiel's prophecy of Gog (Ezek 38:6)."},
+    {id:"magog",   n:"Magog",            par:"japheth",   col:1, ref:"Gen 10:2", desc:"Son of Japheth; named in Ezek 38-39 as the land of Gog against whom the LORD will defend His people."},
+    {id:"javan",   n:"Javan",            par:"japheth",   col:1, ref:"Gen 10:4", desc:"Son of Japheth; ancestor of the Greeks / Ionians. His sons were Elishah, Tarshish, Kittim, and Dodanim - from these the coastland peoples spread."},
+    {id:"tubal2",  n:"Tubal",            par:"japheth",   col:1, ref:"Gen 10:2", desc:"Son of Japheth; later named with Meshech among the far northern peoples (Ezek 38:2)."},
+    {id:"elam",    n:"Elam",             par:"shem",      col:1, ref:"Gen 10:22", desc:"Firstborn of Shem; ancestor of the Elamites east of Babylonia. Chedorlaomer, king of Elam, warred with Abraham (Gen 14)."},
+    {id:"asshur",  n:"Asshur",           par:"shem",      col:1, ref:"Gen 10:22", desc:"Son of Shem; ancestor of the Assyrians, founders of the great empire that carried away the northern kingdom of Israel."},
+    {id:"lud",     n:"Lud",              par:"shem",      col:1, ref:"Gen 10:22", desc:"Son of Shem, listed with the Semitic peoples in the Table of Nations."},
+    {id:"aram",    n:"Aram",             par:"shem",      col:1, ref:"Gen 10:22", desc:"Son of Shem; ancestor of the Aramean / Syrian peoples. His sons were Uz, Hul, Gether, and Mash. The Aramaic tongue took its name from his line."},
+    {id:"arpa",    n:"Arpachshad",  m:1, par:"shem",      ref:"Gen 11:10", yrs:"438 yrs", desc:"Son of Shem, born two years after the flood. Fathered Shelah at 35. Named in Luke's genealogy of Christ (Luke 3:36)."},
+    {id:"shelah",  n:"Shelah",      m:1, par:"arpa",      ref:"Gen 11:14", yrs:"433 yrs", desc:"Son of Arpachshad; fathered Eber at 30."},
+    {id:"eber",    n:"Eber",        m:1, par:"shelah",    ref:"Gen 11:16", yrs:"464 yrs", desc:"Son of Shelah; father of Peleg and Joktan. The name 'Hebrew' (Ibri) is traditionally derived from Eber."},
+    {id:"joktan",  n:"Joktan",          par:"eber",       col:1, ref:"Gen 10:26", desc:"Son of Eber; father of thirteen sons whose dwelling was from Mesha toward Sephar, the hill country of the east - ancestor of many Arabian tribes."},
+    {id:"peleg",   n:"Peleg",      m:1, par:"eber",       ref:"Gen 10:25",    yrs:"239 yrs", desc:"Son of Eber. His name means 'division,' for 'in his days the earth was divided' - likely referring to the scattering at Babel (Gen 11)."},
+    {id:"reu",     n:"Reu",        m:1, par:"peleg",      ref:"Gen 11:18",    yrs:"239 yrs", desc:"Son of Peleg; fathered Serug at 32."},
+    {id:"serug",   n:"Serug",      m:1, par:"reu",        ref:"Gen 11:20",    yrs:"230 yrs", desc:"Son of Reu; fathered Nahor at 30."},
+    {id:"nahor1",  n:"Nahor",      m:1, par:"serug",      ref:"Gen 11:22",    yrs:"148 yrs", desc:"Son of Serug; grandfather of Abraham. Fathered Terah at 29."},
+    {id:"terah",   n:"Terah",      m:1, par:"nahor1",     ref:"Gen 11:26",    yrs:"205 yrs", desc:"Father of Abram, Nahor, and Haran. Took his family from Ur of the Chaldeans intending to go to Canaan, but settled in Haran where he died. Joshua records that Terah served other gods beyond the River (Josh 24:2)."},
+    {id:"haran",   n:"Haran",           par:"terah",      col:1, ref:"Gen 11:28", desc:"Son of Terah; father of Lot, Milcah, and Iscah. Died in Ur of the Chaldeans, the land of his birth, before his father."},
+    {id:"nahor2",  n:"Nahor (son)",     par:"terah",      col:1, ref:"Gen 11:29", sp:"Milcah", desc:"Son of Terah; married his niece Milcah (daughter of Haran). Fathered eight sons by Milcah, including Bethuel (Rebekah's father), and four more by Reumah his concubine."},
+    {id:"abr",     n:"Abraham",    m:1, par:"terah",      ref:"Gen 12-25", role:"patriarch", sp:"Sarah, Hagar, Keturah", yrs:"175 yrs", desc:"Originally Abram of Ur of the Chaldeans. Called by God at age 75: 'Go from your country... I will make of you a great nation, and I will bless you... in you all the families of the earth shall be blessed.' Journeyed to Canaan; built altars at Shechem and Bethel. Rescued Lot from four kings and was blessed by Melchizedek, king of Salem and priest of God Most High. Justified by faith (Gen 15:6). God cut the covenant of the pieces and promised the land from the river of Egypt to the Euphrates. Circumcision given as the sign of the covenant when he was 99; renamed Abraham ('father of a multitude'). Entertained three visitors at Mamre and interceded for Sodom. Offered up Isaac on Mount Moriah; God provided a ram in his place. Bought the cave of Machpelah to bury Sarah. Died at 175, 'an old man and full of years,' gathered to his people."},
+    {id:"lot",     n:"Lot",             par:"haran",      col:1, ref:"Gen 13-19", desc:"Nephew of Abraham; left Ur with him. Chose the well-watered Jordan plain and settled in Sodom. Captured in the war of four kings, rescued by Abraham. Received two angels as guests; his household alone was spared when fire and sulfur destroyed Sodom and Gomorrah. His wife looked back and became a pillar of salt. Fled to Zoar, then to a cave in the mountains; fathered Moab and Ben-Ammi by his two daughters, ancestors of the Moabites and Ammonites."},
+    {id:"milcah",  n:"Milcah",          par:"haran",      col:1, ref:"Gen 11:29", desc:"Daughter of Haran; wife of her uncle Nahor. Mother of eight sons including Bethuel (father of Rebekah)."},
+    {id:"bethuel", n:"Bethuel",         par:"nahor2",     col:1, ref:"Gen 22:22", desc:"Son of Nahor and Milcah; father of Laban and Rebekah. Lived in Paddan-aram / Haran."},
+    {id:"laban",   n:"Laban",           par:"bethuel",    col:1, ref:"Gen 24-31", desc:"Son of Bethuel; brother of Rebekah and father of Leah and Rachel. Welcomed Abraham's servant and sent Rebekah to Isaac. Later deceived Jacob, giving him Leah instead of Rachel, and changed his wages ten times. Pursued Jacob when he fled, but warned by God in a dream not to harm him. Made a covenant heap with Jacob at Mizpah."},
+    {id:"rebecca", n:"Rebekah",         par:"bethuel",    col:1, ref:"Gen 24-27", desc:"Daughter of Bethuel; met Abraham's servant at the well of Nahor and drew water for his camels. Consented to leave her family and become Isaac's wife. Barren twenty years until Isaac's prayer; the twins struggled in her womb and the LORD told her 'the older shall serve the younger.' Favored Jacob and helped him obtain Isaac's blessing, then sent him to her brother Laban to escape Esau's wrath."},
+    {id:"ishmael", n:"Ishmael",         par:"abr",        col:1, ref:"Gen 16-17; 25", yrs:"137 yrs", sp:"Egyptian woman", desc:"Son of Abraham by Hagar the Egyptian, born when Abraham was 86. His name means 'God hears,' for the LORD heard Hagar's affliction. An angel of the LORD promised he would be 'a wild donkey of a man,' dwelling over against all his kin. Circumcised at 13. Sent away with Hagar when Isaac was weaned; God heard the boy's cry in the wilderness of Beersheba and opened Hagar's eyes to a well. Dwelt in Paran; became an expert archer. Fathered twelve princes according to the promise; returned with Isaac to bury their father Abraham."},
+    {id:"ketura",  n:"Sons by Keturah", par:"abr",        col:1, ref:"Gen 25:1-6", desc:"Abraham married Keturah after Sarah's death; she bore him Zimran, Jokshan, Medan, Midian, Ishbak, and Shuah - ancestors of the Midianites and other eastern peoples. Abraham gave gifts to them and sent them away east, giving all that he had to Isaac."},
+    {id:"isaac",   n:"Isaac",      m:1, par:"abr",        ref:"Gen 21-35", sp:"Rebekah", yrs:"180 yrs", role:"patriarch", desc:"Child of promise; son of Abraham and Sarah, born when Abraham was 100 and Sarah 90. Name means 'he laughs.' Offered by his father on Mount Moriah; the LORD provided a ram in his place - a type of Christ. Married Rebekah at 40; prayed twenty years for her barrenness until the twins Esau and Jacob were born. In famine dwelt at Gerar and said Rebekah was his sister; the LORD blessed his sowing a hundredfold. Dug again the wells of Abraham. Blessed Jacob (thinking him Esau) with the inheritance of the covenant. Died at 180, gathered to his people; buried by Esau and Jacob."},
     {id:"nebaj",   n:"Nebaioth",        par:"ishmael",    col:1},
     {id:"kedar",   n:"Kedar",           par:"ishmael",    col:1},
     {id:"tema",    n:"Tema",            par:"ishmael",    col:1},
     {id:"ism_rest",n:"9 more princes",  par:"ishmael",    col:1, desc:"Ishmael had 12 sons in total (Gen 25:13-16)."},
-    {id:"esau",    n:"Esau",            par:"isaac",      col:1, ref:"Gen 25-36", sp:"Judith, Basemath", desc:"Elder twin; sold his birthright. Ancestor of the Edomites."},
-    {id:"jacob",   n:"Jacob",      m:1, par:"isaac",      ref:"Gen 25-50", sp:"Leah, Rachel, Bilhah, Zilpah", desc:"Renamed Israel; wrestled with God. Father of the twelve tribes."},
-    {id:"eliph",   n:"Eliphaz",         par:"esau",       col:1},
-    {id:"reuel",   n:"Reuel",           par:"esau",       col:1},
-    {id:"edomites",n:"Edomites",        par:"esau",       col:1, desc:"The nation of Edom."},
-    {id:"reuben",  n:"Reuben",          par:"jacob",      col:1, ref:"Gen 29", desc:"Firstborn by Leah; lost birthright."},
-    {id:"simeon",  n:"Simeon",          par:"jacob",      col:1, ref:"Gen 29"},
-    {id:"levi",    n:"Levi",            par:"jacob",      col:1, ref:"Gen 29", desc:"Third son by Leah; priestly tribe."},
-    {id:"judah",   n:"Judah",      m:1, par:"jacob",      ref:"Gen 29-38", desc:"Fourth son by Leah; tribe through which the Messiah would come."},
-    {id:"dan",     n:"Dan",             par:"jacob",      col:1, ref:"Gen 30", desc:"Son by Bilhah; tribe of Samson."},
-    {id:"naphtali",n:"Naphtali",        par:"jacob",      col:1, ref:"Gen 30"},
-    {id:"gad",     n:"Gad",             par:"jacob",      col:1, ref:"Gen 30"},
-    {id:"asher",   n:"Asher",           par:"jacob",      col:1, ref:"Gen 30"},
-    {id:"issach",  n:"Issachar",        par:"jacob",      col:1, ref:"Gen 30"},
-    {id:"zebulun", n:"Zebulun",         par:"jacob",      col:1, ref:"Gen 30"},
-    {id:"dinah",   n:"Dinah",           par:"jacob",      col:1, ref:"Gen 30", desc:"Daughter of Jacob by Leah."},
-    {id:"joseph_j",n:"Joseph",          par:"jacob",      col:1, ref:"Gen 30-50", sp:"Asenath", desc:"Sold into slavery; rose to rule Egypt. Preserved Israel through famine."},
-    {id:"benjamin",n:"Benjamin",        par:"jacob",      col:1, ref:"Gen 35", desc:"Youngest son by Rachel; tribe of King Saul and Paul."},
-    {id:"gershon", n:"Gershon",         par:"levi",       col:1},
-    {id:"merari",  n:"Merari",          par:"levi",       col:1},
-    {id:"kohath",  n:"Kohath",          par:"levi",       col:1},
-    {id:"amram",   n:"Amram",           par:"kohath",     col:1, sp:"Jochebed"},
-    {id:"miriam",  n:"Miriam",          par:"amram",      col:1, ref:"Exod 15",   role:"prophet", desc:"Prophetess; led the women in song at the Red Sea."},
-    {id:"aaron",   n:"Aaron",           par:"amram",      col:1, ref:"Exod-Lev",  role:"priest",  desc:"First High Priest of Israel; Moses' spokesman."},
-    {id:"moses",   n:"Moses",           par:"amram",      col:1, ref:"Exod-Deut", role:"prophet", desc:"The Lawgiver; led Israel out of Egypt; received the Ten Commandments."},
-    {id:"manas",   n:"Manasseh",        par:"joseph_j",   col:1, desc:"Joseph's firstborn; received Jacob's left-hand blessing."},
-    {id:"ephraim", n:"Ephraim",         par:"joseph_j",   col:1, desc:"Received Jacob's right-hand blessing; largest northern tribe."},
-    {id:"er",      n:"Er",              par:"judah",      col:1, ref:"Gen 38", desc:"Judah's firstborn; put to death by the LORD."},
-    {id:"onan",    n:"Onan",            par:"judah",      col:1, ref:"Gen 38"},
-    {id:"shelah2", n:"Shelah",          par:"judah",      col:1, ref:"Gen 38"},
-    {id:"zerah",   n:"Zerah",           par:"judah",      col:1, ref:"Gen 38", desc:"Twin of Perez."},
-    {id:"perez",   n:"Perez",      m:1, par:"judah",      ref:"Gen 38", desc:"Son of Judah by Tamar; in the Messianic line."},
-    {id:"hezron",  n:"Hezron",     m:1, par:"perez",      ref:"1 Chr 2"},
-    {id:"ram",     n:"Ram",        m:1, par:"hezron",     ref:"Matt 1"},
-    {id:"ammi",    n:"Amminadab",  m:1, par:"ram",        ref:"Matt 1"},
-    {id:"nahshon", n:"Nahshon",    m:1, par:"ammi",       ref:"Num 1; Matt 1", desc:"Leader of Judah in the wilderness."},
-    {id:"salmon",  n:"Salmon",     m:1, par:"nahshon",    ref:"Matt 1", sp:"Rahab", desc:"Married Rahab of Jericho."},
-    {id:"boaz",    n:"Boaz",       m:1, par:"salmon",     ref:"Ruth", sp:"Ruth", desc:"Kinsman-redeemer; showed lovingkindness to Ruth the Moabite."},
-    {id:"obed",    n:"Obed",       m:1, par:"boaz",       ref:"Ruth 4"},
-    {id:"jesse",   n:"Jesse",      m:1, par:"obed",       ref:"1 Sam 16", desc:"Father of David; his sons were passed over until the youngest."},
-    {id:"eliab",   n:"Eliab",          par:"jesse",       col:1, ref:"1 Sam 16", desc:"Jesse's eldest; tall but passed over by God."},
-    {id:"abin",    n:"Abinadab",       par:"jesse",       col:1},
-    {id:"sham",    n:"Shammah",        par:"jesse",       col:1},
-    {id:"joth4",   n:"Other sons (x4)",par:"jesse",       col:1},
-    {id:"david",   n:"David",      m:1, par:"jesse",      ref:"1 Sam 16 - 1 Kgs 2", role:"king", sp:"Bathsheba, Michal, Abigail & others", desc:"Shepherd, warrior, poet, and man after God's own heart. United Israel; composed many Psalms."},
-    {id:"amnon",   n:"Amnon",          par:"david",       col:1, ref:"2 Sam 13", desc:"David's firstborn; killed by Absalom."},
-    {id:"absalom", n:"Absalom",        par:"david",       col:1, ref:"2 Sam 15", desc:"Rebelled against David; died hanging from an oak."},
-    {id:"adonij",  n:"Adonijah",       par:"david",       col:1, ref:"1 Kgs 1",  desc:"Attempted to seize the throne before Solomon."},
-    {id:"nathan_d",n:"Nathan (son)",   par:"david",       col:1, ref:"Luke 3:31",desc:"David's son; ancestor in Luke's genealogy of Jesus."},
-    {id:"solomon", n:"Solomon",    m:1, par:"david",      ref:"1 Kgs 1-11", role:"king", sp:"Daughter of Pharaoh and many others", desc:"Wisest king; built the First Temple in Jerusalem."},
-    {id:"rehoboam",n:"Rehoboam",   m:1, par:"solomon",    ref:"1 Kgs 12", role:"king", desc:"Kingdom split under his reign."},
-    {id:"abijah",  n:"Abijah",     m:1, par:"rehoboam",   ref:"1 Kgs 15", role:"king"},
-    {id:"asa",     n:"Asa",        m:1, par:"abijah",     ref:"1 Kgs 15", role:"king", desc:"Righteous king; removed idols from Judah."},
-    {id:"jehosh",  n:"Jehoshaphat",m:1, par:"asa",        ref:"1 Kgs 22", role:"king", desc:"Sought the LORD; reformed Judah's judiciary."},
-    {id:"joram",   n:"Joram",      m:1, par:"jehosh",     ref:"2 Kgs 8",  role:"king", desc:"Married Athaliah (Ahab's daughter); walked in wickedness."},
-    {id:"uzziah",  n:"Uzziah",     m:1, par:"joram",      ref:"2 Kgs 15", role:"king", desc:"Long prosperous reign; struck with leprosy for burning incense unlawfully."},
-    {id:"jotham",  n:"Jotham",     m:1, par:"uzziah",     ref:"2 Kgs 15", role:"king"},
-    {id:"ahaz",    n:"Ahaz",       m:1, par:"jotham",     ref:"2 Kgs 16", role:"king", desc:"Wicked; sought Assyrian help instead of God. Isaiah prophesied to him (Isa 7)."},
-    {id:"hezek",   n:"Hezekiah",   m:1, par:"ahaz",       ref:"2 Kgs 18-20", role:"king", desc:"Righteous; prayed for deliverance from Assyria. Isaiah ministered during his reign."},
-    {id:"manass",  n:"Manasseh",   m:1, par:"hezek",      ref:"2 Kgs 21", role:"king", desc:"Longest-reigning king of Judah; repented late in life."},
-    {id:"amon",    n:"Amon",       m:1, par:"manass",     ref:"2 Kgs 21", role:"king"},
-    {id:"josiah",  n:"Josiah",     m:1, par:"amon",       ref:"2 Kgs 22-23", role:"king", desc:"Rediscovered the Book of the Law; greatest reform in Judah's history."},
-    {id:"jehoiak", n:"Jehoiakim",      par:"josiah",      col:1, ref:"2 Kgs 23", desc:"Wicked king; burned Jeremiah's scroll."},
-    {id:"jecon",   n:"Jeconiah",   m:1, par:"josiah",     ref:"Matt 1; Jer 22", role:"king", desc:"Exiled to Babylon. The royal Davidic line continued through him."},
-    {id:"sheal",   n:"Shealtiel",  m:1, par:"jecon",      ref:"Matt 1; Ezra 3"},
-    {id:"zerub",   n:"Zerubbabel", m:1, par:"sheal",      ref:"Ezra 2; Hag 1", desc:"Led the first return from Babylon; laid the foundation of the Second Temple."},
+    {id:"esau",    n:"Esau",            par:"isaac",      col:1, ref:"Gen 25-36", sp:"Judith, Basemath, Mahalath", desc:"Elder twin of Jacob; born red and covered with hair. A skilled hunter, a man of the field. Despised his birthright and sold it to Jacob for a bowl of lentil stew. Married Hittite women, a grief to Isaac and Rebekah. Wept bitterly when Jacob stole the patriarchal blessing; Isaac said, 'By your sword you shall live, and you shall serve your brother.' Met Jacob again with 400 men but fell on his neck and kissed him, and they wept. Settled in the hill country of Seir; also called Edom ('red'). Father of the Edomites."},
+    {id:"jacob",   n:"Jacob",      m:1, par:"isaac",      ref:"Gen 25-50", role:"patriarch", sp:"Leah, Rachel, Bilhah, Zilpah", yrs:"147 yrs", desc:"Younger twin; born grasping Esau's heel. Bought the birthright for stew and obtained his father's blessing by deception. Fled to Haran; at Bethel dreamed of a ladder set up on earth with its top reaching to heaven, and the LORD renewed the covenant. Served Laban seven years for Rachel, was given Leah, then served seven more. Fathered eleven sons and a daughter in Paddan-aram; wealth multiplied though Laban changed his wages ten times. Fled back to Canaan; wrestled until daybreak with a Man at Peniel and was renamed Israel ('he strives with God'). Reconciled with Esau. Loved Joseph above his sons and made him a coat of many colors. Went down into Egypt at 130 with 70 persons during the famine; blessed Pharaoh. Blessed each of his twelve sons before dying at 147, prophesying that 'the scepter shall not depart from Judah.' Buried in the cave of Machpelah with Abraham and Isaac."},
+    {id:"eliph",   n:"Eliphaz",         par:"esau",       col:1, ref:"Gen 36:10", desc:"Firstborn of Esau by Adah; father of Teman, Omar, Zepho, Gatam, Kenaz, and (by Timna his concubine) Amalek, ancestor of Israel's perennial enemy."},
+    {id:"reuel",   n:"Reuel",           par:"esau",       col:1, ref:"Gen 36:10", desc:"Son of Esau by Basemath; father of Nahath, Zerah, Shammah, and Mizzah - clan chiefs of the Edomites."},
+    {id:"edomites",n:"Edomites",        par:"esau",       col:1, ref:"Gen 36", desc:"The nation of Edom, descended from Esau and settled in the hill country of Seir. They refused Israel passage when coming out of Egypt (Num 20). Later subject to David; a persistent enemy of Judah denounced by the prophets (Obadiah, Ezek 35)."},
+    {id:"reuben",  n:"Reuben",          par:"jacob",      col:1, ref:"Gen 29:32; 49:3-4", desc:"Firstborn of Jacob by Leah. Brought mandrakes from the field to his mother. Defiled his father's bed with Bilhah (Gen 35:22); for this Jacob withdrew his preeminence: 'Unstable as water, you shall not have preeminence.' Urged the brothers not to kill Joseph but to cast him into the pit, intending to rescue him. Offered his two sons to Jacob as surety for Benjamin."},
+    {id:"simeon",  n:"Simeon",          par:"jacob",      col:1, ref:"Gen 29:33; 34; 49:5-7", desc:"Second son of Jacob by Leah. With Levi slew the men of Shechem to avenge their sister Dinah. Jacob's deathbed word: 'Cursed be their anger, for it is fierce... I will divide them in Jacob and scatter them in Israel.' Held hostage by Joseph in Egypt until Benjamin came. His tribe was later absorbed into Judah's territory."},
+    {id:"levi",    n:"Levi",            par:"jacob",      col:1, ref:"Gen 29:34; Exod 32", desc:"Third son of Jacob by Leah. With Simeon slaughtered the men of Shechem. Father of Gershon, Kohath, and Merari. Though cursed at Jacob's death, the tribe of Levi rallied to Moses at the golden calf ('Who is on the LORD's side? Come to me!') and was set apart to serve at the tabernacle. They received no land inheritance, for the LORD was their inheritance."},
+    {id:"judah",   n:"Judah",      m:1, par:"jacob",      ref:"Gen 29-49", desc:"Fourth son of Jacob by Leah. Persuaded his brothers to sell Joseph to the Ishmaelites rather than kill him. Fathered Er, Onan, and Shelah by his Canaanite wife; then Perez and Zerah by Tamar his daughter-in-law. Offered himself in place of Benjamin before the Egyptian ruler. Jacob's blessing: 'Judah, your brothers shall praise you... the scepter shall not depart from Judah, nor the ruler's staff from between his feet, until tribute comes to him; and to him shall be the obedience of the peoples' (Gen 49:8-10). Royal and Messianic tribe."},
+    {id:"dan",     n:"Dan",             par:"jacob",      col:1, ref:"Gen 30:6; 49:16-17", desc:"First son of Jacob by Rachel's maid Bilhah; his name means 'he judged.' Jacob prophesied, 'Dan shall judge his people as one of the tribes of Israel... a serpent in the way.' Tribal territory on the Mediterranean coast; later migrated north (Judges 18). The tribe of Samson."},
+    {id:"naphtali",n:"Naphtali",        par:"jacob",      col:1, ref:"Gen 30:8; 49:21", desc:"Second son by Bilhah. Jacob said, 'Naphtali is a doe let loose that bears beautiful fawns.' Moses blessed him as 'satisfied with favor, and full of the blessing of the LORD.' His territory in the upper Galilee included what would be Capernaum."},
+    {id:"gad",     n:"Gad",             par:"jacob",      col:1, ref:"Gen 30:11; 49:19", desc:"First son by Zilpah, Leah's maid. Jacob's blessing: 'Raiders shall raid Gad, but he shall raid at their heels.' Warriors renowned in David's army (1 Chr 12:8). Settled east of the Jordan with Reuben and half-Manasseh."},
+    {id:"asher",   n:"Asher",           par:"jacob",      col:1, ref:"Gen 30:13; 49:20", desc:"Second son by Zilpah; his name means 'happy.' Jacob's blessing: 'Asher's food shall be rich, and he shall yield royal delicacies.' His tribe dwelt on the fertile northern coastal plain."},
+    {id:"issach",  n:"Issachar",        par:"jacob",      col:1, ref:"Gen 30:18; 49:14-15", desc:"Ninth son of Jacob, by Leah. Jacob said, 'Issachar is a strong donkey, crouching between the sheepfolds... he bowed his shoulder to bear and became a servant at forced labor.' His tribe in the Jezreel Valley; 'the men of Issachar had understanding of the times' (1 Chr 12:32)."},
+    {id:"zebulun", n:"Zebulun",         par:"jacob",      col:1, ref:"Gen 30:20; 49:13", desc:"Tenth son of Jacob, by Leah. Jacob's blessing: 'Zebulun shall dwell at the shore of the sea; he shall become a haven for ships, and his border shall be at Sidon.' Isaiah prophesied light would dawn on 'the land of Zebulun and Naphtali' (Isa 9:1), fulfilled in Jesus' Galilean ministry."},
+    {id:"dinah",   n:"Dinah",           par:"jacob",      col:1, ref:"Gen 30:21; 34", desc:"Only daughter of Jacob named in Scripture, born to Leah. Violated by Shechem son of Hamor the Hivite; her brothers Simeon and Levi deceitfully slew all the males of Shechem in revenge."},
+    {id:"joseph_j",n:"Joseph",          par:"jacob",      col:1, ref:"Gen 30-50", sp:"Asenath", yrs:"110 yrs", desc:"Firstborn of Rachel and beloved of Jacob, who gave him a coat of many colors. Dreamed that sheaves and stars bowed down to him. Hated by his brothers; stripped, cast into a pit, and sold to Ishmaelite traders for twenty pieces of silver. Served in Potiphar's house; refused Potiphar's wife and was falsely imprisoned. Interpreted dreams for the cupbearer, baker, and at last for Pharaoh. Made ruler over all Egypt at 30; stored grain during seven years of plenty. Tested his brothers when they came for grain; wept aloud as he revealed himself: 'I am Joseph your brother, whom you sold into Egypt... it was not you who sent me here, but God.' Brought Jacob and all his father's house (70 persons) to Goshen. Received the double-portion blessing through Ephraim and Manasseh. Died at 110; embalmed in Egypt; his bones were later carried to Canaan by Moses."},
+    {id:"benjamin",n:"Benjamin",        par:"jacob",      col:1, ref:"Gen 35:18; 49:27", desc:"Youngest son of Jacob; born of Rachel, who died in his birth near Bethlehem; she named him Ben-oni ('son of my sorrow'), but Jacob called him Benjamin ('son of my right hand'). Joseph loved him above all and gave him five portions. Jacob's blessing: 'Benjamin is a ravenous wolf, in the morning devouring the prey and at evening dividing the spoil.' Tribe of King Saul and of the apostle Paul."},
+    {id:"gershon", n:"Gershon",         par:"levi",       col:1, ref:"Exod 6:16", desc:"Firstborn of Levi. His descendants (Gershonites) were given charge of the tabernacle curtains, coverings, and the screen for the door of the tent."},
+    {id:"merari",  n:"Merari",          par:"levi",       col:1, ref:"Exod 6:16", desc:"Youngest son of Levi. The Merarites carried the frames, bars, pillars, and bases of the tabernacle."},
+    {id:"kohath",  n:"Kohath",          par:"levi",       col:1, ref:"Exod 6:18", desc:"Second son of Levi; father of Amram, Izhar, Hebron, and Uzziel. The Kohathites carried the ark, the table, the lampstand, and the altars - the holy things of the sanctuary on their shoulders (Num 4:15)."},
+    {id:"amram",   n:"Amram",           par:"kohath",     col:1, ref:"Exod 6:20", sp:"Jochebed", desc:"Son of Kohath; married his father's sister Jochebed, who bore him Miriam, Aaron, and Moses. Lived 137 years."},
+    {id:"miriam",  n:"Miriam",          par:"amram",      col:1, ref:"Exod 2; 15; Num 12",   role:"prophet", desc:"Elder sister of Aaron and Moses. As a girl she watched over the baby Moses in the basket among the reeds and arranged for his own mother to nurse him for Pharaoh's daughter. After the crossing of the Red Sea she took a tambourine; all the women followed with dancing as she sang, 'Sing to the LORD, for he has triumphed gloriously.' Spoke against Moses because of his Cushite wife and was struck with leprosy; healed after seven days of Moses' prayer. Died and was buried at Kadesh."},
+    {id:"aaron",   n:"Aaron",           par:"amram",      col:1, ref:"Exod 4 - Num 20",  role:"priest",  desc:"Elder brother of Moses and his prophet/spokesman before Pharaoh. His rod became a serpent and swallowed the rods of the magicians. Consecrated as the first High Priest with his sons; wore the ephod, breastpiece with twelve stones, and turban inscribed 'Holy to the LORD.' Made the golden calf when Moses delayed on Sinai; was spared by Moses' intercession. His two eldest sons Nadab and Abihu were consumed for offering unauthorized fire. His budding almond rod vindicated his priesthood against Korah. Forbidden Canaan for the waters of Meribah; died on Mount Hor at 123."},
+    {id:"moses",   n:"Moses",           par:"amram",      col:1, ref:"Exod-Deut", role:"prophet", yrs:"120 yrs", desc:"Born a Levite during Pharaoh's edict to drown Hebrew boys; hidden three months, then placed in a basket of bulrushes on the Nile. Drawn out and raised as Pharaoh's daughter's son. At 40 killed an Egyptian beating a Hebrew and fled to Midian, where he married Zipporah, daughter of Jethro the priest, and shepherded his flock. At the burning bush God revealed His name, 'I AM WHO I AM,' and sent him to deliver Israel. Through the ten plagues broke Pharaoh's power; led Israel out of Egypt, through the parted Red Sea, to Mount Sinai where God spoke the Ten Commandments and gave the law. The LORD spoke to him face to face, as a man speaks with his friend. Interceded for Israel after the golden calf and after Kadesh-barnea. Struck the rock at Meribah instead of speaking to it and was denied entry to Canaan. Saw the land from Mount Pisgah; died on Mount Nebo at 120; his eye was undimmed and his vigor unabated. The LORD buried him in the valley in the land of Moab; no man knows his grave."},
+    {id:"manas",   n:"Manasseh",        par:"joseph_j",   col:1, ref:"Gen 41:51; 48", desc:"Firstborn son of Joseph by Asenath, daughter of Potiphera priest of On. His name means 'God has made me forget my hardship.' Jacob adopted him and Ephraim as his own and crossed his hands to lay his right hand on the younger Ephraim. Manasseh's tribe settled both east and west of the Jordan; eastern Manasseh was the home of Machir, Gideon, and Jephthah."},
+    {id:"ephraim", n:"Ephraim",         par:"joseph_j",   col:1, ref:"Gen 41:52; 48", desc:"Second son of Joseph. His name means 'God has made me fruitful in the land of my affliction.' Jacob placed his right hand on the younger Ephraim, saying 'his younger brother shall be greater than he, and his offspring shall become a multitude of nations.' Ephraim became the dominant tribe of the northern kingdom; its name is often used as a synonym for Israel in the prophets."},
+    {id:"er",      n:"Er",              par:"judah",      col:1, ref:"Gen 38:3-7", desc:"Firstborn of Judah by Bath-shua the Canaanite; he was wicked in the sight of the LORD, and the LORD put him to death."},
+    {id:"onan",    n:"Onan",            par:"judah",      col:1, ref:"Gen 38:8-10", desc:"Second son of Judah. Refused to raise up offspring for his dead brother Er, 'spilling his seed' on the ground; this was wicked in the sight of the LORD, who put him also to death."},
+    {id:"shelah2", n:"Shelah",          par:"judah",      col:1, ref:"Gen 38:11", desc:"Third son of Judah by Bath-shua. Withheld by Judah from marrying Tamar."},
+    {id:"zerah",   n:"Zerah",           par:"judah",      col:1, ref:"Gen 38:27-30", desc:"Twin of Perez by Tamar. In birth he put out his hand first and the midwife tied a scarlet thread around it, saying, 'This one came out first'; but his brother drew back and Perez came out first."},
+    {id:"perez",   n:"Perez",      m:1, par:"judah",      ref:"Gen 38:29; Ruth 4:18", desc:"Son of Judah by Tamar, born out of her covering herself as a prostitute when Judah withheld Shelah from her. Judah acknowledged, 'She is more righteous than I.' His name means 'breach'; in the Messianic line through the tribe of Judah."},
+    {id:"hezron",  n:"Hezron",     m:1, par:"perez",      ref:"Gen 46:12; 1 Chr 2", desc:"Son of Perez; went down into Egypt with Jacob. Father of Jerahmeel, Ram, and Caleb (Chelubai)."},
+    {id:"ram",     n:"Ram",        m:1, par:"hezron",     ref:"Ruth 4:19; Matt 1:3", desc:"Son of Hezron; ancestor of David and of Christ (Matt 1:3-4; Luke 3:33)."},
+    {id:"ammi",    n:"Amminadab",  m:1, par:"ram",        ref:"Num 1:7; Matt 1:4", desc:"Son of Ram; his daughter Elisheba became the wife of Aaron the High Priest - so the royal and priestly lines were joined in marriage (Exod 6:23)."},
+    {id:"nahshon", n:"Nahshon",    m:1, par:"ammi",       ref:"Num 1:7; 7:12; Matt 1:4", desc:"Prince of the tribe of Judah in the wilderness; led Judah, which marched first under its standard. He presented the first offering at the dedication of the altar."},
+    {id:"salmon",  n:"Salmon",     m:1, par:"nahshon",    ref:"Ruth 4:20; Matt 1:5", sp:"Rahab", desc:"Son of Nahshon; father of Boaz. According to Matthew 1:5, he married Rahab the harlot of Jericho who had hidden the two spies and confessed, 'the LORD your God, he is God in the heavens above and on the earth beneath.'"},
+    {id:"boaz",    n:"Boaz",       m:1, par:"salmon",     ref:"Ruth 2-4", sp:"Ruth", desc:"A worthy man of Bethlehem in the days of the judges. Greeted his reapers, 'The LORD be with you.' Showed lovingkindness to Ruth the Moabite gleaning in his fields. As kinsman-redeemer bought the field of Elimelech and took Ruth as wife; all the people and the elders said, 'May the LORD make the woman who is coming into your house like Rachel and Leah.'"},
+    {id:"obed",    n:"Obed",       m:1, par:"boaz",       ref:"Ruth 4:17", desc:"Son of Boaz and Ruth. The women of Bethlehem said of Naomi, 'A son has been born to Naomi.' They called his name Obed ('servant'); father of Jesse, grandfather of King David."},
+    {id:"jesse",   n:"Jesse",      m:1, par:"obed",       ref:"1 Sam 16-17", desc:"A Bethlehemite, son of Obed; father of eight sons and two daughters. At Samuel's invitation passed seven sons before him; David the youngest was then sent for and anointed. Isaiah prophesied, 'There shall come forth a shoot from the stump of Jesse, and a branch from his roots shall bear fruit' (Isa 11:1)."},
+    {id:"eliab",   n:"Eliab",          par:"jesse",       col:1, ref:"1 Sam 16:6; 17:28", desc:"Jesse's eldest. The LORD said to Samuel, 'Do not look on his appearance or on the height of his stature... for the LORD sees not as man sees: man looks on the outward appearance, but the LORD looks on the heart.' Rebuked David on the day he faced Goliath."},
+    {id:"abin",    n:"Abinadab",       par:"jesse",       col:1, ref:"1 Sam 16:8", desc:"Jesse's second son; also passed over at Samuel's anointing."},
+    {id:"sham",    n:"Shammah",        par:"jesse",       col:1, ref:"1 Sam 16:9", desc:"Jesse's third son; also passed over at Samuel's anointing."},
+    {id:"joth4",   n:"Other sons (x4)",par:"jesse",       col:1, ref:"1 Sam 17:12", desc:"Jesse had eight sons; the four after Shammah are unnamed. Also two daughters, Zeruiah (mother of Joab, Abishai, and Asahel) and Abigail (mother of Amasa)."},
+    {id:"david",   n:"David",      m:1, par:"jesse",      ref:"1 Sam 16 - 1 Kgs 2", role:"king", sp:"Michal, Abigail, Bathsheba & others", yrs:"70 yrs", desc:"Youngest of Jesse's sons. Anointed by Samuel at Bethlehem while Saul still reigned; 'the Spirit of the LORD rushed upon David from that day forward.' Played the lyre for Saul. As a youth slew Goliath of Gath with sling and stone in the name of the LORD of hosts. Loved as his own soul by Jonathan, driven into exile by Saul's jealousy; twice spared Saul's life. King of Judah seven years at Hebron, then of all Israel thirty-three years at Jerusalem. Captured Zion, brought up the ark with dancing, and purposed to build a house for the LORD; but Nathan brought the everlasting covenant: 'I will establish the throne of his kingdom forever... your house and your kingdom shall be made sure forever before me.' Sinned with Bathsheba and had Uriah slain; confessed when Nathan said, 'You are the man.' Wrote many psalms, 'the sweet psalmist of Israel.' Charged Solomon to build the Temple. Died at 70 after reigning forty years."},
+    {id:"amnon",   n:"Amnon",          par:"david",       col:1, ref:"2 Sam 13", desc:"David's firstborn, by Ahinoam. Violated his half-sister Tamar; killed by Absalom's servants two years later to avenge her."},
+    {id:"absalom", n:"Absalom",        par:"david",       col:1, ref:"2 Sam 13-18", desc:"Third son of David, by Maacah daughter of Talmai king of Geshur. 'In all Israel there was no one so much to be praised for his handsome appearance.' Slew Amnon for violating Tamar; exiled three years. Stole the hearts of the men of Israel at the gate; rebelled against David, entering Jerusalem while David fled. Caught by his hair in an oak and slain by Joab. David wept, 'O my son Absalom, my son, my son Absalom! Would I had died instead of you.'"},
+    {id:"adonij",  n:"Adonijah",       par:"david",       col:1, ref:"1 Kgs 1-2",  desc:"Fourth son of David, by Haggith. Exalted himself saying, 'I will be king,' and feasted with Joab and Abiathar. Solomon was anointed instead; Adonijah fled to the horns of the altar for refuge. Later sought Abishag the Shunammite as wife and was put to death by Solomon."},
+    {id:"nathan_d",n:"Nathan (son)",   par:"david",       col:1, ref:"2 Sam 5:14; Luke 3:31",desc:"A son of David by Bathsheba, brother of Solomon. Named in Luke's genealogy of Jesus: 'the son of Nathan, the son of David.' Luke traces the line through Nathan (likely Mary's ancestry) while Matthew traces it through Solomon (the royal line through Joseph)."},
+    {id:"solomon", n:"Solomon",    m:1, par:"david",      ref:"1 Kgs 1-11", role:"king", sp:"Daughter of Pharaoh and many others", desc:"Son of David and Bathsheba; also called Jedidiah ('beloved of the LORD'). At Gibeon God appeared and said, 'Ask what I shall give you.' Solomon asked for 'an understanding mind... to discern between good and evil,' and the LORD gave him wisdom, riches, and honor. Judged between the two harlots claiming one child. Built the Temple in Jerusalem in seven years (begun 480 years after the Exodus), and his own palace in thirteen. At the dedication fire came down and the glory of the LORD filled the house. The Queen of Sheba came to test him with hard questions. Wrote 3000 proverbs and 1005 songs; spoke of trees 'from the cedar of Lebanon to the hyssop.' 700 wives and 300 concubines turned his heart to other gods in his old age; the LORD said the kingdom would be torn from his son. Reigned 40 years."},
+    {id:"rehoboam",n:"Rehoboam",   m:1, par:"solomon",    ref:"1 Kgs 12-14", role:"king", desc:"Son of Solomon by Naamah the Ammonite. Forsook the counsel of the elders, saying to Israel, 'My father disciplined you with whips, but I will discipline you with scorpions.' The ten northern tribes broke away under Jeroboam. Reigned over Judah and Benjamin 17 years. Pharaoh Shishak of Egypt plundered Jerusalem and carried off the gold shields of Solomon; Rehoboam made bronze shields in their place."},
+    {id:"abijah",  n:"Abijah",     m:1, par:"rehoboam",   ref:"1 Kgs 15; 2 Chr 13", role:"king", desc:"Reigned three years. Warred with Jeroboam; cried out to the LORD and defeated Israel with great slaughter, for the men of Judah relied on the LORD God of their fathers. His heart, however, was not wholly true to the LORD his God like the heart of David."},
+    {id:"asa",     n:"Asa",        m:1, par:"abijah",     ref:"1 Kgs 15; 2 Chr 14-16", role:"king", desc:"Did what was right in the eyes of the LORD. Removed male cult prostitutes and the idols his fathers had made; even removed his grandmother Maacah from being queen mother for her Asherah image. Cried to the LORD against the million-man army of Zerah the Ethiopian: 'Help us, O LORD our God, for we rely on you.' Reigned 41 years. In old age relied on Syria rather than the LORD, and was diseased in his feet."},
+    {id:"jehosh",  n:"Jehoshaphat",m:1, par:"asa",        ref:"1 Kgs 22; 2 Chr 17-20", role:"king", desc:"Son of Asa; walked in the earlier ways of David. Sent Levites throughout Judah teaching the Book of the Law of the LORD. Facing a vast coalition from Moab, Ammon, and Edom, he proclaimed a fast; Jahaziel the Levite prophesied, 'Do not be afraid... the battle is not yours but God's.' Appointed singers to go before the army praising; the LORD set ambushes and the enemies destroyed themselves. Unwisely allied with Ahab of Israel in marriage and war."},
+    {id:"joram",   n:"Joram",      m:1, par:"jehosh",     ref:"2 Kgs 8; 2 Chr 21",  role:"king", sp:"Athaliah", desc:"Also called Jehoram. Married Athaliah, daughter of Ahab; 'walked in the way of the kings of Israel, as the house of Ahab had done.' Murdered all his brothers. A letter came to him from the prophet Elijah foretelling disaster. The LORD struck him with an incurable disease in his bowels; he died in agony, departing with no one's regret. Edom and Libnah revolted from his hand."},
+    {id:"uzziah",  n:"Uzziah",     m:1, par:"joram",      ref:"2 Kgs 15; 2 Chr 26", role:"king", desc:"Also called Azariah; made king at 16, reigned 52 years. 'He did what was right in the eyes of the LORD.' Sought God in the days of Zechariah, and God made him prosper: defeated the Philistines, built towers in Jerusalem, loved the soil. But when he was strong he grew proud; entered the Temple to burn incense on the altar. Eighty-one priests resisted him; he raged against them with a censer in his hand, and leprosy broke out on his forehead. He was a leper to the day of his death and dwelt in a separate house. Isaiah saw the LORD 'in the year that King Uzziah died' (Isa 6)."},
+    {id:"jotham",  n:"Jotham",     m:1, par:"uzziah",     ref:"2 Kgs 15; 2 Chr 27", role:"king", desc:"Co-regent during his father's leprosy; reigned 16 years. Did what was right in the eyes of the LORD; but the people still did corruptly. Built the upper gate of the house of the LORD and much on the wall of Ophel. Jotham became mighty because he ordered his ways before the LORD his God."},
+    {id:"ahaz",    n:"Ahaz",       m:1, par:"jotham",     ref:"2 Kgs 16; Isa 7", role:"king", desc:"Reigned 16 years and did not do what was right in the eyes of the LORD. Walked in the ways of the kings of Israel; burned his sons as offerings and sacrificed on the high places. When Rezin of Syria and Pekah of Israel besieged Jerusalem, Isaiah gave him the Immanuel sign: 'Behold, the virgin shall conceive and bear a son, and shall call his name Immanuel' (Isa 7:14). Ahaz refused to ask for a sign, pretending piety. Stripped the Temple gold to pay Tiglath-pileser of Assyria; set up an Assyrian-style altar in the Temple."},
+    {id:"hezek",   n:"Hezekiah",   m:1, par:"ahaz",       ref:"2 Kgs 18-20; Isa 36-39", role:"king", desc:"Reigned 29 years. 'He trusted in the LORD the God of Israel, so that there was none like him among all the kings of Judah after him.' Removed the high places, broke the pillars, cut down the Asherah, and broke in pieces the bronze serpent Moses had made, calling it Nehushtan. When Sennacherib of Assyria taunted the LORD, Hezekiah spread the letter before the LORD in the Temple and prayed; the angel of the LORD struck down 185,000 Assyrians in one night. When he was sick to death Isaiah said, 'Set your house in order'; Hezekiah prayed and wept, and God added 15 years to his life, with the shadow going back ten steps on the sundial as a sign. Later showed the Babylonian envoys all his treasures; Isaiah rebuked him."},
+    {id:"manass",  n:"Manasseh",   m:1, par:"hezek",      ref:"2 Kgs 21; 2 Chr 33", role:"king", desc:"Reigned 55 years, the longest of any king of Judah; began at 12 and was most wicked. Rebuilt the high places; set a carved image in the Temple; burned his son as an offering; practiced witchcraft; shed much innocent blood. The LORD brought the commanders of Assyria who took him with hooks, bound him with chains, and carried him to Babylon. There he humbled himself greatly and prayed; God heard him and brought him back to Jerusalem. He removed the foreign gods and commanded Judah to serve the LORD - a remarkable late repentance."},
+    {id:"amon",    n:"Amon",       m:1, par:"manass",     ref:"2 Kgs 21:19-26", role:"king", desc:"Reigned only two years and did what was evil in the eyes of the LORD, as his father had done in the beginning. Did not humble himself before the LORD as Manasseh had done. His servants conspired against him and killed him in his own house."},
+    {id:"josiah",  n:"Josiah",     m:1, par:"amon",       ref:"2 Kgs 22-23; 2 Chr 34-35", role:"king", desc:"Made king at 8 after his father's assassination; reigned 31 years. While still young he began to seek the God of David. In his eighteenth year Hilkiah the priest found the Book of the Law in the Temple; when it was read to him Josiah tore his clothes. He gathered all the people and read it in their hearing, cutting covenant to keep it with all his heart and soul. Destroyed the altars and high places throughout Judah and the former northern territory; burned bones of pagan priests on their altars - fulfilling a prophecy given against Jeroboam's altar 300 years earlier. Kept a Passover unlike any since the days of Samuel. Killed in battle with Pharaoh Neco at Megiddo. 'Before him there was no king like him, who turned to the LORD with all his heart' (2 Kgs 23:25)."},
+    {id:"jehoiak", n:"Jehoiakim",      par:"josiah",      col:1, ref:"2 Kgs 23-24; Jer 22; 36", desc:"Son of Josiah, set on the throne by Pharaoh Neco (originally named Eliakim). Reigned 11 years; did what was evil in the eyes of the LORD. Burned Jeremiah's scroll piece by piece as it was read. Jeremiah prophesied he would 'have the burial of a donkey,' dragged and cast out beyond the gates of Jerusalem. Became a vassal of Nebuchadnezzar, then rebelled."},
+    {id:"jecon",   n:"Jeconiah",   m:1, par:"josiah",     ref:"2 Kgs 24; Jer 22; Matt 1", role:"king", desc:"Also called Coniah or Jehoiachin. Reigned only three months before Nebuchadnezzar besieged Jerusalem; surrendered and was carried off to Babylon with the treasures of the Temple and ten thousand captives. Imprisoned 37 years; finally lifted up by Evil-merodach of Babylon, who gave him a seat above the other kings. Through him the royal Davidic line continued to Christ, though Jeremiah 22:30 wrote that no offspring of his should prosper sitting on the throne of David - a word fulfilled in that Jesus was the legal but not biological son of Joseph."},
+    {id:"sheal",   n:"Shealtiel",  m:1, par:"jecon",      ref:"1 Chr 3:17; Matt 1:12; Ezra 3:2", desc:"Son of Jeconiah; father (or legal father through levirate custom) of Zerubbabel. A link in the Davidic royal line through the exile."},
+    {id:"zerub",   n:"Zerubbabel", m:1, par:"sheal",      ref:"Ezra 2-6; Hag 1-2; Zech 4", desc:"Governor of Judah after the return from exile under the decree of Cyrus; a prince of the house of David. With Joshua the High Priest he led the first return and rebuilt the altar and set the foundation of the Second Temple amid great shouting and weeping. When the work was opposed he was strengthened by Haggai and Zechariah. The LORD said to him, 'Not by might, nor by power, but by my Spirit... the hands of Zerubbabel have laid the foundation of this house; his hands shall also complete it' (Zech 4:6-9). 'On that day I will take you, O Zerubbabel my servant... and make you like a signet ring, for I have chosen you' (Hag 2:23)."},
     {id:"abiud",   n:"Abiud",      m:1, par:"zerub",      ref:"Matt 1"},
     {id:"eliakim", n:"Eliakim",    m:1, par:"abiud",      ref:"Matt 1"},
     {id:"azor",    n:"Azor",       m:1, par:"eliakim",    ref:"Matt 1"},
@@ -338,9 +443,9 @@
     {id:"eliud",   n:"Eliud",      m:1, par:"achim",      ref:"Matt 1"},
     {id:"eleazar", n:"Eleazar",    m:1, par:"eliud",      ref:"Matt 1"},
     {id:"matthan", n:"Matthan",    m:1, par:"eleazar",    ref:"Matt 1"},
-    {id:"jacob2",  n:"Jacob",      m:1, par:"matthan",    ref:"Matt 1", desc:"Father of Joseph, husband of Mary."},
-    {id:"joseph",  n:"Joseph",     m:1, par:"jacob2",     ref:"Matt 1", sp:"Mary", desc:"Righteous carpenter of Nazareth; legal father of Jesus in the royal Davidic line."},
-    {id:"jesus",    n:"Jesus Christ",  m:1, par:"joseph",      ref:"Matt 1; Luke 3; John 1", role:"messiah", yrs:"33 yrs on earth", desc:"The Son of God, born of the Virgin Mary. Savior of the world. Fulfillment of every promise in Scripture."},
+    {id:"jacob2",  n:"Jacob",      m:1, par:"matthan",    ref:"Matt 1:15-16", desc:"Father of Joseph the husband of Mary in Matthew's royal genealogy of the Messiah."},
+    {id:"joseph",  n:"Joseph",     m:1, par:"jacob2",     ref:"Matt 1-2; Luke 1-2", sp:"Mary", desc:"A carpenter of Nazareth, 'son of David.' When Mary was found with child, being a just man and unwilling to put her to shame, he resolved to divorce her quietly. An angel of the Lord appeared in a dream: 'Do not fear to take Mary your wife, for that which is conceived in her is from the Holy Spirit... you shall call his name Jesus, for he will save his people from their sins.' Took Mary to Bethlehem for the census; named the child Jesus; presented him in the Temple. Warned in dreams, fled to Egypt to escape Herod, returned after Herod died, and settled in Nazareth. Last named at Jerusalem when Jesus was 12; presumed to have died before the ministry began."},
+    {id:"jesus",    n:"Jesus Christ",  m:1, par:"joseph",      ref:"Matt 1; Luke 1-2; John 1", role:"messiah", yrs:"33 yrs on earth", desc:"The eternal Son of God, the Word who was with God and was God, made flesh. Conceived of the Holy Spirit and born of the virgin Mary in Bethlehem of Judea, in the days of Herod the king. Announced by angels to shepherds; visited by wise men from the east. Presented in the Temple where Simeon took him in his arms and Anna spoke of him to all who were looking for the redemption of Jerusalem. Fled to Egypt and returned to Nazareth, fulfilling 'He shall be called a Nazarene.' At 12 he astonished the teachers in the Temple: 'Did you not know that I must be in my Father's house?' Baptized by John in the Jordan; the Spirit descended as a dove and the Father's voice declared, 'This is my beloved Son, with whom I am well pleased.' Tempted forty days in the wilderness. Called twelve apostles. Preached the kingdom, healed the sick, cast out demons, forgave sins, raised the dead (Jairus' daughter, the widow's son at Nain, Lazarus), walked on the sea, fed 5000 and 4000, was transfigured before Peter, James, and John. Entered Jerusalem on a donkey, cleansed the Temple, instituted the Supper ('This is my body... this is my blood of the covenant, poured out for many for the forgiveness of sins'). In Gethsemane sweat as drops of blood; betrayed by Judas for thirty pieces of silver; tried before Caiaphas, Pilate, and Herod. Crucified under Pontius Pilate; cried 'It is finished' and 'Father, into your hands I commit my spirit.' Buried in Joseph of Arimathea's tomb. On the third day rose from the dead; appeared to Mary Magdalene, to the Eleven, to more than five hundred brothers at once. After forty days he ascended, and a cloud took him out of their sight. Seated at the right hand of the Father; the Lamb who was slain, 'worthy to receive power and wealth and wisdom and might and honor and glory and blessing.' He is coming again."},
     // REUBEN'S SONS (Gen 46:9)
     {id:"hanoch_r",  n:"Hanoch",               par:"reuben",      col:1, ref:"Gen 46:9"},
     {id:"pallu",     n:"Pallu",                par:"reuben",      col:1, ref:"Gen 46:9"},
@@ -458,8 +563,8 @@
     {id:"jeremiah_p",n:"Jeremiah",             par:"hilkiah_j",   col:1, ref:"Jer 1-52", role:"prophet", desc:"The weeping prophet; prophesied the exile to Babylon and the New Covenant (Jer 31:31). Thrown into a cistern; survived the fall of Jerusalem."},
     {id:"daniel_p",  n:"Daniel",               par:"judah",       col:1, ref:"Dan 1-12", role:"prophet", desc:"Taken captive to Babylon as a youth; interpreted Nebuchadnezzar's dreams; survived the lions' den. Prophesied the 70 weeks and the coming Son of Man."},
     // MARY - Luke's genealogy via Nathan (David's son), Luke 3:23-38
-    {id:"heli",      n:"Heli",                 par:"nathan_d",    col:1, ref:"Luke 3:23", desc:"Father of Mary, mother of Jesus (Luke 3:23). Many generations lie between Nathan and Heli; Luke traces the Messianic line through Mary back to David."},
-    {id:"mary_m",    n:"Mary",                 par:"heli",        col:1, ref:"Luke 1; Matt 1:16", role:"mother", desc:"Blessed among women; mother of Jesus by the Holy Spirit. A descendant of David through Nathan (Luke 3). 'My soul magnifies the Lord, and my spirit rejoices in God my Savior.'"}
+    {id:"heli",      n:"Heli",                 par:"nathan_d",    col:1, ref:"Luke 3:23", desc:"Named in Luke's genealogy as father of 'Joseph the son of Heli' - traditionally understood as Joseph's father-in-law, Mary's father. Many generations lie between Nathan and Heli; Luke traces the line through Mary's ancestry back to David and ultimately to Adam, 'the son of God.'"},
+    {id:"mary_m",    n:"Mary",                 par:"heli",        col:1, ref:"Matt 1-2; Luke 1-2; John 2; 19; Acts 1", role:"mother", desc:"A virgin of Nazareth betrothed to Joseph of the house of David. The angel Gabriel came to her: 'Greetings, O favored one, the Lord is with you!' When she asked how it could be since she had no husband, he answered, 'The Holy Spirit will come upon you, and the power of the Most High will overshadow you; therefore the child to be born will be called holy - the Son of God.' She replied, 'Behold, I am the servant of the Lord; let it be to me according to your word.' Visited Elizabeth and sang the Magnificat: 'My soul magnifies the Lord, and my spirit rejoices in God my Savior.' Bore Jesus in Bethlehem and laid him in a manger. Treasured the shepherds' and Simeon's words in her heart; Simeon said, 'A sword will pierce through your own soul also.' At Cana she said to the servants, 'Do whatever he tells you.' Stood near the cross, where Jesus entrusted her to the beloved disciple: 'Woman, behold, your son.' With the disciples in the upper room after the Ascension, devoting themselves to prayer."}
   ];
 
   var vp  = document.getElementById('tree-viewport');
@@ -470,6 +575,27 @@
   var H = vp.clientHeight;
 
   var svg = d3.select('#tree-svg').attr('width', W).attr('height', H);
+
+  var defs = svg.append('defs');
+  var msgrad = defs.append('linearGradient')
+    .attr('id', 'msgrad').attr('x1', '0%').attr('y1', '0%').attr('x2', '0%').attr('y2', '100%');
+  msgrad.append('stop').attr('offset', '0%').attr('stop-color', '#5dade2');
+  msgrad.append('stop').attr('offset', '50%').attr('stop-color', '#2980b9');
+  msgrad.append('stop').attr('offset', '100%').attr('stop-color', '#1a5276');
+
+  var nodeGrad = defs.append('radialGradient').attr('id', 'ngrad-m').attr('cx', '35%').attr('cy', '30%');
+  nodeGrad.append('stop').attr('offset', '0%').attr('stop-color', '#7fb7dd');
+  nodeGrad.append('stop').attr('offset', '100%').attr('stop-color', '#1f618d');
+
+  var jesusGrad = defs.append('radialGradient').attr('id', 'ngrad-jesus').attr('cx', '35%').attr('cy', '30%');
+  jesusGrad.append('stop').attr('offset', '0%').attr('stop-color', '#eaf5fc');
+  jesusGrad.append('stop').attr('offset', '55%').attr('stop-color', '#2980b9');
+  jesusGrad.append('stop').attr('offset', '100%').attr('stop-color', '#0e3a5b');
+
+  var otherGrad = defs.append('radialGradient').attr('id', 'ngrad-o').attr('cx', '35%').attr('cy', '30%');
+  otherGrad.append('stop').attr('offset', '0%').attr('stop-color', '#cfd6dd');
+  otherGrad.append('stop').attr('offset', '100%').attr('stop-color', '#7d8894');
+
   var g   = svg.append('g');
 
   var zoomBeh = d3.zoom()
@@ -478,7 +604,7 @@
 
   svg.call(zoomBeh).on('dblclick.zoom', null);
 
-  var treeFn = d3.tree().nodeSize([34, 210]);
+  var treeFn = d3.tree().nodeSize([140, 95]);
 
   var strat = d3.stratify()
     .id(function(d) { return d.id; })
@@ -500,15 +626,16 @@
   root.y0 = 0;
 
   var uid   = 0;
-  var DUR   = 280;
+  var DUR   = 420;
+  var EASE  = d3.easeCubicInOut;
   var showM = true;
 
   function cfill(d) {
-    if (d.data.n === 'Jesus Christ') { return '#1a5276'; }
+    if (d.data.n === 'Jesus Christ') { return 'url(#ngrad-jesus)'; }
     if (d.data.m && showM) {
-      return (d._kids && !(d.children && d.children.length)) ? '#d6eaf8' : '#2980b9';
+      return (d._kids && !(d.children && d.children.length)) ? '#d6eaf8' : 'url(#ngrad-m)';
     }
-    return (d._kids && !(d.children && d.children.length)) ? '#f0eeea' : '#a8b4be';
+    return (d._kids && !(d.children && d.children.length)) ? '#f3efe3' : 'url(#ngrad-o)';
   }
   function cstroke(d) {
     if (d.data.n === 'Jesus Christ') { return '#1a5276'; }
@@ -518,8 +645,8 @@
 
   function bez(d) {
     var s = d.source, t = d.target;
-    var mx = (s.y + t.y) / 2;
-    return 'M' + s.y + ',' + s.x + ' C' + mx + ',' + s.x + ' ' + mx + ',' + t.x + ' ' + t.y + ',' + t.x;
+    var my = (s.y + t.y) / 2;
+    return 'M' + s.x + ',' + s.y + ' C' + s.x + ',' + my + ' ' + t.x + ',' + my + ' ' + t.x + ',' + t.y;
   }
 
   function update(src) {
@@ -539,21 +666,26 @@
       .attr('d', function() { return bez({source:{x:sx,y:sy}, target:{x:sx,y:sy}}); });
 
     link.merge(lEnter)
-      .transition().duration(DUR)
+      .transition().duration(DUR).ease(EASE)
       .attr('class', function(d) {
         return 'tree-link' + (d.source.data.m && d.target.data.m && showM ? ' m-link' : '');
       })
       .attr('d', bez);
 
-    link.exit().transition().duration(DUR)
+    link.exit().transition().duration(DUR).ease(EASE)
       .attr('d', function() { return bez({source:{x:src.x,y:src.y}, target:{x:src.x,y:src.y}}); })
       .remove();
 
     var node = g.selectAll('g.tree-node').data(nodes, function(d) { return d.id || (d.id = String(++uid)); });
 
     var nEnter = node.enter().append('g')
-      .attr('class', 'tree-node')
-      .attr('transform', function() { return 'translate(' + sy + ',' + sx + ')'; })
+      .attr('class', function(d) {
+        var c = 'tree-node';
+        if (d.data.n === 'Jesus Christ') c += ' jesus-node';
+        else if (d.data.m) c += ' m-node';
+        return c;
+      })
+      .attr('transform', function() { return 'translate(' + sx + ',' + sy + ')'; })
       .on('click', function(e, d) { e.stopPropagation(); toggleNode(d); })
       .on('mouseenter', showTip)
       .on('mousemove',  moveTip)
@@ -566,37 +698,49 @@
 
     var nAll = nEnter.merge(node);
 
-    nAll.transition().duration(DUR)
-      .attr('transform', function(d) { return 'translate(' + d.y + ',' + d.x + ')'; });
+    nAll.attr('class', function(d) {
+      var c = 'tree-node';
+      if (d.data.n === 'Jesus Christ') c += ' jesus-node';
+      else if (d.data.m && showM) c += ' m-node';
+      return c;
+    });
 
-    nAll.select('circle').transition().duration(DUR)
-      .attr('r', function(d) { return d.data.n === 'Jesus Christ' ? 12 : (d.data.m ? 9 : 7); })
+    nAll.transition().duration(DUR).ease(EASE)
+      .attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
+
+    nAll.select('circle').transition().duration(DUR).ease(EASE)
+      .attr('r', function(d) { return d.data.n === 'Jesus Christ' ? 15 : (d.data.m && showM ? 10 : 7.5); })
       .attr('fill',   function(d) { return cfill(d); })
       .attr('stroke', function(d) { return cstroke(d); })
-      .attr('stroke-width', 2.5);
+      .attr('stroke-width', function(d) { return d.data.n === 'Jesus Christ' ? 3 : 2.2; });
 
-    var lx = function(d) { return hasKids(d) ? -14 : 14; };
-    var ta = function(d) { return hasKids(d) ? 'end' : 'start'; };
+    var ly = function(d) { return hasKids(d) ? -16 : 20; };
+    var ta = function(d) { return 'middle'; };
     var fw = function(d) { return d.data.m ? '700' : '400'; };
     var fs = function(d) { return d.data.n === 'Jesus Christ' ? '13px' : '11px'; };
-    var fc = function(d) { return d.data.n === 'Jesus Christ' ? '#1a5276' : (d.data.m ? '#1c3a52' : '#5a5a5a'); };
+    var dark = document.body.classList.contains('dark-mode');
+    var fc = function(d) {
+      if (dark) { return d.data.n === 'Jesus Christ' ? '#7fb7dd' : (d.data.m ? '#bcd8ee' : '#e0e0e0'); }
+      return d.data.n === 'Jesus Christ' ? '#1a5276' : (d.data.m ? '#1c3a52' : '#5a5a5a');
+    };
+    var haloCol = dark ? 'rgba(20,20,20,0.95)' : 'rgba(249,248,244,0.95)';
 
     nAll.select('text.nhalo')
       .attr('dy', '0.31em')
-      .attr('x', lx).attr('text-anchor', ta)
+      .attr('x', 0).attr('y', ly).attr('text-anchor', ta)
       .attr('font-weight', fw).attr('font-size', fs)
-      .attr('stroke', 'rgba(249,248,244,0.95)')
+      .attr('stroke', haloCol)
       .attr('stroke-width', 4)
       .attr('fill', 'none');
 
     nAll.select('text.nlbl')
       .attr('dy', '0.31em')
-      .attr('x', lx).attr('text-anchor', ta)
+      .attr('x', 0).attr('y', ly).attr('text-anchor', ta)
       .attr('font-weight', fw).attr('font-size', fs)
       .attr('fill', fc);
 
-    node.exit().transition().duration(DUR)
-      .attr('transform', function() { return 'translate(' + src.y + ',' + src.x + ')'; })
+    node.exit().transition().duration(DUR).ease(EASE)
+      .attr('transform', function() { return 'translate(' + src.x + ',' + src.y + ')'; })
       .style('opacity', 0).remove();
 
     nodes.forEach(function(d) { d.x0 = d.x; d.y0 = d.y; });
@@ -652,7 +796,7 @@
   svg.on('click', hideTip);
 
   function centerView() {
-    var t = d3.zoomIdentity.translate(80, H / 2).scale(0.62);
+    var t = d3.zoomIdentity.translate(W / 2, 60).scale(0.62);
     svg.transition().duration(500).call(zoomBeh.transform, t);
   }
 
@@ -734,7 +878,7 @@
           .attr('filter', d.data.n.toLowerCase().indexOf(ql) >= 0 ? 'drop-shadow(0 0 7px #e67e22)' : null);
       });
       if (found.x !== undefined) {
-        var t = d3.zoomIdentity.translate(W / 2 - found.y * 0.85, H / 2 - found.x * 0.85).scale(0.85);
+        var t = d3.zoomIdentity.translate(W / 2 - found.x * 0.85, H / 2 - found.y * 0.85).scale(0.85);
         svg.transition().duration(600).call(zoomBeh.transform, t);
       }
     }, DUR + 60);
@@ -745,6 +889,11 @@
     H = vp.clientHeight;
     svg.attr('width', W).attr('height', H);
   });
+
+  try {
+    var darkObs = new MutationObserver(function() { update(root); });
+    darkObs.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+  } catch(e) {}
 
   update(root);
   centerView();
