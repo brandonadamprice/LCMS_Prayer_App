@@ -103,10 +103,6 @@ def _preprocess_ref(ref: str) -> str:
   first_part = parts[0].strip()
   book, citation = parse_scripture_reference(first_part)
 
-  # Fallback for logic that needs 'book' for subsequent parts
-  # If 'citation' is compound (e.g. 1:1), extract just the book.
-  # The parse_scripture_reference does exactly that.
-
   processed_parts = [first_part]
 
   # Check if we should expand chapters

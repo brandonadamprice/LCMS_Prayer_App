@@ -1,6 +1,5 @@
 """Functions for generating the Gospels by Category page."""
 
-import json
 import os
 import flask
 import utils
@@ -8,12 +7,6 @@ import utils
 GOSPELS_BY_CATEGORY_JSON_PATH = os.path.join(
     utils.SCRIPT_DIR, "..", "data", "gospels_by_category.json"
 )
-
-
-def load_gospels_by_category():
-  """Loads Gospels by category from JSON file."""
-  with open(GOSPELS_BY_CATEGORY_JSON_PATH, "r", encoding="utf-8") as f:
-    return json.load(f)
 
 
 def generate_gospels_by_category_page():

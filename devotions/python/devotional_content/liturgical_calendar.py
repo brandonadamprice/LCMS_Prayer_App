@@ -3,6 +3,8 @@
 import calendar
 import datetime
 import json
+from functools import lru_cache
+
 import flask
 import liturgy
 import pytz
@@ -207,8 +209,9 @@ def _matches_rule(rule, day, day_cy):
   return False
 
 
+@lru_cache(maxsize=1)
 def _load_liturgical_year_data():
-  """Loads liturgical year data from JSON file."""
+  """Loads liturgical year data from JSON file (cached; treat as read-only)."""
   with open(utils.LITURGICAL_YEAR_JSON_PATH, "r", encoding="utf-8") as f:
     return json.load(f)
 
@@ -226,7 +229,7 @@ def generate_calendar_data(year, month):
     week_data = []
     for day in week:
       # Note: day might be from prev/next month
-      day_cy = liturgy.ChurchYear(day.year)
+      day_cy = liturgy.get_church_year(day.year)
       key = day_cy.get_liturgical_key(day)
 
       # Refine key for display if it is a date string

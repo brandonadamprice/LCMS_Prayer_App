@@ -2,6 +2,8 @@
 
 import json
 import os
+from functools import lru_cache
+
 import flask
 import utils
 
@@ -10,8 +12,9 @@ SHORT_PRAYERS_JSON_PATH = os.path.join(
 )
 
 
+@lru_cache(maxsize=1)
 def load_short_prayers_data():
-  """Loads short prayers data from JSON file."""
+  """Loads short prayers data from JSON file (cached; treat as read-only)."""
   with open(SHORT_PRAYERS_JSON_PATH, "r", encoding="utf-8") as f:
     return json.load(f)
 

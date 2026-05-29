@@ -177,7 +177,7 @@ def _process_reminder_notification(reminder_data, user_data, reminder_id=None):
   if devotion_key == "lent":
     eastern_timezone = pytz.timezone("America/New_York")
     now = datetime.datetime.now(eastern_timezone)
-    cy = liturgy.ChurchYear(now.year)
+    cy = liturgy.get_church_year(now.year)
     # Check if within Lent (Ash Wednesday to Easter Sunday inclusive)
     if not (cy.ash_wednesday <= now.date() <= cy.easter_date):
       flask.current_app.logger.info(

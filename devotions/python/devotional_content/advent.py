@@ -3,6 +3,8 @@
 import datetime
 import json
 import os
+from functools import lru_cache
+
 import flask
 import pytz
 import utils
@@ -10,8 +12,9 @@ import utils
 ADVENT_JSON_PATH = os.path.join(utils.SCRIPT_DIR, "..", "data", "advent.json")
 
 
+@lru_cache(maxsize=1)
 def load_advent_devotions():
-  """Loads advent devotions from JSON file."""
+  """Loads advent devotions from JSON file (cached; treat as read-only)."""
   with open(ADVENT_JSON_PATH, "r", encoding="utf-8") as f:
     return json.load(f)
 

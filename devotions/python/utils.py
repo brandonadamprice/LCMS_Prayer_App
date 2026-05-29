@@ -1,6 +1,5 @@
 """Shared utility functions and data for devotions."""
 
-import copy
 import csv
 import datetime
 import functools
@@ -37,12 +36,15 @@ BIBLE_IN_A_YEAR_JSON_PATH = os.path.join(DATA_DIR, "bible_in_a_year.json")
 MEMENTO_READINGS_JSON_PATH = os.path.join(DATA_DIR, "memento_readings.json")
 
 
+@functools.lru_cache(maxsize=None)
 def get_db_client():
-  """Initializes and returns a Firestore client."""
-  # In a GCP environment (Cloud Run, GAE), the client automatically
-  # authenticates using the service account or application default credentials.
-  # For local development, ensure you have authenticated via gcloud:
-  # `gcloud auth application-default login`
+  """Returns a cached Firestore client (one per process).
+
+  The client is thread-safe and intended to be reused, so we build it once.
+  In a GCP environment (Cloud Run, GAE), it authenticates automatically via the
+  service account / application default credentials. For local development, run
+  `gcloud auth application-default login`.
+  """
   return firestore.Client(
       project="lcms-prayer-app", database="prayer-app-datastore"
   )
@@ -234,14 +236,16 @@ def load_mid_week_readings():
     return {"extended_mid_week_devotions": data}
 
 
+@functools.lru_cache(maxsize=1)
 def load_bible_in_a_year_data():
-  """Loads Bible in a Year data from JSON file."""
+  """Loads Bible in a Year data from JSON file (cached; treat as read-only)."""
   with open(BIBLE_IN_A_YEAR_JSON_PATH, "r", encoding="utf-8") as f:
     return json.load(f)
 
 
+@functools.lru_cache(maxsize=1)
 def load_memento_readings():
-  """Loads memento readings from JSON file."""
+  """Loads memento readings from JSON file (cached; treat as read-only)."""
   try:
     with open(MEMENTO_READINGS_JSON_PATH, "r", encoding="utf-8") as f:
       return json.load(f)
@@ -376,8 +380,9 @@ def generate_category_page_data(json_path: str) -> list[dict]:
 ChurchYear = liturgy.ChurchYear
 
 
+@functools.lru_cache(maxsize=4)
 def load_lectionary(filepath: str) -> dict:
-  """Loads the lectionary data from a JSON file."""
+  """Loads the lectionary data from a JSON file (cached; treat as read-only)."""
   if not os.path.exists(filepath):
     print(f"JSON file not found: {filepath}")
     return {}
@@ -402,7 +407,7 @@ def get_devotion_data(now: datetime.datetime, user_id=None) -> dict:
   # Debugging: Uncomment to test a specific date
   # now = datetime.datetime(2025, 2, 26) # Ash Wednesday 2025 example
 
-  cy = liturgy.ChurchYear(now.year)
+  cy = liturgy.get_church_year(now.year)
 
   # 2. Determine Key
   key = cy.get_liturgical_key(now)
@@ -550,7 +555,7 @@ def get_all_personal_prayers_for_user(user_id=None) -> dict:
 
 def get_mid_week_reading_for_date(now: datetime.datetime) -> Optional[dict]:
   """Returns mid week reading data for given date based on week of church year."""
-  cy = liturgy.ChurchYear(now.year)
+  cy = liturgy.get_church_year(now.year)
   week_num = cy.get_week_of_church_year(now.date()) + 1
 
   max_week = 53
@@ -646,7 +651,7 @@ def get_office_devotion_data(user_id, office_name, date_obj=None):
   """Generates data for an office devotion (Morning, Evening, etc.)."""
   eastern_timezone = pytz.timezone("America/New_York")
   now = date_obj or datetime.datetime.now(eastern_timezone)
-  cy = liturgy.ChurchYear(now.year)
+  cy = liturgy.get_church_year(now.year)
   key = cy.get_liturgical_key(now)
 
   readings_key = f"{office_name}_readings"
@@ -678,11 +683,6 @@ def get_office_devotion_data(user_id, office_name, date_obj=None):
   # Memento Reading
   memento_reading = get_memento_reading_for_date(now)
   memento_data = None
-  if memento_reading:
-    try:
-      pass
-    except Exception as e:
-      print(f"Error fetching memento passages: {e}")
 
   all_refs = [reading_ref, psalm_ref, psalm_a_day_ref] + daily_lectionary_readings
 

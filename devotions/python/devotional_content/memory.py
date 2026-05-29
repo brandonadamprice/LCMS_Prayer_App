@@ -4,6 +4,8 @@ import datetime
 import json
 import os
 import re
+from functools import lru_cache
+
 import flask
 import flask_login
 import utils
@@ -13,8 +15,9 @@ MEMORY_VERSES_JSON_PATH = os.path.join(
 )
 
 
+@lru_cache(maxsize=1)
 def load_predefined_verses():
-  """Loads predefined memory verses from JSON file."""
+  """Loads predefined memory verses from JSON file (cached; treat as read-only)."""
   with open(MEMORY_VERSES_JSON_PATH, "r", encoding="utf-8") as f:
     return json.load(f)
 
@@ -49,15 +52,25 @@ def generate_memory_page():
     user_verses = get_user_verses(flask_login.current_user.id)
     memorized_ids = flask_login.current_user.memorized_verses
 
-  # Add indices to predefined verses for stable IDs
-  for i, v in enumerate(predefined_verses):
-    v["id"] = f"predefined_{i}"
-    v["is_user"] = False
-
-  for v in user_verses:
-    v["is_user"] = True
-
-  all_verse_metadata = predefined_verses + user_verses
+  # Build metadata as fresh dicts so the cached predefined_verses list is
+  # never mutated. Predefined verses get stable index-based IDs.
+  all_verse_metadata = [
+      {
+          "id": f"predefined_{i}",
+          "ref": v["ref"],
+          "topic": v["topic"],
+          "is_user": False,
+      }
+      for i, v in enumerate(predefined_verses)
+  ] + [
+      {
+          "id": v["id"],
+          "ref": v["ref"],
+          "topic": v["topic"],
+          "is_user": True,
+      }
+      for v in user_verses
+  ]
 
   refs = list(
       dict.fromkeys([v["ref"] for v in all_verse_metadata])

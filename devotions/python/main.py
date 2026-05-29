@@ -146,7 +146,7 @@ def inject_globals():
       now.month == 1 and now.day == 1
   )
 
-  cy = liturgy.ChurchYear(now.year)
+  cy = liturgy.get_church_year(now.year)
   ash_wednesday = cy.ash_wednesday
   easter_sunday = cy.easter_date
   is_lent = ash_wednesday <= now.date() <= easter_sunday
@@ -161,24 +161,6 @@ def inject_globals():
       app_menu=app_menu,
       today_ymd=today_ymd,
   )
-
-
-INDEX_HTML_PATH = os.path.join(utils.SCRIPT_DIR, "..", "html", "index.html")
-FEEDBACK_HTML_PATH = os.path.join(
-    utils.SCRIPT_DIR, "..", "html", "feedback.html"
-)
-PRAYER_REQUESTS_HTML_PATH = os.path.join(
-    utils.SCRIPT_DIR, "..", "html", "prayer_requests.html"
-)
-PRAYER_SUBMITTED_HTML_PATH = os.path.join(
-    utils.SCRIPT_DIR, "..", "html", "prayer_request_submitted.html"
-)
-PRAYER_FAILED_HTML_PATH = os.path.join(
-    utils.SCRIPT_DIR, "..", "html", "prayer_request_failed.html"
-)
-PRAYER_WALL_HTML_PATH = os.path.join(
-    utils.SCRIPT_DIR, "..", "html", "prayer_wall.html"
-)
 
 
 @app.route("/")
