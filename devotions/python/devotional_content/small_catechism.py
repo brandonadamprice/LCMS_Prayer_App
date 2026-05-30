@@ -2,11 +2,15 @@
 
 import copy
 import json
+import logging
 from functools import lru_cache
 
 import flask
 import flask_login
 import utils
+
+logger = logging.getLogger(__name__)
+
 
 @lru_cache(maxsize=1)
 def load_catechism_explanation():
@@ -16,7 +20,7 @@ def load_catechism_explanation():
       data = json.load(f)
       return utils.process_node(data)
   except FileNotFoundError:
-    print(f"Warning: {utils.CATECHISM_EXPLANATION_PATH} not found.")
+    logger.warning(f"Warning: {utils.CATECHISM_EXPLANATION_PATH} not found.")
     return {}
 
 
@@ -123,7 +127,6 @@ def generate_small_catechism_page():
   if flask_login.current_user.is_authenticated:
     completed_sections = flask_login.current_user.completed_catechism_sections
 
-  print("Generated Small Catechism HTML")
   return flask.render_template(
       "small_catechism.html",
       grouped_catechism=grouped_catechism,

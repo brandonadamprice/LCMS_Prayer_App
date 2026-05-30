@@ -22,5 +22,4 @@ def generate_bible_in_a_year_page(
       "bible_streak": bible_streak,
   }
 
-  print("Generated Bible in a Year HTML")
   return flask.render_template("bible_in_a_year.html", **template_data)

@@ -27,5 +27,4 @@ def generate_childrens_devotion():
   }
   template_data.update(catechism_data)
 
-  print("Generated Children's Devotion HTML")
   return flask.render_template("childrens_devotion.html", **template_data)

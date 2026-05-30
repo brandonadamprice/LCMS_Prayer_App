@@ -33,7 +33,6 @@ def generate_extended_evening_devotion(date_obj=None):
       "luthers_evening_prayer"
   ]
 
-  print("Generated Evening HTML")
   return flask.render_template(
       "extended_evening_devotion.html", **template_data
   )

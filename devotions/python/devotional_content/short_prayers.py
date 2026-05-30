@@ -23,5 +23,4 @@ def generate_short_prayers_page():
   """Generates HTML for the Short Prayers page."""
   data = load_short_prayers_data()
   template_data = {"situations": data["prayers_for_specific_situations"]}
-  print("Generated Short Prayers HTML")
   return flask.render_template("short_prayers.html", **template_data)

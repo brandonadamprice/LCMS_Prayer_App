@@ -4,6 +4,7 @@ import csv
 import datetime
 import functools
 import json
+import logging
 import os
 import re
 from typing import Optional
@@ -15,6 +16,8 @@ import liturgy
 import pytz
 import secrets_fetcher as secrets
 from services import scripture
+
+logger = logging.getLogger(__name__)
 
 # Flag to enable/disable Catechism section in devotions
 ENABLE_CATECHISM = True
@@ -84,7 +87,7 @@ def load_inappropriate_words():
         if "word" in row and row["word"]:
           words.add(row["word"].strip().lower())
   except FileNotFoundError:
-    print(f"Warning: {INAPPROPRIATE_WORDS_CSV_PATH} not found.")
+    logger.warning(f"Warning: {INAPPROPRIATE_WORDS_CSV_PATH} not found.")
   return words
 
 
@@ -211,7 +214,7 @@ def inject_references_in_text(text):
         # If ref is invalid or fetch failed, replace tag with just the text content
         text = text.replace(tag_to_replace, ref)
   except Exception as e:
-    print(f"Error injecting references: {e}")
+    logger.error(f"Error injecting references: {e}")
     # Fallback: remove all tags on error
     text = re.sub(pattern, r"\1", text)
 
@@ -278,7 +281,7 @@ def load_memento_readings():
     with open(MEMENTO_READINGS_JSON_PATH, "r", encoding="utf-8") as f:
       return json.load(f)
   except FileNotFoundError:
-    print(f"Warning: {MEMENTO_READINGS_JSON_PATH} not found.")
+    logger.warning(f"Warning: {MEMENTO_READINGS_JSON_PATH} not found.")
     return []
 
 
@@ -312,7 +315,7 @@ def decrypt_text(token: str) -> str:
     f = get_fernet()
     return f.decrypt(token.encode()).decode()
   except Exception as e:
-    print(f"Error decrypting token: {e}")
+    logger.error(f"Error decrypting token: {e}")
     return "[Error decrypting prayer]"
 
 
@@ -437,7 +440,7 @@ ChurchYear = liturgy.ChurchYear
 def load_lectionary(filepath: str) -> dict:
   """Loads the lectionary data from a JSON file (cached; treat as read-only)."""
   if not os.path.exists(filepath):
-    print(f"JSON file not found: {filepath}")
+    logger.error(f"JSON file not found: {filepath}")
     return {}
   with open(filepath, mode="r", encoding="utf-8") as f:
     return json.load(f)
@@ -464,8 +467,6 @@ def get_devotion_data(now: datetime.datetime, user_id=None) -> dict:
 
   # 2. Determine Key
   key = cy.get_liturgical_key(now)
-  print(f"Generating devotion for: {now.strftime('%Y-%m-%d')}")
-  print(f"Liturgical Key: {key}")
 
   # 3. Load Data
   data = load_lectionary(LECTIONARY_JSON_PATH)
@@ -475,25 +476,21 @@ def get_devotion_data(now: datetime.datetime, user_id=None) -> dict:
   )
 
   if readings["OT"] == "Reading not found":
-    print(f"Warning: Key '{key}' not found in CSV.")
+    logger.warning(f"Warning: Key '{key}' not found in CSV.")
 
   # 4. Psalm Ref & Fetch Texts
-  print("Fetching texts...")
   day_of_year = now.timetuple().tm_yday
   psalm_num = (day_of_year - 1) % 150 + 1
   psalm_ref = f"Psalm {psalm_num}"
 
   refs_to_fetch = [readings["OT"], readings["NT"], psalm_ref]
   ot_text, nt_text, psalm_text = fetch_passages(refs_to_fetch)
-  print("Texts Acquired")
 
   # 5. Catechism - USE HELPER
   catechism_data = get_catechism_for_day(now, rotation="daily")
-  print("Populated Catechism Reading")
 
   # 6. Weekly Prayer - USE HELPER
   weekly_prayer_data = get_weekly_prayer_for_day(now)
-  print("Populated Weekly Prayer section")
 
   # Bible in a Year
   bible_in_a_year_data = get_bible_in_a_year_devotion_data(user_id, now)
@@ -525,7 +522,7 @@ def get_devotion_data(now: datetime.datetime, user_id=None) -> dict:
           "psalms_text": mt_texts[1],
       }
     except Exception as e:
-      print(f"Error fetching memento texts for extended evening: {e}")
+      logger.error(f"Error fetching memento texts for extended evening: {e}")
 
   if user_id:
     user = flask_login.current_user
@@ -572,7 +569,7 @@ def fetch_personal_prayers(user_id: str) -> list[dict]:
       prayer["id"] = doc.id
       prayers.append(prayer)
   except Exception as e:
-    print(f"Error fetching personal prayers from new collection: {e}")
+    logger.error(f"Error fetching personal prayers from new collection: {e}")
 
   return prayers
 
@@ -672,7 +669,7 @@ def get_bible_in_a_year_devotion_data(user_id=None, date_obj=None):
     nt_text = texts[1]
     psp_text = texts[2]
   except Exception as e:
-    print(f"Error fetching passages for Bible in a Year: {e}")
+    logger.error(f"Error fetching passages for Bible in a Year: {e}")
     ot_text = "Text not available"
     nt_text = "Text not available"
     psp_text = "Text not available"

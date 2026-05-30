@@ -80,5 +80,4 @@ def generate_advent_devotion(date_obj=None):
       "candle_5_lit": candle_5_lit,
   }
 
-  print("Generated Advent HTML")
   return flask.render_template("advent_devotion.html", **template_data)

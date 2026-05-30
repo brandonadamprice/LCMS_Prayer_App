@@ -2,12 +2,15 @@
 
 import datetime
 import json
+import logging
 import os
 from functools import lru_cache
 
 import flask
 import liturgy
 import utils
+
+logger = logging.getLogger(__name__)
 
 LENT_JSON_PATH = os.path.join(utils.SCRIPT_DIR, "..", "data", "lent.json")
 
@@ -55,7 +58,7 @@ def get_lent_devotion_data(date_obj=None):
     ot_text = reading_texts[0]
     nt_text = reading_texts[1]
   except Exception as e:
-    print(f"Error fetching passage: {e}")
+    logger.error(f"Error fetching passage: {e}")
     ot_text = "Reading text not available."
     nt_text = "Reading text not available."
 
@@ -90,5 +93,4 @@ def get_lent_devotion_data(date_obj=None):
 def generate_lent_devotion(date_obj=None):
   """Generates HTML for the Lenten devotion."""
   template_data = get_lent_devotion_data(date_obj)
-  print("Generated Lent HTML")
   return flask.render_template("lent_devotion.html", **template_data)

@@ -23,5 +23,4 @@ def generate_new_year_devotion(date_obj=None):
       "gospel_text": texts[1],
   }
 
-  print("Generated New Year's Devotion HTML")
   return flask.render_template("new_year_devotion.html", **template_data)

@@ -1,11 +1,14 @@
 """Functions for interacting with Firestore prayer requests."""
 
 import datetime
+import logging
 import random
 from google.cloud import firestore
 from google.cloud.firestore_v1 import base_query
 from google.cloud.firestore_v1 import query as firestore_query_module
 import utils
+
+logger = logging.getLogger(__name__)
 
 NAME_MAX_LENGTH = 100
 REQUEST_MAX_LENGTH = 1000
@@ -122,7 +125,7 @@ def update_pray_count(request_id: str, operation: str) -> bool:
       return False
     return True
   except Exception as e:
-    print(f"Error updating pray count for {request_id}: {e}")
+    logger.error(f"Error updating pray count for {request_id}: {e}")
     return False
 
 
@@ -154,7 +157,7 @@ def remove_expired_requests():
   if deleted_count % 500 > 0:
     batch.commit()
 
-  print(f"Removed {deleted_count} expired prayer requests.")
+  logger.info(f"Removed {deleted_count} expired prayer requests.")
 
 
 def edit_prayer_request(request_id: str, new_request_text: str, user_id: str):
@@ -190,5 +193,5 @@ def edit_prayer_request(request_id: str, new_request_text: str, user_id: str):
     doc_ref.update({"request": new_request_text})
     return True, None
   except Exception as e:
-    print(f"Error updating prayer request {request_id}: {e}")
+    logger.error(f"Error updating prayer request {request_id}: {e}")
     return False, "Database update failed."

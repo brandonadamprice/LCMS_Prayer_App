@@ -55,7 +55,6 @@ def generate_catechism_memory_page():
   for i, item in enumerate(memorization_items):
     item["id"] = i
 
-  print("Generated Catechism Memorization HTML")
   return flask.render_template(
       "catechism_memory.html", items=memorization_items
   )

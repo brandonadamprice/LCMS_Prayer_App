@@ -420,5 +420,4 @@ def generate_liturgical_calendar_page():
       "next_month": next_month_date.month,
   }
 
-  print("Generated Liturgical Calendar HTML")
   return flask.render_template("liturgical_calendar.html", **template_data)

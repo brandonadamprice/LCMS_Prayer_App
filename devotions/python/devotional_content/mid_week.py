@@ -1,9 +1,13 @@
 """Functions for generating the mid-week devotion."""
 
 import datetime
+import logging
+
 import flask
 import flask_login
 import utils
+
+logger = logging.getLogger(__name__)
 
 
 def generate_mid_week_devotion(date_obj=None):
@@ -31,7 +35,7 @@ def generate_mid_week_devotion(date_obj=None):
         refs_to_fetch
     )
   except Exception as e:
-    print(f"Error fetching passages for mid-week devotion: {e}")
+    logger.error(f"Error fetching passages for mid-week devotion: {e}")
     return flask.render_template(
         "prayer_request_failed.html",
         error_message="Failed to fetch scripture passages.",
@@ -51,7 +55,7 @@ def generate_mid_week_devotion(date_obj=None):
             prayer["for_whom"] = utils.decrypt_text(prayer["for_whom"])
           personal_prayers_by_topic[topic].append(prayer)
     except Exception as e:
-      print(f"Error fetching personal prayers for mid-week: {e}")
+      logger.error(f"Error fetching personal prayers for mid-week: {e}")
 
   weekly_prayers_list = []
   for i in range(7):
@@ -80,5 +84,4 @@ def generate_mid_week_devotion(date_obj=None):
   }
   template_data.update(catechism_data)
 
-  print("Generated Mid-Week Devotion HTML")
   return flask.render_template("mid_week_devotion.html", **template_data)

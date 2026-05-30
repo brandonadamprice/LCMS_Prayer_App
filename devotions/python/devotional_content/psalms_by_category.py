@@ -15,7 +15,6 @@ def generate_psalms_by_category_page():
       PSALMS_BY_CATEGORY_JSON_PATH
   )
 
-  print("Generated Psalms by Category HTML")
   return flask.render_template(
       "psalms_by_category.html", category_data=category_data
   )

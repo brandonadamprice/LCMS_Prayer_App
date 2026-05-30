@@ -52,5 +52,4 @@ def generate_daily_lectionary_page(date_obj=None):
       "nt_text": texts[1],
   }
 
-  print("Generated Daily Lectionary HTML")
   return flask.render_template("daily_lectionary.html", **template_data)
