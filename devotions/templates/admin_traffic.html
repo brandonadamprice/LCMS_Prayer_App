@@ -34,7 +34,7 @@
                 <tr>
                     <th>Name</th>
                     <th>Email</th>
-                    <th style="text-align: right;">Last Login (EST)</th>
+                    <th style="text-align: right;">Last Seen (EST)</th>
                 </tr>
             </thead>
             <tbody>
@@ -42,12 +42,45 @@
                 <tr>
                     <td>{{ user.name }}</td>
                     <td>{{ user.email }}</td>
-                    <td style="text-align: right;">{{ user.last_login }}</td>
+                    <td style="text-align: right;">{{ user.last_seen }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
+</div>
+
+<div class="card">
+    <h2>Active Streaks</h2>
+    <p style="color: #7f8c8d; font-size: 0.9em;">Users with a live prayer streak (prayed today or yesterday).</p>
+    {% if streak_users %}
+    <div style="max-height: 300px; overflow-y: auto; border: 1px solid #eee; border-radius: 4px;">
+        <table class="analytics-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th style="text-align: right;">&#128293; Current Streak</th>
+                    <th style="text-align: right;">Best Streak</th>
+                    <th style="text-align: right;">&#128214; Bible Streak</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in streak_users %}
+                <tr>
+                    <td>{{ user.name }}</td>
+                    <td style="text-align: right;">{{ user.streak }}</td>
+                    <td style="text-align: right;">{{ user.best_streak }}</td>
+                    <td style="text-align: right;">{{ user.bible_streak }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p style="text-align: center; color: #7f8c8d; font-style: italic; margin: 20px 0;">
+        No users with an active streak right now.
+    </p>
+    {% endif %}
 </div>
 
 {% if error %}

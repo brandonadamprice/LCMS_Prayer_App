@@ -125,6 +125,32 @@ def redirect_to_new_domain():
     return flask.redirect(new_url, code=301)
 
 
+@app.before_request
+def track_last_seen():
+  """Records when an authenticated user was last active.
+
+  Throttled to at most one Firestore write per user every 10 minutes, using
+  the already-loaded current_user.last_seen so no extra read is needed.
+  """
+  if flask.request.endpoint == "static":
+    return
+  if not flask_login.current_user.is_authenticated:
+    return
+
+  now = datetime.datetime.now(datetime.timezone.utc)
+  last_seen = getattr(flask_login.current_user, "last_seen", None)
+  if isinstance(last_seen, datetime.datetime):
+    if last_seen.tzinfo is None:
+      last_seen = last_seen.replace(tzinfo=datetime.timezone.utc)
+    if now - last_seen < datetime.timedelta(minutes=10):
+      return
+
+  try:
+    users.update_last_seen(flask_login.current_user.id, now)
+  except Exception as e:
+    app.logger.error(f"Failed to update last_seen: {e}")
+
+
 @app.context_processor
 def inject_globals():
   """Injects global variables into all templates."""
@@ -1626,6 +1652,7 @@ def admin_traffic_route():
 
   # Fetch registered users from Firestore
   registered_users = []
+  streak_users = []
   registered_user_count = 0
   try:
     db = utils.get_db_client()
@@ -1637,32 +1664,54 @@ def admin_traffic_route():
 
     for doc in docs:
       data = doc.to_dict()
-      last_login = data.get("last_login")
-      last_login_val = datetime.datetime.min.replace(
+
+      # Prefer activity-based "last seen"; fall back to last_login for users
+      # who haven't been active since last_seen tracking began.
+      last_seen = data.get("last_seen") or data.get("last_login")
+      last_seen_val = datetime.datetime.min.replace(
           tzinfo=datetime.timezone.utc
       )
-      last_login_str = "Never"
+      last_seen_str = "Never"
 
-      if last_login:
-        if isinstance(last_login, datetime.datetime):
+      if last_seen:
+        if isinstance(last_seen, datetime.datetime):
           # Ensure aware
-          if last_login.tzinfo is None:
-            last_login = last_login.replace(tzinfo=datetime.timezone.utc)
-          last_login_est = last_login.astimezone(eastern_timezone)
-          last_login_str = last_login_est.strftime("%Y-%m-%d %I:%M %p")
-          last_login_val = last_login
+          if last_seen.tzinfo is None:
+            last_seen = last_seen.replace(tzinfo=datetime.timezone.utc)
+          last_seen_est = last_seen.astimezone(eastern_timezone)
+          last_seen_str = last_seen_est.strftime("%Y-%m-%d %I:%M %p")
+          last_seen_val = last_seen
         else:
-          last_login_str = str(last_login)
+          last_seen_str = str(last_seen)
 
       registered_users.append({
           "name": data.get("name", "Unknown"),
           "email": data.get("email", "Unknown"),
-          "last_login": last_login_str,
-          "_sort_key": last_login_val,
+          "last_seen": last_seen_str,
+          "_sort_key": last_seen_val,
       })
 
-    # Sort in memory by last login descending
+      # Build the active-streaks list: users whose prayer streak is still
+      # alive (prayed today or yesterday in their timezone).
+      tz_str = data.get("timezone")
+      active_streak = models.compute_active_streak(
+          data.get("streak_count", 0), data.get("last_prayer_date"), tz_str
+      )
+      if active_streak >= 1:
+        streak_users.append({
+            "name": data.get("name", "Unknown"),
+            "streak": active_streak,
+            "best_streak": max(data.get("best_streak_count", 0), active_streak),
+            "bible_streak": models.compute_active_streak(
+                data.get("bible_streak_count", 0),
+                data.get("last_bible_reading_date"),
+                tz_str,
+            ),
+        })
+
+    # Sort users by last seen (desc) and streaks by current streak (desc).
     registered_users.sort(key=lambda x: x["_sort_key"], reverse=True)
+    streak_users.sort(key=lambda x: x["streak"], reverse=True)
     registered_user_count = len(registered_users)
 
   except Exception as e:
@@ -1673,6 +1722,7 @@ def admin_traffic_route():
     data = analytics_ga4.fetch_traffic_stats(property_id)
     data["registered_user_count"] = registered_user_count
     data["registered_users"] = registered_users
+    data["streak_users"] = streak_users
     return flask.render_template("admin_traffic.html", **data)
   except Exception as e:
     # If fetch fails (e.g. secret not set), return error info
@@ -1682,6 +1732,7 @@ def admin_traffic_route():
         service_email=analytics_ga4.get_service_account_email(),
         registered_user_count=registered_user_count,
         registered_users=registered_users,
+        streak_users=streak_users,
     )
 
 

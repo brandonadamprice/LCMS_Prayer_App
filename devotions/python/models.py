@@ -6,6 +6,31 @@ import pytz
 import utils
 
 
+def compute_active_streak(streak_count, last_activity_date, timezone_str):
+  """Returns the streak count if it is still active, otherwise 0.
+
+  A streak is "active" only if the last activity happened today or yesterday
+  in the user's timezone. A missing/empty date means there is no active
+  streak; an unparseable date leaves the stored count untouched.
+  """
+  if not last_activity_date:
+    return 0
+  try:
+    tz = pytz.timezone(timezone_str or "America/New_York")
+  except pytz.UnknownTimeZoneError:
+    tz = pytz.timezone("America/New_York")
+  now_date = datetime.datetime.now(tz).date()
+  try:
+    last_date = datetime.datetime.strptime(
+        last_activity_date, "%Y-%m-%d"
+    ).date()
+  except (ValueError, TypeError):
+    return streak_count
+  if last_date < now_date - datetime.timedelta(days=1):
+    return 0
+  return streak_count
+
+
 class User(flask_login.UserMixin):
   """User class for Flask-Login."""
 
@@ -42,6 +67,7 @@ class User(flask_login.UserMixin):
       reading_preferences=None,
       psalm_preferences=None,
       created_at=None,
+      last_seen=None,
   ):
     self.id = user_id
     self.email = email
@@ -72,15 +98,7 @@ class User(flask_login.UserMixin):
     self.reading_preferences = reading_preferences or {}
     self.psalm_preferences = psalm_preferences or {}
     self.created_at = created_at
-
-    # Calculate effective streaks based on current date
-    tz_str = self.timezone or "America/New_York"
-    try:
-      tz = pytz.timezone(tz_str)
-    except pytz.UnknownTimeZoneError:
-      tz = pytz.timezone("America/New_York")
-
-    now_date = datetime.datetime.now(tz).date()
+    self.last_seen = last_seen
 
     # Capture best streak before potential reset (for legacy data)
     self.best_streak_count = max(best_streak_count, streak_count)
@@ -88,37 +106,16 @@ class User(flask_login.UserMixin):
         best_bible_streak_count, bible_streak_count
     )
 
-    # Prayer Streak Logic
-    if last_prayer_date:
-      try:
-        last_date = datetime.datetime.strptime(
-            last_prayer_date, "%Y-%m-%d"
-        ).date()
-        # If last prayer was before yesterday (gap > 1 day), streak is broken
-        if last_date < now_date - datetime.timedelta(days=1):
-          streak_count = 0
-      except ValueError:
-        pass
-    else:
-      streak_count = 0
-
-    self.streak_count = streak_count
+    # A streak only counts if the last activity was today or yesterday in the
+    # user's timezone; otherwise it has lapsed and resets to 0.
+    tz_str = self.timezone or "America/New_York"
+    self.streak_count = compute_active_streak(
+        streak_count, last_prayer_date, tz_str
+    )
     self.last_prayer_date = last_prayer_date
-
-    # Bible Streak Logic
-    if last_bible_reading_date:
-      try:
-        last_bible = datetime.datetime.strptime(
-            last_bible_reading_date, "%Y-%m-%d"
-        ).date()
-        if last_bible < now_date - datetime.timedelta(days=1):
-          bible_streak_count = 0
-      except ValueError:
-        pass
-    else:
-      bible_streak_count = 0
-
-    self.bible_streak_count = bible_streak_count
+    self.bible_streak_count = compute_active_streak(
+        bible_streak_count, last_bible_reading_date, tz_str
+    )
     self.last_bible_reading_date = last_bible_reading_date
 
   @staticmethod
@@ -163,5 +160,6 @@ class User(flask_login.UserMixin):
           reading_preferences=data.get("reading_preferences", {}),
           psalm_preferences=data.get("psalm_preferences", {}),
           created_at=data.get("created_at"),
+          last_seen=data.get("last_seen"),
       )
     return None
