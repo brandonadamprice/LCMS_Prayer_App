@@ -5,6 +5,7 @@ import logging
 import smtplib
 
 import firebase_admin
+from firebase_admin import exceptions as firebase_exceptions
 from firebase_admin import messaging
 import secrets_fetcher
 from twilio.rest import Client
@@ -87,10 +88,21 @@ def send_sms(to_phone, message):
     return False
 
 
-def send_push(token, title, body, url=None, data=None):
-  """Sends a push notification to a single token."""
+# Outcomes of a single push send, so callers can decide whether to keep a token.
+PUSH_SENT = "sent"
+PUSH_INVALID_TOKEN = "invalid_token"  # Token is dead; caller should drop it.
+PUSH_ERROR = "error"  # Transient failure; keep the token and retry later.
+
+
+def send_push_result(token, title, body, url=None, data=None):
+  """Sends a push notification to a single token and classifies the outcome.
+
+  Returns one of PUSH_SENT, PUSH_INVALID_TOKEN, or PUSH_ERROR. Callers should
+  prune only PUSH_INVALID_TOKEN tokens (which FCM reports as permanently
+  unusable); PUSH_ERROR is a transient failure and the token should be kept.
+  """
   if not token:
-    return False
+    return PUSH_INVALID_TOKEN
 
   if data is None:
     data = {}
@@ -110,7 +122,21 @@ def send_push(token, title, body, url=None, data=None):
     messaging.send(message)
     # Log only first few chars of token for privacy/brevity
     logger.info("Push sent to %s...", token[:10])
-    return True
+    return PUSH_SENT
+  except (
+      messaging.UnregisteredError,
+      messaging.SenderIdMismatchError,
+      firebase_exceptions.InvalidArgumentError,
+  ) as e:
+    # The token is no longer valid (app uninstalled, token rotated, or
+    # malformed), so signal the caller to drop it.
+    logger.warning("Invalid push token %s...: %s", token[:10], e)
+    return PUSH_INVALID_TOKEN
   except Exception as e:
     logger.warning("Failed to send push to %s...: %s", token[:10], e)
-    return False
+    return PUSH_ERROR
+
+
+def send_push(token, title, body, url=None, data=None):
+  """Sends a push notification to a single token. Returns True on success."""
+  return send_push_result(token, title, body, url, data) == PUSH_SENT

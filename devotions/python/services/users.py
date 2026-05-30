@@ -632,8 +632,9 @@ def mark_bible_days_completed(user_id, days):
 
     # Check Progress Milestones (Total 365 days)
     new_achievements = []
-    # Use timezone aware now if possible, or just UTC for achievements date
-    today_str = datetime.datetime.now().strftime("%Y-%m-%d")
+    today_str = datetime.datetime.now(
+        utils.resolve_timezone(user_data.get("timezone"))
+    ).strftime("%Y-%m-%d")
 
     def check_and_add(ach_id, title, icon):
       if not any(a["id"] == ach_id for a in current_achievements):
@@ -685,7 +686,9 @@ def record_prayer_for_others(user_id, request_id, operation):
     user_data = snapshot.to_dict()
     prayed_ids = user_data.get("prayed_request_ids", [])
     current_achievements = user_data.get("achievements", [])
-    today_str = datetime.datetime.now().strftime("%Y-%m-%d")
+    today_str = datetime.datetime.now(
+        utils.resolve_timezone(user_data.get("timezone"))
+    ).strftime("%Y-%m-%d")
 
     # Update list
     if operation == "increment":
@@ -752,7 +755,9 @@ def toggle_memorized_verse(user_id, verse_id):
     user_data = snapshot.to_dict()
     memorized_verses = user_data.get("memorized_verses", [])
     current_achievements = user_data.get("achievements", [])
-    today_str = datetime.datetime.now().strftime("%Y-%m-%d")
+    today_str = datetime.datetime.now(
+        utils.resolve_timezone(user_data.get("timezone"))
+    ).strftime("%Y-%m-%d")
 
     # Toggle
     is_memorized = False
@@ -820,7 +825,9 @@ def mark_catechism_complete(user_id, section_index):
     user_data = snapshot.to_dict()
     completed_sections = user_data.get("completed_catechism_sections", [])
     current_achievements = user_data.get("achievements", [])
-    today_str = datetime.datetime.now().strftime("%Y-%m-%d")
+    today_str = datetime.datetime.now(
+        utils.resolve_timezone(user_data.get("timezone"))
+    ).strftime("%Y-%m-%d")
 
     section_id = str(section_index)
     if section_id not in completed_sections:

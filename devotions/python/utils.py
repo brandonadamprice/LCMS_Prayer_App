@@ -142,6 +142,11 @@ def contains_phone_number(text):
   Returns:
     True if a phone number is found, False otherwise.
   """
+  # Nothing to match in an empty or missing value (re.search would raise on
+  # None), so treat it as "no phone number".
+  if not text:
+    return False
+
   # This regex attempts to capture various phone number formats.
   # It's a simplified example and might need adjustment for specific regional
   # formats.

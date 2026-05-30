@@ -26,11 +26,20 @@ def generate_advent_devotion(date_obj=None):
 
   advent_devotions = load_advent_devotions()
 
+  # Advent devotions cover December 1-25. Guard against out-of-range days
+  # (e.g. navigating past the 25th, or a date in another month) so we show a
+  # friendly message instead of raising IndexError.
+  if not 1 <= day_of_month <= len(advent_devotions):
+    return flask.render_template(
+        "prayer_request_failed.html",
+        error_message="Advent devotions are available December 1-25.",
+    )
+
   devotion_data = advent_devotions[day_of_month - 1]
 
   scripture_verses = devotion_data["scripture_verses"]
   reading_texts = utils.fetch_passages([scripture_verses])
-  reading_text = reading_texts[0]
+  reading_text = reading_texts[0] if reading_texts else ""
 
   # Advent candle lighting is based on the four Sundays preceding Christmas.
   # Candle 1 is lit on Advent 1, 2 on Advent 2, etc.
