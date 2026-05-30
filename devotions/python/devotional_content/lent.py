@@ -64,11 +64,11 @@ def get_lent_devotion_data(date_obj=None):
   )
   prayer_html = f'<p>{devotion_data.get("prayer", "Prayer not available.")}</p>'
 
-  banner_image = "banner_lent.png"
+  banner_image = "banner_lent.jpg"
   if day_offset == 44:  # Good Friday
-    banner_image = "banner_good_friday.png"
+    banner_image = "banner_good_friday.jpg"
   elif day_offset >= 45:  # Holy Saturday and Easter Sunday
-    banner_image = "banner_easter.png"
+    banner_image = "banner_easter.jpg"
 
   today_date = datetime.datetime.now(eastern_timezone).date()
   prev_date = (now.date() - datetime.timedelta(days=1)).strftime("%Y-%m-%d")

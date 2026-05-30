@@ -26,6 +26,7 @@ from devotional_content import short_prayers
 from devotional_content import small_catechism
 from devotional_content import trinity_study
 import flask
+from flask_compress import Compress
 import flask_login
 from google.cloud import firestore
 import liturgy
@@ -57,6 +58,10 @@ app = flask.Flask(
 app.wsgi_app = werkzeug.middleware.proxy_fix.ProxyFix(
     app.wsgi_app, x_proto=1, x_host=1, x_for=1, x_prefix=1
 )
+
+# Gzip/Brotli-compress text responses (HTML, CSS, JS, JSON) to cut transfer size.
+Compress(app)
+
 app.secret_key = secrets_fetcher.get_flask_secret_key()
 app.config["PREFERRED_URL_SCHEME"] = "https"
 app.config["PERMANENT_SESSION_LIFETIME"] = datetime.timedelta(days=31)
@@ -149,6 +154,22 @@ def track_last_seen():
     users.update_last_seen(flask_login.current_user.id, now)
   except Exception as e:
     app.logger.error(f"Failed to update last_seen: {e}")
+
+
+@app.after_request
+def set_static_cache_headers(response):
+  """Sets cache lifetimes for static assets.
+
+  Static files get a long max-age so repeat visits avoid re-downloading them
+  (styles.css is busted by the ?v= query string when it changes). The service
+  worker is kept on no-cache so worker updates ship promptly.
+  """
+  path = flask.request.path
+  if path == "/sw.js":
+    response.headers["Cache-Control"] = "no-cache"
+  elif flask.request.endpoint == "static" or path.startswith("/static/"):
+    response.headers["Cache-Control"] = "public, max-age=604800"  # 7 days
+  return response
 
 
 @app.context_processor

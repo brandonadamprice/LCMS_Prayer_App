@@ -1,4 +1,4 @@
-const CACHE_NAME = 'prayer-app-v11';
+const CACHE_NAME = 'prayer-app-v12';
 const ASSETS_TO_CACHE = [
   '/static/styles.css',
   '/static/banner.jpg',
@@ -61,9 +61,25 @@ self.addEventListener('fetch', (event) => {
                             return caches.match(event.request);
                           }));
   } else {
-    // For other assets (CSS, images), try cache first, then network
-    event.respondWith(caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
+    // For other assets (CSS, JS, images): stale-while-revalidate.
+    // Serve the cached copy immediately for speed, then refresh the cache in
+    // the background so the next load picks up any updated asset (previously
+    // cache-first meant assets could stay stale until CACHE_NAME was bumped).
+    // Only same-origin successful responses are cached (never opaque
+    // cross-origin responses or errors).
+    event.respondWith(caches.open(CACHE_NAME).then((cache) => {
+      return cache.match(event.request).then((cached) => {
+        const fetched = fetch(event.request)
+                            .then((response) => {
+                              if (response && response.ok &&
+                                  response.type === 'basic') {
+                                cache.put(event.request, response.clone());
+                              }
+                              return response;
+                            })
+                            .catch(() => cached);
+        return cached || fetched;
+      });
     }));
   }
 });
