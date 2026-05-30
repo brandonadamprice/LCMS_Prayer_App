@@ -7,6 +7,7 @@ import communication
 from devotional_content import bible_in_a_year
 from devotional_content import lent
 import flask
+from google.cloud import firestore
 import liturgy
 import pytz
 from services import users
@@ -263,22 +264,44 @@ def _send_push(user_data, title, body, url):
 
   success_count = 0
   failure_count = 0
-  failed_tokens = []
+  invalid_tokens = []
 
   # We send individually to avoid 404 errors with the /batch endpoint
   # that send_multicast uses, which can occur in some environments.
   for token in tokens:
-    if communication.send_push(token, title, body, url):
+    result = communication.send_push_result(token, title, body, url)
+    if result == communication.PUSH_SENT:
       success_count += 1
     else:
       failure_count += 1
-      failed_tokens.append(token)
+      # Only collect tokens FCM reports as permanently invalid; transient
+      # errors are left in place so they can be retried later.
+      if result == communication.PUSH_INVALID_TOKEN:
+        invalid_tokens.append(token)
 
   flask.current_app.logger.info(
       f"[PUSH] Sent {success_count} messages. Failed: {failure_count}"
   )
-  if failed_tokens:
-    flask.current_app.logger.warning(f"[PUSH] Failed tokens: {failed_tokens}")
+  if invalid_tokens:
+    _remove_fcm_tokens(user_data.get("id"), invalid_tokens)
+
+
+def _remove_fcm_tokens(user_id, tokens):
+  """Removes dead FCM tokens from a user's stored token list."""
+  if not user_id or not tokens:
+    return
+  try:
+    db = utils.get_db_client()
+    db.collection("users").document(user_id).update(
+        {"fcm_tokens": firestore.ArrayRemove(tokens)}
+    )
+    flask.current_app.logger.info(
+        f"[PUSH] Pruned {len(tokens)} invalid token(s) for user {user_id}."
+    )
+  except Exception as e:
+    flask.current_app.logger.error(
+        f"[PUSH] Failed to prune tokens for user {user_id}: {e}"
+    )
 
 
 def send_generic_push_to_user(user_id, title, body, url):
@@ -289,6 +312,7 @@ def send_generic_push_to_user(user_id, title, body, url):
     flask.current_app.logger.warning(f"[PUSH] User {user_id} not found.")
     return
   user_data = user_doc.to_dict()
+  user_data["id"] = user_id
   _send_push(user_data, title, body, url)
 
 
@@ -559,19 +583,30 @@ def send_due_reminders():
   docs = list(query.stream())
   flask.current_app.logger.info(f"[REMINDER] Found {len(docs)} due reminders.")
 
-  for doc in docs:
-    data = doc.to_dict()
-    user_id = data.get("user_id")
+  # Fetch each distinct user once up front instead of issuing a separate read
+  # per due reminder (avoids an N+1 query, especially when one user has
+  # several reminders due at the same time).
+  reminders_due = [(doc, doc.to_dict()) for doc in docs]
+  user_ids = {
+      data.get("user_id") for _, data in reminders_due if data.get("user_id")
+  }
+  users_by_id = {}
+  if user_ids:
+    user_refs = [db.collection("users").document(uid) for uid in user_ids]
+    for snapshot in db.get_all(user_refs):
+      if snapshot.exists:
+        user_data = snapshot.to_dict()
+        user_data["id"] = snapshot.id
+        users_by_id[snapshot.id] = user_data
 
-    # Fetch user data for contact info
-    user_doc = db.collection("users").document(user_id).get()
-    if not user_doc.exists:
+  for doc, data in reminders_due:
+    user_id = data.get("user_id")
+    user_data = users_by_id.get(user_id)
+    if user_data is None:
       flask.current_app.logger.warning(
           f"[REMINDER] User {user_id} not found, skipping reminder {doc.id}"
       )
       continue
-    user_data = user_doc.to_dict()
-    user_data["id"] = user_id
 
     _process_reminder_notification(data, user_data, doc.id)
 
