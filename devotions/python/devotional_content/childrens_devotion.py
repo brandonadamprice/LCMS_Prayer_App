@@ -7,10 +7,8 @@ import utils
 
 def get_ten_commandments():
   """Returns a list of the text of the 10 commandments."""
-  commandments = []
-  for i in range(10):
-    commandments.append(utils.CATECHISM_SECTIONS[i])
-  return commandments
+  sections = utils.get_catechism_sections()
+  return [sections[i] for i in range(10)]
 
 
 def generate_childrens_devotion():

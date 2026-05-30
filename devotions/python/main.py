@@ -1138,12 +1138,14 @@ def prayer_wall_route():
     if user_doc.exists:
       prayed_request_ids = user_doc.to_dict().get("prayed_request_ids", [])
       if prayed_request_ids:
-        active_prayed_request_ids = []
         prayer_requests_ref = db.collection("prayer-requests")
-        for request_id in prayed_request_ids:
-          prayer_request_doc = prayer_requests_ref.document(request_id).get()
-          if prayer_request_doc.exists:
-            active_prayed_request_ids.append(request_id)
+        refs = [
+            prayer_requests_ref.document(rid) for rid in prayed_request_ids
+        ]
+        existing_ids = {snap.id for snap in db.get_all(refs) if snap.exists}
+        active_prayed_request_ids = [
+            rid for rid in prayed_request_ids if rid in existing_ids
+        ]
 
         if len(active_prayed_request_ids) < len(prayed_request_ids):
           user_doc_ref.update({"prayed_request_ids": active_prayed_request_ids})
@@ -2010,7 +2012,7 @@ def streaks_route():
   prayed_for_others_count = len(user.prayed_request_ids)
   memorized_verses_count = len(user.memorized_verses)
 
-  catechism_total = len(utils.CATECHISM_SECTIONS)
+  catechism_total = len(utils.get_catechism_sections())
   catechism_completed = len(user.completed_catechism_sections)
   catechism_pct = 0
   if catechism_total > 0:

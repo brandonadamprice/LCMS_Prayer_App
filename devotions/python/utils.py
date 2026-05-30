@@ -236,11 +236,16 @@ def load_weekly_prayers():
     return json.load(f)
 
 
-def load_catechism():
-  """Loads catechism data from JSON file."""
+@functools.lru_cache(maxsize=1)
+def get_catechism_sections():
+  """Returns the tooltip-injected catechism sections (cached; treat as read-only).
+
+  process_node injects scripture tooltips, which can call the ESV API, so this
+  is built lazily on first use rather than at import time (importing utils used
+  to trigger ~21 ESV/Firestore calls before the app could serve a request).
+  """
   with open(CATECHISM_JSON_PATH, "r", encoding="utf-8") as f:
-    catechism_data = json.load(f)
-  return process_node(catechism_data)
+    return process_node(json.load(f))
 
 
 def load_other_prayers():
@@ -277,7 +282,6 @@ def load_memento_readings():
     return []
 
 
-CATECHISM_SECTIONS = load_catechism()
 WEEKLY_PRAYERS = load_weekly_prayers()
 OFFICE_READINGS = load_office_readings()
 OTHER_PRAYERS = load_other_prayers()
@@ -333,8 +337,9 @@ def get_catechism_for_day(
   else:  # daily
     item_of_year = now.timetuple().tm_yday  # day of year
 
-  cat_idx = (item_of_year - 1) % len(CATECHISM_SECTIONS)
-  catechism = CATECHISM_SECTIONS[cat_idx]
+  sections = get_catechism_sections()
+  cat_idx = (item_of_year - 1) % len(sections)
+  catechism = sections[cat_idx]
   prayer = get_deterministic_choice(catechism["prayers"], now)
   return {
       "catechism_enabled": True,
@@ -345,27 +350,38 @@ def get_catechism_for_day(
   }
 
 
-def get_weekly_prayer_for_day(now: datetime.datetime, user_id=None) -> dict:
-  """Returns the weekly prayer topic and text for a given day."""
+def get_weekly_prayer_for_day(
+    now: datetime.datetime, user_id=None, personal_prayers_by_category=None
+) -> dict:
+  """Returns the weekly prayer topic and text for a given day.
+
+  If personal_prayers_by_category (the grouped, already-decrypted output of
+  get_all_personal_prayers_for_user) is supplied, the day's personal prayers are
+  taken from it instead of re-streaming and re-decrypting the user's
+  personal-prayers subcollection.
+  """
   weekday_idx = now.weekday()
   prayer_data = WEEKLY_PRAYERS.get(
       str(weekday_idx), {"topic": "General Intercessions", "prayer": ""}
   )
   topic = prayer_data["topic"]
-  personal_prayers_list = []
 
-  target_id = user_id
-  if target_id is None and flask_login.current_user.is_authenticated:
-    target_id = flask_login.current_user.id
+  if personal_prayers_by_category is not None:
+    personal_prayers_list = list(personal_prayers_by_category.get(topic, []))
+  else:
+    personal_prayers_list = []
+    target_id = user_id
+    if target_id is None and flask_login.current_user.is_authenticated:
+      target_id = flask_login.current_user.id
 
-  if target_id:
-    raw_prayers = fetch_personal_prayers(target_id)
-    for prayer in raw_prayers:
-      if prayer.get("category") == topic:
-        prayer["text"] = decrypt_text(prayer["text"])
-        if prayer.get("for_whom"):
-          prayer["for_whom"] = decrypt_text(prayer["for_whom"])
-        personal_prayers_list.append(prayer)
+    if target_id:
+      raw_prayers = fetch_personal_prayers(target_id)
+      for prayer in raw_prayers:
+        if prayer.get("category") == topic:
+          prayer["text"] = decrypt_text(prayer["text"])
+          if prayer.get("for_whom"):
+            prayer["for_whom"] = decrypt_text(prayer["for_whom"])
+          personal_prayers_list.append(prayer)
 
   return {
       "prayer_topic": topic,
@@ -812,8 +828,11 @@ def get_office_devotion_data(user_id, office_name, date_obj=None):
     data["luthers_morning_prayer"] = OTHER_PRAYERS["luthers_morning_prayer"]
   elif office_name == "close_of_day":
     data["luthers_evening_prayer"] = OTHER_PRAYERS["luthers_evening_prayer"]
-    # Weekly prayer topic for Close of Day
-    weekly_prayer_data = get_weekly_prayer_for_day(now, user_id)
+    # Weekly prayer topic for Close of Day. Reuse the personal prayers already
+    # fetched and decrypted above to avoid a second subcollection read.
+    weekly_prayer_data = get_weekly_prayer_for_day(
+        now, user_id, personal_prayers_by_category=all_personal_prayers
+    )
     data.update(weekly_prayer_data)
   elif office_name == "night_watch":
     data["protection_prayer"] = OTHER_PRAYERS["night_watch_protection_prayers"]

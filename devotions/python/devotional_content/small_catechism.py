@@ -28,9 +28,9 @@ def load_catechism_explanation():
 
 def get_grouped_catechism():
   """Groups the catechism sections into the Six Chief Parts."""
-  # Deep copy to prevent modifying the global CATECHISM_SECTIONS in place,
+  # Deep copy to prevent modifying the cached catechism sections in place,
   # which causes recursive tooltip injection on page reloads.
-  sections = copy.deepcopy(utils.CATECHISM_SECTIONS)
+  sections = copy.deepcopy(utils.get_catechism_sections())
   explanation_data = load_catechism_explanation()
 
   # Create a lookup for explanations by title

@@ -215,14 +215,19 @@ def _load_liturgical_year_data():
     return json.load(f)
 
 
-def generate_calendar_data(year, month):
-  """Generates calendar data for the given month and year."""
+@lru_cache(maxsize=24)
+def _generate_calendar_grid(year, month):
+  """Builds the month grid (cached; treat as read-only).
+
+  Depends only on (year, month), so the O(days x rules) liturgical matching is
+  computed once per month and reused across requests. The per-request is_today
+  flag is applied later by generate_calendar_data, not here.
+  """
   cal = calendar.Calendar(firstweekday=6)  # Sunday first
   month_days = cal.monthdatescalendar(year, month)
   liturgical_year_data = _load_liturgical_year_data()
 
   calendar_rows = []
-  today = datetime.date.today()
 
   for week in month_days:
     week_data = []
@@ -352,7 +357,6 @@ def generate_calendar_data(year, month):
         color = get_liturgical_color(color_key, day, day_cy)
       season = get_season_name(key, day, day_cy)
 
-      is_today = day == today
       is_current_month = day.month == month
 
       week_data.append({
@@ -363,12 +367,25 @@ def generate_calendar_data(year, month):
           "color": color.lower(),
           "color_name": color,
           "season": season,
-          "is_today": is_today,
           "is_current_month": is_current_month,
       })
     calendar_rows.append(week_data)
 
   return calendar_rows
+
+
+def generate_calendar_data(year, month):
+  """Returns the month grid for (year, month) with today's cell flagged.
+
+  The heavy liturgical computation is cached by _generate_calendar_grid; this
+  overlays the per-request is_today flag onto fresh copies so the cached grid
+  is never mutated.
+  """
+  today = datetime.date.today()
+  return [
+      [{**day, "is_today": day["date_obj"] == today} for day in week]
+      for week in _generate_calendar_grid(year, month)
+  ]
 
 
 def generate_liturgical_calendar_page():
