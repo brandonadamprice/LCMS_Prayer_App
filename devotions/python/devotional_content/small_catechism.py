@@ -3,6 +3,8 @@
 import copy
 import json
 import os
+from functools import lru_cache
+
 import flask
 import flask_login
 import utils
@@ -12,8 +14,9 @@ CATECHISM_EXPLANATION_PATH = os.path.join(
 )
 
 
+@lru_cache(maxsize=1)
 def load_catechism_explanation():
-  """Loads the catechism explanation data."""
+  """Loads the catechism explanation data (cached; treat as read-only)."""
   try:
     with open(CATECHISM_EXPLANATION_PATH, "r", encoding="utf-8") as f:
       data = json.load(f)

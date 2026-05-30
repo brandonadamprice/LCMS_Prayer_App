@@ -99,10 +99,6 @@ class FullOfEyesScraper:
       # Fallback: Look for any link with "Next" text (case insensitive)
       next_link = soup.find("a", string=lambda t: t and "next" in t.lower())
 
-    if not next_link:
-      # Fallback: specific WordPress/theme pagination (e.g. numeric "2")
-      pass
-
     if next_link and next_link.get("href"):
       return next_link["href"]
 
@@ -404,32 +400,3 @@ def get_art_for_reading(reading_ref, fallback_theme=None):
     logger.error("Error fetching recent images for fallback: %s", e)
 
   return None
-
-
-# Example Usage
-# if __name__ == "__main__":
-#   scraper = FullOfEyesScraper()
-#
-#   # 1. Fetch recent images
-#   print("--- Fetching Recent Gallery Images ---")
-#   recent_images = scraper.fetch_recent_gallery_images(max_pages=1)
-#
-#   if recent_images:
-#     print(f"\nTotal fetched: {len(recent_images)}")
-#     for i, img in enumerate(recent_images[:5]):
-#       print(f"{i+1}. {img['title']} \n   Img: {img['image_url']}")
-#   else:
-#     print("No recent images found or access denied.")
-#
-#   print("\n" + "=" * 30 + "\n")
-#
-#   # 2. Search for images
-#   search_term = "Cross"
-#   print(f"--- Searching for '{search_term}' ---")
-#   search_results = scraper.search_images(search_term)
-#
-#   if search_results:
-#     for i, img in enumerate(search_results[:5]):
-#       print(f"{i+1}. {img['title']} \n   Img: {img['image_url']}")
-#   else:
-#     print("No search results found.")

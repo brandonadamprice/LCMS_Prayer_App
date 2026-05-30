@@ -3,6 +3,8 @@
 import datetime
 import json
 import os
+from functools import lru_cache
+
 import flask
 import liturgy
 import pytz
@@ -11,8 +13,9 @@ import utils
 LENT_JSON_PATH = os.path.join(utils.SCRIPT_DIR, "..", "data", "lent.json")
 
 
+@lru_cache(maxsize=1)
 def load_lent_devotions():
-  """Loads Lenten devotions from JSON file."""
+  """Loads Lenten devotions from JSON file (cached; treat as read-only)."""
   with open(LENT_JSON_PATH, "r", encoding="utf-8") as f:
     return json.load(f)
 
@@ -23,7 +26,7 @@ def get_lent_devotion_data(date_obj=None):
   now = date_obj or datetime.datetime.now(eastern_timezone)
   today = now.date()
 
-  cy = liturgy.ChurchYear(today.year)
+  cy = liturgy.get_church_year(today.year)
   ash_wednesday = cy.ash_wednesday
   easter_sunday = cy.easter_date
 

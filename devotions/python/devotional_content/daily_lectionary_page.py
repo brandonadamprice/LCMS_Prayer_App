@@ -25,7 +25,7 @@ def generate_daily_lectionary_page(date_obj=None):
         pass
 
   # Use liturgical calendar logic to get key and utils to fetch readings
-  cy = liturgy.ChurchYear(now.year)
+  cy = liturgy.get_church_year(now.year)
   key = cy.get_liturgical_key(now)
 
   data = utils.load_lectionary(utils.LECTIONARY_JSON_PATH)

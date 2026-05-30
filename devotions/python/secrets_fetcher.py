@@ -1,33 +1,50 @@
 """Fetches secrets from environment variables or Google Cloud Secret Manager."""
 
+import functools
+import logging
 import os
 from google.cloud import secretmanager
+
+logger = logging.getLogger(__name__)
 
 PROJECT_ID = "978583660884"
 _SECRET_VERSION = "latest"
 
+# Only successful lookups are cached, so a transient Secret Manager failure
+# isn't pinned for the life of the process.
+_secret_cache = {}
+
+
+@functools.lru_cache(maxsize=1)
+def _get_client():
+  """Returns a Secret Manager client built once per process."""
+  return secretmanager.SecretManagerServiceClient()
+
 
 def _get_secret(secret_name, environment_variable, version=_SECRET_VERSION):
   """Fetches a secret from environment variables or Google Cloud Secret Manager."""
-  val = None
-  if os.getenv(environment_variable) is not None:
-    val = os.getenv(environment_variable)
-  else:
+  cache_key = (secret_name, environment_variable, version)
+  if cache_key in _secret_cache:
+    return _secret_cache[cache_key]
+
+  val = os.getenv(environment_variable)
+  if val is None:
     try:
       secret_id = (
           f"projects/{PROJECT_ID}/secrets/{secret_name}/versions/{version}"
       )
-      client = secretmanager.SecretManagerServiceClient()
-      response = client.access_secret_version(name=secret_id)
+      response = _get_client().access_secret_version(name=secret_id)
       val = response.payload.data.decode("UTF-8")
     except Exception as e:
-      print(f"Failed to fetch secret: {secret_name} - Error: {e}")
+      logger.error("Failed to fetch secret %s: %s", secret_name, e)
       return None
 
   if val:
-    return val.strip()
+    val = val.strip()
+    _secret_cache[cache_key] = val
+    return val
 
-  print(f"Secret {secret_name} is missing or None.")
+  logger.warning("Secret %s is missing or empty.", secret_name)
   return val
 
 

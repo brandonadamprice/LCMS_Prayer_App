@@ -6,6 +6,7 @@ for looking up lectionary readings.
 """
 
 import datetime
+import functools
 
 
 class ChurchYear:
@@ -148,3 +149,13 @@ class ChurchYear:
 
     # CASE 3: Fixed Date (Ordinary Time / Epiphany / Advent)
     return current_date.strftime("%d %b")
+
+
+@functools.lru_cache(maxsize=128)
+def get_church_year(year: int) -> ChurchYear:
+  """Returns a cached ChurchYear for the given year.
+
+  ChurchYear instances are immutable after construction and their methods are
+  pure, so a single instance per year can be shared safely across requests.
+  """
+  return ChurchYear(year)
