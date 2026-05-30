@@ -3,13 +3,12 @@
 import datetime
 import flask
 import flask_login
-import pytz
 import utils
 
 
 def generate_mid_week_devotion(date_obj=None):
   """Generates HTML for the mid-week devotion."""
-  eastern_timezone = pytz.timezone("America/New_York")
+  eastern_timezone = utils.EASTERN_TZ
   now = date_obj or datetime.datetime.now(eastern_timezone)
   reading_data = utils.get_mid_week_reading_for_date(now)
 

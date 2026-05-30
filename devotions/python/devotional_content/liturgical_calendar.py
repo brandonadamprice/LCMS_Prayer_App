@@ -7,7 +7,6 @@ from functools import lru_cache
 
 import flask
 import liturgy
-import pytz
 import utils
 
 
@@ -374,7 +373,7 @@ def generate_calendar_data(year, month):
 
 def generate_liturgical_calendar_page():
   """Generates HTML for the Liturgical Calendar page."""
-  eastern_timezone = pytz.timezone("America/New_York")
+  eastern_timezone = utils.EASTERN_TZ
   now = datetime.datetime.now(eastern_timezone)
 
   # Allow query params to change month/year

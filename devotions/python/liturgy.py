@@ -8,6 +8,18 @@ for looking up lectionary readings.
 import datetime
 import functools
 
+# Liturgical weeks begin on Sunday, so index 0 is Sunday. (This differs from
+# datetime.weekday(), where Monday is 0.)
+_WEEKDAY_NAMES = (
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+)
+
 
 class ChurchYear:
   """Calculates and provides key dates for the Western Christian liturgical year."""
@@ -87,16 +99,7 @@ class ChurchYear:
         # Lent Weeks
         days_into_lent = days_since_ash - 4
         week_num = (days_into_lent // 7) + 1
-        day_names = [
-            "Sunday",
-            "Monday",
-            "Tuesday",
-            "Wednesday",
-            "Thursday",
-            "Friday",
-            "Saturday",
-        ]
-        weekday = day_names[days_into_lent % 7]
+        weekday = _WEEKDAY_NAMES[days_into_lent % 7]
 
         # Special names for Holy Week (Lent 6)
         if week_num == 6:
@@ -120,16 +123,7 @@ class ChurchYear:
       # CASE 2: Easter Season
       days_since_easter = (d - self.easter_date).days
       week_num = (days_since_easter // 7) + 1
-      day_names = [
-          "Sunday",
-          "Monday",
-          "Tuesday",
-          "Wednesday",
-          "Thursday",
-          "Friday",
-          "Saturday",
-      ]
-      weekday = day_names[days_since_easter % 7]
+      weekday = _WEEKDAY_NAMES[days_since_easter % 7]
 
       if days_since_easter == 0:
         return "Easter Sunday"

@@ -35,6 +35,24 @@ LITURGICAL_YEAR_JSON_PATH = os.path.join(DATA_DIR, "liturgical_year.json")
 BIBLE_IN_A_YEAR_JSON_PATH = os.path.join(DATA_DIR, "bible_in_a_year.json")
 MEMENTO_READINGS_JSON_PATH = os.path.join(DATA_DIR, "memento_readings.json")
 
+# Default timezone for the app (US Eastern). Used wherever a user has no
+# timezone set or supplies an unrecognized one.
+EASTERN_TZ = pytz.timezone("America/New_York")
+
+
+def resolve_timezone(timezone_str):
+  """Returns the pytz timezone for ``timezone_str``.
+
+  Falls back to the app default (US Eastern) when the name is empty or is not a
+  recognized timezone.
+  """
+  if not timezone_str:
+    return EASTERN_TZ
+  try:
+    return pytz.timezone(timezone_str)
+  except pytz.UnknownTimeZoneError:
+    return EASTERN_TZ
+
 
 @functools.lru_cache(maxsize=None)
 def get_db_client():
@@ -355,7 +373,7 @@ def get_weekly_prayer_for_day(now: datetime.datetime, user_id=None) -> dict:
 
 def generate_category_page_data(json_path: str) -> list[dict]:
   """Loads category data from JSON, selects a deterministic verse, and fetches text."""
-  eastern_timezone = pytz.timezone("America/New_York")
+  eastern_timezone = EASTERN_TZ
   now = datetime.datetime.now(eastern_timezone)
 
   with open(json_path, "r", encoding="utf-8") as f:
@@ -588,7 +606,7 @@ def save_bia_progress(user_id: str, day: int, last_visit_str: str):
 
 def get_bible_in_a_year_devotion_data(user_id=None, date_obj=None):
   """Generates data for the Bible in a Year devotion for email/reminders."""
-  eastern_timezone = pytz.timezone("America/New_York")
+  eastern_timezone = EASTERN_TZ
   now = date_obj or datetime.datetime.now(eastern_timezone)
   bible_in_a_year_data = load_bible_in_a_year_data()
 
@@ -649,7 +667,7 @@ def get_memento_reading_for_date(date_obj):
 
 def get_office_devotion_data(user_id, office_name, date_obj=None):
   """Generates data for an office devotion (Morning, Evening, etc.)."""
-  eastern_timezone = pytz.timezone("America/New_York")
+  eastern_timezone = EASTERN_TZ
   now = date_obj or datetime.datetime.now(eastern_timezone)
   cy = liturgy.get_church_year(now.year)
   key = cy.get_liturgical_key(now)

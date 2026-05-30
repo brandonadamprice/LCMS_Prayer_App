@@ -3,7 +3,6 @@
 import datetime
 import flask
 import flask_login
-import pytz
 import utils
 
 
@@ -17,7 +16,7 @@ def generate_extended_evening_devotion(date_obj=None):
   Returns:
       The generated HTML as a string.
   """
-  eastern_timezone = pytz.timezone("America/New_York")
+  eastern_timezone = utils.EASTERN_TZ
   now = date_obj or datetime.datetime.now(eastern_timezone)
 
   user_id = (

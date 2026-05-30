@@ -4,7 +4,6 @@ import datetime
 import logging
 import flask
 import liturgy
-import pytz
 import utils
 
 logger = logging.getLogger(__name__)
@@ -12,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 def generate_daily_lectionary_page(date_obj=None):
   """Generates HTML for the Daily Lectionary page."""
-  eastern_timezone = pytz.timezone("America/New_York")
+  eastern_timezone = utils.EASTERN_TZ
   now = date_obj or datetime.datetime.now(eastern_timezone)
 
   # Support ?date=YYYY-MM-DD query param if no date_obj provided

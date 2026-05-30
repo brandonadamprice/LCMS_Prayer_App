@@ -7,7 +7,6 @@ from functools import lru_cache
 
 import flask
 import liturgy
-import pytz
 import utils
 
 LENT_JSON_PATH = os.path.join(utils.SCRIPT_DIR, "..", "data", "lent.json")
@@ -22,7 +21,7 @@ def load_lent_devotions():
 
 def get_lent_devotion_data(date_obj=None):
   """Generates data for the Lenten devotion."""
-  eastern_timezone = pytz.timezone("America/New_York")
+  eastern_timezone = utils.EASTERN_TZ
   now = date_obj or datetime.datetime.now(eastern_timezone)
   today = now.date()
 

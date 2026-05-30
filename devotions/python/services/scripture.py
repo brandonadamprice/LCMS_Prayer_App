@@ -10,21 +10,21 @@ from google.cloud import firestore
 SINGLE_CHAPTER_BOOKS = {"Obadiah", "Philemon", "2 John", "3 John", "Jude"}
 _CACHE_COLLECTION = "bible-verse-cache"
 
-# Module-level Firestore client (lazy singleton)
-_db_client = None
-
-
 def _get_db():
-  """Returns a lazily-initialized Firestore client, or None if unavailable."""
-  global _db_client
-  if _db_client is None:
-    try:
-      _db_client = firestore.Client(
-          project="lcms-prayer-app", database="prayer-app-datastore"
-      )
-    except Exception as e:
-      print(f"Scripture cache: failed to initialize Firestore client: {e}")
-  return _db_client
+  """Returns the app's shared Firestore client, or None if unavailable.
+
+  Delegates to ``utils.get_db_client`` (a process-wide cached client) so the
+  project/database configuration lives in one place. Returns None instead of
+  raising so a failed client simply disables the persistent cache layer and
+  callers fall back to the ESV API. ``utils`` is imported lazily to avoid a
+  circular import, since ``utils`` imports this module at startup.
+  """
+  try:
+    import utils
+    return utils.get_db_client()
+  except Exception as e:
+    print(f"Scripture cache: failed to initialize Firestore client: {e}")
+    return None
 
 
 def _firestore_cache_key(

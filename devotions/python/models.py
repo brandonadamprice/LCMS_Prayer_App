@@ -2,7 +2,6 @@
 
 import datetime
 import flask_login
-import pytz
 import utils
 
 
@@ -15,10 +14,7 @@ def compute_active_streak(streak_count, last_activity_date, timezone_str):
   """
   if not last_activity_date:
     return 0
-  try:
-    tz = pytz.timezone(timezone_str or "America/New_York")
-  except pytz.UnknownTimeZoneError:
-    tz = pytz.timezone("America/New_York")
+  tz = utils.resolve_timezone(timezone_str)
   now_date = datetime.datetime.now(tz).date()
   try:
     last_date = datetime.datetime.strptime(
