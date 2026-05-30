@@ -2,13 +2,12 @@
 
 import datetime
 import flask
-import pytz
 import utils
 
 
 def generate_new_year_devotion(date_obj=None):
   """Generates HTML for the New Year's devotion."""
-  eastern_timezone = pytz.timezone("America/New_York")
+  eastern_timezone = utils.EASTERN_TZ
   now = date_obj or datetime.datetime.now(eastern_timezone)
 
   readings = ["Psalm 90", "Luke 2:21"]

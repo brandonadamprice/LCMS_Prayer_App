@@ -10,7 +10,6 @@ import flask
 from google.cloud import firestore
 from itsdangerous import URLSafeTimedSerializer
 import models
-import pytz
 import utils
 
 logger = logging.getLogger(__name__)
@@ -258,10 +257,7 @@ def process_prayer_completion(
     user_id, devotion_type, timezone_str, bible_year_day=None
 ):
   """Marks a prayer as complete and updates the streak."""
-  try:
-    tz = pytz.timezone(timezone_str)
-  except pytz.UnknownTimeZoneError:
-    tz = pytz.timezone("America/New_York")
+  tz = utils.resolve_timezone(timezone_str)
 
   now = datetime.datetime.now(tz)
   today_str = now.strftime(
@@ -479,10 +475,7 @@ def process_prayer_completion(
 
 def process_bible_reading_completion(user_id, day_number, timezone_str):
   """Marks a Bible reading as complete and updates the Bible streak."""
-  try:
-    tz = pytz.timezone(timezone_str)
-  except pytz.UnknownTimeZoneError:
-    tz = pytz.timezone("America/New_York")
+  tz = utils.resolve_timezone(timezone_str)
 
   now = datetime.datetime.now(tz)
   today_str = now.strftime("%Y-%m-%d")

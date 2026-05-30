@@ -6,7 +6,6 @@ import os
 from functools import lru_cache
 
 import flask
-import pytz
 import utils
 
 ADVENT_JSON_PATH = os.path.join(utils.SCRIPT_DIR, "..", "data", "advent.json")
@@ -21,7 +20,7 @@ def load_advent_devotions():
 
 def generate_advent_devotion(date_obj=None):
   """Generates HTML for the Advent devotion."""
-  eastern_timezone = pytz.timezone("America/New_York")
+  eastern_timezone = utils.EASTERN_TZ
   now = date_obj or datetime.datetime.now(eastern_timezone)
   day_of_month = now.day
 

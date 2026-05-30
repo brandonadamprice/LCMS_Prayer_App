@@ -161,10 +161,7 @@ def inject_globals():
   ):
     timezone_str = flask_login.current_user.timezone
 
-  try:
-    tz = pytz.timezone(timezone_str)
-  except pytz.UnknownTimeZoneError:
-    tz = pytz.timezone("America/New_York")
+  tz = utils.resolve_timezone(timezone_str)
 
   now = datetime.datetime.now(tz)
   is_advent = now.month == 12 and 1 <= now.day <= 25
@@ -199,10 +196,7 @@ def index_route():
   ):
     timezone_str = flask_login.current_user.timezone
 
-  try:
-    tz = pytz.timezone(timezone_str)
-  except pytz.UnknownTimeZoneError:
-    tz = pytz.timezone("America/New_York")
+  tz = utils.resolve_timezone(timezone_str)
 
   now = datetime.datetime.now(tz)
   is_advent = now.month == 12 and 1 <= now.day <= 25
@@ -1660,7 +1654,7 @@ def admin_traffic_route():
     # Fetch all users
     docs = users_ref.stream()
 
-    eastern_timezone = pytz.timezone("America/New_York")
+    eastern_timezone = utils.EASTERN_TZ
 
     for doc in docs:
       data = doc.to_dict()
@@ -2024,10 +2018,7 @@ def streaks_route():
 
   # Determine if prayed today
   timezone_str = user.timezone or "America/New_York"
-  try:
-    tz = pytz.timezone(timezone_str)
-  except pytz.UnknownTimeZoneError:
-    tz = pytz.timezone("America/New_York")
+  tz = utils.resolve_timezone(timezone_str)
 
   today_str = datetime.datetime.now(tz).strftime("%Y-%m-%d")
   prayed_today = user.last_prayer_date == today_str

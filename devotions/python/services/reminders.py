@@ -37,10 +37,7 @@ DEVOTION_URLS = {
 
 def calculate_next_run(time_str, timezone_str):
   """Calculates the next occurrence of time_str in UTC."""
-  try:
-    tz = pytz.timezone(timezone_str)
-  except pytz.UnknownTimeZoneError:
-    tz = pytz.UTC
+  tz = utils.resolve_timezone(timezone_str)
 
   now = datetime.datetime.now(tz)
   hour, minute = map(int, time_str.split(":"))
@@ -175,7 +172,7 @@ def _process_reminder_notification(reminder_data, user_data, reminder_id=None):
 
   # Lenten Season Check
   if devotion_key == "lent":
-    eastern_timezone = pytz.timezone("America/New_York")
+    eastern_timezone = utils.EASTERN_TZ
     now = datetime.datetime.now(eastern_timezone)
     cy = liturgy.get_church_year(now.year)
     # Check if within Lent (Ash Wednesday to Easter Sunday inclusive)
@@ -477,7 +474,7 @@ def _send_email(
       if "id" in user_data:
         # We need the current date for the streak calculation in process_prayer_completion
         # Ideally, we use the date for which the devotion was generated (today)
-        eastern_timezone = pytz.timezone("America/New_York")
+        eastern_timezone = utils.EASTERN_TZ
         now = datetime.datetime.now(eastern_timezone)
         today_str = now.strftime("%Y-%m-%d")
 

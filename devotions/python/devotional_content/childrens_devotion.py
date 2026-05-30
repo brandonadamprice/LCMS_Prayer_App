@@ -2,7 +2,6 @@
 
 import datetime
 import flask
-import pytz
 import utils
 
 
@@ -16,7 +15,7 @@ def get_ten_commandments():
 
 def generate_childrens_devotion():
   """Generates HTML for the children's devotion."""
-  eastern_timezone = pytz.timezone("America/New_York")
+  eastern_timezone = utils.EASTERN_TZ
   now = datetime.datetime.now(eastern_timezone)
   catechism_data = utils.get_catechism_for_day(now, rotation="daily")
 
