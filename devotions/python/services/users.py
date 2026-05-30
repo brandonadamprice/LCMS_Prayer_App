@@ -212,6 +212,13 @@ def update_existing_user_doc(user_id, user_data):
   return models.User.get(user_id)
 
 
+def update_last_seen(user_id, when=None):
+  """Records the timestamp of a user's most recent activity (last seen)."""
+  db = utils.get_db_client()
+  when = when or datetime.datetime.now(datetime.timezone.utc)
+  db.collection("users").document(user_id).set({"last_seen": when}, merge=True)
+
+
 def handle_oauth_login(user_info, provider):
   """Handles the login logic including merge detection."""
   user_data = get_oauth_user_data(user_info, provider)
