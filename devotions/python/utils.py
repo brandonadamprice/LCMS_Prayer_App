@@ -325,6 +325,20 @@ def get_deterministic_choice(options: list, date_obj: datetime.datetime) -> any:
   return options[(day_of_year - 1) % len(options)]
 
 
+def devotion_nav_dates(now):
+  """Returns (prev_date, next_date) strings for a devotion's day navigation.
+
+  next_date is None when the next day is still in the future (US Eastern), so
+  navigation never points past the current day. Used by the dated devotion
+  pages, which all share this prev/next logic.
+  """
+  today = datetime.datetime.now(EASTERN_TZ).date()
+  prev_date = (now.date() - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
+  next_day = now.date() + datetime.timedelta(days=1)
+  next_date = next_day.strftime("%Y-%m-%d") if next_day <= today else None
+  return prev_date, next_date
+
+
 def get_catechism_for_day(
     now: datetime.datetime, rotation: str = "daily"
 ) -> dict:

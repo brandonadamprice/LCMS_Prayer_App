@@ -60,10 +60,7 @@ def generate_mid_week_devotion(date_obj=None):
     prayer_data["personal_prayers"] = personal_prayers_by_topic.get(topic, [])
     weekly_prayers_list.append(prayer_data)
 
-  today_date = datetime.datetime.now(eastern_timezone).date()
-  prev_date = (now.date() - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
-  next_day = now.date() + datetime.timedelta(days=1)
-  next_date = next_day.strftime("%Y-%m-%d") if next_day <= today_date else None
+  prev_date, next_date = utils.devotion_nav_dates(now)
 
   template_data = {
       "date_str": now.strftime("%A, %B %d, %Y"),

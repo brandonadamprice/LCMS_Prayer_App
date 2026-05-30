@@ -2,27 +2,21 @@
 
 import copy
 import json
-import os
 from functools import lru_cache
 
 import flask
 import flask_login
 import utils
 
-CATECHISM_EXPLANATION_PATH = os.path.join(
-    utils.SCRIPT_DIR, "..", "data", "catechism_explaination.json"
-)
-
-
 @lru_cache(maxsize=1)
 def load_catechism_explanation():
   """Loads the catechism explanation data (cached; treat as read-only)."""
   try:
-    with open(CATECHISM_EXPLANATION_PATH, "r", encoding="utf-8") as f:
+    with open(utils.CATECHISM_EXPLANATION_PATH, "r", encoding="utf-8") as f:
       data = json.load(f)
       return utils.process_node(data)
   except FileNotFoundError:
-    print(f"Warning: {CATECHISM_EXPLANATION_PATH} not found.")
+    print(f"Warning: {utils.CATECHISM_EXPLANATION_PATH} not found.")
     return {}
 
 

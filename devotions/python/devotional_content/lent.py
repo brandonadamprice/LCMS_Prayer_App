@@ -70,10 +70,7 @@ def get_lent_devotion_data(date_obj=None):
   elif day_offset >= 45:  # Holy Saturday and Easter Sunday
     banner_image = "banner_easter.jpg"
 
-  today_date = datetime.datetime.now(eastern_timezone).date()
-  prev_date = (now.date() - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
-  next_day = now.date() + datetime.timedelta(days=1)
-  next_date = next_day.strftime("%Y-%m-%d") if next_day <= today_date else None
+  prev_date, next_date = utils.devotion_nav_dates(now)
 
   return {
       "date_str": now.strftime("%A, %B %d, %Y"),

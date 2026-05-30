@@ -1,6 +1,7 @@
 """Main Flask application for serving devotions."""
 
 import datetime
+import functools
 import logging
 import os
 import re
@@ -170,6 +171,22 @@ def set_static_cache_headers(response):
   elif flask.request.endpoint == "static" or path.startswith("/static/"):
     response.headers["Cache-Control"] = "public, max-age=604800"  # 7 days
   return response
+
+
+def admin_required(f):
+  """Aborts with 403 unless the current user is the configured admin.
+
+  Use below @flask_login.login_required so authentication (and its login
+  redirect) is handled first.
+  """
+  @functools.wraps(f)
+  def wrapper(*args, **kwargs):
+    admin_id = app.config.get("ADMIN_USER_ID")
+    if not admin_id or flask_login.current_user.id != admin_id:
+      return flask.abort(403)
+    return f(*args, **kwargs)
+
+  return wrapper
 
 
 @app.context_processor
@@ -1284,67 +1301,56 @@ def delete_prayer_request_route(request_id):
   return flask.jsonify({"success": True})
 
 
+def _save_user_fields(updates, use_merge=True):
+  """Writes fields to the current user's doc and returns a JSON response.
+
+  use_merge=True creates the doc if absent (set with merge); use_merge=False
+  uses update(), which is required for dotted nested-field keys.
+  """
+  try:
+    db = utils.get_db_client()
+    user_ref = db.collection("users").document(flask_login.current_user.id)
+    if use_merge:
+      user_ref.set(updates, merge=True)
+    else:
+      user_ref.update(updates)
+    return flask.jsonify({"success": True})
+  except Exception as e:
+    app.logger.error("Failed to save user setting %s: %s", list(updates), e)
+    return (
+        flask.jsonify({"success": False, "error": "Database save failed"}),
+        500,
+    )
+
+
 @app.route("/save_dark_mode", methods=["POST"])
 @flask_login.login_required
 def save_dark_mode_route():
   """Saves dark mode preference for the current user."""
-  data = flask.request.json
-  dark_mode_enabled = data.get("dark_mode")
-  if isinstance(dark_mode_enabled, bool):
-    try:
-      db = utils.get_db_client()
-      user_ref = db.collection("users").document(flask_login.current_user.id)
-      user_ref.set({"dark_mode": dark_mode_enabled}, merge=True)
-      return flask.jsonify({"success": True})
-    except Exception as e:
-      app.logger.error("Failed to save dark mode setting: %s", e)
-      return (
-          flask.jsonify({"success": False, "error": "Database save failed"}),
-          500,
-      )
-  return flask.jsonify({"success": False, "error": "Invalid data"}), 400
+  value = flask.request.json.get("dark_mode")
+  if not isinstance(value, bool):
+    return flask.jsonify({"success": False, "error": "Invalid data"}), 400
+  return _save_user_fields({"dark_mode": value})
 
 
 @app.route("/save_background_art", methods=["POST"])
 @flask_login.login_required
 def save_background_art_route():
   """Saves background art preference for the current user."""
-  data = flask.request.json
-  enabled = data.get("background_art")
-  if isinstance(enabled, bool):
-    try:
-      db = utils.get_db_client()
-      user_ref = db.collection("users").document(flask_login.current_user.id)
-      user_ref.set({"background_art": enabled}, merge=True)
-      return flask.jsonify({"success": True})
-    except Exception as e:
-      app.logger.error("Failed to save background art setting: %s", e)
-      return (
-          flask.jsonify({"success": False, "error": "Database save failed"}),
-          500,
-      )
-  return flask.jsonify({"success": False, "error": "Invalid data"}), 400
+  value = flask.request.json.get("background_art")
+  if not isinstance(value, bool):
+    return flask.jsonify({"success": False, "error": "Invalid data"}), 400
+  return _save_user_fields({"background_art": value})
 
 
 @app.route("/save_font_size", methods=["POST"])
 @flask_login.login_required
 def save_font_size_route():
   """Saves font size preference for the current user."""
-  data = flask.request.json
-  font_size_level = data.get("font_size_level")
-  if isinstance(font_size_level, int):
-    try:
-      db = utils.get_db_client()
-      user_ref = db.collection("users").document(flask_login.current_user.id)
-      user_ref.set({"font_size_level": font_size_level}, merge=True)
-      return flask.jsonify({"success": True})
-    except Exception as e:
-      app.logger.error("Failed to save font size setting: %s", e)
-      return (
-          flask.jsonify({"success": False, "error": "Database save failed"}),
-          500,
-      )
-  return flask.jsonify({"success": False, "error": "Invalid data"}), 400
+  value = flask.request.json.get("font_size_level")
+  if not isinstance(value, int):
+    return flask.jsonify({"success": False, "error": "Invalid data"}), 400
+  return _save_user_fields({"font_size_level": value})
 
 
 @app.route("/api/save_reading_preference", methods=["POST"])
@@ -1358,18 +1364,9 @@ def save_reading_preference_route():
   if not devotion or not preference:
     return flask.jsonify({"success": False, "error": "Missing fields"}), 400
 
-  try:
-    db = utils.get_db_client()
-    user_ref = db.collection("users").document(flask_login.current_user.id)
-    # Update nested field in reading_preferences map
-    user_ref.update({f"reading_preferences.{devotion}": preference})
-    return flask.jsonify({"success": True})
-  except Exception as e:
-    app.logger.error("Failed to save reading preference: %s", e)
-    return (
-        flask.jsonify({"success": False, "error": "Database save failed"}),
-        500,
-    )
+  return _save_user_fields(
+      {f"reading_preferences.{devotion}": preference}, use_merge=False
+  )
 
 
 @app.route("/api/save_psalm_preference", methods=["POST"])
@@ -1383,18 +1380,9 @@ def save_psalm_preference_route():
   if not devotion or not preference:
     return flask.jsonify({"success": False, "error": "Missing fields"}), 400
 
-  try:
-    db = utils.get_db_client()
-    user_ref = db.collection("users").document(flask_login.current_user.id)
-    # Update nested field in psalm_preferences map
-    user_ref.update({f"psalm_preferences.{devotion}": preference})
-    return flask.jsonify({"success": True})
-  except Exception as e:
-    app.logger.error("Failed to save psalm preference: %s", e)
-    return (
-        flask.jsonify({"success": False, "error": "Database save failed"}),
-        500,
-    )
+  return _save_user_fields(
+      {f"psalm_preferences.{devotion}": preference}, use_merge=False
+  )
 
 
 @app.route("/toggle_favorite", methods=["POST"])
@@ -1660,13 +1648,9 @@ def random_prayer_request_route():
 
 @app.route("/admin/traffic")
 @flask_login.login_required
+@admin_required
 def admin_traffic_route():
   """Renders the GA4 traffic analytics page."""
-  if not app.config.get(
-      "ADMIN_USER_ID"
-  ) or flask_login.current_user.id != app.config.get("ADMIN_USER_ID"):
-    return flask.abort(403)
-
   # Fetch registered users from Firestore
   registered_users = []
   streak_users = []
@@ -1875,10 +1859,8 @@ def send_reminders_task():
 
 @app.route("/debug/force_reminders", methods=["POST"])
 @flask_login.login_required
+@admin_required
 def force_reminders_route():
-  if flask_login.current_user.id != app.config.get("ADMIN_USER_ID"):
-    return flask.abort(403)
-
   success, msg = reminders.force_send_reminders_for_user(
       flask_login.current_user.id
   )
