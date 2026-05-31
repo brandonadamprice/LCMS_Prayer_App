@@ -15,7 +15,6 @@ def generate_gospels_by_category_page():
       GOSPELS_BY_CATEGORY_JSON_PATH
   )
 
-  print("Generated Gospels by Category HTML")
   return flask.render_template(
       "gospels_by_category.html", category_data=category_data
   )

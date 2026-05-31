@@ -2,12 +2,15 @@
 
 import datetime
 import json
+import logging
 import os
 from functools import lru_cache
 
 import flask
 import liturgy
 import utils
+
+logger = logging.getLogger(__name__)
 
 LENT_JSON_PATH = os.path.join(utils.SCRIPT_DIR, "..", "data", "lent.json")
 
@@ -55,7 +58,7 @@ def get_lent_devotion_data(date_obj=None):
     ot_text = reading_texts[0]
     nt_text = reading_texts[1]
   except Exception as e:
-    print(f"Error fetching passage: {e}")
+    logger.error(f"Error fetching passage: {e}")
     ot_text = "Reading text not available."
     nt_text = "Reading text not available."
 
@@ -64,16 +67,13 @@ def get_lent_devotion_data(date_obj=None):
   )
   prayer_html = f'<p>{devotion_data.get("prayer", "Prayer not available.")}</p>'
 
-  banner_image = "banner_lent.png"
+  banner_image = "banner_lent.jpg"
   if day_offset == 44:  # Good Friday
-    banner_image = "banner_good_friday.png"
+    banner_image = "banner_good_friday.jpg"
   elif day_offset >= 45:  # Holy Saturday and Easter Sunday
-    banner_image = "banner_easter.png"
+    banner_image = "banner_easter.jpg"
 
-  today_date = datetime.datetime.now(eastern_timezone).date()
-  prev_date = (now.date() - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
-  next_day = now.date() + datetime.timedelta(days=1)
-  next_date = next_day.strftime("%Y-%m-%d") if next_day <= today_date else None
+  prev_date, next_date = utils.devotion_nav_dates(now)
 
   return {
       "date_str": now.strftime("%A, %B %d, %Y"),
@@ -93,5 +93,4 @@ def get_lent_devotion_data(date_obj=None):
 def generate_lent_devotion(date_obj=None):
   """Generates HTML for the Lenten devotion."""
   template_data = get_lent_devotion_data(date_obj)
-  print("Generated Lent HTML")
   return flask.render_template("lent_devotion.html", **template_data)

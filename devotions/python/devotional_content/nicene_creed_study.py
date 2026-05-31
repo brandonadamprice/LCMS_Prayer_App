@@ -24,5 +24,4 @@ def generate_nicene_creed_study_page():
   """Generates HTML for the Nicene Creed study page."""
   study_data = load_nicene_creed_study_data()
   template_data = study_data["nicene_creed_study"]
-  print("Generated Nicene Creed Study HTML")
   return flask.render_template("nicene_creed_study.html", **template_data)

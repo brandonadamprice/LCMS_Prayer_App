@@ -1,9 +1,13 @@
 """Functions for generating the mid-week devotion."""
 
 import datetime
+import logging
+
 import flask
 import flask_login
 import utils
+
+logger = logging.getLogger(__name__)
 
 
 def generate_mid_week_devotion(date_obj=None):
@@ -31,7 +35,7 @@ def generate_mid_week_devotion(date_obj=None):
         refs_to_fetch
     )
   except Exception as e:
-    print(f"Error fetching passages for mid-week devotion: {e}")
+    logger.error(f"Error fetching passages for mid-week devotion: {e}")
     return flask.render_template(
         "prayer_request_failed.html",
         error_message="Failed to fetch scripture passages.",
@@ -51,7 +55,7 @@ def generate_mid_week_devotion(date_obj=None):
             prayer["for_whom"] = utils.decrypt_text(prayer["for_whom"])
           personal_prayers_by_topic[topic].append(prayer)
     except Exception as e:
-      print(f"Error fetching personal prayers for mid-week: {e}")
+      logger.error(f"Error fetching personal prayers for mid-week: {e}")
 
   weekly_prayers_list = []
   for i in range(7):
@@ -60,10 +64,7 @@ def generate_mid_week_devotion(date_obj=None):
     prayer_data["personal_prayers"] = personal_prayers_by_topic.get(topic, [])
     weekly_prayers_list.append(prayer_data)
 
-  today_date = datetime.datetime.now(eastern_timezone).date()
-  prev_date = (now.date() - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
-  next_day = now.date() + datetime.timedelta(days=1)
-  next_date = next_day.strftime("%Y-%m-%d") if next_day <= today_date else None
+  prev_date, next_date = utils.devotion_nav_dates(now)
 
   template_data = {
       "date_str": now.strftime("%A, %B %d, %Y"),
@@ -83,5 +84,4 @@ def generate_mid_week_devotion(date_obj=None):
   }
   template_data.update(catechism_data)
 
-  print("Generated Mid-Week Devotion HTML")
   return flask.render_template("mid_week_devotion.html", **template_data)

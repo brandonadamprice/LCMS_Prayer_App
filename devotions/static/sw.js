@@ -1,4 +1,4 @@
-const CACHE_NAME = 'prayer-app-v11';
+const CACHE_NAME = 'prayer-app-v13';
 const ASSETS_TO_CACHE = [
   '/static/styles.css',
   '/static/banner.jpg',
@@ -35,6 +35,14 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
+  // The service worker only handles GET. POST/PUT/etc. (API writes, form
+  // submits, analytics beacons) go straight to the network -- Cache.put()
+  // rejects on non-GET requests, which caused
+  // "Failed to execute 'put' on 'Cache': Request method 'POST' is unsupported".
+  if (event.request.method !== 'GET') {
+    return;
+  }
+
   // Exclude authentication routes from service worker interception.
   // This allows the browser to handle redirects and cookies for OAuth natively.
   if (url.pathname.startsWith('/login') ||
@@ -61,9 +69,30 @@ self.addEventListener('fetch', (event) => {
                             return caches.match(event.request);
                           }));
   } else {
-    // For other assets (CSS, images), try cache first, then network
-    event.respondWith(caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
+    // Cross-origin requests (Google Fonts, CDN scripts, analytics) pass
+    // straight through to the network -- never SW-mediated or cached -- so we
+    // don't store opaque responses or add a hop to third-party fetches.
+    if (url.origin !== self.location.origin) {
+      return;
+    }
+
+    // For same-origin assets (CSS, JS, images): stale-while-revalidate.
+    // Serve the cached copy immediately for speed, then refresh the cache in
+    // the background so the next load picks up any updated asset (previously
+    // cache-first meant assets could stay stale until CACHE_NAME was bumped).
+    event.respondWith(caches.open(CACHE_NAME).then((cache) => {
+      return cache.match(event.request).then((cached) => {
+        const fetched = fetch(event.request)
+                            .then((response) => {
+                              if (response && response.ok &&
+                                  response.type === 'basic') {
+                                cache.put(event.request, response.clone());
+                              }
+                              return response;
+                            })
+                            .catch(() => cached);
+        return cached || fetched;
+      });
     }));
   }
 });

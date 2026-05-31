@@ -107,5 +107,4 @@ def generate_memory_page():
     verses_for_template.append(verse_item)
 
   template_data = {"verses": verses_for_template}
-  print("Generated Memory Page HTML")
   return flask.render_template("memory.html", **template_data)

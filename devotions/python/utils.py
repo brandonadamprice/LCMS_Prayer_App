@@ -4,6 +4,7 @@ import csv
 import datetime
 import functools
 import json
+import logging
 import os
 import re
 from typing import Optional
@@ -15,6 +16,8 @@ import liturgy
 import pytz
 import secrets_fetcher as secrets
 from services import scripture
+
+logger = logging.getLogger(__name__)
 
 # Flag to enable/disable Catechism section in devotions
 ENABLE_CATECHISM = True
@@ -84,7 +87,7 @@ def load_inappropriate_words():
         if "word" in row and row["word"]:
           words.add(row["word"].strip().lower())
   except FileNotFoundError:
-    print(f"Warning: {INAPPROPRIATE_WORDS_CSV_PATH} not found.")
+    logger.warning(f"Warning: {INAPPROPRIATE_WORDS_CSV_PATH} not found.")
   return words
 
 
@@ -211,7 +214,7 @@ def inject_references_in_text(text):
         # If ref is invalid or fetch failed, replace tag with just the text content
         text = text.replace(tag_to_replace, ref)
   except Exception as e:
-    print(f"Error injecting references: {e}")
+    logger.error(f"Error injecting references: {e}")
     # Fallback: remove all tags on error
     text = re.sub(pattern, r"\1", text)
 
@@ -236,11 +239,16 @@ def load_weekly_prayers():
     return json.load(f)
 
 
-def load_catechism():
-  """Loads catechism data from JSON file."""
+@functools.lru_cache(maxsize=1)
+def get_catechism_sections():
+  """Returns the tooltip-injected catechism sections (cached; treat as read-only).
+
+  process_node injects scripture tooltips, which can call the ESV API, so this
+  is built lazily on first use rather than at import time (importing utils used
+  to trigger ~21 ESV/Firestore calls before the app could serve a request).
+  """
   with open(CATECHISM_JSON_PATH, "r", encoding="utf-8") as f:
-    catechism_data = json.load(f)
-  return process_node(catechism_data)
+    return process_node(json.load(f))
 
 
 def load_other_prayers():
@@ -273,11 +281,10 @@ def load_memento_readings():
     with open(MEMENTO_READINGS_JSON_PATH, "r", encoding="utf-8") as f:
       return json.load(f)
   except FileNotFoundError:
-    print(f"Warning: {MEMENTO_READINGS_JSON_PATH} not found.")
+    logger.warning(f"Warning: {MEMENTO_READINGS_JSON_PATH} not found.")
     return []
 
 
-CATECHISM_SECTIONS = load_catechism()
 WEEKLY_PRAYERS = load_weekly_prayers()
 OFFICE_READINGS = load_office_readings()
 OTHER_PRAYERS = load_other_prayers()
@@ -308,7 +315,7 @@ def decrypt_text(token: str) -> str:
     f = get_fernet()
     return f.decrypt(token.encode()).decode()
   except Exception as e:
-    print(f"Error decrypting token: {e}")
+    logger.error(f"Error decrypting token: {e}")
     return "[Error decrypting prayer]"
 
 
@@ -319,6 +326,20 @@ def get_deterministic_choice(options: list, date_obj: datetime.datetime) -> any:
   # Use day of year for deterministic rotation
   day_of_year = date_obj.timetuple().tm_yday
   return options[(day_of_year - 1) % len(options)]
+
+
+def devotion_nav_dates(now):
+  """Returns (prev_date, next_date) strings for a devotion's day navigation.
+
+  next_date is None when the next day is still in the future (US Eastern), so
+  navigation never points past the current day. Used by the dated devotion
+  pages, which all share this prev/next logic.
+  """
+  today = datetime.datetime.now(EASTERN_TZ).date()
+  prev_date = (now.date() - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
+  next_day = now.date() + datetime.timedelta(days=1)
+  next_date = next_day.strftime("%Y-%m-%d") if next_day <= today else None
+  return prev_date, next_date
 
 
 def get_catechism_for_day(
@@ -333,8 +354,9 @@ def get_catechism_for_day(
   else:  # daily
     item_of_year = now.timetuple().tm_yday  # day of year
 
-  cat_idx = (item_of_year - 1) % len(CATECHISM_SECTIONS)
-  catechism = CATECHISM_SECTIONS[cat_idx]
+  sections = get_catechism_sections()
+  cat_idx = (item_of_year - 1) % len(sections)
+  catechism = sections[cat_idx]
   prayer = get_deterministic_choice(catechism["prayers"], now)
   return {
       "catechism_enabled": True,
@@ -345,27 +367,38 @@ def get_catechism_for_day(
   }
 
 
-def get_weekly_prayer_for_day(now: datetime.datetime, user_id=None) -> dict:
-  """Returns the weekly prayer topic and text for a given day."""
+def get_weekly_prayer_for_day(
+    now: datetime.datetime, user_id=None, personal_prayers_by_category=None
+) -> dict:
+  """Returns the weekly prayer topic and text for a given day.
+
+  If personal_prayers_by_category (the grouped, already-decrypted output of
+  get_all_personal_prayers_for_user) is supplied, the day's personal prayers are
+  taken from it instead of re-streaming and re-decrypting the user's
+  personal-prayers subcollection.
+  """
   weekday_idx = now.weekday()
   prayer_data = WEEKLY_PRAYERS.get(
       str(weekday_idx), {"topic": "General Intercessions", "prayer": ""}
   )
   topic = prayer_data["topic"]
-  personal_prayers_list = []
 
-  target_id = user_id
-  if target_id is None and flask_login.current_user.is_authenticated:
-    target_id = flask_login.current_user.id
+  if personal_prayers_by_category is not None:
+    personal_prayers_list = list(personal_prayers_by_category.get(topic, []))
+  else:
+    personal_prayers_list = []
+    target_id = user_id
+    if target_id is None and flask_login.current_user.is_authenticated:
+      target_id = flask_login.current_user.id
 
-  if target_id:
-    raw_prayers = fetch_personal_prayers(target_id)
-    for prayer in raw_prayers:
-      if prayer.get("category") == topic:
-        prayer["text"] = decrypt_text(prayer["text"])
-        if prayer.get("for_whom"):
-          prayer["for_whom"] = decrypt_text(prayer["for_whom"])
-        personal_prayers_list.append(prayer)
+    if target_id:
+      raw_prayers = fetch_personal_prayers(target_id)
+      for prayer in raw_prayers:
+        if prayer.get("category") == topic:
+          prayer["text"] = decrypt_text(prayer["text"])
+          if prayer.get("for_whom"):
+            prayer["for_whom"] = decrypt_text(prayer["for_whom"])
+          personal_prayers_list.append(prayer)
 
   return {
       "prayer_topic": topic,
@@ -407,7 +440,7 @@ ChurchYear = liturgy.ChurchYear
 def load_lectionary(filepath: str) -> dict:
   """Loads the lectionary data from a JSON file (cached; treat as read-only)."""
   if not os.path.exists(filepath):
-    print(f"JSON file not found: {filepath}")
+    logger.error(f"JSON file not found: {filepath}")
     return {}
   with open(filepath, mode="r", encoding="utf-8") as f:
     return json.load(f)
@@ -434,8 +467,6 @@ def get_devotion_data(now: datetime.datetime, user_id=None) -> dict:
 
   # 2. Determine Key
   key = cy.get_liturgical_key(now)
-  print(f"Generating devotion for: {now.strftime('%Y-%m-%d')}")
-  print(f"Liturgical Key: {key}")
 
   # 3. Load Data
   data = load_lectionary(LECTIONARY_JSON_PATH)
@@ -445,25 +476,21 @@ def get_devotion_data(now: datetime.datetime, user_id=None) -> dict:
   )
 
   if readings["OT"] == "Reading not found":
-    print(f"Warning: Key '{key}' not found in CSV.")
+    logger.warning(f"Warning: Key '{key}' not found in CSV.")
 
   # 4. Psalm Ref & Fetch Texts
-  print("Fetching texts...")
   day_of_year = now.timetuple().tm_yday
   psalm_num = (day_of_year - 1) % 150 + 1
   psalm_ref = f"Psalm {psalm_num}"
 
   refs_to_fetch = [readings["OT"], readings["NT"], psalm_ref]
   ot_text, nt_text, psalm_text = fetch_passages(refs_to_fetch)
-  print("Texts Acquired")
 
   # 5. Catechism - USE HELPER
   catechism_data = get_catechism_for_day(now, rotation="daily")
-  print("Populated Catechism Reading")
 
   # 6. Weekly Prayer - USE HELPER
   weekly_prayer_data = get_weekly_prayer_for_day(now)
-  print("Populated Weekly Prayer section")
 
   # Bible in a Year
   bible_in_a_year_data = get_bible_in_a_year_devotion_data(user_id, now)
@@ -495,7 +522,7 @@ def get_devotion_data(now: datetime.datetime, user_id=None) -> dict:
           "psalms_text": mt_texts[1],
       }
     except Exception as e:
-      print(f"Error fetching memento texts for extended evening: {e}")
+      logger.error(f"Error fetching memento texts for extended evening: {e}")
 
   if user_id:
     user = flask_login.current_user
@@ -542,7 +569,7 @@ def fetch_personal_prayers(user_id: str) -> list[dict]:
       prayer["id"] = doc.id
       prayers.append(prayer)
   except Exception as e:
-    print(f"Error fetching personal prayers from new collection: {e}")
+    logger.error(f"Error fetching personal prayers from new collection: {e}")
 
   return prayers
 
@@ -642,7 +669,7 @@ def get_bible_in_a_year_devotion_data(user_id=None, date_obj=None):
     nt_text = texts[1]
     psp_text = texts[2]
   except Exception as e:
-    print(f"Error fetching passages for Bible in a Year: {e}")
+    logger.error(f"Error fetching passages for Bible in a Year: {e}")
     ot_text = "Text not available"
     nt_text = "Text not available"
     psp_text = "Text not available"
@@ -812,8 +839,11 @@ def get_office_devotion_data(user_id, office_name, date_obj=None):
     data["luthers_morning_prayer"] = OTHER_PRAYERS["luthers_morning_prayer"]
   elif office_name == "close_of_day":
     data["luthers_evening_prayer"] = OTHER_PRAYERS["luthers_evening_prayer"]
-    # Weekly prayer topic for Close of Day
-    weekly_prayer_data = get_weekly_prayer_for_day(now, user_id)
+    # Weekly prayer topic for Close of Day. Reuse the personal prayers already
+    # fetched and decrypted above to avoid a second subcollection read.
+    weekly_prayer_data = get_weekly_prayer_for_day(
+        now, user_id, personal_prayers_by_category=all_personal_prayers
+    )
     data.update(weekly_prayer_data)
   elif office_name == "night_watch":
     data["protection_prayer"] = OTHER_PRAYERS["night_watch_protection_prayers"]

@@ -834,7 +834,7 @@ def mark_catechism_complete(user_id, section_index):
       completed_sections.append(section_id)
 
     completed_count = len(completed_sections)
-    total_sections = len(utils.CATECHISM_SECTIONS)
+    total_sections = len(utils.get_catechism_sections())
 
     new_achievements = []
     milestone_reached = False

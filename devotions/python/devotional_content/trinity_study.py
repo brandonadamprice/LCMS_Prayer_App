@@ -24,5 +24,4 @@ def generate_trinity_study_page():
   """Generates HTML for the Trinity study page."""
   study_data = load_trinity_study_data()
   template_data = study_data["study_of_the_holy_trinity"]
-  print("Generated Trinity Study HTML")
   return flask.render_template("trinity_study.html", study=template_data)

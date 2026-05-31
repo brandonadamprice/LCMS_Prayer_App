@@ -2,6 +2,7 @@
 
 import functools
 import hashlib
+import logging
 import re
 import requests
 import secrets_fetcher as secrets
@@ -9,6 +10,8 @@ from google.cloud import firestore
 
 SINGLE_CHAPTER_BOOKS = {"Obadiah", "Philemon", "2 John", "3 John", "Jude"}
 _CACHE_COLLECTION = "bible-verse-cache"
+
+logger = logging.getLogger(__name__)
 
 def _get_db():
   """Returns the app's shared Firestore client, or None if unavailable.
@@ -23,7 +26,7 @@ def _get_db():
     import utils
     return utils.get_db_client()
   except Exception as e:
-    print(f"Scripture cache: failed to initialize Firestore client: {e}")
+    logger.warning("Scripture cache: failed to initialize Firestore client: %s", e)
     return None
 
 
@@ -44,7 +47,7 @@ def _read_firestore_cache(db, doc_id: str, expected_len: int):
       if passages and len(passages) == expected_len:
         return tuple(passages)
   except Exception as e:
-    print(f"Scripture cache: Firestore read error: {e}")
+    logger.warning("Scripture cache: Firestore read error: %s", e)
   return None
 
 
@@ -58,7 +61,7 @@ def _write_firestore_cache(db, doc_id: str, passages: tuple):
         }
     )
   except Exception as e:
-    print(f"Scripture cache: Firestore write error: {e}")
+    logger.warning("Scripture cache: Firestore write error: %s", e)
 
 
 def parse_scripture_reference(text):
@@ -295,7 +298,7 @@ def fetch_passages(
         )
     )
   except requests.exceptions.RequestException as e:
-    print(f"Error fetching from ESV API: {e}")
+    logger.warning("Error fetching from ESV API: %s", e)
     results = []
     for ref in references:
       if ref and ref != "Daily Lectionary Not Found":
@@ -304,7 +307,7 @@ def fetch_passages(
         results.append("<i>Reading not available.</i>")
     return results
   except Exception as e:
-    print(f"Error processing ESV API response: {e}")
+    logger.error("Error processing ESV API response: %s", e)
     results = []
     for ref in references:
       if ref and ref != "Daily Lectionary Not Found":

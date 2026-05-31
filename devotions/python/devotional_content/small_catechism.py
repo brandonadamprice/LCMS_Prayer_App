@@ -2,35 +2,33 @@
 
 import copy
 import json
-import os
+import logging
 from functools import lru_cache
 
 import flask
 import flask_login
 import utils
 
-CATECHISM_EXPLANATION_PATH = os.path.join(
-    utils.SCRIPT_DIR, "..", "data", "catechism_explaination.json"
-)
+logger = logging.getLogger(__name__)
 
 
 @lru_cache(maxsize=1)
 def load_catechism_explanation():
   """Loads the catechism explanation data (cached; treat as read-only)."""
   try:
-    with open(CATECHISM_EXPLANATION_PATH, "r", encoding="utf-8") as f:
+    with open(utils.CATECHISM_EXPLANATION_PATH, "r", encoding="utf-8") as f:
       data = json.load(f)
       return utils.process_node(data)
   except FileNotFoundError:
-    print(f"Warning: {CATECHISM_EXPLANATION_PATH} not found.")
+    logger.warning(f"Warning: {utils.CATECHISM_EXPLANATION_PATH} not found.")
     return {}
 
 
 def get_grouped_catechism():
   """Groups the catechism sections into the Six Chief Parts."""
-  # Deep copy to prevent modifying the global CATECHISM_SECTIONS in place,
+  # Deep copy to prevent modifying the cached catechism sections in place,
   # which causes recursive tooltip injection on page reloads.
-  sections = copy.deepcopy(utils.CATECHISM_SECTIONS)
+  sections = copy.deepcopy(utils.get_catechism_sections())
   explanation_data = load_catechism_explanation()
 
   # Create a lookup for explanations by title
@@ -129,7 +127,6 @@ def generate_small_catechism_page():
   if flask_login.current_user.is_authenticated:
     completed_sections = flask_login.current_user.completed_catechism_sections
 
-  print("Generated Small Catechism HTML")
   return flask.render_template(
       "small_catechism.html",
       grouped_catechism=grouped_catechism,
