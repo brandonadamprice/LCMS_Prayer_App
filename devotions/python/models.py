@@ -64,6 +64,7 @@ class User(flask_login.UserMixin):
       psalm_preferences=None,
       created_at=None,
       last_seen=None,
+      bia_progress=None,
   ):
     self.id = user_id
     self.email = email
@@ -95,6 +96,7 @@ class User(flask_login.UserMixin):
     self.psalm_preferences = psalm_preferences or {}
     self.created_at = created_at
     self.last_seen = last_seen
+    self.bia_progress = bia_progress or {}
 
     # Capture best streak before potential reset (for legacy data)
     self.best_streak_count = max(best_streak_count, streak_count)
@@ -157,5 +159,6 @@ class User(flask_login.UserMixin):
           psalm_preferences=data.get("psalm_preferences", {}),
           created_at=data.get("created_at"),
           last_seen=data.get("last_seen"),
+          bia_progress=data.get("bia_progress"),
       )
     return None

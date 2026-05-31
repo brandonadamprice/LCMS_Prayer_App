@@ -493,7 +493,9 @@ def get_devotion_data(now: datetime.datetime, user_id=None) -> dict:
   weekly_prayer_data = get_weekly_prayer_for_day(now)
 
   # Bible in a Year
-  bible_in_a_year_data = get_bible_in_a_year_devotion_data(user_id, now)
+  bible_in_a_year_data = get_bible_in_a_year_devotion_data(
+      user_id, now, current_day=_bia_current_day_from_user(user_id, now)
+  )
 
   # Determine Default Reading Mode based on User Preferences (for extended_evening)
   default_reading_mode = "office"
@@ -636,23 +638,45 @@ def save_bia_progress(user_id: str, day: int, last_visit_str: str):
   )
 
 
-def get_bible_in_a_year_devotion_data(user_id=None, date_obj=None):
-  """Generates data for the Bible in a Year devotion for email/reminders."""
+def _bia_current_day_from_user(user_id, now):
+  """Returns the request user's Bible-in-a-Year day without a Firestore read.
+
+  When the logged-in current_user is that same user, their bia_progress is
+  already loaded, so we return their saved day (or the day-of-year default).
+  Returns None when current_user can't authoritatively answer for user_id, so
+  the caller falls back to reading the user document.
+  """
+  user = flask_login.current_user
+  if user_id and user.is_authenticated and user.id == user_id:
+    bia = getattr(user, "bia_progress", None) or {}
+    if "current_day" in bia:
+      return int(bia["current_day"])
+    return now.timetuple().tm_yday
+  return None
+
+
+def get_bible_in_a_year_devotion_data(user_id=None, date_obj=None, current_day=None):
+  """Generates data for the Bible in a Year devotion.
+
+  current_day lets callers that already know the user's saved day pass it in,
+  avoiding a redundant user-document read. When it is None and user_id is given,
+  the user's bia_progress is read from Firestore (the previous behavior).
+  """
   eastern_timezone = EASTERN_TZ
   now = date_obj or datetime.datetime.now(eastern_timezone)
   bible_in_a_year_data = load_bible_in_a_year_data()
 
-  current_day = now.timetuple().tm_yday  # Default to day of year
-
-  if user_id:
-    db = get_db_client()
-    doc = db.collection("users").document(user_id).get()
-    if doc.exists:
-      user_data = doc.to_dict()
-      if user_data:
-        bia_progress = user_data.get("bia_progress")
-        if bia_progress and "current_day" in bia_progress:
-          current_day = int(bia_progress["current_day"])
+  if current_day is None:
+    current_day = now.timetuple().tm_yday  # Default to day of year
+    if user_id:
+      db = get_db_client()
+      doc = db.collection("users").document(user_id).get()
+      if doc.exists:
+        user_data = doc.to_dict()
+        if user_data:
+          bia_progress = user_data.get("bia_progress")
+          if bia_progress and "current_day" in bia_progress:
+            current_day = int(bia_progress["current_day"])
 
   # Ensure day is within range 1-365
   current_day = max(1, min(current_day, 365))
@@ -728,7 +752,9 @@ def get_office_devotion_data(user_id, office_name, date_obj=None):
   ]
 
   # Bible in a Year
-  bible_in_a_year_data = get_bible_in_a_year_devotion_data(user_id, now)
+  bible_in_a_year_data = get_bible_in_a_year_devotion_data(
+      user_id, now, current_day=_bia_current_day_from_user(user_id, now)
+  )
 
   # Memento Reading
   memento_reading = get_memento_reading_for_date(now)
