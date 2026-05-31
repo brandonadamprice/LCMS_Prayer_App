@@ -407,7 +407,11 @@ def _send_email(
       data = utils.get_office_devotion_data(user_data.get("id"), devotion_key)
       template_name = f"{devotion_key}_devotion.html"
     elif devotion_key == "bible_in_a_year":
-      data = utils.get_bible_in_a_year_devotion_data(user_data.get("id"))
+      bia = user_data.get("bia_progress") or {}
+      bia_day = int(bia["current_day"]) if "current_day" in bia else None
+      data = utils.get_bible_in_a_year_devotion_data(
+          user_data.get("id"), current_day=bia_day
+      )
       template_name = "bible_in_a_year.html"
     elif devotion_key == "lent":
       data = lent.get_lent_devotion_data()
