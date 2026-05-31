@@ -77,23 +77,23 @@ self.addEventListener('fetch', (event) => {
     }
 
     // For same-origin assets (CSS, JS, images): stale-while-revalidate.
-    // Serve the cached copy immediately for speed, then refresh the cache in
-    // the background so the next load picks up any updated asset (previously
-    // cache-first meant assets could stay stale until CACHE_NAME was bumped).
-    event.respondWith(caches.open(CACHE_NAME).then((cache) => {
-      return cache.match(event.request).then((cached) => {
-        const fetched = fetch(event.request)
-                            .then((response) => {
-                              if (response && response.ok &&
-                                  response.type === 'basic') {
-                                cache.put(event.request, response.clone());
-                              }
-                              return response;
-                            })
-                            .catch(() => cached);
-        return cached || fetched;
-      });
-    }));
+    // Start the network request IMMEDIATELY (before touching Cache Storage) so
+    // the SW never delays the fetch behind a cache lookup. Then serve the
+    // cached copy if we have one (revalidating in the background) or fall back
+    // to the network response, caching it for next time.
+    const networkFetch = fetch(event.request).then((response) => {
+      if (response && response.ok && response.type === 'basic') {
+        const copy = response.clone();
+        event.waitUntil(
+            caches.open(CACHE_NAME).then((cache) =>
+                cache.put(event.request, copy)));
+      }
+      return response;
+    });
+    event.respondWith(
+        caches.match(event.request)
+            .then((cached) => cached || networkFetch)
+            .catch(() => networkFetch));
   }
 });
 
