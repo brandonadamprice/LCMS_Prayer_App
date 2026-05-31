@@ -1,4 +1,4 @@
-const CACHE_NAME = 'prayer-app-v13';
+const CACHE_NAME = 'prayer-app-v14';
 const ASSETS_TO_CACHE = [
   '/static/styles.css',
   '/static/banner.jpg',
@@ -76,24 +76,28 @@ self.addEventListener('fetch', (event) => {
       return;
     }
 
-    // For same-origin assets (CSS, JS, images): stale-while-revalidate.
-    // Serve the cached copy immediately for speed, then refresh the cache in
-    // the background so the next load picks up any updated asset (previously
-    // cache-first meant assets could stay stale until CACHE_NAME was bumped).
-    event.respondWith(caches.open(CACHE_NAME).then((cache) => {
-      return cache.match(event.request).then((cached) => {
-        const fetched = fetch(event.request)
-                            .then((response) => {
-                              if (response && response.ok &&
-                                  response.type === 'basic') {
-                                cache.put(event.request, response.clone());
-                              }
-                              return response;
-                            })
-                            .catch(() => cached);
-        return cached || fetched;
-      });
-    }));
+    // For same-origin assets (CSS, JS, images): cache-first. Serve the cached
+    // copy instantly when present (no network at all); otherwise fetch once and
+    // cache it for next time / offline. We deliberately do NOT revalidate in
+    // the background: doing so fired a network request for every asset on every
+    // load, saturating the browser's ~6-connections-per-origin limit and
+    // queueing the whole page behind it. Assets refresh when CACHE_NAME is
+    // bumped on deploy (and styles.css via its ?v= query string).
+    event.respondWith(
+        caches.match(event.request).then((cached) => {
+          if (cached) {
+            return cached;
+          }
+          return fetch(event.request).then((response) => {
+            if (response && response.ok && response.type === 'basic') {
+              const copy = response.clone();
+              event.waitUntil(
+                  caches.open(CACHE_NAME).then((cache) =>
+                      cache.put(event.request, copy)));
+            }
+            return response;
+          });
+        }));
   }
 });
 
