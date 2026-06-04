@@ -3,7 +3,6 @@
 import datetime
 import logging
 import flask
-import liturgy
 import utils
 
 logger = logging.getLogger(__name__)
@@ -23,16 +22,9 @@ def generate_daily_lectionary_page(date_obj=None):
       except ValueError:
         pass
 
-  # Use liturgical calendar logic to get key and utils to fetch readings
-  cy = liturgy.get_church_year(now.year)
-  key = cy.get_liturgical_key(now)
+  readings = utils.get_daily_lectionary_reading_for_date(now)
+  key = readings["key"]
 
-  data = utils.load_lectionary(utils.LECTIONARY_JSON_PATH)
-  readings = data.get(
-      key, {"OT": "Reading not found", "NT": "Reading not found"}
-  )
-
-  # Fetch texts
   refs = [readings["OT"], readings["NT"]]
   texts = utils.fetch_passages(refs)
 

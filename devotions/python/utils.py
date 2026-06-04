@@ -621,6 +621,22 @@ def get_mid_week_reading_for_date(now: datetime.datetime) -> Optional[dict]:
   return MID_WEEK_READINGS["by_key"].get(key)
 
 
+def get_daily_lectionary_reading_for_date(now: datetime.datetime) -> dict:
+  """Returns the daily lectionary reading for the given date.
+
+  Resolves the date's liturgical key via ChurchYear.get_liturgical_key, then
+  looks it up in the preloaded daily lectionary. The returned dict always
+  carries the resolved "key" so callers can display it; if the key has no
+  entry, OT/NT fall back to "Reading not found" so the page can still render.
+  """
+  cy = liturgy.get_church_year(now.year)
+  key = cy.get_liturgical_key(now)
+  reading = load_lectionary(LECTIONARY_JSON_PATH).get(key)
+  if reading is None:
+    return {"key": key, "OT": "Reading not found", "NT": "Reading not found"}
+  return {"key": key, **reading}
+
+
 def save_bia_progress(user_id: str, day: int, last_visit_str: str):
   """Saves Bible in a Year progress for a user."""
   db = get_db_client()
