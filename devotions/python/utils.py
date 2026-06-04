@@ -264,7 +264,8 @@ def load_mid_week_readings():
     for item in data:
       if "church_season/day" in item:
         item["church_season_day"] = item.pop("church_season/day")
-    return {"extended_mid_week_devotions": data}
+    by_key = {item["key"]: item for item in data if "key" in item}
+    return {"extended_mid_week_devotions": data, "by_key": by_key}
 
 
 @functools.lru_cache(maxsize=1)
@@ -606,26 +607,18 @@ def get_all_personal_prayers_for_user(user_id=None) -> dict:
 
 
 def get_mid_week_reading_for_date(now: datetime.datetime) -> Optional[dict]:
-  """Returns mid week reading data for given date based on week of church year."""
+  """Returns mid week reading data for the given date.
+
+  The reading is selected by computing the liturgical key (e.g. "advent_1",
+  "trinity_5") for the week containing the date, then looking it up in the
+  loaded readings. This correctly handles years with variable numbers of
+  Sundays after Epiphany and after Trinity.
+  """
   cy = liturgy.get_church_year(now.year)
-  week_num = cy.get_week_of_church_year(now.date()) + 1
-
-  max_week = 53
-  try:
-    max_week = max(
-        r["week_number"]
-        for r in MID_WEEK_READINGS["extended_mid_week_devotions"]
-    )
-  except (KeyError, ValueError):
-    pass
-
-  if week_num > max_week:
-    week_num = 1
-
-  for reading in MID_WEEK_READINGS["extended_mid_week_devotions"]:
-    if reading["week_number"] == week_num:
-      return reading
-  return None
+  key = cy.get_mid_week_lectionary_key(now)
+  if key is None:
+    return None
+  return MID_WEEK_READINGS["by_key"].get(key)
 
 
 def save_bia_progress(user_id: str, day: int, last_visit_str: str):
