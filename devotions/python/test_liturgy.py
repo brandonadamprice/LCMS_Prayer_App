@@ -13,9 +13,19 @@ Run from the devotions/python directory:
 """
 
 import datetime
+import json
+import os
 import unittest
 
 import liturgy
+
+
+DAILY_LECTIONARY_PATH = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    "..",
+    "data",
+    "daily_lectionary.json",
+)
 
 
 class MidWeekLectionaryKeyTest(unittest.TestCase):
@@ -110,6 +120,32 @@ class MidWeekLectionaryKeyTest(unittest.TestCase):
         cy.get_mid_week_lectionary_key(datetime.date(2026, 2, 20)),
         "ash_wednesday",
     )
+
+
+class DailyLectionaryCoverageTest(unittest.TestCase):
+  """The daily lectionary uses get_liturgical_key. A previous version of the
+  JSON used "1 Sept" / "30 Sept" for September while every other month used
+  zero-padded three-letter abbreviations ("01 Aug", "01 Oct", ...). Because
+  strftime("%d %b") produces "01 Sep", every September date silently fell
+  through to "Reading not found"."""
+
+  @classmethod
+  def setUpClass(cls):
+    with open(DAILY_LECTIONARY_PATH, "r", encoding="utf-8") as f:
+      cls.data = json.load(f)
+
+  def test_every_day_of_year_resolves(self):
+    # Walk a non-leap and a leap year and confirm every date has an entry.
+    for year in (2025, 2026, 2027, 2028):
+      cy = liturgy.get_church_year(year)
+      day = datetime.date(year, 1, 1)
+      end = datetime.date(year, 12, 31)
+      while day <= end:
+        key = cy.get_liturgical_key(day)
+        self.assertIn(
+            key, self.data, f"{day} resolved to {key!r}, which is not in the daily lectionary"
+        )
+        day += datetime.timedelta(days=1)
 
 
 if __name__ == "__main__":
