@@ -144,6 +144,142 @@ class ChurchYear:
     # CASE 3: Fixed Date (Ordinary Time / Epiphany / Advent)
     return current_date.strftime("%d %b")
 
+  def get_mid_week_lectionary_key(self, current_date) -> str:
+    """Returns the mid-week lectionary key for the given date.
+
+    The key identifies the Sunday or major festival whose readings should be
+    used for the week containing the date (e.g. "advent_1", "christmas_day",
+    "lent_3", "trinity_5", "last_sunday").
+
+    The mid-week reading for any day comes from the most recent "marker" on
+    or before that day: the most recent Sunday, or — if a higher festival
+    has occurred since then — Christmas Day, Epiphany, or Ash Wednesday.
+    Sundays are then identified by their position relative to Easter and
+    Advent 1, which correctly accounts for years with variable numbers of
+    Epiphany and Trinity Sundays.
+    """
+    if isinstance(current_date, datetime.datetime):
+      current_date = current_date.date()
+
+    # Determine which church year this date belongs to.
+    advent1_this = self.calculate_advent1(current_date.year)
+    if current_date >= advent1_this:
+      cy_advent = advent1_this
+      easter = self.calculate_easter(current_date.year + 1)
+    else:
+      cy_advent = self.calculate_advent1(current_date.year - 1)
+      easter = self.calculate_easter(current_date.year)
+
+    next_advent = self.calculate_advent1(cy_advent.year + 1)
+
+    # Anchor dates for the church year.
+    christmas_day = datetime.date(cy_advent.year, 12, 25)
+    epiphany = datetime.date(cy_advent.year + 1, 1, 6)
+    septuagesima = easter - datetime.timedelta(days=63)
+    ash_wed = easter - datetime.timedelta(days=46)
+    transfiguration_sun = septuagesima - datetime.timedelta(days=7)
+    palm_sun = easter - datetime.timedelta(days=7)
+    pentecost = easter + datetime.timedelta(days=49)
+    trinity = easter + datetime.timedelta(days=56)
+    last_sunday_of_year = next_advent - datetime.timedelta(days=7)
+
+    # Find the most recent significant marker on or before current_date:
+    # the most recent Sunday, optionally overridden by Christmas Day,
+    # Epiphany, or Ash Wednesday if one fell since that Sunday.
+    days_since_sunday = (current_date.weekday() + 1) % 7
+    last_sunday = current_date - datetime.timedelta(days=days_since_sunday)
+
+    anchor = last_sunday
+    for festival in (christmas_day, epiphany, ash_wed):
+      if last_sunday < festival <= current_date:
+        anchor = max(anchor, festival)
+
+    # Festivals and movable Sundays with fixed-offset positions.
+    if anchor == christmas_day:
+      return "christmas_day"
+    if anchor == epiphany:
+      return "epiphany"
+    if anchor == ash_wed:
+      return "ash_wednesday"
+    if anchor == transfiguration_sun:
+      return "transfiguration"
+    if anchor == palm_sun:
+      return "palmarum"
+    if anchor == easter:
+      return "easter_day"
+    if anchor == pentecost:
+      return "pentecost"
+    if anchor == trinity:
+      return "trinity"
+    if anchor == last_sunday_of_year:
+      return "last_sunday"
+
+    # Pre-Lent Sundays.
+    if anchor == septuagesima:
+      return "septuagesima"
+    if anchor == septuagesima + datetime.timedelta(days=7):
+      return "sexagesima"
+    if anchor == septuagesima + datetime.timedelta(days=14):
+      return "quinquagesima"
+
+    # Lent Sundays. Lent 1 is the first Sunday after Ash Wednesday.
+    lent_1_sunday = ash_wed + datetime.timedelta(days=4)
+    for i in range(1, 6):
+      if anchor == lent_1_sunday + datetime.timedelta(days=(i - 1) * 7):
+        return f"lent_{i}"
+
+    # Easter Sundays (Easter 2 through Easter 6, then Exaudi).
+    for i in range(2, 7):
+      if anchor == easter + datetime.timedelta(days=(i - 1) * 7):
+        return f"easter_{i}"
+    if anchor == easter + datetime.timedelta(days=42):
+      return "exaudi"
+
+    # Advent Sundays.
+    if cy_advent <= anchor < christmas_day:
+      week = min((anchor - cy_advent).days // 7 + 1, 4)
+      return f"advent_{week}"
+
+    # Sundays between Christmas Day and Epiphany.
+    if christmas_day < anchor < epiphany:
+      return _christmas_season_sunday_key(anchor, christmas_day)
+
+    # Sundays between Epiphany and Transfiguration.
+    if epiphany < anchor < transfiguration_sun:
+      return _epiphany_season_sunday_key(anchor, epiphany)
+
+    # Sundays after Trinity, before Last Sunday.
+    if trinity < anchor < last_sunday_of_year:
+      week = (anchor - trinity).days // 7
+      return f"trinity_{week}"
+
+    return None
+
+
+def _first_sunday_strictly_after(date: datetime.date) -> datetime.date:
+  """Returns the first Sunday strictly after the given date."""
+  days_ahead = (6 - date.weekday()) % 7
+  if days_ahead == 0:
+    days_ahead = 7
+  return date + datetime.timedelta(days=days_ahead)
+
+
+def _christmas_season_sunday_key(sunday: datetime.date,
+                                 christmas_day: datetime.date) -> str:
+  """Returns the key for a Sunday strictly between Christmas Day and Epiphany."""
+  first_sun = _first_sunday_strictly_after(christmas_day)
+  if sunday < first_sun + datetime.timedelta(days=7):
+    return "sunday_after_christmas"
+  return "second_sunday_after_christmas"
+
+
+def _epiphany_season_sunday_key(sunday: datetime.date,
+                                epiphany: datetime.date) -> str:
+  """Returns the key for a Sunday strictly between Epiphany and Transfiguration."""
+  first_sun = _first_sunday_strictly_after(epiphany)
+  weeks = (sunday - first_sun).days // 7 + 1
+  return f"epiphany_{weeks}"
+
 
 @functools.lru_cache(maxsize=128)
 def get_church_year(year: int) -> ChurchYear:

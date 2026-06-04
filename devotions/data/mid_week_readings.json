@@ -1,6 +1,6 @@
 [
   {
-    "week_number": 1,
+    "key": "advent_1",
     "church_season/day": "Advent I (Ad Te Levavi)",
     "Psalm": "Psalm 24",
     "OT": "Jer. 23:5-8",
@@ -9,7 +9,7 @@
     "Prayer": "Stir up Your power, O Lord, and come, that by Your protection we may be rescued from the threatening perils of our sins and saved by Your mighty deliverance; through Jesus Christ, Your Son, our Lord."
   },
   {
-    "week_number": 2,
+    "key": "advent_2",
     "church_season/day": "Advent II (Populus Zion)",
     "Psalm": "Psalm 50:1-15",
     "OT": "Malachi 4:1-6",
@@ -18,7 +18,7 @@
     "Prayer": "Stir up our hearts, O Lord, to make ready the way of Your only-begotten Son, so that by His coming we may be enabled to serve You with pure minds; through the same Jesus Christ, Your Son, our Lord."
   },
   {
-    "week_number": 3,
+    "key": "advent_3",
     "church_season/day": "Advent III (Gaudete)",
     "Psalm": "Psalm 85",
     "OT": "Isaiah 40:1-8",
@@ -27,7 +27,7 @@
     "Prayer": "Lord, we implore You, give ear to our prayers and lighten the darkness of our hearts by Your gracious visitation; who lives and reigns with the Father and the Holy Spirit, ever one God, world without end."
   },
   {
-    "week_number": 4,
+    "key": "advent_4",
     "church_season/day": "Advent IV (Rorate Coeli)",
     "Psalm": "Psalm 111",
     "OT": "Deuteronomy 18:15-19",
@@ -36,7 +36,7 @@
     "Prayer": "Stir up Your power, O Lord, and come and help us with Your great might, that by the help of Your grace, whatsoever is hindered by our sins may be speedily accomplished through Your mercy and satisfaction."
   },
   {
-    "week_number": 5,
+    "key": "christmas_day",
     "church_season/day": "Christmas Day (The Nativity of Our Lord)",
     "Psalm": "Psalm 2",
     "OT": "Exodus 40:17-21, 34-38",
@@ -45,7 +45,7 @@
     "Prayer": "Grant, we implore You, Almighty God, that the new birth of Your only-begotten Son in the flesh may set us free who are held in the old bondage under the yoke of sin; through the same Jesus Christ, Your Son, our Lord."
   },
   {
-    "week_number": 6,
+    "key": "sunday_after_christmas",
     "church_season/day": "Sunday after Christmas",
     "Psalm": "Psalm 89:1-8",
     "OT": "Isaiah 11:1-5",
@@ -54,7 +54,16 @@
     "Prayer": "Almighty and everlasting God, direct our actions according to Your good pleasure, that in the Name of Your beloved Son we may be made to abound in good works; through Jesus Christ, our Lord."
   },
   {
-    "week_number": 7,
+    "key": "second_sunday_after_christmas",
+    "church_season/day": "Second Sunday after Christmas",
+    "Psalm": "Psalm 77:11-20",
+    "OT": "Genesis 46:1-7",
+    "NT Lesson (Epistle)": "1 Peter 4:12-19",
+    "NT Lesson (Gospel)": "Matthew 2:13-23",
+    "Prayer": "Almighty God, You have poured into our hearts the true Light of Your incarnate Word. Grant that this Light may shine forth in our lives; through Jesus Christ, Your Son, our Lord."
+  },
+  {
+    "key": "epiphany",
     "church_season/day": "The Epiphany of Our Lord",
     "Psalm": "Psalm 24",
     "OT": "Isaiah 60:1-6",
@@ -63,7 +72,7 @@
     "Prayer": "O God, who by the leading of a star manifested Your only-begotten Son to the Gentiles: Mercifully grant that we, who know You now by faith, may after this life have the fruition of Your glorious Godhead."
   },
   {
-    "week_number": 8,
+    "key": "epiphany_1",
     "church_season/day": "First Sunday after the Epiphany",
     "Psalm": "Psalm 50:1-15",
     "OT": "1 Kings 8:6-13",
@@ -72,7 +81,7 @@
     "Prayer": "O Lord, we implore You mercifully to receive the prayers of Your people who call upon You; and grant that they may both perceive and know what things they ought to do, and also may have grace and power faithfully to fulfill the same."
   },
   {
-    "week_number": 9,
+    "key": "epiphany_2",
     "church_season/day": "Second Sunday after the Epiphany",
     "Psalm": "Psalm 67",
     "OT": "Exodus 33:12-23",
@@ -81,7 +90,7 @@
     "Prayer": "Almighty and everlasting God, who governs all things in heaven and earth: Mercifully hear the supplications of Your people and grant us Your peace all the days of our life; through Jesus Christ, Your Son, our Lord."
   },
   {
-    "week_number": 10,
+    "key": "transfiguration",
     "church_season/day": "The Transfiguration of Our Lord",
     "Psalm": "Psalm 2",
     "OT": "Exodus 34:29-35",
@@ -90,7 +99,7 @@
     "Prayer": "O God, who in the glorious transfiguration of Your only-begotten Son has confirmed the mysteries of the faith by the testimony of the fathers: Mercifully grant that we may be made fellow-heirs with the King of Glory."
   },
   {
-    "week_number": 11,
+    "key": "septuagesima",
     "church_season/day": "Septuagesima Sunday",
     "Psalm": "Psalm 95:1-9",
     "OT": "Exodus 17:1-7",
@@ -99,7 +108,7 @@
     "Prayer": "O Lord, we implore You favorably to hear the prayers of Your people, that we, who are justly punished for our offenses, may be mercifully delivered by Your goodness, for the glory of Your Name; through Jesus Christ, our Savior."
   },
   {
-    "week_number": 12,
+    "key": "sexagesima",
     "church_season/day": "Sexagesima Sunday",
     "Psalm": "Psalm 84",
     "OT": "Isaiah 55:10-13",
@@ -108,7 +117,7 @@
     "Prayer": "O Lord God, who sees that we put not our trust in anything that we do: Mercifully grant that by Your power we may be defended against all adversity; through Jesus Christ, Your Son, our Lord."
   },
   {
-    "week_number": 13,
+    "key": "quinquagesima",
     "church_season/day": "Quinquagesima Sunday",
     "Psalm": "Psalm 146",
     "OT": "1 Samuel 16:1-13",
@@ -117,7 +126,7 @@
     "Prayer": "O Lord, we implore You, mercifully hear our prayers and, having set us free from the bonds of sin, defend us from all evil; through Jesus Christ, Your Son, our Lord, who lives and reigns with You and the Holy Spirit."
   },
   {
-    "week_number": 14,
+    "key": "ash_wednesday",
     "church_season/day": "Ash Wednesday",
     "Psalm": "Psalm 51:1-13",
     "OT": "Joel 2:12-19",
@@ -126,7 +135,7 @@
     "Prayer": "Almighty and everlasting God, who hates nothing that You have made and forgives the sins of all those who are penitent: Create and make in us new and contrite hearts, that we, worthily lamenting our sins and acknowledging our wretchedness, may obtain of You, the God of all mercy, perfect remission and forgiveness; through Jesus Christ, our Lord."
   },
   {
-    "week_number": 15,
+    "key": "lent_1",
     "church_season/day": "Invocabit (First Sunday in Lent)",
     "Psalm": "Psalm 32",
     "OT": "Genesis 3:1-21",
@@ -135,7 +144,7 @@
     "Prayer": "O Lord, mercifully hear our prayer and stretch forth the right hand of Your Majesty to defend us from them that rise up against us; through Jesus Christ, Your Son, our Lord."
   },
   {
-    "week_number": 16,
+    "key": "lent_2",
     "church_season/day": "Reminiscere (Second Sunday in Lent)",
     "Psalm": "Psalm 121",
     "OT": "Genesis 32:22-32",
@@ -144,7 +153,7 @@
     "Prayer": "O God, who sees that of ourselves we have no strength: Keep us both outwardly and inwardly; that we may be defended from all adversities which may happen to the body, and from all evil thoughts which may assault and hurt the soul; through Jesus Christ, Your Son, our Lord."
   },
   {
-    "week_number": 17,
+    "key": "lent_3",
     "church_season/day": "Oculi (Third Sunday in Lent)",
     "Psalm": "Psalm 136:1-16",
     "OT": "Exodus 8:16-24",
@@ -153,7 +162,7 @@
     "Prayer": "We implore You, Almighty God, look upon the hearty desires of Your humble servants and stretch forth the right hand of Your Majesty to be our defense against all our enemies; through Jesus Christ, Your Son, our Lord."
   },
   {
-    "week_number": 18,
+    "key": "lent_4",
     "church_season/day": "Laetare (Fourth Sunday in Lent)",
     "Psalm": "Psalm 132:8-18",
     "OT": "Exodus 16:2-21",
@@ -162,7 +171,7 @@
     "Prayer": "Grant, we implore You, Almighty God, that we, who for our evil deeds do worthily deserve to be punished, by the comfort of Your grace may mercifully be relieved; through Jesus Christ, Your Son, our Lord."
   },
   {
-    "week_number": 19,
+    "key": "lent_5",
     "church_season/day": "Judica (Fifth Sunday in Lent)",
     "Psalm": "Psalm 43",
     "OT": "Genesis 22:1-14",
@@ -171,7 +180,7 @@
     "Prayer": "We implore You, Almighty God, mercifully to look upon Your people, that by Your great goodness they may be governed and preserved evermore both in body and soul; through Jesus Christ, Your Son, our Lord."
   },
   {
-    "week_number": 20,
+    "key": "palmarum",
     "church_season/day": "Palmarum (The Sixth Sunday in Lent)",
     "Psalm": "Psalm 118:19-29",
     "OT": "Zechariah 9:9-12",
@@ -180,7 +189,7 @@
     "Prayer": "Almighty and everlasting God, who has sent Your Son, our Savior Jesus Christ, to take upon Him our flesh and to suffer death upon the Cross, that all mankind should follow the example of His great humility: Mercifully grant that we may follow the example of His patience and also be made partakers of His resurrection; through the same Jesus Christ, our Lord."
   },
   {
-    "week_number": 21,
+    "key": "easter_day",
     "church_season/day": "Easter Day (The Resurrection of Our Lord)",
     "Psalm": "Psalm 118:15-29",
     "OT": "Job 19:23-27",
@@ -189,7 +198,7 @@
     "Prayer": "Almighty God, who through Your only-begotten Son, Jesus Christ, has overcome death and opened unto us the gate of everlasting life: We humbly implore You that, as You put into our minds good desires, so by Your continual help we may bring the same to good effect; through the same Jesus Christ, our Lord."
   },
   {
-    "week_number": 22,
+    "key": "easter_2",
     "church_season/day": "Quasimodogeniti (First Sunday after Easter)",
     "Psalm": "Psalm 33",
     "OT": "Ezekiel 37:1-14",
@@ -198,7 +207,7 @@
     "Prayer": "Grant, we implore You, Almighty God, that we who have celebrated the solemnities of the Lord's Resurrection may, by the help of Your grace, bring forth the fruits thereof in our life and conversation; through the same Jesus Christ, Your Son, our Lord."
   },
   {
-    "week_number": 23,
+    "key": "easter_3",
     "church_season/day": "Misericordias Domini (Second Sunday after Easter)",
     "Psalm": "Psalm 23",
     "OT": "Ezekiel 34:11-16",
@@ -207,7 +216,7 @@
     "Prayer": "God, who by the humiliation of Your Son did raise up the fallen world: Grant unto Your faithful ones perpetual gladness, and those whom You have delivered from the danger of everlasting death do You make partakers of eternal joys; through the same Jesus Christ, Your Son, our Lord."
   },
   {
-    "week_number": 24,
+    "key": "easter_4",
     "church_season/day": "Jubilate (Third Sunday after Easter)",
     "Psalm": "Psalm 147:1-11",
     "OT": "Isaiah 40:25-31",
@@ -216,7 +225,7 @@
     "Prayer": "Almighty God, who shows to them that be in error the light of Your truth to the intent that they may return into the way of righteousness: Grant unto all them that are admitted into the fellowship of Christ's religion that they may avoid those things that are contrary to their profession and follow all such things as are agreeable to the same; through Jesus Christ, Your Son, our Lord."
   },
   {
-    "week_number": 25,
+    "key": "easter_5",
     "church_season/day": "Cantate (Fourth Sunday after Easter)",
     "Psalm": "Psalm 66:1-8",
     "OT": "Isaiah 12:1-6",
@@ -225,7 +234,7 @@
     "Prayer": "O God, who makes the minds of the faithful to be of one will: Grant unto Your people that they may love what You command and desire what You promise; that, among the manifold changes of the world, our hearts may there be fixed where true joys are to be found; through Jesus Christ, Your Son, our Lord."
   },
   {
-    "week_number": 26,
+    "key": "easter_6",
     "church_season/day": "Rogate (Fifth Sunday after Easter)",
     "Psalm": "Psalm 107:1-9",
     "OT": "Numbers 21:4-9",
@@ -234,7 +243,7 @@
     "Prayer": "O God, from whom all good things do come: Grant to us, Your humble servants, that by Your holy inspiration we may think those things that be right and by Your merciful guiding may perform the same; through Jesus Christ, Your Son, our Lord."
   },
   {
-    "week_number": 27,
+    "key": "exaudi",
     "church_season/day": "Exaudi (The Sunday after the Ascension)",
     "Psalm": "Psalm 51:1-12",
     "OT": "Ezekiel 36:22-28",
@@ -243,7 +252,7 @@
     "Prayer": "Almighty, Everlasting God, make us to have always a devout will towards You and to serve Your Majesty with a pure heart; through Jesus Christ, Your Son, our Lord."
   },
   {
-    "week_number": 28,
+    "key": "pentecost",
     "church_season/day": "The Day of Pentecost (Whitsunday)",
     "Psalm": "Psalm 143",
     "OT": "Genesis 11:1-9",
@@ -252,7 +261,7 @@
     "Prayer": "O God, who did teach the hearts of Your faithful people by sending to them the light of Your Holy Spirit: Grant us by the same Spirit to have a right judgment in all things and evermore to rejoice in His holy comfort; through Jesus Christ, Your Son, our Lord."
   },
   {
-    "week_number": 29,
+    "key": "trinity",
     "church_season/day": "The Feast of the Holy Trinity",
     "Psalm": "Psalm 29",
     "OT": "Isaiah 6:1-7",
@@ -261,7 +270,7 @@
     "Prayer": "Almighty and Everlasting God, who has given unto us, Your servants, grace, by the confession of a true faith, to acknowledge the glory of the eternal Trinity, and in the power of the Divine Majesty to worship the Unity: We implore You that You would keep us steadfast in this faith and evermore defend us from all adversities; who lives and reigns, one God, world without end."
   },
   {
-    "week_number": 30,
+    "key": "trinity_1",
     "church_season/day": "First Sunday after Trinity",
     "Psalm": "Psalm 33:12-22",
     "OT": "Genesis 15:1-6",
@@ -270,7 +279,7 @@
     "Prayer": "O God, the strength of all them that put their trust in You: Mercifully accept our prayers; and because through the weakness of our mortal nature we can do no good thing without You, grant us the help of Your grace, that in keeping Your commandments we may please You both in will and deed; through Jesus Christ, our Lord."
   },
   {
-    "week_number": 31,
+    "key": "trinity_2",
     "church_season/day": "Second Sunday after Trinity",
     "Psalm": "Psalm 34:12-22",
     "OT": "Proverbs 9:1-10",
@@ -279,7 +288,7 @@
     "Prayer": "O Lord, who never fails to help and govern them whom You bring up in Your steadfast fear and love: Make us to have a perpetual fear and love of Your holy Name; through Jesus Christ, Your Son, our Lord."
   },
   {
-    "week_number": 32,
+    "key": "trinity_3",
     "church_season/day": "Third Sunday after Trinity",
     "Psalm": "Psalm 103:1-13",
     "OT": "Micah 7:18-20",
@@ -288,7 +297,7 @@
     "Prayer": "O Lord, we implore You mercifully to hear us; and grant that we, to whom You have given a hearty desire to pray, may by Your mighty aid be defended and comforted in all dangers and adversities; through Jesus Christ, Your Son, our Lord."
   },
   {
-    "week_number": 33,
+    "key": "trinity_4",
     "church_season/day": "Fourth Sunday after Trinity",
     "Psalm": "Psalm 138",
     "OT": "Genesis 50:15-21",
@@ -297,7 +306,7 @@
     "Prayer": "Grant, O Lord, we implore You, that the course of this world may be so peaceably ordered by Your governance, that Your Church may joyfully serve You in all godly quietness; through Jesus Christ, Your Son, our Lord."
   },
   {
-    "week_number": 34,
+    "key": "trinity_5",
     "church_season/day": "Fifth Sunday after Trinity",
     "Psalm": "Psalm 16",
     "OT": "1 Kings 19:11-21",
@@ -306,7 +315,7 @@
     "Prayer": "O God, who has prepared for them that love You such good things as pass man's understanding: Pour into our hearts such love toward You that we, loving You above all things, may obtain Your promises, which exceed all that we can desire; through Jesus Christ, Your Son, our Lord."
   },
   {
-    "week_number": 35,
+    "key": "trinity_6",
     "church_season/day": "Sixth Sunday after Trinity",
     "Psalm": "Psalm 19",
     "OT": "Exodus 20:1-17",
@@ -315,7 +324,7 @@
     "Prayer": "Lord of all power and might, who is the Author and Giver of all good things: Graft in our hearts the love of Your Name, increase in us true religion, nourish us with all goodness, and of Your great mercy keep us in the same; through Jesus Christ, Your Son, our Lord."
   },
   {
-    "week_number": 36,
+    "key": "trinity_7",
     "church_season/day": "Seventh Sunday after Trinity",
     "Psalm": "Psalm 33:1-11",
     "OT": "Genesis 2:7-17",
@@ -324,7 +333,7 @@
     "Prayer": "O God, whose never-failing providence orders all things both in heaven and earth: We humbly implore You to put away from us all hurtful things and to give us those things which be profitable for us; through Jesus Christ, Your Son, our Lord."
   },
   {
-    "week_number": 37,
+    "key": "trinity_8",
     "church_season/day": "Eighth Sunday after Trinity",
     "Psalm": "Psalm 26",
     "OT": "Jeremiah 23:16-29",
@@ -333,7 +342,7 @@
     "Prayer": "Grant to us, Lord, we implore You, the spirit to think and do always such things as are right; that we, who cannot do anything that is good without You, may by You be enabled to live according to Your will; through Jesus Christ, Your Son, our Lord."
   },
   {
-    "week_number": 38,
+    "key": "trinity_9",
     "church_season/day": "Ninth Sunday after Trinity",
     "Psalm": "Psalm 51:1-12",
     "OT": "2 Samuel 22:26-34",
@@ -342,7 +351,7 @@
     "Prayer": "Let Your merciful ears, O Lord, be open to the prayers of Your humble servants; and that they may obtain their petitions, make them to ask such things as shall please You; through Jesus Christ, Your Son, our Lord."
   },
   {
-    "week_number": 39,
+    "key": "trinity_10",
     "church_season/day": "Tenth Sunday after Trinity",
     "Psalm": "Psalm 92",
     "OT": "Jeremiah 7:1-11",
@@ -351,7 +360,7 @@
     "Prayer": "O God, who declares Your almighty power chiefly in showing mercy and pity: Mercifully grant unto us such a measure of Your grace that we, running the way of Your commandments, may obtain Your gracious promises and be made partakers of Your heavenly treasure; through Jesus Christ, Your Son, our Lord."
   },
   {
-    "week_number": 40,
+    "key": "trinity_11",
     "church_season/day": "Eleventh Sunday after Trinity",
     "Psalm": "Psalm 50:7-23",
     "OT": "Genesis 4:1-15",
@@ -360,7 +369,7 @@
     "Prayer": "Almighty and Everlasting God, who is always more ready to hear than we to pray, and is accustomed to give more than either we desire or deserve: Pour down upon us the abundance of Your mercy, forgiving us those things of which our conscience is afraid, and giving us those good things which we are not worthy to ask but through the merits and mediation of Jesus Christ, Your Son, our Lord."
   },
   {
-    "week_number": 41,
+    "key": "trinity_12",
     "church_season/day": "Twelfth Sunday after Trinity",
     "Psalm": "Psalm 146",
     "OT": "Isaiah 29:17-24",
@@ -369,7 +378,7 @@
     "Prayer": "Almighty and Merciful God, of whose only gift it comes that Your faithful people do unto You true and laudable service: Grant, we implore You, that we may so faithfully serve You in this life that we fail not finally to attain Your heavenly promises; through Jesus Christ, Your Son, our Lord."
   },
   {
-    "week_number": 42,
+    "key": "trinity_13",
     "church_season/day": "Thirteenth Sunday after Trinity",
     "Psalm": "Psalm 32",
     "OT": "2 Chronicles 28:8-15",
@@ -378,7 +387,7 @@
     "Prayer": "Almighty and Everlasting God, give unto us the increase of faith, hope, and charity; and that we may obtain that which You promise, make us to love that which You command; through Jesus Christ, Your Son, our Lord."
   },
   {
-    "week_number": 43,
+    "key": "trinity_14",
     "church_season/day": "Fourteenth Sunday after Trinity",
     "Psalm": "Psalm 119:9-16",
     "OT": "Proverbs 4:10-23",
@@ -387,7 +396,7 @@
     "Prayer": "Keep, we implore You, O Lord, Your Church with Your perpetual mercy; and, because the frailty of man without You cannot but fall, keep us ever by Your help from all things hurtful and lead us to all things profitable to our salvation; through Jesus Christ, Your Son, our Lord."
   },
   {
-    "week_number": 44,
+    "key": "trinity_15",
     "church_season/day": "Fifteenth Sunday after Trinity",
     "Psalm": "Psalm 146",
     "OT": "1 Kings 17:8-16",
@@ -396,7 +405,7 @@
     "Prayer": "O Lord, we implore You, let Your continual pity cleanse and defend Your Church; and because it cannot continue in safety without Your succor, preserve it evermore by Your help and goodness; through Jesus Christ, Your Son, our Lord."
   },
   {
-    "week_number": 45,
+    "key": "trinity_16",
     "church_season/day": "Sixteenth Sunday after Trinity",
     "Psalm": "Psalm 30",
     "OT": "1 Kings 17:17-24",
@@ -405,7 +414,7 @@
     "Prayer": "Lord, we pray You that Your grace may always go before and follow after us and make us continually to be given to all good works; through Jesus Christ, Your Son, our Lord."
   },
   {
-    "week_number": 46,
+    "key": "trinity_17",
     "church_season/day": "Seventeenth Sunday after Trinity",
     "Psalm": "Psalm 2",
     "OT": "Proverbs 25:6-14",
@@ -414,7 +423,7 @@
     "Prayer": "Lord, we implore You, grant Your people grace to withstand the temptations of the devil and with pure hearts and minds to follow You, the only God; through Jesus Christ, Your Son, our Lord."
   },
   {
-    "week_number": 47,
+    "key": "trinity_18",
     "church_season/day": "Eighteenth Sunday after Trinity",
     "Psalm": "Psalm 34:8-22",
     "OT": "Deuteronomy 10:12-21",
@@ -423,7 +432,7 @@
     "Prayer": "O God, forasmuch as without You we are not able to please You, mercifully grant that Your Holy Spirit may in all things direct and rule our hearts; through Jesus Christ, Your Son, our Lord."
   },
   {
-    "week_number": 48,
+    "key": "trinity_19",
     "church_season/day": "Nineteenth Sunday after Trinity",
     "Psalm": "Psalm 84",
     "OT": "Genesis 28:10-17",
@@ -432,7 +441,7 @@
     "Prayer": "O Almighty and Most Merciful God, of Your bountiful goodness keep us, we implore You, from all things that may hurt us, that we, being ready both in body and soul, may cheerfully accomplish those things that You would have done; through Jesus Christ, Your Son, our Lord."
   },
   {
-    "week_number": 49,
+    "key": "trinity_20",
     "church_season/day": "Twentieth Sunday after Trinity",
     "Psalm": "Psalm 27:1-9",
     "OT": "Isaiah 55:1-9",
@@ -441,7 +450,7 @@
     "Prayer": "Grant, we implore You, Merciful Lord, to Your faithful people pardon and peace, that they may be cleansed from all their sins and serve You with a quiet mind; through Jesus Christ, Your Son, our Lord."
   },
   {
-    "week_number": 50,
+    "key": "trinity_21",
     "church_season/day": "Twenty-first Sunday after Trinity",
     "Psalm": "Psalm 8",
     "OT": "Genesis 1:1—2:3",
@@ -450,7 +459,16 @@
     "Prayer": "Lord, we implore You to keep Your household, the Church, in continual godliness, that through Your protection it may be free from all adversities and devoutly given to serve You in good works; through Jesus Christ, Your Son, our Lord."
   },
   {
-    "week_number": 51,
+    "key": "trinity_22",
+    "church_season/day": "Twenty-second Sunday after Trinity",
+    "Psalm": "Psalm 116:12-19",
+    "OT": "Micah 6:6-8",
+    "NT Lesson (Epistle)": "Philippians 1:3-11",
+    "NT Lesson (Gospel)": "Matthew 18:21-35",
+    "Prayer": "Lord, we implore You, show Your mercy to Your humble servants, that we who put no trust in our own merits may not be dealt with after the severity of Your judgment but according to Your mercy; through Jesus Christ, Your Son, our Lord."
+  },
+  {
+    "key": "trinity_23",
     "church_season/day": "Twenty-third Sunday after Trinity",
     "Psalm": "Psalm 111",
     "OT": "Proverbs 8:11-22",
@@ -459,7 +477,7 @@
     "Prayer": "O God, our Refuge and Strength, who is the Author of all godliness: Be ready, we implore You, to hear the devout prayers of Your Church; and grant that those things which we ask faithfully we may obtain effectually; through Jesus Christ, Your Son, our Lord."
   },
   {
-    "week_number": 52,
+    "key": "trinity_24",
     "church_season/day": "Twenty-fourth Sunday after Trinity",
     "Psalm": "Psalm 126",
     "OT": "Isaiah 51:9-16",
@@ -468,7 +486,16 @@
     "Prayer": "O Lord, we implore You, absolve Your people from their offenses; that through Your bountiful goodness we may all be delivered from the bands of those sins which by our frailty we have committed; through Jesus Christ, Your Son, our Lord."
   },
   {
-    "week_number": 53,
+    "key": "trinity_25",
+    "church_season/day": "Twenty-fifth Sunday after Trinity",
+    "Psalm": "Psalm 14",
+    "OT": "Exodus 32:1-20",
+    "NT Lesson (Epistle)": "1 Thessalonians 4:13-18",
+    "NT Lesson (Gospel)": "Matthew 24:15-28",
+    "Prayer": "Stir up, we implore You, O Lord, the wills of Your faithful people, that they, plenteously bringing forth the fruit of good works, may by You be plenteously rewarded; through Jesus Christ, Your Son, our Lord."
+  },
+  {
+    "key": "last_sunday",
     "church_season/day": "Last Sunday of the Church Year",
     "Psalm": "Psalm 149",
     "OT": "Isaiah 65:17-25",
