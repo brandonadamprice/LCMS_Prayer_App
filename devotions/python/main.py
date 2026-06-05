@@ -1472,10 +1472,19 @@ def add_personal_prayer_route():
     return flask.redirect(flask.url_for("my_prayers_route"))
 
   db = utils.get_db_client()
+  category_count = sum(
+      1
+      for _ in db.collection("users")
+      .document(flask_login.current_user.id)
+      .collection("personal-prayers")
+      .where("category", "==", category)
+      .stream()
+  )
   data = {
       "user_id": flask_login.current_user.id,
       "category": category,
       "text": utils.encrypt_text(prayer_text),
+      "position": category_count,
       "created_at": datetime.datetime.now(datetime.timezone.utc),
   }
   if for_whom:
@@ -1538,6 +1547,17 @@ def edit_personal_prayer_route():
   else:
     update_data["for_whom"] = utils.encrypt_text("")
 
+  if doc.to_dict().get("category") != category:
+    new_category_count = sum(
+        1
+        for _ in db.collection("users")
+        .document(user_id)
+        .collection("personal-prayers")
+        .where("category", "==", category)
+        .stream()
+    )
+    update_data["position"] = new_category_count
+
   doc_ref.update(update_data)
   return flask.redirect(flask.url_for("my_prayers_route"))
 
@@ -1563,6 +1583,57 @@ def delete_personal_prayer_route():
     doc_ref.delete()
   else:
     flask.flash("Prayer not found or permission denied.", "error")
+  return flask.redirect(flask.url_for("my_prayers_route"))
+
+
+@app.route("/move_personal_prayer", methods=["POST"])
+@flask_login.login_required
+def move_personal_prayer_route():
+  """Moves a personal prayer up or down within its category."""
+  prayer_id = flask.request.form.get("prayer_id")
+  direction = flask.request.form.get("direction")
+  if not prayer_id or direction not in ("up", "down"):
+    flask.flash("Invalid move request.", "error")
+    return flask.redirect(flask.url_for("my_prayers_route"))
+
+  db = utils.get_db_client()
+  user_id = flask_login.current_user.id
+  collection_ref = (
+      db.collection("users").document(user_id).collection("personal-prayers")
+  )
+  doc_ref = collection_ref.document(prayer_id)
+  doc = doc_ref.get()
+  if not doc.exists or doc.to_dict().get("user_id") != user_id:
+    flask.flash("Prayer not found or permission denied.", "error")
+    return flask.redirect(flask.url_for("my_prayers_route"))
+
+  category = doc.to_dict().get("category")
+  if not category:
+    return flask.redirect(flask.url_for("my_prayers_route"))
+
+  # Read all prayers in this category and normalize positions so we can swap
+  # with a neighbor even if some legacy prayers don't yet have a position.
+  siblings = []
+  for sib in collection_ref.where("category", "==", category).stream():
+    siblings.append({"id": sib.id, "data": sib.to_dict()})
+  siblings.sort(key=lambda s: utils._personal_prayer_sort_key(s["data"]))
+
+  idx = next((i for i, s in enumerate(siblings) if s["id"] == prayer_id), None)
+  if idx is None:
+    return flask.redirect(flask.url_for("my_prayers_route"))
+
+  target = idx - 1 if direction == "up" else idx + 1
+  if target < 0 or target >= len(siblings):
+    return flask.redirect(flask.url_for("my_prayers_route"))
+
+  siblings[idx], siblings[target] = siblings[target], siblings[idx]
+
+  batch = db.batch()
+  for new_pos, sib in enumerate(siblings):
+    if sib["data"].get("position") != new_pos:
+      batch.update(collection_ref.document(sib["id"]), {"position": new_pos})
+  batch.commit()
+
   return flask.redirect(flask.url_for("my_prayers_route"))
 
 
