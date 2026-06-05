@@ -38,8 +38,20 @@
             {% for prayer in prayers_by_cat[category] %}
             <li class="prayer-list-item">
               <!-- Display Mode -->
-              <div id="display-{{ prayer.id }}" style="display: flex; justify-content: space-between; align-items: center;">
-                <div>
+              <div id="display-{{ prayer.id }}" style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+                <div style="display: flex; flex-direction: column; gap: 2px;">
+                  <form action="/move_personal_prayer" method="post" style="margin: 0;">
+                    <input type="hidden" name="prayer_id" value="{{ prayer.id }}">
+                    <input type="hidden" name="direction" value="up">
+                    <button type="submit" class="button" style="padding: 2px 8px; font-size: 0.9em;" aria-label="Move up" {% if loop.first %}disabled{% endif %}>&#9650;</button>
+                  </form>
+                  <form action="/move_personal_prayer" method="post" style="margin: 0;">
+                    <input type="hidden" name="prayer_id" value="{{ prayer.id }}">
+                    <input type="hidden" name="direction" value="down">
+                    <button type="submit" class="button" style="padding: 2px 8px; font-size: 0.9em;" aria-label="Move down" {% if loop.last %}disabled{% endif %}>&#9660;</button>
+                  </form>
+                </div>
+                <div style="flex: 1;">
                   {% if prayer.for_whom %}
                     <strong>(For: {{ prayer.for_whom }})</strong>
                   {% endif %}
