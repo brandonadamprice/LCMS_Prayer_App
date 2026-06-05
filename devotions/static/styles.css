@@ -360,21 +360,45 @@ button.picker-select-button:hover {
     height: 100%;
 }
 
-.nav-link {
+/* Shared styling for desktop navbar items (links and dropdowns) */
+.nav-link,
+.dropbtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
     font-family: 'Montserrat', sans-serif;
     font-size: 0.95em;
     font-weight: 500;
     color: #5d6d7e;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
     text-decoration: none;
-    padding: 8px 16px;
+    padding: 8px 14px;
     border-radius: 20px;
-    transition: all 0.2s ease;
+    white-space: nowrap;
+    line-height: 1.2;
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-.nav-link:hover {
+.nav-link:hover,
+.dropbtn:hover,
+.dropdown:hover .dropbtn {
     background-color: #f0f4f8;
     color: #2980b9;
-    transform: translateY(-1px);
+}
+
+.dropbtn-arrow {
+    font-size: 0.7em;
+    opacity: 0.6;
+    line-height: 1;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.dropdown:hover .dropbtn-arrow,
+.dropbtn:hover .dropbtn-arrow {
+    opacity: 1;
+    transform: translateY(1px);
 }
 
 /* Responsive Navigation */
@@ -426,25 +450,6 @@ button.picker-select-button:hover {
 .dropdown {
     position: relative;
     display: inline-block;
-}
-
-/* Dropdown Button */
-.dropbtn {
-    background-color: transparent;
-    color: #5d6d7e;
-    padding: 8px 12px;
-    font-size: 0.95em;
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 500;
-    border: none;
-    cursor: pointer;
-    border-radius: 20px;
-    transition: all 0.2s ease;
-}
-
-.dropdown:hover .dropbtn, .dropbtn:hover {
-    background-color: #f0f4f8;
-    color: #2980b9;
 }
 
 /* Dropdown Content (Hidden by Default) */
