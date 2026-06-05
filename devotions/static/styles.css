@@ -341,6 +341,11 @@ button.picker-select-button:hover {
     align-items: center;
     gap: 20px;
     height: 100%;
+    flex-shrink: 0;
+}
+
+.navbar-right {
+    flex-shrink: 0;
 }
 
 .nav-brand {
@@ -390,6 +395,31 @@ button.picker-select-button:hover {
     display: flex;
     align-items: center;
     gap: 15px;
+    min-width: 0;
+    flex-shrink: 1;
+}
+
+/* Tighten navbar items at narrower desktop widths so all items fit
+   before the sandwich menu takes over at 1050px */
+@media (max-width: 1300px) and (min-width: 1051px) {
+    #top-navbar {
+        padding: 0 12px;
+    }
+    .navbar-left {
+        gap: 10px;
+    }
+    .navbar-center {
+        gap: 4px;
+    }
+    .dropbtn, .nav-link {
+        padding: 6px 8px;
+        font-size: 0.88em;
+    }
+    .nav-streak {
+        margin-right: 8px;
+        padding: 4px 8px;
+        font-size: 0.85em;
+    }
 }
 
 /* Dropdown Container */
