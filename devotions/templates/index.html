@@ -64,7 +64,7 @@
       <h2>Favorites</h2>
         {% if current_user.favorites %}
           {% for fav in current_user.favorites %}
-            <a href="{{ fav.path }}" class="button">{{ fav.title }}</a>
+            <a href="{{ fav.path }}" class="button favorite-link">{{ fav.title }}</a>
           {% endfor %}
         {% else %}
           <p>Click the favorite button (⭐) in a devotion to add it to your favorites.</p>
@@ -90,7 +90,9 @@
           const isAdvent = {{ is_advent|tojson }};
           const isNewYear = {{ is_new_year|tojson }};
           const isLent = {{ is_lent|tojson }};
-          
+
+          const suggestedUrls = [];
+
           // Helper to create button
           function createBtn(name, url, style="") {
               const a = document.createElement('a');
@@ -98,6 +100,7 @@
               a.className = "button";
               a.style.cssText = "font-size: 1.2em; padding: 15px 30px; background-color: #2980b9;" + style;
               a.textContent = name;
+              suggestedUrls.push(url);
               return a;
           }
 
@@ -115,7 +118,7 @@
               primary = {name: "Close of the Day", url: "/office/close_of_day"};
           }
           const primaryBtn = createBtn(primary.name, primary.url);
-          
+
           // 2. Identify Secondary Buttons
           const secondaryBtns = [];
 
@@ -136,10 +139,10 @@
           }
 
           // Mid-week Devotion (Wednesday)
-          if (day === 3) { 
+          if (day === 3) {
               secondaryBtns.push(createBtn("Mid-Week Devotion", "/mid_week_devotion", "background-color: #8e44ad; font-size: 1em; padding: 10px 20px;"));
           }
-          
+
           // 3. Append to DOM
           container.appendChild(primaryBtn);
 
@@ -150,7 +153,53 @@
               secondaryBtns.forEach(btn => row.appendChild(btn));
               container.appendChild(row);
           }
+
+          // 4. Background prefetch of devotions linked from the home page.
+          // Warms the browser HTTP cache + the server-side scripture cache
+          // so a click on these links lands on a primed response.
+          const favoriteUrls = Array.from(
+              document.querySelectorAll('.favorite-link')
+          ).map(a => a.getAttribute('href'));
+          const staticUrls = ['/daily_lectionary', '/bible_in_a_year'];
+          schedulePrefetch([...suggestedUrls, ...favoriteUrls, ...staticUrls]);
       });
+
+      function schedulePrefetch(urls) {
+          // Skip URLs already prefetched in this browser session.
+          const SESSION_KEY = 'prefetchedDevotions';
+          let alreadyPrefetched;
+          try {
+              alreadyPrefetched = new Set(JSON.parse(sessionStorage.getItem(SESSION_KEY) || '[]'));
+          } catch (e) {
+              alreadyPrefetched = new Set();
+          }
+          const todo = Array.from(new Set(
+              urls.filter(u => u && u.startsWith('/') && !alreadyPrefetched.has(u))
+          ));
+          if (!todo.length) return;
+
+          const schedule = window.requestIdleCallback
+              || (cb => setTimeout(cb, 1500));
+
+          schedule(async () => {
+              // Sequential to avoid hammering the server with parallel requests.
+              for (const url of todo) {
+                  try {
+                      await fetch(url, {
+                          credentials: 'same-origin',
+                          headers: {'X-Purpose': 'prefetch'},
+                      });
+                      alreadyPrefetched.add(url);
+                      try {
+                          sessionStorage.setItem(
+                              SESSION_KEY,
+                              JSON.stringify([...alreadyPrefetched])
+                          );
+                      } catch (e) { /* sessionStorage full or disabled */ }
+                  } catch (e) { /* prefetch failures are non-fatal */ }
+              }
+          }, { timeout: 3000 });
+      }
     </script>
 
     <div class="card">
