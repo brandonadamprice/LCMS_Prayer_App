@@ -378,13 +378,13 @@ button.picker-select-button:hover {
 }
 
 /* Responsive Navigation */
-@media (max-width: 1050px) {
+@media (max-width: 1200px) {
     .desktop-nav {
         display: none !important;
     }
 }
 
-@media (min-width: 1051px) {
+@media (min-width: 1201px) {
     .mobile-nav {
         display: none !important;
     }
@@ -400,8 +400,8 @@ button.picker-select-button:hover {
 }
 
 /* Tighten navbar items at narrower desktop widths so all items fit
-   before the sandwich menu takes over at 1050px */
-@media (max-width: 1300px) and (min-width: 1051px) {
+   before the sandwich menu takes over at 1200px */
+@media (max-width: 1400px) and (min-width: 1201px) {
     #top-navbar {
         padding: 0 12px;
     }
