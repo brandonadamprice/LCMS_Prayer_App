@@ -557,8 +557,26 @@ def get_devotion_data(now: datetime.datetime, user_id=None) -> dict:
   return data
 
 
+def _personal_prayer_sort_key(p: dict) -> tuple:
+  # Sort by category, then by user-defined position (legacy prayers without a
+  # position go after positioned ones), then by created_at for stable order.
+  pos = p.get("position")
+  created = p.get("created_at")
+  return (
+      p.get("category", ""),
+      0 if pos is not None else 1,
+      pos if pos is not None else 0,
+      created.timestamp() if created else 0,
+  )
+
+
 def fetch_personal_prayers(user_id: str) -> list[dict]:
-  """Fetches personal prayers for a user from their subcollection."""
+  """Fetches personal prayers for a user from their subcollection.
+
+  Results are sorted by category and then by the user's reorder position so
+  that every consumer (my prayers page, daily devotions, mid-week, etc.)
+  displays prayers in the same order.
+  """
   db = get_db_client()
   collection_ref = (
       db.collection("users").document(user_id).collection("personal-prayers")
@@ -574,6 +592,7 @@ def fetch_personal_prayers(user_id: str) -> list[dict]:
   except Exception as e:
     logger.error(f"Error fetching personal prayers from new collection: {e}")
 
+  prayers.sort(key=_personal_prayer_sort_key)
   return prayers
 
 
