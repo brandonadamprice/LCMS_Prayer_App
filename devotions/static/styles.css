@@ -2165,3 +2165,22 @@ textarea.prayer-input {
     background: #34495e;
     color: #ecf0f1;
 }
+
+/* Home page signup card */
+.promo-box {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+}
+body.dark-mode .promo-box {
+    background-color: #3a3a3a;
+    border: 1px solid #555;
+}
+.free-tag {
+    margin-top: 10px;
+    color: #27ae60;
+    font-weight: bold;
+}
+body.dark-mode .free-tag {
+    color: #2ecc71;
+}

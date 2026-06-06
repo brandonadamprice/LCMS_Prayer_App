@@ -3,6 +3,7 @@
 import datetime
 import logging
 import random
+import threading
 from google.cloud import firestore
 from google.cloud.firestore_v1 import base_query
 from google.cloud.firestore_v1 import query as firestore_query_module
@@ -13,6 +14,14 @@ logger = logging.getLogger(__name__)
 NAME_MAX_LENGTH = 100
 REQUEST_MAX_LENGTH = 1000
 COLLECTION_NAME = "prayer-requests"
+
+# Throttle for the expired-request sweep. Without this, every prayer-wall view
+# triggered a full collection scan for expired docs. We sweep at most once per
+# interval per process; the sweep is idempotent, so per-worker throttling is
+# fine and a scheduled task can still force a run.
+_EXPIRY_SWEEP_INTERVAL = datetime.timedelta(minutes=15)
+_expiry_sweep_lock = threading.Lock()
+_last_expiry_sweep = None
 
 
 def add_prayer_request(
@@ -129,10 +138,28 @@ def update_pray_count(request_id: str, operation: str) -> bool:
     return False
 
 
-def remove_expired_requests():
-  """Removes expired prayer requests from the Firestore database."""
-  db = utils.get_db_client()
+def remove_expired_requests(force: bool = False):
+  """Removes expired prayer requests from the Firestore database.
+
+  Throttled to at most once per ``_EXPIRY_SWEEP_INTERVAL`` per process so a
+  burst of prayer-wall views doesn't run a full collection scan on every
+  request. Pass ``force=True`` (e.g. from a scheduled task) to bypass the
+  throttle.
+  """
+  global _last_expiry_sweep
   now = datetime.datetime.now(datetime.timezone.utc)
+
+  if not force:
+    with _expiry_sweep_lock:
+      if (
+          _last_expiry_sweep is not None
+          and now - _last_expiry_sweep < _EXPIRY_SWEEP_INTERVAL
+      ):
+        return
+      # Claim this sweep before doing the work so concurrent requests skip it.
+      _last_expiry_sweep = now
+
+  db = utils.get_db_client()
   collection_ref = db.collection(COLLECTION_NAME)
   # Queries for expired docs
   query = collection_ref.where(
