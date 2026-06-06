@@ -192,16 +192,7 @@ def admin_required(f):
 @app.context_processor
 def inject_globals():
   """Injects global variables into all templates."""
-  timezone_str = "America/New_York"
-  if (
-      flask_login.current_user.is_authenticated
-      and flask_login.current_user.timezone
-  ):
-    timezone_str = flask_login.current_user.timezone
-
-  tz = utils.resolve_timezone(timezone_str)
-
-  now = datetime.datetime.now(tz)
+  now = utils.now_for_user(flask_login.current_user)
   is_advent = now.month == 12 and 1 <= now.day <= 25
   is_new_year = (now.month == 12 and now.day == 31) or (
       now.month == 1 and now.day == 1
@@ -226,28 +217,13 @@ def inject_globals():
 
 @app.route("/")
 def index_route():
-  """Returns the homepage HTML."""
-  timezone_str = "America/New_York"
-  if (
-      flask_login.current_user.is_authenticated
-      and flask_login.current_user.timezone
-  ):
-    timezone_str = flask_login.current_user.timezone
+  """Returns the homepage HTML.
 
-  tz = utils.resolve_timezone(timezone_str)
-
-  now = datetime.datetime.now(tz)
-  is_advent = now.month == 12 and 1 <= now.day <= 25
-  is_new_year = (now.month == 12 and now.day == 31) or (
-      now.month == 1 and now.day == 1
-  )
-
-  return flask.render_template(
-      "index.html",
-      is_advent=is_advent,
-      is_new_year=is_new_year,
-      admin_user_id=app.config.get("ADMIN_USER_ID"),
-  )
+  The seasonal flags (is_advent/is_new_year/is_lent) the page needs are already
+  supplied to every template by the inject_globals context processor, so the
+  route just renders.
+  """
+  return flask.render_template("index.html")
 
 
 @app.route("/sw.js")
@@ -814,33 +790,11 @@ def complete_prayer_email_route(token):
   )
 
   if result:
-    msg = result.get("message", "Prayer recorded!")
-    streak = result.get("streak", 0)
-    # Simple HTML response
-    return f"""
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta name="viewport" content="width=device-width, initial-scale=1">
-            <style>
-                body {{ font-family: sans-serif; text-align: center; padding: 40px 20px; background-color: #f9f8f4; }}
-                .card {{ background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 400px; margin: 0 auto; }}
-                h1 {{ color: #27ae60; }}
-                p {{ color: #555; font-size: 1.1em; }}
-                .streak {{ font-size: 2em; font-weight: bold; color: #e67e22; margin: 20px 0; }}
-                .button {{ display: inline-block; padding: 10px 20px; background-color: #2980b9; color: white; text-decoration: none; border-radius: 5px; margin-top: 20px; }}
-            </style>
-        </head>
-        <body>
-            <div class="card">
-                <h1>✓ Prayer Recorded</h1>
-                <p>{msg}</p>
-                <div class="streak">🔥 {streak} Day Streak</div>
-                <a href="/" class="button">Go to App</a>
-            </div>
-        </body>
-        </html>
-        """
+    return flask.render_template(
+        "prayer_completed.html",
+        message=result.get("message", "Prayer recorded!"),
+        streak=result.get("streak", 0),
+    )
   else:
     return "Failed to record prayer.", 500
 
@@ -2092,11 +2046,10 @@ def streaks_route():
   if catechism_total > 0:
     catechism_pct = int((catechism_completed / catechism_total) * 100)
 
-  # Determine if prayed today
-  timezone_str = user.timezone or "America/New_York"
-  tz = utils.resolve_timezone(timezone_str)
-
-  today_str = datetime.datetime.now(tz).strftime("%Y-%m-%d")
+  # Today (in the user's timezone) drives the "prayed/read today" flags and the
+  # time-of-day devotion recommendation below.
+  now = utils.now_for_user(user)
+  today_str = now.strftime("%Y-%m-%d")
   prayed_today = user.last_prayer_date == today_str
 
   # Determine if read bible today
@@ -2110,7 +2063,6 @@ def streaks_route():
         devotions_today_count += 1
 
   # Determine recommended devotion
-  now = datetime.datetime.now(tz)
   hour = now.hour
   if 5 <= hour < 11:
     recommended_devotion = {

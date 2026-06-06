@@ -57,6 +57,19 @@ def resolve_timezone(timezone_str):
     return EASTERN_TZ
 
 
+def now_for_user(user) -> datetime.datetime:
+  """Returns the current datetime in ``user``'s timezone.
+
+  Falls back to the app default (US Eastern) when the user is anonymous or has
+  no/unrecognized timezone, so callers don't have to special-case those. This
+  centralizes the "what time is it for this user" logic that several routes and
+  the template context processor would otherwise each reimplement.
+  """
+  return datetime.datetime.now(
+      resolve_timezone(getattr(user, "timezone", None))
+  )
+
+
 @functools.lru_cache(maxsize=None)
 def get_db_client():
   """Returns a cached Firestore client (one per process).
@@ -845,11 +858,8 @@ def get_office_devotion_data(user_id, office_name, date_obj=None):
             if default_psalm_mode == "memento" and not memento_reading:
                 default_psalm_mode = "office"
 
-  # Compute prev/next date for navigation
-  today = datetime.datetime.now(eastern_timezone).date()
-  prev_date = (now.date() - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
-  next_day = now.date() + datetime.timedelta(days=1)
-  next_date = next_day.strftime("%Y-%m-%d") if next_day <= today else None
+  # Compute prev/next date for navigation (shared with the dated devotions).
+  prev_date, next_date = devotion_nav_dates(now)
 
   # Base data
   data = {
