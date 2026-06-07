@@ -351,7 +351,7 @@ button.picker-select-button:hover {
 .nav-brand {
     font-family: 'Montserrat', sans-serif;
     font-weight: 800;
-    font-size: 1.3em;
+    font-size: 1.3rem;
     color: #2c3e50;
     text-decoration: none;
     letter-spacing: -0.5px;
@@ -367,7 +367,7 @@ button.picker-select-button:hover {
     align-items: center;
     gap: 5px;
     font-family: 'Montserrat', sans-serif;
-    font-size: 0.95em;
+    font-size: 0.95rem;
     font-weight: 500;
     color: #5d6d7e;
     background-color: transparent;
@@ -437,12 +437,12 @@ button.picker-select-button:hover {
     }
     .dropbtn, .nav-link {
         padding: 6px 8px;
-        font-size: 0.88em;
+        font-size: 0.88rem;
     }
     .nav-streak {
         margin-right: 8px;
         padding: 4px 8px;
-        font-size: 0.85em;
+        font-size: 0.85rem;
     }
 }
 
@@ -475,7 +475,7 @@ button.picker-select-button:hover {
     text-decoration: none;
     display: block;
     font-family: 'Montserrat', sans-serif;
-    font-size: 0.9em;
+    font-size: 0.9rem;
 }
 
 /* Change color of dropdown links on hover */
@@ -493,7 +493,7 @@ button.picker-select-button:hover {
 #menu-button {
     background: transparent;
     border: none;
-    font-size: 1.5em;
+    font-size: 1.5rem;
     cursor: pointer;
     color: #5d6d7e;
     padding: 0;
@@ -1869,7 +1869,7 @@ body.dark-mode .nav-streak.scripture-tooltip.active::before {
     padding: 5px 10px;
     border-radius: 20px;
     margin-right: 15px;
-    font-size: 0.9em;
+    font-size: 0.9rem;
     border: 1px solid rgba(230, 126, 34, 0.3);
 }
 body.dark-mode .nav-streak {
