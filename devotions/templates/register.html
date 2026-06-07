@@ -21,45 +21,37 @@
 <div class="card">
     <h2>Sign Up</h2>
     <div style="text-align: center; margin-top: 20px; margin-bottom: 30px;">
-      <a href="/login/google" class="button"
-        style="background-color: #4285F4; border: 1px solid #4285F4; padding: 12px 24px; font-size: 1.1em; color: white; text-decoration: none; display: inline-block;">
+      <a href="/login/google" class="button button--google" style="padding: 12px 24px; font-size: 1.1em;">
         Sign up with Google
       </a>
     </div>
-    <div style="text-align: center; margin-bottom: 20px; border-bottom: 1px solid #eee; line-height: 0.1em;">
-      <span style="background:#fff; padding:0 10px; color:#7f8c8d;">OR</span>
+    <div style="text-align: center; margin-bottom: 20px; border-bottom: 1px solid var(--color-border); line-height: 0.1em;">
+      <span style="background: var(--color-card-bg); padding: 0 10px; color: var(--color-muted);">OR</span>
     </div>
-    <form action="/register" method="POST"
-        style="display: flex; flex-direction: column; gap: 15px; max-width: 400px; margin: 0 auto;">
+    <form action="/register" method="POST" class="auth-form">
         <div>
-            <label for="name" style="display: block; margin-bottom: 5px;">Name</label>
-            <input type="text" id="name" name="name" required
-                style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+            <label for="name" class="form-label">Name</label>
+            <input type="text" id="name" name="name" class="form-input" required>
         </div>
         <div>
-            <label for="email" style="display: block; margin-bottom: 5px;">Email</label>
-            <input type="email" id="email" name="email" required
-                style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" id="email" name="email" class="form-input" required>
         </div>
         <div>
-            <label for="password" style="display: block; margin-bottom: 5px;">Password</label>
-            <input type="password" id="password" name="password" required
-                style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" id="password" name="password" class="form-input" required>
         </div>
         <div>
-            <label for="confirm_password" style="display: block; margin-bottom: 5px;">Confirm Password</label>
-            <input type="password" id="confirm_password" name="confirm_password" required
-                style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+            <label for="confirm_password" class="form-label">Confirm Password</label>
+            <input type="password" id="confirm_password" name="confirm_password" class="form-input" required>
         </div>
-        <p style="font-size: 0.8em; color: #666; margin-top: 5px; margin-bottom: 15px;">
+        <p class="form-hint">
             Password must be at least 8 characters long, contain at least one capital letter, and one number or symbol.
         </p>
-        <p style="font-size: 0.8em; color: #666; margin-top: 15px; margin-bottom: 15px;">
+        <p class="form-hint">
             By signing up, you consent to receive occasional emails regarding site updates or features. You can manage all notification preferences in your Settings page after creating an account.
         </p>
-        <button type="submit" class="button"
-            style="background-color: #333; color: white; border: none; padding: 10px; font-size: 1em; cursor: pointer;">Sign
-            Up</button>
+        <button type="submit" class="button">Sign Up</button>
     </form>
     <p style="text-align: center; margin-top: 20px;">
         Already have an account? <a href="/login">Sign In</a>

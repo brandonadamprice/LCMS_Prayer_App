@@ -80,21 +80,21 @@
 <div class="card" style="border-color: red;">
     <h2>Admin Debug</h2>
     <p>This button will force <strong>all</strong> of your reminders to fire immediately, regardless of their scheduled time. Use this to test push notifications on your device.</p>
-    <button class="button" onclick="forceReminders()" style="background-color: #e74c3c;">Force Send All My Reminders</button>
+    <button class="button button--danger" onclick="forceReminders()">Force Send All My Reminders</button>
 </div>
 <script>
 async function forceReminders() {
-    if(!confirm("Are you sure? This will send all your reminders now.")) return;
+    if(!await showConfirm("Are you sure? This will send all your reminders now.")) return;
     try {
         const response = await fetch('/debug/force_reminders', {method: 'POST'});
         const data = await response.json();
         if (data.success) {
-            alert(data.message);
+            showToast(data.message, "success");
         } else {
-            alert("Error: " + data.error);
+            showToast("Error: " + data.error, "error");
         }
     } catch(e) {
-        alert("Error: " + e);
+        showToast("Error: " + e, "error");
     }
 }
 </script>
@@ -126,7 +126,7 @@ async function forceReminders() {
           statusMessage.style.color = isError ? '#e74c3c' : '#27ae60';
           statusMessage.style.display = 'block';
       } else {
-          if(isError) alert(msg);
+          if(isError) showToast(msg, "error");
       }
   }
 
@@ -168,7 +168,7 @@ async function forceReminders() {
                     <div>
                         <strong>${r.time}</strong> - ${details}
                     </div>
-                    <button class="button" style="background-color: #e74c3c; padding: 5px 10px; font-size: 0.8em;" onclick="deleteReminder('${r.id}')">Delete</button>
+                    <button class="button button--danger" style="padding: 5px 10px; font-size: 0.8em;" onclick="deleteReminder('${r.id}')">Delete</button>
                 </li>
             `;
         });
@@ -181,7 +181,7 @@ async function forceReminders() {
   }
 
   async function deleteReminder(id) {
-    if (!confirm("Delete this reminder?")) return;
+    if (!await showConfirm("Delete this reminder?", { danger: true, okText: 'Delete' })) return;
     try {
         const response = await fetch('/delete_reminder', {
             method: 'POST',
@@ -191,10 +191,10 @@ async function forceReminders() {
         if(response.ok) {
             loadReminders();
         } else {
-            alert("Failed to delete.");
+            showToast("Failed to delete.", "error");
         }
     } catch(e) {
-        alert("Error deleting reminder.");
+        showToast("Error deleting reminder.", "error");
     }
   }
   
