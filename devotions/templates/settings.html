@@ -319,18 +319,18 @@
 
   async function requestPushPermission() {
     if (!('Notification' in window)) {
-        alert("This browser does not support desktop notification");
+        showToast("This browser does not support desktop notifications.", "error");
         return false;
     }
     const permission = await Notification.requestPermission();
     if (permission !== 'granted') {
-        alert('Permission not granted for Notification');
+        showToast('Permission not granted for notifications.', "error");
         return false;
     }
-    
+
     if (!messaging) await initFirebase();
     if (!messaging) {
-        alert("Failed to initialize notification service. Please refresh and try again.");
+        showToast("Failed to initialize notification service. Please refresh and try again.", "error");
         return false;
     }
 
@@ -431,7 +431,7 @@
         if (Notification.permission === 'denied') {
             e.preventDefault();
             e.target.checked = false;
-            alert("Notifications are currently disabled for this site in your browser settings.\n\nTo enable them:\n- iOS: Go to Settings > Notifications > [This App/Browser] and Allow.\n- Android/Chrome: Tap the lock icon in the address bar > Permissions > Notifications.");
+            showToast("Notifications are currently disabled for this site in your browser settings.\n\nTo enable them:\n- iOS: Go to Settings > Notifications > [This App/Browser] and Allow.\n- Android/Chrome: Tap the lock icon in the address bar > Permissions > Notifications.", "info", 9000);
             return;
         }
 
@@ -459,7 +459,7 @@
           // Check for demo mode
           const urlParams = new URLSearchParams(window.location.search);
           if (urlParams.get('demo') === 'twilio_compliance') {
-              alert("Preferences saved successfully. (Demo Mode)");
+              showToast("Preferences saved successfully. (Demo Mode)", "success");
               return;
           }
 
@@ -495,13 +495,13 @@
               });
               const result = await response.json();
               if (result.success) {
-                  alert("Preferences saved successfully.");
+                  showToast("Preferences saved successfully.", "success");
               } else {
-                  alert("Error saving preferences: " + result.error);
+                  showToast("Error saving preferences: " + result.error, "error");
               }
           } catch(e) {
               console.error(e);
-              alert("An error occurred.");
+              showToast("An error occurred.", "error");
           }
       });
   }

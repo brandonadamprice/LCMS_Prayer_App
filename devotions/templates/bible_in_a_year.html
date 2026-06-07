@@ -226,7 +226,7 @@ function checkCatchUp() {
 }
 
 async function catchUpReadings() {
-    if (!confirm("Are you sure you want to mark all previous days as completed?")) return;
+    if (!await showConfirm("Are you sure you want to mark all previous days as completed?")) return;
     
     const missingDays = [];
     for (let i = 1; i < currentDay; i++) {
@@ -257,17 +257,17 @@ async function catchUpReadings() {
                  if (window.triggerMilestoneModal) {
                      window.triggerMilestoneModal("You've unlocked new Bible reading achievements!", "N/A");
                 } else {
-                     alert("You've unlocked new Bible reading achievements!");
+                     showToast("You've unlocked new Bible reading achievements!", "success");
                 }
             } else {
-                alert("Readings updated successfully!");
+                showToast("Readings updated successfully!", "success");
             }
         } else {
-            alert("Error: " + (result.error || "Unknown error"));
+            showToast("Error: " + (result.error || "Unknown error"), "error");
         }
     } catch(e) {
         console.error(e);
-        alert("Failed to update readings.");
+        showToast("Failed to update readings.", "error");
     }
 }
 
@@ -311,16 +311,16 @@ async function markReadingComplete() {
                 if (window.triggerMilestoneModal) {
                      window.triggerMilestoneModal(result.milestone_msg, result.bible_streak);
                 } else {
-                     alert(result.milestone_msg);
+                     showToast(result.milestone_msg, "success");
                 }
             }
         } else {
-            alert("Error: " + (result.error || "Unknown error"));
+            showToast("Error: " + (result.error || "Unknown error"), "error");
             if(btn) btn.disabled = false;
         }
     } catch(e) {
         console.error(e);
-        alert("Failed to mark complete.");
+        showToast("Failed to mark complete.", "error");
         if(btn) btn.disabled = false;
     }
 }

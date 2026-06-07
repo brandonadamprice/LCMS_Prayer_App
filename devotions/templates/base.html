@@ -14,10 +14,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     {% set page_title %}{% block title %}A Simple Way to Pray{% endblock %}{% endset %}
     <title>{{ page_title }}</title>
+    {% set meta_description %}{% block meta_description %}A website for daily prayer, Scripture reading, and reflection on the Catechism, according to LCMS traditions.{% endblock %}{% endset %}
+    <meta name="description" content="{{ meta_description }}" />
+    <link rel="canonical" href="{{ request.base_url }}" />
 
     <!-- Open Graph Meta Tags for Social Media Sharing -->
     <meta property="og:title" content="{{ page_title }}" />
-    <meta property="og:description" content="A website for daily prayer, Scripture reading, and reflection on the Catechism, according to LCMS traditions." />
+    <meta property="og:description" content="{{ meta_description }}" />
     <meta property="og:image" content="{{ url_for('static', filename='banner.jpg', _external=True) }}" />
     <meta property="og:url" content="{{ request.url }}" />
     <meta property="og:type" content="website" />
@@ -26,7 +29,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Lora:ital,wght@0,400..700;1,400..700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <noscript><link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Lora:ital,wght@0,400..700;1,400..700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet"></noscript>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}?v=16" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}?v=17" />
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='icons/favicon.ico') }}">
     <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='icons/favicon-32x32.png') }}">
     <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='icons/favicon-16x16.png') }}">
@@ -177,10 +180,85 @@
             <p>Keep up the good work!</p>
             <div style="margin-top: 20px;">
                 <button class="button" onclick="shareMilestone()">Share</button>
-                <button class="button" onclick="closeMilestoneModal()" style="background-color: #7f8c8d;">Close</button>
+                <button class="button button--muted" onclick="closeMilestoneModal()">Close</button>
             </div>
         </div>
     </div>
+
+    <!-- Toast notifications (see showToast) -->
+    <div id="toast-container" aria-live="polite" aria-atomic="false"></div>
+
+    <!-- Confirm dialog (see showConfirm) -->
+    <div id="confirm-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="confirm-message">
+        <div class="modal-content">
+            <p id="confirm-message" class="confirm-message"></p>
+            <div class="confirm-actions">
+                <button type="button" class="button button--muted" id="confirm-cancel">Cancel</button>
+                <button type="button" class="button" id="confirm-ok">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+      // Lightweight toast notifications. Replaces native alert() for
+      // non-blocking feedback. type: 'info' | 'success' | 'error'.
+      window.showToast = function (message, type, duration) {
+          const container = document.getElementById('toast-container');
+          if (!container) { console.log('toast:', message); return; }
+          const toast = document.createElement('div');
+          toast.className = 'toast ' + (type || 'info');
+          toast.setAttribute('role', type === 'error' ? 'alert' : 'status');
+          toast.textContent = message;
+          container.appendChild(toast);
+          requestAnimationFrame(() => toast.classList.add('show'));
+
+          const remove = () => {
+              toast.classList.remove('show');
+              setTimeout(() => toast.remove(), 300);
+          };
+          const timer = setTimeout(remove, duration || 4000);
+          toast.addEventListener('click', () => { clearTimeout(timer); remove(); });
+      };
+
+      // Promise-based confirm dialog. Replaces native confirm().
+      // Usage: if (await showConfirm("Sure?")) { ... }
+      window.showConfirm = function (message, opts) {
+          opts = opts || {};
+          return new Promise((resolve) => {
+              const modal = document.getElementById('confirm-modal');
+              const msg = document.getElementById('confirm-message');
+              const ok = document.getElementById('confirm-ok');
+              const cancel = document.getElementById('confirm-cancel');
+              if (!modal || !ok || !cancel) { resolve(window.confirm(message)); return; }
+
+              msg.textContent = message;
+              ok.textContent = opts.okText || 'Confirm';
+              cancel.textContent = opts.cancelText || 'Cancel';
+              ok.classList.toggle('button--danger', !!opts.danger);
+
+              function cleanup(result) {
+                  modal.classList.remove('visible');
+                  ok.removeEventListener('click', onOk);
+                  cancel.removeEventListener('click', onCancel);
+                  modal.removeEventListener('click', onBackdrop);
+                  document.removeEventListener('keydown', onKey);
+                  resolve(result);
+              }
+              const onOk = () => cleanup(true);
+              const onCancel = () => cleanup(false);
+              const onBackdrop = (e) => { if (e.target === modal) cleanup(false); };
+              const onKey = (e) => { if (e.key === 'Escape') cleanup(false); };
+
+              ok.addEventListener('click', onOk);
+              cancel.addEventListener('click', onCancel);
+              modal.addEventListener('click', onBackdrop);
+              document.addEventListener('keydown', onKey);
+              modal.classList.add('visible');
+              ok.focus();
+          });
+      };
+    </script>
+
     {% block body_scripts %}{% endblock %}
     <script>
       // Global function to set background art
@@ -212,7 +290,7 @@
       // Favorites handling
       async function toggleFavorite(path, title, callback) {
           if (!isLoggedIn) {
-              alert("Please log in to favorite pages.");
+              showToast("Please log in to favorite pages.", "info");
               return;
           }
           
@@ -651,9 +729,9 @@
               // Fallback to clipboard
               try {
                   await navigator.clipboard.writeText(window.milestoneShareText + " " + window.location.origin);
-                  alert("Message copied to clipboard!");
+                  showToast("Message copied to clipboard!", "success");
               } catch (err) {
-                  alert("Could not copy to clipboard. Please share manually.");
+                  showToast("Could not copy to clipboard. Please share manually.", "error");
               }
           }
       }

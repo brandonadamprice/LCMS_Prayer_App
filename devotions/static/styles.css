@@ -1,10 +1,42 @@
+/* =========================================================================
+   Design tokens
+   Central palette + surface variables. Brand colors stay constant across
+   light/dark; only surface tokens (bg/text/card/border/focus) are remapped
+   in dark mode so new components adapt automatically.
+   ========================================================================= */
+:root {
+    /* Brand */
+    --color-primary: #708090;
+    --color-primary-dark: #525e6a;
+    --color-accent: #2980b9;
+    --color-accent-dark: #2471a3;
+    --color-success: #27ae60;
+    --color-danger: #e74c3c;
+    --color-prayer: #a52a2a;
+    --color-purple: #8e44ad;
+    --color-google: #4285F4;
+    --color-muted: #7f8c8d;
+
+    /* Surfaces (remapped in dark mode) */
+    --color-bg: #f9f8f4;
+    --color-text: #4a4a4a;
+    --color-card-bg: #ffffff;
+    --color-border: #eeeeee;
+
+    /* UI primitives */
+    --radius: 8px;
+    --shadow-card: 0 2px 10px rgba(0, 0, 0, 0.06);
+    --shadow-pop: 0 8px 24px rgba(0, 0, 0, 0.18);
+    --focus-ring: rgba(41, 128, 185, 0.45);
+}
+
 body {
     font-family: 'Lora', serif;
     line-height: 1.7;
     margin: 0;
     padding: 0;
-    background-color: #f9f8f4;
-    color: #4a4a4a;
+    background-color: var(--color-bg);
+    color: var(--color-text);
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
@@ -41,7 +73,7 @@ h2 {
 }
 
 .rubric {
-    color: #a52a2a; /* Brown */
+    color: var(--color-prayer); /* Brown */
     font-style: italic;
     font-size: 0.9em;
 }
@@ -70,7 +102,7 @@ body.dark-mode .chapter-header {
 }
 
 .prayer-topic {
-    color: #2980b9;
+    color: var(--color-accent);
     font-weight: bold;
     font-size: 1.1em;
 }
@@ -80,7 +112,7 @@ button,
     display: inline-block;
     padding: 10px 20px;
     margin: 10px 5px 10px 0;
-    background-color: #708090;
+    background-color: var(--color-primary);
     color: white;
     text-decoration: none;
     border-radius: 5px;
@@ -97,7 +129,7 @@ button,
 
 button:hover,
 .button:hover {
-    background-color: #525e6a;
+    background-color: var(--color-primary-dark);
     color: white;
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
@@ -313,7 +345,7 @@ button.picker-select-button {
   letter-spacing: normal;
 }
 button.picker-select-button:hover {
-  background-color: #525e6a;
+  background-color: var(--color-primary-dark);
   color: white;
   transform: none;
   box-shadow: none;
@@ -385,7 +417,7 @@ button.picker-select-button:hover {
 .dropbtn:hover,
 .dropdown:hover .dropbtn {
     background-color: #f0f4f8;
-    color: #2980b9;
+    color: var(--color-accent);
 }
 
 .dropbtn-arrow {
@@ -481,7 +513,7 @@ button.picker-select-button:hover {
 /* Change color of dropdown links on hover */
 .dropdown-content a:hover {
     background-color: #f9f9f9;
-    color: #2980b9;
+    color: var(--color-accent);
 }
 
 /* Show the dropdown menu on hover */
@@ -508,7 +540,7 @@ button.picker-select-button:hover {
 
 #menu-button:hover {
     background-color: #f0f4f8;
-    color: #2980b9;
+    color: var(--color-accent);
 }
 
 /* App Menu Modal */
@@ -597,7 +629,7 @@ body.dark-mode .app-menu-section strong {
 
 .menu-accordion:hover {
     background-color: #f9f9f9;
-    color: #2980b9;
+    color: var(--color-accent);
     transform: none;
     box-shadow: none;
 }
@@ -628,7 +660,7 @@ body.dark-mode .app-menu-section strong {
 }
 .menu-sub-link:hover {
     background-color: #f0f4f8;
-    color: #2980b9;
+    color: var(--color-accent);
 }
 .menu-sub-link.disabled {
     color: #aaa;
@@ -754,7 +786,7 @@ body.dark-mode .menu-profile-info span {
 }
 
 input:checked + .slider {
-  background-color: #2980b9;
+  background-color: var(--color-accent);
 }
 
 input:checked + .slider:before {
@@ -821,6 +853,12 @@ body.has-background-art .card {
 
 /* Dark Mode */
 body.dark-mode {
+    /* Remap surface tokens; brand tokens stay constant */
+    --color-bg: #333333;
+    --color-text: #cccccc;
+    --color-card-bg: #444444;
+    --color-border: #555555;
+    --focus-ring: rgba(144, 202, 249, 0.55);
     background-color: #333333;
     color: #cccccc;
 }
@@ -1193,7 +1231,7 @@ body.dark-mode .footer a {
 }
 .memory-input:focus {
     outline: none;
-    border-bottom: 2px solid #2980b9;
+    border-bottom: 2px solid var(--color-accent);
 }
 .memory-input.wrong {
     border-bottom-color: red;
@@ -1235,7 +1273,7 @@ body.dark-mode .memory-input:focus {
     box-shadow: none;
 }
 #word-bank .button.wrong {
-    background-color: #e74c3c !important;
+    background-color: var(--color-danger) !important;
     color: white !important;
     border-color: #c0392b !important;
     animation: shake 0.5s;
@@ -1283,6 +1321,34 @@ body.dark-mode .form-input {
     background-color: #555;
     color: #eee;
     border-color: #777;
+}
+
+/* Reusable form layout helpers (used by auth + simple forms) */
+.form-label {
+    display: block;
+    margin-bottom: 5px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.9em;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.auth-divider {
+    margin-top: 30px;
+    border-top: 1px solid var(--color-border);
+    padding-top: 20px;
+}
+
+.form-hint {
+    font-size: 0.8em;
+    color: var(--color-muted);
+    margin: 5px 0 10px 0;
 }
 
 /* Prayer List Items */
@@ -1376,7 +1442,7 @@ body.dark-mode .analytics-table td {
     color: #aaa;
 }
 .calendar-day.today {
-    border: 2px solid #2980b9;
+    border: 2px solid var(--color-accent);
     font-weight: bold;
 }
 .day-number {
@@ -1405,8 +1471,8 @@ body.dark-mode .analytics-table td {
 .liturgical-color-dot[title="Violet"], .violet .liturgical-color-dot { background-color: #8e44ad; }
 .liturgical-color-dot[title="Rose"], .rose .liturgical-color-dot { background-color: #ff99b5; }
 .liturgical-color-dot[title="Blue"], .blue .liturgical-color-dot { background-color: #3498db; }
-.liturgical-color-dot[title="Red"], .red .liturgical-color-dot { background-color: #e74c3c; }
-.liturgical-color-dot[title="Green"], .green .liturgical-color-dot { background-color: #27ae60; }
+.liturgical-color-dot[title="Red"], .red .liturgical-color-dot { background-color: var(--color-danger); }
+.liturgical-color-dot[title="Green"], .green .liturgical-color-dot { background-color: var(--color-success); }
 .liturgical-color-dot[title="Black"], .black .liturgical-color-dot { background-color: #2c3e50; }
 
 .legend-item {
@@ -1574,7 +1640,7 @@ body.dark-mode .calendar-day.today {
 
 .page-menu-item:hover {
     background-color: #f1f1f1;
-    color: #2980b9;
+    color: var(--color-accent);
 }
 
 .page-menu-item:last-child {
@@ -1660,7 +1726,7 @@ body.dark-mode .page-menu-item:hover {
     border-bottom: 1px dotted #7f8c8d;
     cursor: help;
     position: relative;
-    color: #2980b9;
+    color: var(--color-accent);
 }
 
 .scripture-tooltip:hover::after,
@@ -1849,12 +1915,12 @@ body.dark-mode .nav-streak.scripture-tooltip.active::before {
 }
 
 .quiz-feedback.success {
-    color: #27ae60;
+    color: var(--color-success);
     background-color: rgba(39, 174, 96, 0.1);
 }
 
 .quiz-feedback.error {
-    color: #e74c3c;
+    color: var(--color-danger);
     background-color: rgba(231, 76, 60, 0.1);
 }
 
@@ -2009,7 +2075,7 @@ body.dark-mode .random-prayer-box {
 .selection-item:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    border-color: #2980b9;
+    border-color: var(--color-accent);
 }
 .selection-item h3 {
     margin: 0 0 5px 0;
@@ -2062,7 +2128,7 @@ body.dark-mode .random-prayer-box {
     color: #ccc;
 }
 .step-dot.active {
-    background: #708090;
+    background: var(--color-primary);
     color: white;
 }
 .step-content {
@@ -2070,12 +2136,12 @@ body.dark-mode .random-prayer-box {
 }
 .step-icon {
     font-size: 3em;
-    color: #708090;
+    color: var(--color-primary);
     margin-bottom: 10px;
     display: block;
 }
 .seed-thought-btn {
-    background: #a52a2a;
+    background: var(--color-prayer);
     color: white;
     border: none;
     padding: 10px 15px;
@@ -2178,9 +2244,119 @@ body.dark-mode .promo-box {
 }
 .free-tag {
     margin-top: 10px;
-    color: #27ae60;
+    color: var(--color-success);
     font-weight: bold;
 }
 body.dark-mode .free-tag {
     color: #2ecc71;
+}
+
+/* =========================================================================
+   Semantic button modifiers
+   Compound selectors (.button.button--x) so they keep their color in dark
+   mode, where `body.dark-mode .button` would otherwise repaint them gray.
+   ========================================================================= */
+.button.button--accent { background-color: var(--color-accent); color: #fff; }
+.button.button--accent:hover { background-color: var(--color-accent-dark); }
+.button.button--success { background-color: var(--color-success); color: #fff; }
+.button.button--success:hover { background-color: #1e8449; }
+.button.button--danger { background-color: var(--color-danger); color: #fff; }
+.button.button--danger:hover { background-color: #c0392b; }
+.button.button--muted { background-color: var(--color-muted); color: #fff; }
+.button.button--muted:hover { background-color: #6c7a7d; }
+.button.button--purple { background-color: var(--color-purple); color: #fff; }
+.button.button--purple:hover { background-color: #76309b; }
+.button.button--prayer { background-color: var(--color-prayer); color: #fff; }
+.button.button--prayer:hover { background-color: #802020; }
+.button.button--google { background-color: var(--color-google); color: #fff; }
+.button.button--google:hover { background-color: #3367d6; }
+
+/* =========================================================================
+   Focus visibility (accessibility + polish)
+   ========================================================================= */
+.form-input:focus,
+input.form-input:focus,
+textarea.form-input:focus,
+select.form-input:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+a:focus-visible,
+button:focus-visible,
+.button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* =========================================================================
+   Toast notifications (replaces native alert())
+   ========================================================================= */
+#toast-container {
+    position: fixed;
+    top: 78px;
+    right: 16px;
+    z-index: 3000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: min(360px, calc(100vw - 32px));
+    pointer-events: none;
+}
+
+.toast {
+    background: var(--color-card-bg);
+    color: var(--color-text);
+    padding: 14px 16px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-pop);
+    border-left: 4px solid var(--color-accent);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.92rem;
+    line-height: 1.45;
+    white-space: pre-line;
+    pointer-events: auto;
+    opacity: 0;
+    transform: translateX(24px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.toast.show { opacity: 1; transform: translateX(0); }
+.toast.success { border-left-color: var(--color-success); }
+.toast.error { border-left-color: var(--color-danger); }
+.toast.info { border-left-color: var(--color-accent); }
+
+@media (max-width: 600px) {
+    #toast-container {
+        top: auto;
+        bottom: 16px;
+        left: 16px;
+        right: 16px;
+        max-width: none;
+    }
+    .toast { transform: translateY(24px); }
+    .toast.show { transform: translateY(0); }
+}
+
+/* =========================================================================
+   Confirm dialog (replaces native confirm())
+   ========================================================================= */
+.confirm-message {
+    font-size: 1.05em;
+    margin: 5px 0 0 0;
+    line-height: 1.5;
+    white-space: pre-line;
+}
+
+.confirm-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 24px;
 }
