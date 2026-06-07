@@ -311,7 +311,7 @@ async function toggleCatechismComplete(btn, index) {
              if (window.triggerMilestoneModal) {
                  window.triggerMilestoneModal(data.milestone_msg, "N/A");
             } else {
-                 alert(data.milestone_msg);
+                 showToast(data.milestone_msg, "success");
             }
         }
         

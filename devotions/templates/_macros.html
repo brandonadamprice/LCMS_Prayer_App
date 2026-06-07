@@ -67,11 +67,11 @@ async function fetchRandomPrayer() {
             // Optionally auto-scroll to it
             display.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         } else {
-            alert(data.message || "No prayer requests available at this time.");
+            showToast(data.message || "No prayer requests available at this time.", "info");
         }
     } catch (e) {
         console.error("Error fetching random prayer:", e);
-        alert("Failed to fetch prayer request. Please check your connection.");
+        showToast("Failed to fetch prayer request. Please check your connection.", "error");
     } finally {
         btn.disabled = false;
         btn.textContent = "Pray for Others (Prayer Wall)";
@@ -300,7 +300,7 @@ function hideRandomPrayer() {
         } catch (e) {
             console.error("Error marking prayer complete:", e);
             if (btn) btn.disabled = false;
-            alert("Failed to record prayer. Please check your connection.");
+            showToast("Failed to record prayer. Please check your connection.", "error");
         }
     };
 
@@ -387,7 +387,7 @@ async function markPrayerComplete(devotionType) {
     } catch (e) {
         console.error("Error marking prayer complete:", e);
         if (btn) btn.disabled = false;
-        alert("Failed to record prayer. Please check your connection.");
+        showToast("Failed to record prayer. Please check your connection.", "error");
     }
 }
 {% endif %}
@@ -398,7 +398,7 @@ function showMilestonePopup(message, streak) {
     if (window.triggerMilestoneModal) {
         window.triggerMilestoneModal(message, streak);
     } else {
-        alert("Congratulations! " + message);
+        showToast("Congratulations! " + message, "success");
     }
 }
 </script>

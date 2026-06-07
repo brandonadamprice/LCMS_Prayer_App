@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Something Went Wrong{% endblock %}
+{% block meta_description %}An unexpected error occurred.{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Something Went Wrong</h1>
+  <p>An unexpected error occurred on our end.</p>
+</div>
+<div class="card" style="text-align: center;">
+  <p style="font-size: 3.5em; margin: 0 0 10px 0;" aria-hidden="true">⛪</p>
+  <p>Please try again in a moment. If the problem persists, you can return home and start again.</p>
+  <a href="/" class="button">Return Home</a>
+</div>
+{% endblock %}

@@ -236,7 +236,7 @@ async function toggleMemorized() {
              if (window.triggerMilestoneModal) {
                  window.triggerMilestoneModal(data.milestone_msg, data.count);
             } else {
-                 alert(data.milestone_msg);
+                 showToast(data.milestone_msg, "success");
             }
         }
     } catch (e) {

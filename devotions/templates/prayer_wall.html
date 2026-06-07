@@ -86,7 +86,7 @@
 
 {% block extra_js %}
 async function deletePrayerRequest(requestId) {
-    if (!confirm('Are you sure you want to delete this prayer request?')) {
+    if (!await showConfirm('Are you sure you want to delete this prayer request?', { danger: true, okText: 'Delete' })) {
         return;
     }
     try {
@@ -103,11 +103,11 @@ async function deletePrayerRequest(requestId) {
             }
         } else {
             const error = await response.json();
-            alert(`Failed to delete prayer request: ${error.error || 'Unknown error'}`);
+            showToast(`Failed to delete prayer request: ${error.error || 'Unknown error'}`, "error");
         }
     } catch (error) {
         console.error('Error deleting prayer request:', error);
-        alert('An error occurred while deleting the prayer request.');
+        showToast('An error occurred while deleting the prayer request.', "error");
     }
 }
 
@@ -175,15 +175,15 @@ async function savePrayerRequest(requestId) {
             const controlsDiv = postIt.querySelector('.owner-controls');
             controlsDiv.innerHTML = `
                 <button class="button" style="padding: 5px 10px; font-size: 0.8em;" onclick="editPrayerRequest('${requestId}')">Edit</button>
-                <button class="button" style="background-color: #e74c3c; padding: 5px 10px; font-size: 0.8em;" onclick="deletePrayerRequest('${requestId}')">Delete</button>
+                <button class="button button--danger" style="padding: 5px 10px; font-size: 0.8em;" onclick="deletePrayerRequest('${requestId}')">Delete</button>
             `;
         } else {
             const error = await response.json();
-            alert(`Failed to save prayer request: ${error.error || 'Unknown error'}`);
+            showToast(`Failed to save prayer request: ${error.error || 'Unknown error'}`, "error");
         }
     } catch (error) {
         console.error('Error saving prayer request:', error);
-        alert('An error occurred while saving the prayer request.');
+        showToast('An error occurred while saving the prayer request.', "error");
     }
 }
 

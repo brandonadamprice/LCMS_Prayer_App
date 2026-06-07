@@ -215,6 +215,18 @@ def inject_globals():
   )
 
 
+@app.errorhandler(404)
+def page_not_found(_error):
+  """Render a branded 404 page instead of Flask's default."""
+  return flask.render_template("404.html"), 404
+
+
+@app.errorhandler(500)
+def internal_server_error(_error):
+  """Render a branded 500 page instead of Flask's default."""
+  return flask.render_template("500.html"), 500
+
+
 @app.route("/")
 def index_route():
   """Returns the homepage HTML.
