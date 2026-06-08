@@ -23,6 +23,15 @@
     --color-card-bg: #ffffff;
     --color-border: #e7e1d2;        /* Ivory-tinted border */
 
+    /* Neutrals (consolidated) */
+    --text-heading: #333;      /* headings */
+    --text-muted: #7f8c8d;     /* secondary text */
+    --text-faint: #aaa;        /* hints / placeholders */
+    --border-subtle: #eee;     /* dividers / light borders */
+    --border-strong: #ccc;     /* input borders */
+    --surface-subtle: #f9f9f9; /* subtle panels / rows */
+    --surface-hover: #f0f4f8;  /* hover highlight */
+
     /* UI primitives */
     --radius: 8px;
     --shadow-card: 0 2px 10px rgba(0, 0, 0, 0.06);
@@ -58,7 +67,7 @@ body {
 
 h1,
 h2 {
-    color: #333;
+    color: var(--text-heading);
     border-bottom: 1px solid #f0f0f0;
     padding-bottom: 10px;
     font-weight: 400;
@@ -80,7 +89,7 @@ h2 {
 
 .ref {
     font-weight: bold;
-    color: #7f8c8d;
+    color: var(--text-muted);
     font-family: 'Montserrat', sans-serif;
     font-size: 0.9em;
     display: block;
@@ -88,8 +97,8 @@ h2 {
 }
 
 .chapter-header {
-    color: #333;
-    border-bottom: 1px solid #eee;
+    color: var(--text-heading);
+    border-bottom: 1px solid var(--border-subtle);
     padding-bottom: 5px;
     margin-top: 20px;
     margin-bottom: 10px;
@@ -98,7 +107,6 @@ h2 {
 }
 body.dark-mode .chapter-header {
     color: #ddd;
-    border-bottom-color: #555;
 }
 
 .prayer-topic {
@@ -161,7 +169,7 @@ button:hover,
 
 .toggle-icon {
     font-size: 1.5em;
-    color: #7f8c8d;
+    color: var(--text-muted);
     transition: transform 0.3s ease;
     margin-left: 10px;
 }
@@ -186,14 +194,14 @@ button:hover,
 }
 
 .card-content .subheader {
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--border-subtle);
     padding-bottom: 3px;
     margin-bottom: 10px;
 }
 
  .versicle-ref {
     font-size: 0.8em;
-    color: #7f8c8d;
+    color: var(--text-muted);
     text-align: right;
     display: block;
     margin-top: -10px;
@@ -223,7 +231,7 @@ button:hover,
   background-size:16px 16px;
   border-radius: 8px;
   min-height: 300px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--border-subtle);
 }
 
 @media (min-width: 700px) {
@@ -255,7 +263,7 @@ button:hover,
   overflow-wrap: break-word;
   line-height: 1.3;
   font-size: 1.5em;
-  color: #333;
+  color: var(--text-heading);
 }
 .post-it p { margin: 0; }
 .post-it-text { flex-grow: 1; }
@@ -295,7 +303,7 @@ button:hover,
 }
 .pray-count {
   font-size: 0.9em;
-  color: #333;
+  color: var(--text-heading);
   min-width: 1em;
   text-align: left;
   font-family: 'Georgia', serif; /* match body */
@@ -326,7 +334,7 @@ button:hover,
   flex-wrap: wrap;
   padding: 10px 0;
   gap: 5px;
-  border-top: 1px dashed #eee;
+  border-top: 1px dashed var(--border-subtle);
   margin-top: 15px;
 }
 .item-picker.visible {
@@ -337,8 +345,8 @@ button.picker-select-button {
   min-width: 40px;
   font-size: 0.8em;
   background-color: #eee;
-  color: #333;
-  border: 1px solid #ccc;
+  color: var(--text-heading);
+  border: 1px solid var(--border-strong);
   margin: 2px;
   text-transform: none;
   font-weight: 400;
@@ -416,7 +424,7 @@ button.picker-select-button:hover {
 .nav-link:hover,
 .dropbtn:hover,
 .dropdown:hover .dropbtn {
-    background-color: #f0f4f8;
+    background-color: var(--surface-hover);
     color: var(--color-accent);
 }
 
@@ -497,12 +505,12 @@ button.picker-select-button:hover {
     top: 100%;
     left: 50%;
     transform: translateX(-50%);
-    border: 1px solid #eee;
+    border: 1px solid var(--border-subtle);
 }
 
 /* Links inside the dropdown */
 .dropdown-content a {
-    color: #333;
+    color: var(--text-heading);
     padding: 10px 16px;
     text-decoration: none;
     display: block;
@@ -512,7 +520,7 @@ button.picker-select-button:hover {
 
 /* Change color of dropdown links on hover */
 .dropdown-content a:hover {
-    background-color: #f9f9f9;
+    background-color: var(--surface-subtle);
     color: var(--color-accent);
 }
 
@@ -539,7 +547,7 @@ button.picker-select-button:hover {
 }
 
 #menu-button:hover {
-    background-color: #f0f4f8;
+    background-color: var(--surface-hover);
     color: var(--color-accent);
 }
 
@@ -564,13 +572,10 @@ body.dark-mode #app-menu {
 }
 .app-menu-section {
     padding: 10px 0;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--border-subtle);
 }
 .app-menu-section:last-child {
     border-bottom: none;
-}
-body.dark-mode .app-menu-section {
-    border-bottom-color: #555;
 }
 .app-menu-section strong {
     display: block;
@@ -578,17 +583,14 @@ body.dark-mode .app-menu-section {
     margin-bottom: 5px;
     font-size: 1.1em;
     font-family: 'Montserrat', sans-serif;
-    color: #333;
+    color: var(--text-heading);
     font-weight: bold;
-}
-body.dark-mode .app-menu-section strong {
-    color: #eee;
 }
 
 /* Accordion Menu in Sidebar */
 .menu-accordion {
   background-color: transparent;
-  color: #333;
+  color: var(--text-heading);
   cursor: pointer;
   padding: 12px 20px;
   width: 100%;
@@ -628,7 +630,7 @@ body.dark-mode .app-menu-section strong {
 }
 
 .menu-accordion:hover {
-    background-color: #f9f9f9;
+    background-color: var(--surface-subtle);
     color: var(--color-accent);
     transform: none;
     box-shadow: none;
@@ -639,11 +641,11 @@ body.dark-mode .app-menu-section strong {
 }
 
 .menu-panel {
-  background-color: #fafafa;
+  background-color: var(--surface-subtle);
   max-height: 0;
   overflow: hidden;
   transition: max-height 0.2s ease-out;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .menu-sub-link {
@@ -652,18 +654,18 @@ body.dark-mode .app-menu-section strong {
     text-decoration: none;
     color: #555;
     font-size: 0.9em;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--border-subtle);
     transition: background-color 0.2s;
 }
 .menu-sub-link:last-child {
     border-bottom: none;
 }
 .menu-sub-link:hover {
-    background-color: #f0f4f8;
+    background-color: var(--surface-hover);
     color: var(--color-accent);
 }
 .menu-sub-link.disabled {
-    color: #aaa;
+    color: var(--text-faint);
     pointer-events: none;
     font-style: italic;
 }
@@ -680,16 +682,11 @@ body.dark-mode .menu-accordion:hover {
 body.dark-mode .menu-accordion:after {
     color: #bbb;
 }
-body.dark-mode .menu-panel {
-    background-color: #3a3a3a;
-    border-bottom-color: #555;
-}
 body.dark-mode .menu-sub-link {
     color: #ccc;
     border-bottom-color: #4a4a4a;
 }
 body.dark-mode .menu-sub-link:hover {
-    background-color: #505050;
     color: #fff;
 }
 body.dark-mode .menu-sub-link.disabled {
@@ -706,7 +703,7 @@ body.dark-mode .menu-sub-link.disabled {
     height: 40px;
     border-radius: 50%;
     margin-right: 12px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-strong);
 }
 .menu-profile-info {
     display: flex;
@@ -799,8 +796,8 @@ input:checked + .slider:before {
 }
 .font-controls button {
     background: #eee;
-    color: #333;
-    border: 1px solid #ccc;
+    color: var(--text-heading);
+    border: 1px solid var(--border-strong);
     border-radius: 4px;
     padding: 0;
     margin-left: 5px;
@@ -819,7 +816,6 @@ input:checked + .slider:before {
 }
 body.dark-mode .font-controls button {
     background: #555;
-    color: #eee;
     border-color: #777;
 }
 body.dark-mode .font-controls button:hover {
@@ -836,7 +832,7 @@ body.dark-mode .font-controls button:hover {
 .catechism-qa {
   margin-bottom: 1em;
   padding-left: 15px;
-  border-left: 3px solid #eee;
+  border-left: 3px solid var(--border-subtle);
 }
 .catechism-qa p:first-child {
   margin-bottom: 0.2em;
@@ -858,6 +854,13 @@ body.dark-mode {
     --color-text: #e6dfd0;
     --color-card-bg: #3a352f;
     --color-border: #4a443d;
+    --text-heading: #eee;
+    --text-muted: #bdc3c7;
+    --text-faint: #888;
+    --border-subtle: #555;
+    --border-strong: #555;
+    --surface-subtle: #3a3a3a;
+    --surface-hover: #505050;
     --focus-ring: rgba(196, 168, 120, 0.55);
     background-color: #2a2622;
     color: #e6dfd0;
@@ -926,7 +929,6 @@ body.dark-mode .card {
 
 body.dark-mode h1,
 body.dark-mode h2 {
-    color: #eeeeee;
     border-bottom-color: #555555;
 }
 
@@ -1048,7 +1050,7 @@ body.dark-mode .wreath-base {
   left: 50%;
   transform: translate(-50%, -50%);
   background-color: #f0f0f0;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-strong);
   box-sizing: border-box;
   height: 20px;
   width: 6px; /* center candle maybe a bit wider */
@@ -1260,15 +1262,15 @@ body.dark-mode .memory-input:focus {
 #word-bank .button {
     margin: 3px;
     background-color: #eee;
-    color: #333;
-    border: 1px solid #ccc;
+    color: var(--text-heading);
+    border: 1px solid var(--border-strong);
     font-weight: normal;
     text-transform: none;
     padding: 5px 10px;
 }
 #word-bank .button:hover {
     background-color: #ddd;
-    color: #333;
+    color: var(--text-heading);
     transform: none;
     box-shadow: none;
 }
@@ -1287,7 +1289,7 @@ body.dark-mode .memory-input:focus {
     font-weight: bold;
     margin-bottom: 15px;
     min-height: 1.5em;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--border-subtle);
     padding-bottom: 10px;
     line-height: 1.8;
 }
@@ -1302,16 +1304,13 @@ body.dark-mode #word-bank .button:hover {
 body.dark-mode #word-bank .button:disabled {
     background-color: #555 !important;
 }
-body.dark-mode #built-sentence {
-    border-bottom-color: #555;
-}
 
 /* Form Inputs */
 .form-input {
     width: 100%;
     padding: 8px;
     border-radius: 4px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-strong);
     box-sizing: border-box;
     font-family: inherit;
     font-size: 1em;
@@ -1353,7 +1352,7 @@ body.dark-mode .form-input {
 
 /* Prayer List Items */
 .prayer-list-item {
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--border-subtle);
     padding: 10px 0;
 }
 
@@ -1372,13 +1371,10 @@ body.dark-mode .prayer-list-item {
 }
 .analytics-table th {
     text-align: left;
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid var(--border-strong);
 }
 .analytics-table td {
-    border-bottom: 1px solid #eee;
-}
-body.dark-mode .analytics-table th {
-    border-bottom-color: #555;
+    border-bottom: 1px solid var(--border-subtle);
 }
 body.dark-mode .analytics-table td {
     border-bottom-color: #444;
@@ -1438,8 +1434,8 @@ body.dark-mode .analytics-table td {
     cursor: pointer;
 }
 .calendar-day.other-month {
-    background-color: #f9f9f9;
-    color: #aaa;
+    background-color: var(--surface-subtle);
+    color: var(--text-faint);
 }
 .calendar-day.today {
     border: 2px solid var(--color-accent);
@@ -1467,7 +1463,7 @@ body.dark-mode .analytics-table td {
 }
 
 /* Colors */
-.liturgical-color-dot[title="White"], .white .liturgical-color-dot { background-color: #ffffff; border: 1px solid #ccc; }
+.liturgical-color-dot[title="White"], .white .liturgical-color-dot { background-color: #ffffff; border: 1px solid var(--border-strong); }
 .liturgical-color-dot[title="Violet"], .violet .liturgical-color-dot { background-color: #8e44ad; }
 .liturgical-color-dot[title="Rose"], .rose .liturgical-color-dot { background-color: #ff99b5; }
 .liturgical-color-dot[title="Blue"], .blue .liturgical-color-dot { background-color: #3498db; }
@@ -1527,7 +1523,7 @@ body.dark-mode .analytics-table td {
   position: absolute;
   top: 10px;
   right: 15px;
-  color: #aaa;
+  color: var(--text-faint);
   font-size: 24px;
   font-weight: bold;
   cursor: pointer;
@@ -1536,7 +1532,7 @@ body.dark-mode .analytics-table td {
 
 .close-modal:hover,
 .close-modal:focus {
-  color: #333;
+  color: var(--text-heading);
 }
 
 body.dark-mode .modal-content {
@@ -1581,7 +1577,6 @@ body.dark-mode .calendar-day {
     border-color: #555;
 }
 body.dark-mode .calendar-day.other-month {
-    background-color: #3a3a3a;
     color: #666;
 }
 body.dark-mode .calendar-day.today {
@@ -1621,7 +1616,7 @@ body.dark-mode .calendar-day.today {
     z-index: 1005;
     border-radius: 4px;
     text-align: left;
-    color: #333;
+    color: var(--text-heading);
 }
 
 .page-menu-dropdown.show {
@@ -1633,9 +1628,9 @@ body.dark-mode .calendar-day.today {
     cursor: pointer;
     display: block;
     text-decoration: none;
-    color: #333;
+    color: var(--text-heading);
     font-size: 0.9em;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--border-subtle);
 }
 
 .page-menu-item:hover {
@@ -1649,13 +1644,7 @@ body.dark-mode .calendar-day.today {
 
 body.dark-mode .page-menu-dropdown {
     background-color: #444;
-    color: #eee;
     box-shadow: 0 8px 16px rgba(0,0,0,0.5);
-}
-
-body.dark-mode .page-menu-item {
-    color: #eee;
-    border-bottom-color: #555;
 }
 
 body.dark-mode .page-menu-item:hover {
@@ -1843,7 +1832,7 @@ body.dark-mode .nav-streak.scripture-tooltip.active::before {
 .learning-content {
     margin-top: 20px;
     padding-top: 20px;
-    border-top: 2px dashed #eee;
+    border-top: 2px dashed var(--border-subtle);
 }
 
 .learning-explanation {
@@ -1852,7 +1841,7 @@ body.dark-mode .nav-streak.scripture-tooltip.active::before {
     border-radius: 5px;
     border-left: 4px solid #f1c40f;
     margin-bottom: 20px;
-    color: #333;
+    color: var(--text-heading);
 }
 
 .quiz-container {
@@ -1860,8 +1849,8 @@ body.dark-mode .nav-streak.scripture-tooltip.active::before {
     padding: 15px;
     background-color: #f8f9fa;
     border-radius: 5px;
-    border: 1px solid #eee;
-    color: #333;
+    border: 1px solid var(--border-subtle);
+    color: var(--text-heading);
 }
 
 .quiz-option {
@@ -1870,9 +1859,9 @@ body.dark-mode .nav-streak.scripture-tooltip.active::before {
     text-align: left;
     padding: 10px;
     margin: 8px 0;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-strong);
     background-color: white;
-    color: #333 !important; /* Override global button color */
+    color: var(--text-heading) !important; /* Override global button color */
     border-radius: 4px;
     cursor: pointer;
     font-weight: normal;
@@ -1884,7 +1873,7 @@ body.dark-mode .nav-streak.scripture-tooltip.active::before {
 
 .quiz-option:hover {
     background-color: #f0f0f0;
-    color: #333 !important;
+    color: var(--text-heading) !important;
     transform: none;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
@@ -1965,20 +1954,15 @@ body.dark-mode .learning-content {
 
 body.dark-mode .learning-explanation {
     background-color: #332b00; /* Dark yellow/olive */
-    color: #eee;
     border-left-color: #f1c40f;
 }
 
 body.dark-mode .quiz-container {
     background-color: #3a3a3a;
-    border-color: #555;
-    color: #eee;
 }
 
 body.dark-mode .quiz-option {
     background-color: #444;
-    color: #eee !important;
-    border-color: #555;
 }
 
 body.dark-mode .quiz-option:hover {
@@ -2013,10 +1997,10 @@ body.dark-mode .quiz-feedback.error {
     display: none;
     margin-top: 15px;
     padding: 15px;
-    background-color: #f0f4f8;
+    background-color: var(--surface-hover);
     border-radius: 8px;
     border: 1px solid #d6eaf8;
-    color: #333;
+    color: var(--text-heading);
 }
 
 body.dark-mode .random-prayer-box {
@@ -2047,7 +2031,7 @@ body.dark-mode .random-prayer-box {
     margin-bottom: 30px;
 }
 .weaver-header h1 {
-    color: #333;
+    color: var(--text-heading);
     margin-bottom: 10px;
 }
 .selection-list {
@@ -2061,7 +2045,7 @@ body.dark-mode .random-prayer-box {
     }
 }
 .selection-item {
-    background: #f9f9f9;
+    background: var(--surface-subtle);
     border: 1px solid #ddd;
     padding: 15px;
     border-radius: 8px;
@@ -2083,7 +2067,7 @@ body.dark-mode .random-prayer-box {
 }
 .selection-description {
     font-size: 0.9em;
-    color: #7f8c8d;
+    color: var(--text-muted);
 }
 .dark-mode .selection-description {
     color: #bdc3c7;
@@ -2181,7 +2165,7 @@ textarea.prayer-input {
 .wreath-container {
     padding: 20px;
     background: #fcfcfc;
-    border: 1px solid #eee;
+    border: 1px solid var(--border-subtle);
     border-radius: 10px;
     margin-bottom: 20px;
 }
@@ -2224,7 +2208,7 @@ textarea.prayer-input {
 .source-text-container {
     margin: 20px 0;
     padding: 15px;
-    background: #f0f4f8;
+    background: var(--surface-hover);
     border-radius: 5px;
 }
 .dark-mode .source-text-container {
