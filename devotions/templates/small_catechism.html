@@ -19,7 +19,7 @@
                 <input type="checkbox" id="learning-mode-toggle">
                 <span class="slider"></span>
             </label>
-            <span style="margin-left: 10px; font-size: 0.9em; font-weight: bold; color: #2980b9;">
+            <span style="margin-left: 10px; font-size: 0.9em; font-weight: bold; color: #65342f;">
                 <span class="scripture-tooltip" data-text="Enable to view in-depth explanations from the Large Catechism and take interactive quizzes." style="border-bottom: none; font-size: 1.2em; vertical-align: middle; margin-right: 3px;">&#9432;</span>
                 Learning Mode
             </span>
@@ -42,8 +42,8 @@
 <div id="catechism-container">
 {% for group_name, sections in grouped_catechism.items() %}
     <div id="part-{{ loop.index0 }}" class="catechism-part" style="display: {% if loop.first %}block{% else %}none{% endif %};">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #2980b9; padding-bottom: 10px;">
-             <h2 style="margin: 0; border: none; color: #2980b9;">{{ group_name }}</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #65342f; padding-bottom: 10px;">
+             <h2 style="margin: 0; border: none; color: #65342f;">{{ group_name }}</h2>
         </div>
         
         <div style="margin-bottom: 15px; text-align: right;">

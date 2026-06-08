@@ -5,29 +5,29 @@
    in dark mode so new components adapt automatically.
    ========================================================================= */
 :root {
-    /* Brand */
-    --color-primary: #708090;
-    --color-primary-dark: #525e6a;
-    --color-accent: #2980b9;
-    --color-accent-dark: #2471a3;
-    --color-success: #27ae60;
-    --color-danger: #e74c3c;
-    --color-prayer: #a52a2a;
-    --color-purple: #8e44ad;
-    --color-google: #4285F4;
-    --color-muted: #7f8c8d;
+    /* Brand — Hallowed Gains palette */
+    --color-primary: #65342f;       /* Brand Red */
+    --color-primary-dark: #4e2723;  /* Darker red (hover/active) */
+    --color-accent: #af9164;        /* Brand Gold */
+    --color-accent-dark: #8a6e45;   /* Deeper gold (hover/emphasis) */
+    --color-success: #27ae60;       /* Semantic: success */
+    --color-danger: #c0392b;        /* Semantic: danger (deep red) */
+    --color-prayer: #65342f;        /* Brand Red — rubrics & prayer accents */
+    --color-purple: #8e44ad;        /* Liturgical purple (Advent/Lent) */
+    --color-google: #4285F4;        /* Google brand (OAuth) */
+    --color-muted: #6b6560;         /* Warm neutral (brand-derived) */
 
     /* Surfaces (remapped in dark mode) */
-    --color-bg: #f9f8f4;
-    --color-text: #4a4a4a;
+    --color-bg: #f7f3e3;            /* Brand Ivory */
+    --color-text: #322e2c;          /* Brand Black/Brown */
     --color-card-bg: #ffffff;
-    --color-border: #eeeeee;
+    --color-border: #e7e1d2;        /* Ivory-tinted border */
 
     /* UI primitives */
     --radius: 8px;
     --shadow-card: 0 2px 10px rgba(0, 0, 0, 0.06);
     --shadow-pop: 0 8px 24px rgba(0, 0, 0, 0.18);
-    --focus-ring: rgba(41, 128, 185, 0.45);
+    --focus-ring: rgba(175, 145, 100, 0.55);  /* Brand gold */
 }
 
 body {
@@ -215,11 +215,11 @@ button:hover,
   margin: 20px 0 0 0;
   padding: 30px 20px;
   background:
-    radial-gradient(#a0522d 15%, transparent 16%) 0 0,
-    radial-gradient(#a0522d 15%, transparent 16%) 8px 8px,
+    radial-gradient(#7a4a3a 15%, transparent 16%) 0 0,
+    radial-gradient(#7a4a3a 15%, transparent 16%) 8px 8px,
     radial-gradient(rgba(255,255,255,.15) 15%, transparent 20%) 0 1px,
     radial-gradient(rgba(255,255,255,.15) 15%, transparent 20%) 8px 9px;
-  background-color:#d2b48c;
+  background-color:#c7b084;
   background-size:16px 16px;
   border-radius: 8px;
   min-height: 300px;
@@ -854,25 +854,25 @@ body.has-background-art .card {
 /* Dark Mode */
 body.dark-mode {
     /* Remap surface tokens; brand tokens stay constant */
-    --color-bg: #333333;
-    --color-text: #cccccc;
-    --color-card-bg: #444444;
-    --color-border: #555555;
-    --focus-ring: rgba(144, 202, 249, 0.55);
-    background-color: #333333;
-    color: #cccccc;
+    --color-bg: #2a2622;
+    --color-text: #e6dfd0;
+    --color-card-bg: #3a352f;
+    --color-border: #4a443d;
+    --focus-ring: rgba(196, 168, 120, 0.55);
+    background-color: #2a2622;
+    color: #e6dfd0;
 }
 
 body.dark-mode.has-background-art .card {
-    background-color: rgba(68, 68, 68, 0.85);
+    background-color: rgba(58, 53, 47, 0.85);
 }
 
 body.dark-mode a {
-    color: #90caf9;
+    color: #cbb182;
 }
 
 body.dark-mode #top-navbar {
-    background-color: rgba(51, 51, 51, 0.98);
+    background-color: rgba(42, 38, 34, 0.98);
     border-bottom-color: rgba(255,255,255,0.1);
 }
 
@@ -1112,7 +1112,7 @@ body.dark-mode #advent-popup {
     padding: 20px;
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
-    background-color: #f7f4ed80; /* Match body transparent*/
+    background-color: #f7f3e380; /* Match body (brand ivory), transparent */
     margin-top: 20px;
     box-shadow: 0 3px 12px rgba(0, 0, 0, 0.07);
     border-radius: 8px;
@@ -1141,7 +1141,7 @@ body.dark-mode #advent-popup {
 }
 
 body.dark-mode .page-header {
-    background-color: #33333380; /* Match dark body transparent */
+    background-color: #2a262280; /* Match dark body transparent */
     border: 1px solid #555555;
 }
 
@@ -2256,7 +2256,7 @@ body.dark-mode .free-tag {
    Compound selectors (.button.button--x) so they keep their color in dark
    mode, where `body.dark-mode .button` would otherwise repaint them gray.
    ========================================================================= */
-.button.button--accent { background-color: var(--color-accent); color: #fff; }
+.button.button--accent { background-color: var(--color-accent); color: #322e2c; }
 .button.button--accent:hover { background-color: var(--color-accent-dark); }
 .button.button--success { background-color: var(--color-success); color: #fff; }
 .button.button--success:hover { background-color: #1e8449; }

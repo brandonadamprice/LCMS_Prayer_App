@@ -6,10 +6,10 @@
     </div>
 
     {% if not current_user.is_authenticated %}
-    <div class="card" style="border-left: 5px solid #2980b9;">
+    <div class="card" style="border-left: 5px solid #65342f;">
         <h2>Personalize Your Prayer Life</h2>
         <div style="text-align: center; margin: 25px 0;">
-            <a href="/login" class="button" style="background-color: #2980b9; font-size: 1.2em; padding: 15px 40px; display: inline-block;">Log In / Sign Up</a>
+            <a href="/login" class="button" style="background-color: #65342f; font-size: 1.2em; padding: 15px 40px; display: inline-block;">Log In / Sign Up</a>
             <p class="free-tag">100% Free to Join!</p>
         </div>
         
@@ -67,7 +67,7 @@
               const a = document.createElement('a');
               a.href = url;
               a.className = "button";
-              a.style.cssText = "font-size: 1.2em; padding: 15px 30px; background-color: #2980b9;" + style;
+              a.style.cssText = "font-size: 1.2em; padding: 15px 30px; background-color: #65342f;" + style;
               a.textContent = name;
               suggestedUrls.push(url);
               return a;
