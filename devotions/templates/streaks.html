@@ -23,7 +23,7 @@
         {% else %}
             <p style="color: #e74c3c;">You haven't recorded a prayer yet today.</p>
             <p style="margin-bottom: 20px;">Keep your streak alive by praying <strong>{{ recommended_devotion.name }}</strong> now.</p>
-            <a href="{{ recommended_devotion.url }}" class="button" style="background-color: #2980b9;">Go to {{ recommended_devotion.name }}</a>
+            <a href="{{ recommended_devotion.url }}" class="button" style="background-color: #65342f;">Go to {{ recommended_devotion.name }}</a>
         {% endif %}
     </div>
 
@@ -52,7 +52,7 @@
         {% else %}
             <p style="color: #e74c3c;">You haven't marked your reading complete today.</p>
             <p style="margin-bottom: 20px;">Continue your journey through the Word.</p>
-            <a href="/bible_in_a_year" class="button" style="background-color: #2980b9;">Go to Bible Reading</a>
+            <a href="/bible_in_a_year" class="button" style="background-color: #65342f;">Go to Bible Reading</a>
         {% endif %}
     </div>
     
@@ -85,7 +85,7 @@
             <div style="font-weight: bold; font-size: 1.5em; color: #333;">{{ catechism_pct }}%</div>
             <div style="font-size: 0.8em; color: #7f8c8d;">Catechism Progress</div>
             <div style="background-color: #eee; border-radius: 5px; height: 5px; overflow: hidden; margin-top: 5px;">
-                <div style="background-color: #2980b9; width: {{ catechism_pct }}%; height: 100%;"></div>
+                <div style="background-color: #65342f; width: {{ catechism_pct }}%; height: 100%;"></div>
             </div>
         </div>
     </div>
