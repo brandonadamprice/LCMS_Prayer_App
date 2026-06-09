@@ -15,6 +15,10 @@ NAME_MAX_LENGTH = 100
 REQUEST_MAX_LENGTH = 1000
 COLLECTION_NAME = "prayer-requests"
 
+# When a request is marked answered, keep the praise report visible at least
+# this many days so it doesn't vanish from the wall right after being answered.
+ANSWERED_LINGER_DAYS = 14
+
 # Throttle for the expired-request sweep. Without this, every prayer-wall view
 # triggered a full collection scan for expired docs. We sweep at most once per
 # interval per process; the sweep is idempotent, so per-worker throttling is
@@ -95,8 +99,10 @@ def get_active_prayer_requests():
 
 
 def get_prayer_wall_requests(limit: int = 10) -> list[dict]:
-  """Returns a random sample of active prayer requests."""
-  active_requests = get_active_prayer_requests()
+  """Returns a random sample of active, unanswered prayer requests."""
+  active_requests = [
+      r for r in get_active_prayer_requests() if not r.get("answered")
+  ]
   if not active_requests:
     return []
   if len(active_requests) <= limit:
@@ -106,9 +112,19 @@ def get_prayer_wall_requests(limit: int = 10) -> list[dict]:
     return random.sample(active_requests, limit)
 
 
+def get_answered_prayer_requests(limit: int = 10) -> list[dict]:
+  """Returns recently answered, non-expired requests (newest answer first)."""
+  answered = [r for r in get_active_prayer_requests() if r.get("answered")]
+  oldest = datetime.datetime.min.replace(tzinfo=datetime.timezone.utc)
+  answered.sort(key=lambda r: r.get("answered_at") or oldest, reverse=True)
+  return answered[:limit]
+
+
 def get_random_prayer_request(exclude_user_id: str = None) -> dict | None:
   """Returns a single random active prayer request, optionally excluding a user."""
-  active_requests = get_active_prayer_requests()
+  active_requests = [
+      r for r in get_active_prayer_requests() if not r.get("answered")
+  ]
 
   if exclude_user_id:
     active_requests = [
@@ -221,4 +237,56 @@ def edit_prayer_request(request_id: str, new_request_text: str, user_id: str):
     return True, None
   except Exception as e:
     logger.error(f"Error updating prayer request {request_id}: {e}")
+    return False, "Database update failed."
+
+
+def mark_prayer_answered(
+    request_id: str, user_id: str, testimony: str = None
+):
+  """Marks a request as answered (owner only) with an optional testimony.
+
+  Answered requests move to the wall's "Praise Reports" section. The testimony
+  is moderated like any other user content, and the request's expiry is
+  extended so the praise report lingers for ``ANSWERED_LINGER_DAYS``.
+
+  Returns:
+      tuple[bool, str | None]: (True, None) on success, or (False, error).
+  """
+  testimony = (testimony or "").strip()
+  if len(testimony) > REQUEST_MAX_LENGTH:
+    return (
+        False,
+        f"Testimony exceeds length limit of {REQUEST_MAX_LENGTH} characters.",
+    )
+  if testimony and (
+      utils.contains_phone_number(testimony)
+      or utils.is_inappropriate(testimony)
+  ):
+    return False, "Inappropriate content detected in testimony."
+
+  db = utils.get_db_client()
+  doc_ref = db.collection(COLLECTION_NAME).document(request_id)
+  doc = doc_ref.get()
+  if not doc.exists:
+    return False, "Prayer request not found."
+  if doc.to_dict().get("user_id") != user_id:
+    return False, "Permission denied."
+
+  now = datetime.datetime.now(datetime.timezone.utc)
+  linger_until = now + datetime.timedelta(days=ANSWERED_LINGER_DAYS)
+  existing_expiry = doc.to_dict().get("expires_at")
+  new_expiry = linger_until
+  if existing_expiry and existing_expiry > linger_until:
+    new_expiry = existing_expiry
+
+  try:
+    doc_ref.update({
+        "answered": True,
+        "answered_at": now,
+        "answer_note": testimony,
+        "expires_at": new_expiry,
+    })
+    return True, None
+  except Exception as e:
+    logger.error(f"Error marking prayer request {request_id} answered: {e}")
     return False, "Database update failed."

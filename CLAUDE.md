@@ -19,6 +19,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
     - For production-like testing, use `gunicorn` as specified in the `Procfile`.
 - **Install dependencies**:
     - `pip install -r devotions/requirements.txt`
+- **Run tests**:
+    - `python -m unittest discover -s devotions/python/tests -t devotions/python`
+    - Tests use only the standard library and cover import-light modules
+      (`streak_logic.py`, `liturgy.py`) so they run without the Firestore/protobuf
+      stack, which currently fails to import under Python 3.14. Keep pure,
+      testable logic out of modules that import `firebase`/`google-cloud`.
 - **Environment Variables/Secrets**:
     - The app uses `devotions/python/secrets_fetcher.py` to fetch secrets from Google Cloud Secret Manager.
     - For local development, ensure necessary secrets are available or mocked.
@@ -29,6 +35,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
     - `main.py`: The primary Flask application entry point, containing routes and app configuration.
     - `models.py`: Data models (e.g., `User`).
     - `liturgy.py`: Contains logic for the liturgical year, church seasons, and calculating feast days.
+    - `streak_logic.py`: Pure, dependency-free streak/grace-day math (no Firestore imports) so it stays unit-testable.
     - `utils.py`: Shared utility functions (encryption, database access, scripture fetching, etc.).
     - `services/`: Business logic services (e.g., `users.py` for user management, `scripture.py` for ESV API interaction, `reminders.py` for notifications).
     - `devotional_content/`: Logic for generating various devotional types (e.ments, Bible in a Year, etc.).
