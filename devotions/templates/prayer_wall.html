@@ -111,6 +111,11 @@
       <ul class="prayer-wall-container">
       {% for req in answered_requests %}
         <li class="post-it post-it--answered" data-id="{{ req.id }}">
+          {% if current_user.is_authenticated and req.user_id == current_user.id %}
+            <div class="owner-controls" style="float: right; margin-left: 10px;">
+                <button class="button" style="background-color: #e74c3c; padding: 5px 10px; font-size: 0.8em;" onclick="deletePrayerRequest('{{ req.id }}')">Delete</button>
+            </div>
+          {% endif %}
           <span class="answered-badge">&#128588; Answered{% if req.answered_at %} &middot; {{ req.answered_at.strftime('%b %d, %Y') }}{% endif %}</span>
           {% if req.answer_note %}
             <p class="post-it-text">&ldquo;{{ req.answer_note }}&rdquo;</p>
