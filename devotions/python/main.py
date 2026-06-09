@@ -35,6 +35,7 @@ import menu
 import models
 import pytz
 import secrets_fetcher
+import streak_logic
 from services import analytics_ga4
 from services import fullofeyes_scraper
 from services import prayer_requests
@@ -1134,6 +1135,7 @@ def prayer_wall_route():
   except Exception as e:
     app.logger.error(f"Error removing expired prayer requests: {e}")
   active_requests = prayer_requests.get_prayer_wall_requests(limit=10)
+  answered_requests = prayer_requests.get_answered_prayer_requests(limit=10)
   prayed_request_ids = []
   if flask_login.current_user.is_authenticated:
     db = utils.get_db_client()
@@ -1158,6 +1160,7 @@ def prayer_wall_route():
   return flask.render_template(
       "prayer_wall.html",
       prayer_requests=active_requests,
+      answered_requests=answered_requests,
       prayed_request_ids=prayed_request_ids,
   )
 
@@ -1403,22 +1406,36 @@ def my_prayers_route():
   """Displays page for managing personal prayers."""
   categories = sorted([d["topic"] for d in utils.WEEKLY_PRAYERS.values()])
   prayers_by_cat = {cat: [] for cat in categories}
+  answered_prayers = []
 
   if flask_login.current_user.is_authenticated:
     try:
       raw_prayers = utils.fetch_personal_prayers(flask_login.current_user.id)
       for prayer in raw_prayers:
-        if prayer.get("category") in prayers_by_cat:
-          prayer["text"] = utils.decrypt_text(prayer["text"])
-          if prayer.get("for_whom"):
-            prayer["for_whom"] = utils.decrypt_text(prayer["for_whom"])
+        if prayer.get("category") not in prayers_by_cat:
+          continue
+        prayer["text"] = utils.decrypt_text(prayer["text"])
+        if prayer.get("for_whom"):
+          prayer["for_whom"] = utils.decrypt_text(prayer["for_whom"])
+        if prayer.get("answered"):
+          answered_prayers.append(prayer)
+        else:
           prayers_by_cat[prayer["category"]].append(prayer)
     except Exception as e:
       app.logger.error("Failed to fetch personal prayers: %s", e)
       flask.flash("Could not load personal prayers.", "error")
 
+  # Most recently answered first; tolerate legacy docs without a timestamp.
+  epoch = datetime.datetime.min.replace(tzinfo=datetime.timezone.utc)
+  answered_prayers.sort(
+      key=lambda p: p.get("answered_at") or epoch, reverse=True
+  )
+
   return flask.render_template(
-      "my_prayers.html", prayers_by_cat=prayers_by_cat, categories=categories
+      "my_prayers.html",
+      prayers_by_cat=prayers_by_cat,
+      categories=categories,
+      answered_prayers=answered_prayers,
   )
 
 
@@ -1603,6 +1620,41 @@ def move_personal_prayer_route():
   return flask.redirect(flask.url_for("my_prayers_route"))
 
 
+@app.route("/mark_personal_prayer_answered", methods=["POST"])
+@flask_login.login_required
+def mark_personal_prayer_answered_route():
+  """Marks a personal prayer as answered, or restores it to the active list."""
+  prayer_id = flask.request.form.get("prayer_id")
+  answered = flask.request.form.get("answered") == "true"
+  if not prayer_id:
+    return flask.redirect(flask.url_for("my_prayers_route"))
+
+  db = utils.get_db_client()
+  user_id = flask_login.current_user.id
+  doc_ref = (
+      db.collection("users")
+      .document(user_id)
+      .collection("personal-prayers")
+      .document(prayer_id)
+  )
+  doc = doc_ref.get()
+  if not doc.exists or doc.to_dict().get("user_id") != user_id:
+    flask.flash("Prayer not found or permission denied.", "error")
+    return flask.redirect(flask.url_for("my_prayers_route"))
+
+  if answered:
+    doc_ref.update({
+        "answered": True,
+        "answered_at": datetime.datetime.now(datetime.timezone.utc),
+    })
+  else:
+    doc_ref.update({
+        "answered": False,
+        "answered_at": firestore.DELETE_FIELD,
+    })
+  return flask.redirect(flask.url_for("my_prayers_route"))
+
+
 @app.route("/add_memory_verse", methods=["POST"])
 @flask_login.login_required
 def add_memory_verse_route():
@@ -1662,6 +1714,21 @@ def edit_prayer_request_route(request_id):
     return flask.jsonify({"success": True})
   else:
     return flask.jsonify({"success": False, "error": error_message}), 400
+
+
+@app.route("/mark_prayer_answered/<request_id>", methods=["POST"])
+@flask_login.login_required
+def mark_prayer_answered_route(request_id):
+  """Marks the current user's prayer request as answered (a praise report)."""
+  data = flask.request.json or {}
+  testimony = data.get("testimony")
+
+  success, error_message = prayer_requests.mark_prayer_answered(
+      request_id, flask_login.current_user.id, testimony
+  )
+  if success:
+    return flask.jsonify({"success": True})
+  return flask.jsonify({"success": False, "error": error_message}), 400
 
 
 @app.route("/api/random_prayer_request")
@@ -2064,6 +2131,11 @@ def streaks_route():
   today_str = now.strftime("%Y-%m-%d")
   prayed_today = user.last_prayer_date == today_str
 
+  # Whether a grace day is currently available to protect the prayer streak.
+  prayer_grace_available = streak_logic.grace_available(
+      streak_logic.parse_ymd(user.last_prayer_grace_date), now.date()
+  )
+
   # Determine if read bible today
   read_bible_today = user.last_bible_reading_date == today_str
 
@@ -2105,6 +2177,7 @@ def streaks_route():
       next_milestone=next_milestone,
       progress_percent=progress_percent,
       prayed_today=prayed_today,
+      prayer_grace_available=prayer_grace_available,
       devotions_today_count=devotions_today_count,
       achievements=user.achievements,
       recommended_devotion=recommended_devotion,

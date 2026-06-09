@@ -2,29 +2,34 @@
 
 import datetime
 import flask_login
+import streak_logic
 import utils
 
 
-def compute_active_streak(streak_count, last_activity_date, timezone_str):
+def compute_active_streak(
+    streak_count, last_activity_date, timezone_str, last_grace_date=None
+):
   """Returns the streak count if it is still active, otherwise 0.
 
-  A streak is "active" only if the last activity happened today or yesterday
-  in the user's timezone. A missing/empty date means there is no active
-  streak; an unparseable date leaves the stored count untouched.
+  A streak is "active" if the last activity happened today or yesterday in the
+  user's timezone. If a grace day is available, a single fully-missed day still
+  counts as active, since the user can complete an activity today to bridge it.
+  A missing/empty date means there is no active streak; an unparseable date
+  leaves the stored count untouched.
   """
   if not last_activity_date:
     return 0
   tz = utils.resolve_timezone(timezone_str)
   now_date = datetime.datetime.now(tz).date()
-  try:
-    last_date = datetime.datetime.strptime(
-        last_activity_date, "%Y-%m-%d"
-    ).date()
-  except (ValueError, TypeError):
+  last_date = streak_logic.parse_ymd(last_activity_date)
+  if last_date is None:
     return streak_count
-  if last_date < now_date - datetime.timedelta(days=1):
-    return 0
-  return streak_count
+  grace_ok = streak_logic.grace_available(
+      streak_logic.parse_ymd(last_grace_date), now_date
+  )
+  if streak_logic.is_streak_active(last_date, now_date, grace_ok):
+    return streak_count
+  return 0
 
 
 class User(flask_login.UserMixin):
@@ -51,11 +56,13 @@ class User(flask_login.UserMixin):
       streak_count=0,
       best_streak_count=0,
       last_prayer_date=None,
+      last_prayer_grace_date=None,
       achievements=None,
       completed_devotions=None,
       bible_streak_count=0,
       best_bible_streak_count=0,
       last_bible_reading_date=None,
+      last_bible_grace_date=None,
       completed_bible_days=None,
       prayed_request_ids=None,
       memorized_verses=None,
@@ -105,14 +112,20 @@ class User(flask_login.UserMixin):
     )
 
     # A streak only counts if the last activity was today or yesterday in the
-    # user's timezone; otherwise it has lapsed and resets to 0.
+    # user's timezone -- or one fully-missed day when a grace day is available;
+    # otherwise it has lapsed and resets to 0.
     tz_str = self.timezone or "America/New_York"
+    self.last_prayer_grace_date = last_prayer_grace_date
+    self.last_bible_grace_date = last_bible_grace_date
     self.streak_count = compute_active_streak(
-        streak_count, last_prayer_date, tz_str
+        streak_count, last_prayer_date, tz_str, last_prayer_grace_date
     )
     self.last_prayer_date = last_prayer_date
     self.bible_streak_count = compute_active_streak(
-        bible_streak_count, last_bible_reading_date, tz_str
+        bible_streak_count,
+        last_bible_reading_date,
+        tz_str,
+        last_bible_grace_date,
     )
     self.last_bible_reading_date = last_bible_reading_date
 
@@ -144,11 +157,13 @@ class User(flask_login.UserMixin):
           streak_count=data.get("streak_count", 0),
           best_streak_count=data.get("best_streak_count", 0),
           last_prayer_date=data.get("last_prayer_date"),
+          last_prayer_grace_date=data.get("last_prayer_grace_date"),
           achievements=data.get("achievements", []),
           completed_devotions=data.get("completed_devotions", {}),
           bible_streak_count=data.get("bible_streak_count", 0),
           best_bible_streak_count=data.get("best_bible_streak_count", 0),
           last_bible_reading_date=data.get("last_bible_reading_date"),
+          last_bible_grace_date=data.get("last_bible_grace_date"),
           completed_bible_days=data.get("completed_bible_days", []),
           prayed_request_ids=data.get("prayed_request_ids", []),
           memorized_verses=data.get("memorized_verses", []),

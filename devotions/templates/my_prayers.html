@@ -59,6 +59,11 @@
                 </div>
                 <div style="display: flex; gap: 5px;">
                   <button onclick="toggleEdit('{{ prayer.id }}')" class="button" style="padding: 5px 10px; font-size: 0.9em;">Edit</button>
+                  <form action="/mark_personal_prayer_answered" method="post" style="margin: 0;">
+                    <input type="hidden" name="prayer_id" value="{{ prayer.id }}">
+                    <input type="hidden" name="answered" value="true">
+                    <button type="submit" class="button" style="background-color: #27ae60; padding: 5px 10px; font-size: 0.9em;">Answered</button>
+                  </form>
                   <form action="/delete_personal_prayer" method="post" style="margin: 0;">
                     <input type="hidden" name="prayer_id" value="{{ prayer.id }}">
                     <button type="submit" class="button" style="background-color: #e74c3c; padding: 5px 10px; font-size: 0.9em;">Delete</button>
@@ -96,6 +101,40 @@
         </div>
       {% endif %}
     {% endfor %}
+
+    {% if answered_prayers %}
+    <div class="card">
+      <h2>&#128591; Answered Prayers</h2>
+      <p>Prayers you have marked as answered. "Bless the LORD, O my soul, and forget not all his benefits." (Psalm 103:2, ESV)</p>
+      <ul style="list-style: none; padding: 0;">
+        {% for prayer in answered_prayers %}
+        <li class="prayer-list-item">
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+            <div style="flex: 1;">
+              <span style="display:inline-block; background-color:#27ae60; color:#fff; font-size:0.75em; font-weight:bold; padding:3px 9px; border-radius:12px;">&#10003; Answered{% if prayer.answered_at %} &middot; {{ prayer.answered_at.strftime('%b %d, %Y') }}{% endif %}</span>
+              <div style="margin-top: 6px;">
+                <small style="color: #7f8c8d;">{{ prayer.category }}</small><br>
+                {% if prayer.for_whom %}<strong>(For: {{ prayer.for_whom }})</strong> {% endif %}
+                <span>{{ prayer.text }}</span>
+              </div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 5px;">
+              <form action="/mark_personal_prayer_answered" method="post" style="margin: 0;">
+                <input type="hidden" name="prayer_id" value="{{ prayer.id }}">
+                <input type="hidden" name="answered" value="false">
+                <button type="submit" class="button" style="background-color: #95a5a6; padding: 5px 10px; font-size: 0.85em;">Restore</button>
+              </form>
+              <form action="/delete_personal_prayer" method="post" style="margin: 0;">
+                <input type="hidden" name="prayer_id" value="{{ prayer.id }}">
+                <button type="submit" class="button" style="background-color: #e74c3c; padding: 5px 10px; font-size: 0.85em;">Delete</button>
+              </form>
+            </div>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
     {% else %}
     <div class="card" style="text-align: center;">
       <h2>Start Your Prayer Journey</h2>

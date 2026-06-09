@@ -35,6 +35,27 @@
           padding: 0 10px;
         }
       }
+
+      .post-it--answered {
+        background-color: #eaf7ee;
+        border-color: #27ae60;
+      }
+      .answered-badge {
+        display: inline-block;
+        background-color: #27ae60;
+        color: #fff;
+        font-size: 0.75em;
+        font-weight: bold;
+        padding: 3px 9px;
+        border-radius: 12px;
+        margin-bottom: 8px;
+      }
+      .post-it-original {
+        font-size: 0.85em;
+        color: #7f8c8d;
+        font-style: italic;
+        margin-top: 8px;
+      }
     </style>
 
     <div class="card">
@@ -65,6 +86,7 @@
           {% if current_user.is_authenticated and req.user_id == current_user.id %}
             <div class="owner-controls" style="float: right; margin-left: 10px;">
                 <button class="button" style="padding: 5px 10px; font-size: 0.8em;" onclick="editPrayerRequest('{{ req.id }}')">Edit</button>
+                <button class="button" style="background-color: #27ae60; padding: 5px 10px; font-size: 0.8em;" onclick="markAnswered('{{ req.id }}')">Answered</button>
                 <button class="button" style="background-color: #e74c3c; padding: 5px 10px; font-size: 0.8em;" onclick="deletePrayerRequest('{{ req.id }}')">Delete</button>
             </div>
           {% endif %}
@@ -74,6 +96,29 @@
                   <button class="pray-button {% if req.id in prayed_request_ids %}prayed{% endif %}">🙏</button>
                   <span class="pray-count">{{ req.pray_count }}</span>
               </div>
+              <p class="post-it-name">~ {{ req.name }}</p>
+          </div>
+        </li>
+      {% endfor %}
+      </ul>
+    {% endif %}
+
+    {% if answered_requests %}
+      <div class="card" style="margin-top: 25px;">
+        <h2>&#128588; Praise Reports</h2>
+        <p>Prayers our community has seen answered. Give thanks with them!</p>
+      </div>
+      <ul class="prayer-wall-container">
+      {% for req in answered_requests %}
+        <li class="post-it post-it--answered" data-id="{{ req.id }}">
+          <span class="answered-badge">&#128588; Answered{% if req.answered_at %} &middot; {{ req.answered_at.strftime('%b %d, %Y') }}{% endif %}</span>
+          {% if req.answer_note %}
+            <p class="post-it-text">&ldquo;{{ req.answer_note }}&rdquo;</p>
+            <p class="post-it-original">Original request: {{ req.request }}</p>
+          {% else %}
+            <p class="post-it-text">{{ req.request }}</p>
+          {% endif %}
+          <div class="post-it-footer">
               <p class="post-it-name">~ {{ req.name }}</p>
           </div>
         </li>
@@ -148,6 +193,7 @@ function cancelEdit(requestId, originalTextB64) {
     const controlsDiv = postIt.querySelector('.owner-controls');
     controlsDiv.innerHTML = `
         <button class="button" style="padding: 5px 10px; font-size: 0.8em;" onclick="editPrayerRequest('${requestId}')">Edit</button>
+        <button class="button" style="background-color: #27ae60; padding: 5px 10px; font-size: 0.8em;" onclick="markAnswered('${requestId}')">Answered</button>
         <button class="button" style="background-color: #e74c3c; padding: 5px 10px; font-size: 0.8em;" onclick="deletePrayerRequest('${requestId}')">Delete</button>
     `;
 }
@@ -175,6 +221,7 @@ async function savePrayerRequest(requestId) {
             const controlsDiv = postIt.querySelector('.owner-controls');
             controlsDiv.innerHTML = `
                 <button class="button" style="padding: 5px 10px; font-size: 0.8em;" onclick="editPrayerRequest('${requestId}')">Edit</button>
+                <button class="button" style="background-color: #27ae60; padding: 5px 10px; font-size: 0.8em;" onclick="markAnswered('${requestId}')">Answered</button>
                 <button class="button button--danger" style="padding: 5px 10px; font-size: 0.8em;" onclick="deletePrayerRequest('${requestId}')">Delete</button>
             `;
         } else {
@@ -184,6 +231,59 @@ async function savePrayerRequest(requestId) {
     } catch (error) {
         console.error('Error saving prayer request:', error);
         showToast('An error occurred while saving the prayer request.', "error");
+    }
+}
+
+function markAnswered(requestId) {
+    const postIt = document.querySelector(`.post-it[data-id="${requestId}"]`);
+    if (!postIt || postIt.querySelector('.answered-form')) return;
+
+    const form = document.createElement('div');
+    form.className = 'answered-form';
+    form.style.marginTop = '10px';
+    form.innerHTML = `
+        <textarea class="form-input answered-note" maxlength="1000"
+            placeholder="Optionally share how God answered this prayer (shown on the wall)..."
+            style="width:100%; height:80px; margin-bottom:8px;"></textarea>
+        <button class="button" style="background-color:#27ae60; padding:5px 10px; font-size:0.8em;" onclick="submitAnswered('${requestId}')">Mark as Answered</button>
+        <button class="button" style="background-color:#95a5a6; padding:5px 10px; font-size:0.8em;" onclick="closeAnswered('${requestId}')">Cancel</button>
+    `;
+    postIt.appendChild(form);
+
+    const controlsDiv = postIt.querySelector('.owner-controls');
+    if (controlsDiv) controlsDiv.style.visibility = 'hidden';
+}
+
+function closeAnswered(requestId) {
+    const postIt = document.querySelector(`.post-it[data-id="${requestId}"]`);
+    if (!postIt) return;
+    const form = postIt.querySelector('.answered-form');
+    if (form) form.remove();
+    const controlsDiv = postIt.querySelector('.owner-controls');
+    if (controlsDiv) controlsDiv.style.visibility = 'visible';
+}
+
+async function submitAnswered(requestId) {
+    const postIt = document.querySelector(`.post-it[data-id="${requestId}"]`);
+    if (!postIt) return;
+    const noteEl = postIt.querySelector('.answered-note');
+    const note = noteEl ? noteEl.value : '';
+    try {
+        const response = await fetch(`/mark_prayer_answered/${requestId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ testimony: note }),
+        });
+        if (response.ok) {
+            showToast('Prayer marked as answered. Praise God!', 'success');
+            setTimeout(() => location.reload(), 900);
+        } else {
+            const error = await response.json();
+            showToast(`Failed to mark answered: ${error.error || 'Unknown error'}`, 'error');
+        }
+    } catch (error) {
+        console.error('Error marking prayer answered:', error);
+        showToast('An error occurred while marking the prayer answered.', 'error');
     }
 }
 

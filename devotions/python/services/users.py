@@ -10,9 +10,34 @@ import flask
 from google.cloud import firestore
 from itsdangerous import URLSafeTimedSerializer
 import models
+import streak_logic
 import utils
 
 logger = logging.getLogger(__name__)
+
+# Scripture (ESV) encouragements shown when a grace day saves a streak.
+# Grace days are intentionally framed as gospel, not law: a missed day is
+# forgiven so the discipline encourages rather than condemns.
+_GRACE_MESSAGES = (
+    "Grace covered the day you missed, and your streak continues. \"The"
+    " steadfast love of the LORD never ceases; his mercies... are new every"
+    " morning\" (Lamentations 3:22-23, ESV).",
+    "A grace day kept your streak alive. \"My grace is sufficient for you\""
+    " (2 Corinthians 12:9, ESV).",
+    "Grace bridged the gap -- welcome back. \"The LORD is merciful and"
+    " gracious, slow to anger and abounding in steadfast love\""
+    " (Psalm 103:8, ESV).",
+)
+
+
+def grace_message(streak_count):
+  """Returns an encouraging, Scripture-based (ESV) grace-day message.
+
+  Varies the verse by streak length so a returning user is not shown the same
+  line every time, without needing nondeterministic randomness.
+  """
+  message = _GRACE_MESSAGES[streak_count % len(_GRACE_MESSAGES)]
+  return f"\U0001F54A️ {message}"
 
 
 def get_user_by_email(email):
@@ -305,13 +330,7 @@ def process_prayer_completion(
       best_streak = current_streak
 
     # Parse last_date if it exists
-    last_date = None
-    if last_date_str:
-      try:
-        last_date = datetime.datetime.strptime(last_date_str, "%Y-%m-%d").date()
-      except ValueError:
-        # Handle legacy or bad format if necessary, reset
-        pass
+    last_date = streak_logic.parse_ymd(last_date_str)
 
     today_date = now.date()
 
@@ -328,22 +347,18 @@ def process_prayer_completion(
       except ValueError:
         pass
 
-    new_streak = current_streak
-    streak_updated = False
-
-    # Only update streak if it hasn't been updated today
-    # But we ALWAYS update 'completed_devotions' and 'last_prayer_date'
-    if last_date == today_date:
-      # Already prayed today, streak stays same
-      streak_updated = False  # Streak count doesn't change
-    elif last_date == today_date - datetime.timedelta(days=1):
-      # Prayed yesterday, increment
-      new_streak += 1
-      streak_updated = True
-    else:
-      # Missed a day or more (or first time)
-      new_streak = 1
-      streak_updated = True
+    # Streak update. A grace day can bridge a single fully-missed day so the
+    # streak survives the occasional slip (see streak_logic for the rules).
+    last_grace_date = streak_logic.parse_ymd(
+        user_data.get("last_prayer_grace_date")
+    )
+    grace_ok = streak_logic.grace_available(last_grace_date, today_date)
+    outcome = streak_logic.evaluate_completion(
+        last_date, today_date, current_streak, grace_ok
+    )
+    new_streak = outcome["new_streak"]
+    streak_updated = outcome["streak_updated"]
+    grace_used = outcome["grace_used"]
 
     if new_streak > best_streak:
       best_streak = new_streak
@@ -419,14 +434,17 @@ def process_prayer_completion(
           milestone_reached = True
           milestone_msg = "Achievement Unlocked: Daily Office!"
 
-    # Construct response message
-    response_msg = ""
-    if streak_updated:
+    # Construct response message. A grace day gets its own gospel-shaped
+    # message instead of the ordinary "streak recorded" line.
+    grace_msg = grace_message(new_streak) if grace_used else ""
+    if grace_used:
+      response_msg = grace_msg
+    elif streak_updated:
       response_msg = f"Prayer recorded! Current Streak: {new_streak} days"
     else:
       response_msg = f"You've already prayed today! Streak: {new_streak}"
 
-    if devotions_today_count > 1:
+    if devotions_today_count > 1 and not grace_used:
       response_msg += (
           f". You have completed {devotions_today_count} devotions today!"
       )
@@ -439,6 +457,8 @@ def process_prayer_completion(
     }
     if streak_updated:
       update_data["streak_count"] = new_streak
+    if grace_used:
+      update_data["last_prayer_grace_date"] = today_str
 
     if new_achievements:
       all_achievements = current_achievements + new_achievements
@@ -452,6 +472,8 @@ def process_prayer_completion(
         "milestone_msg": milestone_msg,
         "already_prayed": not streak_updated,
         "devotions_today_count": devotions_today_count,
+        "grace_used": grace_used,
+        "grace_msg": grace_msg,
         "message": response_msg,
     }
 
@@ -504,27 +526,22 @@ def process_bible_reading_completion(user_id, day_number, timezone_str):
       completed_bible_days.append(day_number)
       completed_bible_days.sort()
 
-    last_bible_date = None
-    if last_bible_date_str:
-      try:
-        last_bible_date = datetime.datetime.strptime(
-            last_bible_date_str, "%Y-%m-%d"
-        ).date()
-      except ValueError:
-        pass
+    last_bible_date = streak_logic.parse_ymd(last_bible_date_str)
 
     today_date = now.date()
-    new_bible_streak = current_bible_streak
-    streak_updated = False
 
-    if last_bible_date == today_date:
-      streak_updated = False
-    elif last_bible_date == today_date - datetime.timedelta(days=1):
-      new_bible_streak += 1
-      streak_updated = True
-    else:
-      new_bible_streak = 1
-      streak_updated = True
+    # Streak update with a grace day for a single missed day (mirrors the
+    # prayer streak; Bible reading keeps its own grace cooldown).
+    last_grace_date = streak_logic.parse_ymd(
+        user_data.get("last_bible_grace_date")
+    )
+    grace_ok = streak_logic.grace_available(last_grace_date, today_date)
+    outcome = streak_logic.evaluate_completion(
+        last_bible_date, today_date, current_bible_streak, grace_ok
+    )
+    new_bible_streak = outcome["new_streak"]
+    streak_updated = outcome["streak_updated"]
+    grace_used = outcome["grace_used"]
 
     if new_bible_streak > best_bible_streak:
       best_bible_streak = new_bible_streak
@@ -585,6 +602,8 @@ def process_bible_reading_completion(user_id, day_number, timezone_str):
     }
     if streak_updated:
       update_data["bible_streak_count"] = new_bible_streak
+    if grace_used:
+      update_data["last_bible_grace_date"] = today_str
 
     if new_achievements:
       update_data["achievements"] = current_achievements + new_achievements
@@ -597,6 +616,8 @@ def process_bible_reading_completion(user_id, day_number, timezone_str):
         "milestone_reached": milestone_reached,
         "milestone_msg": milestone_msg,
         "progress_pct": progress_pct,
+        "grace_used": grace_used,
+        "grace_msg": grace_message(new_bible_streak) if grace_used else "",
     }
 
   transaction = db.transaction()

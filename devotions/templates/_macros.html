@@ -292,7 +292,11 @@ function hideRandomPrayer() {
                 
                 const navStreak = document.getElementById('nav-streak-count');
                 if (navStreak) navStreak.textContent = data.streak;
-                
+
+                if (data.grace_used) {
+                    showToast(data.grace_msg || "A grace day kept your streak alive.", "info", 9000);
+                }
+
                 if (data.milestone_reached) {
                     showMilestonePopup(data.milestone_msg, data.streak);
                 }
@@ -379,6 +383,11 @@ async function markPrayerComplete(devotionType) {
             const navStreak = document.getElementById('nav-streak-count');
             if (navStreak) navStreak.textContent = data.streak;
             
+            // A grace day saved the streak: surface the gospel-shaped message.
+            if (data.grace_used) {
+                showToast(data.grace_msg || "A grace day kept your streak alive.", "info", 9000);
+            }
+
             // Handle milestone
             if (data.milestone_reached) {
                 showMilestonePopup(data.milestone_msg, data.streak);

@@ -622,6 +622,10 @@ def get_all_personal_prayers_for_user(user_id=None) -> dict:
     temp_prayers = {}  # category -> list
 
     for prayer in raw_prayers:
+      # Answered prayers move to the "Answered Prayers" list and no longer
+      # appear among the day's active intercessions.
+      if prayer.get("answered"):
+        continue
       category = prayer.get("category")
       if category:
         if category not in temp_prayers:

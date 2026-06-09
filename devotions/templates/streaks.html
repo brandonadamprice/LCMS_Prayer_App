@@ -14,7 +14,11 @@
         <h2 style="border-bottom: none; font-size: 2.5em; margin: 0; color: #e67e22;">{{ current_streak }} Days</h2>
         <p style="color: #7f8c8d; margin-top: 5px;">Current Streak</p>
         <p style="color: #95a5a6; font-size: 0.9em; margin-top: -5px;">(Best: {{ current_user.best_streak_count }} Days)</p>
-        
+
+        {% if prayer_grace_available and current_streak > 0 %}
+        <p style="color: #7f8c8d; font-size: 0.85em; margin-top: 8px;" title="Grace covers one missed day so a single slip won't end your streak.">&#128330;&#65039; Grace day available</p>
+        {% endif %}
+
         {% if prayed_today %}
             <p style="color: #27ae60; font-weight: bold;">You have prayed today! Keep it up!</p>
             {% if devotions_today_count > 0 %}
