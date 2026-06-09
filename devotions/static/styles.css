@@ -303,7 +303,10 @@ button:hover,
 }
 .pray-count {
   font-size: 0.9em;
-  color: var(--text-heading);
+  /* Inherit the post-it's text color so the count stays dark on the light
+     note in both themes. The --text-heading token flips to near-white in dark
+     mode, which washed the count out against the always-light post-it. */
+  color: inherit;
   min-width: 1em;
   text-align: left;
   font-family: 'Georgia', serif; /* match body */

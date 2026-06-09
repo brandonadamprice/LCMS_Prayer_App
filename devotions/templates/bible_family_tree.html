@@ -9,6 +9,10 @@
   main.container > .footer { max-width: 800px; margin: 0 auto; padding: 20px; }
   .page-header { margin: 20px 20px 0; }
 
+  /* This page paints its own full-bleed background (the tree viewport), so the
+     global art layer only peeks out behind the header. Hide it on this page. */
+  #art-background { display: none !important; }
+
   .tree-controls {
     display: flex;
     flex-wrap: wrap;
