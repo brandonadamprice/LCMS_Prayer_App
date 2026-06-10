@@ -35,6 +35,7 @@ import liturgy
 import menu
 import models
 import pytz
+import requests
 import secrets_fetcher
 import streak_logic
 from services import analytics_ga4
@@ -725,7 +726,11 @@ def firebase_auth_config_route():
   try:
     return flask.jsonify({
         "apiKey": secrets_fetcher.get_firebase_api_key(),
-        "authDomain": "lcms-prayer-app.firebaseapp.com",
+        # Our own domain, so Google's account chooser says "to continue to
+        # asimplewaytopray.com" rather than the default firebaseapp.com
+        # domain. Requires the /__/auth + /__/firebase reverse proxy below
+        # and the matching redirect URI on the OAuth client.
+        "authDomain": "asimplewaytopray.com",
         "projectId": "lcms-prayer-app",
         "messagingSenderId": secrets_fetcher.get_firebase_messaging_sender_id(),
         "appId": secrets_fetcher.get_firebase_app_id(),
@@ -733,6 +738,73 @@ def firebase_auth_config_route():
   except Exception as e:  # pylint: disable=broad-except
     app.logger.error("Failed to fetch Firebase auth config: %s", e)
     return flask.jsonify({"error": "Failed to fetch config"}), 500
+
+
+# Where the Firebase-hosted auth helper actually lives; the proxy below
+# serves it from our domain instead.
+_FIREBASE_AUTH_HELPER_ORIGIN = "https://lcms-prayer-app.firebaseapp.com"
+
+# Hop-by-hop (and encoding) headers that must not be forwarded verbatim:
+# requests has already decoded the body, and the WSGI server sets framing.
+_PROXY_SKIP_HEADERS = frozenset({
+    "connection",
+    "content-encoding",
+    "content-length",
+    "keep-alive",
+    "proxy-authenticate",
+    "proxy-authorization",
+    "te",
+    "trailers",
+    "transfer-encoding",
+    "upgrade",
+})
+
+
+@app.route("/__/auth/<path:_subpath>", methods=["GET", "POST"])
+@app.route("/__/firebase/<path:_subpath>", methods=["GET", "POST"])
+def firebase_auth_helper_proxy(_subpath):
+  """Reverse-proxies the Firebase Auth helper pages onto our domain.
+
+  This lets the sign-in flow use authDomain=asimplewaytopray.com: the
+  sign-in popup opens /__/auth/handler on OUR origin (the helper also
+  fetches /__/firebase/init.json), so the OAuth redirect -- and therefore
+  the domain Google displays on its account chooser -- is our domain. The
+  helper content itself still comes from Firebase; this is the reverse-proxy
+  setup Firebase's own auth docs describe for custom auth domains.
+  """
+  upstream = _FIREBASE_AUTH_HELPER_ORIGIN + flask.request.path
+  if flask.request.query_string:
+    upstream += "?" + flask.request.query_string.decode("utf-8")
+
+  request_headers = {}
+  if flask.request.content_type:
+    request_headers["Content-Type"] = flask.request.content_type
+
+  try:
+    upstream_resp = requests.request(
+        flask.request.method,
+        upstream,
+        headers=request_headers,
+        data=(
+            flask.request.get_data()
+            if flask.request.method == "POST"
+            else None
+        ),
+        timeout=15,
+        allow_redirects=False,  # Pass 3xx through so the browser follows it.
+    )
+  except requests.RequestException as e:
+    app.logger.error("Firebase auth helper proxy failed: %s", e)
+    return "Authentication service unavailable.", 502
+
+  headers = [
+      (name, value)
+      for name, value in upstream_resp.headers.items()
+      if name.lower() not in _PROXY_SKIP_HEADERS
+  ]
+  return flask.Response(
+      upstream_resp.content, status=upstream_resp.status_code, headers=headers
+  )
 
 
 @app.route("/auth/firebase", methods=["POST"])
@@ -1848,6 +1920,9 @@ def admin_traffic_route():
           "name": data.get("name", "Unknown"),
           "email": data.get("email", "Unknown"),
           "last_seen": last_seen_str,
+          # Migrated to Firebase Auth (signed in through /auth/firebase at
+          # least once, which links this field).
+          "firebase_linked": bool(data.get("firebase_uid")),
           "_sort_key": last_seen_val,
       })
 
@@ -1877,12 +1952,17 @@ def admin_traffic_route():
   except Exception as e:
     app.logger.error(f"Error fetching users: {e}")
 
+  firebase_linked_count = sum(
+      1 for u in registered_users if u["firebase_linked"]
+  )
+
   try:
     property_id = secrets_fetcher.get_ga4_property_id()
     data = analytics_ga4.fetch_traffic_stats(property_id)
     data["registered_user_count"] = registered_user_count
     data["registered_users"] = registered_users
     data["streak_users"] = streak_users
+    data["firebase_linked_count"] = firebase_linked_count
     return flask.render_template("admin_traffic.html", **data)
   except Exception as e:
     # If fetch fails (e.g. secret not set), return error info
@@ -1893,6 +1973,7 @@ def admin_traffic_route():
         registered_user_count=registered_user_count,
         registered_users=registered_users,
         streak_users=streak_users,
+        firebase_linked_count=firebase_linked_count,
     )
 
 

@@ -284,6 +284,12 @@ def handle_firebase_login(claims):
   )
 
   if action == firebase_auth_logic.REJECT_UNVERIFIED_EMAIL:
+    logger.warning(
+        "Firebase sign-in rejected (unverified email collision):"
+        " provider=%s email=%s",
+        identity.provider,
+        identity.email,
+    )
     return None, (
         "An account with this email already exists. Please verify your email"
         " with your sign-in provider and try again."
@@ -292,6 +298,12 @@ def handle_firebase_login(claims):
   if action in (firebase_auth_logic.LOGIN, firebase_auth_logic.LINK):
     user = update_existing_user_doc(
         doc_id, firebase_auth_logic.build_link_data(identity)
+    )
+    logger.info(
+        "Firebase sign-in %s: user=%s provider=%s",
+        action,
+        doc_id,
+        identity.provider,
     )
     return user, None
 
@@ -302,6 +314,9 @@ def handle_firebase_login(claims):
   user_data["last_login"] = now
   db = utils.get_db_client()
   db.collection("users").document(doc_id).set(user_data, merge=True)
+  logger.info(
+      "Firebase sign-in create: user=%s provider=%s", doc_id, identity.provider
+  )
   return models.User.get(doc_id), None
 
 
