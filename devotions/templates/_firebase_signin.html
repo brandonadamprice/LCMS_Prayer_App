@@ -1,0 +1,74 @@
+{# Progressive enhancement for the "Sign in/up with Google" button.
+
+   Include this in any page that has an <a href="/login/google"> button. The
+   anchor keeps working exactly as before when JavaScript is unavailable; this
+   script intercepts the click and signs in through Firebase Authentication
+   (popup) instead, posting the ID token to the /auth/firebase session bridge.
+   This is the flow that also works inside native app shells, where Google
+   blocks its OAuth pages in embedded webviews.
+
+   Failure policy: any unexpected failure (config fetch, SDK load, blocked
+   popup, bridge error) falls back to the legacy /login/google redirect, so
+   the worst case is identical to the pre-Firebase behavior. A deliberately
+   closed popup just resets the button, and a 409 from the bridge carries a
+   real user-facing message, so neither falls through to the legacy flow.
+#}
+<script type="module">
+  const googleBtn = document.querySelector('a[href="/login/google"]');
+  if (googleBtn) {
+    let busy = false;
+    googleBtn.addEventListener('click', async (event) => {
+      event.preventDefault();
+      if (busy) return;
+      busy = true;
+      try {
+        const configResp = await fetch('/auth/firebase_config');
+        if (!configResp.ok) throw new Error('config fetch failed');
+        const config = await configResp.json();
+
+        // Loaded on demand so visitors who don't use Google sign-in never
+        // download the Firebase SDK. Same SDK version as settings.html.
+        const [{ initializeApp }, authMod] = await Promise.all([
+          import('https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js'),
+          import('https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js'),
+        ]);
+        const app = initializeApp(config);
+        const auth = authMod.getAuth(app);
+        const provider = new authMod.GoogleAuthProvider();
+
+        let result;
+        try {
+          result = await authMod.signInWithPopup(auth, provider);
+        } catch (err) {
+          if (err && (err.code === 'auth/popup-closed-by-user' ||
+                      err.code === 'auth/cancelled-popup-request')) {
+            busy = false;
+            return;
+          }
+          throw err;
+        }
+
+        const idToken = await result.user.getIdToken();
+        const resp = await fetch('/auth/firebase', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ idToken: idToken }),
+        });
+        const data = await resp.json();
+        if (resp.ok && data.success) {
+          window.location.href = '/';
+          return;
+        }
+        if (resp.status === 409 && data.error) {
+          showToast(data.error, 'error');
+          busy = false;
+          return;
+        }
+        throw new Error(data.error || 'session bridge failed');
+      } catch (err) {
+        console.warn('Firebase sign-in failed; using legacy flow.', err);
+        window.location.href = '/login/google';
+      }
+    });
+  }
+</script>

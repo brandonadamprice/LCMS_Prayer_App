@@ -712,6 +712,29 @@ def email_login():
   return flask.redirect("/")
 
 
+@app.route("/auth/firebase_config")
+def firebase_auth_config_route():
+  """Public Firebase config for the sign-in pages.
+
+  Unlike /firebase_config (login-required, includes the messaging vapidKey),
+  this returns only the fields the Firebase JS SDK needs to start a sign-in,
+  which must be readable before the user is authenticated. These values are
+  public by design in Firebase web apps; access control happens server-side
+  via ID-token verification in /auth/firebase.
+  """
+  try:
+    return flask.jsonify({
+        "apiKey": secrets_fetcher.get_firebase_api_key(),
+        "authDomain": "lcms-prayer-app.firebaseapp.com",
+        "projectId": "lcms-prayer-app",
+        "messagingSenderId": secrets_fetcher.get_firebase_messaging_sender_id(),
+        "appId": secrets_fetcher.get_firebase_app_id(),
+    })
+  except Exception as e:  # pylint: disable=broad-except
+    app.logger.error("Failed to fetch Firebase auth config: %s", e)
+    return flask.jsonify({"error": "Failed to fetch config"}), 500
+
+
 @app.route("/auth/firebase", methods=["POST"])
 def firebase_auth_route():
   """Session bridge for Firebase Authentication.
