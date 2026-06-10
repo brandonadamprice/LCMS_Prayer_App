@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Database**: Google Cloud Firestore (using `google-cloud-firestore` and `firebase-admin`).
 - **Authentication**: Flask-Login with Google OAuth (using `authlib`).
 - **Local Development**:
-    - Ensure you have authenticated with GCP: `gcloud auth application-empty-credentials login`.
+    - Ensure you have authenticated with GCP: `gcloud auth application-default login`.
     - Use the virtual environment located at `devotions/.venv/`.
     - Activate the environment: `source devotions/.venv/bin/activate` (on Unix) or `devotions\.venv\Scripts\activate` (on Windows).
 
@@ -36,10 +36,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
     - `models.py`: Data models (e.g., `User`).
     - `liturgy.py`: Contains logic for the liturgical year, church seasons, and calculating feast days.
     - `streak_logic.py`: Pure, dependency-free streak/grace-day math (no Firestore imports) so it stays unit-testable.
-    - `firebase_auth_logic.py`: Pure, dependency-free logic mapping Firebase Authentication sign-ins onto existing user docs (matching precedence, account-linking rules). Firestore side: `services/users.py` (`handle_firebase_login`); session bridge: `/auth/firebase` in `main.py`.
+    - `firebase_auth_logic.py`: Pure, dependency-free logic mapping Firebase Authentication sign-ins onto existing user docs (matching precedence, account-linking rules). Firestore side: `services/users.py` (`handle_firebase_login`); session bridge: `/auth/firebase` in `main.py`. Migration plan and phase status: `docs/firebase-auth-migration.md`.
     - `utils.py`: Shared utility functions (encryption, database access, scripture fetching, etc.).
     - `services/`: Business logic services (e.g., `users.py` for user management, `scripture.py` for ESV API interaction, `reminders.py` for notifications).
-    - `devotional_content/`: Logic for generating various devotional types (e.ments, Bible in a Year, etc.).
+    - `devotional_content/`: Logic for generating various devotional types (daily offices, seasonal devotions, Bible in a Year, etc.).
     - `menu.py`: Logic for generating dynamic navigation menus based on the liturgical season.
 - **Data (`devotions/data/`)**:
     - Contains JSON files providing the underlying data for devotions (catechism, lectionary, psalms, etc.).
@@ -53,6 +53,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Liturgical Dynamicism**: The application's content (menus, readings, prayers) changes dynamically based on the current date and the liturgical calendar (Advent, Lent, etc.).
 - **Personalization**: Users can manage profiles, set timezones, and track "Bible in a Year" progress. Personal prayers are stored in Firestore subcollections.
 - **Security**: 
-    - Sensitive data like personal prayers are encrypted using `cryptography.fernet` (key managed via `secrets_fetch 
-    - Email/Password and Google OAuth authentication are implemented.
+    - Sensitive data like personal prayers are encrypted using `cryptography.fernet` (key managed via `secrets_fetcher.py` / Secret Manager).
+    - Email/Password and Google OAuth authentication are implemented; Firebase Authentication is being phased in (see `docs/firebase-auth-migration.md`).
 - **PWA Support**: Includes a service worker (`sw.js`) for offline capabilities.
