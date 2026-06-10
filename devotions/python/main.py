@@ -1920,6 +1920,9 @@ def admin_traffic_route():
           "name": data.get("name", "Unknown"),
           "email": data.get("email", "Unknown"),
           "last_seen": last_seen_str,
+          # Migrated to Firebase Auth (signed in through /auth/firebase at
+          # least once, which links this field).
+          "firebase_linked": bool(data.get("firebase_uid")),
           "_sort_key": last_seen_val,
       })
 
@@ -1949,12 +1952,17 @@ def admin_traffic_route():
   except Exception as e:
     app.logger.error(f"Error fetching users: {e}")
 
+  firebase_linked_count = sum(
+      1 for u in registered_users if u["firebase_linked"]
+  )
+
   try:
     property_id = secrets_fetcher.get_ga4_property_id()
     data = analytics_ga4.fetch_traffic_stats(property_id)
     data["registered_user_count"] = registered_user_count
     data["registered_users"] = registered_users
     data["streak_users"] = streak_users
+    data["firebase_linked_count"] = firebase_linked_count
     return flask.render_template("admin_traffic.html", **data)
   except Exception as e:
     # If fetch fails (e.g. secret not set), return error info
@@ -1965,6 +1973,7 @@ def admin_traffic_route():
         registered_user_count=registered_user_count,
         registered_users=registered_users,
         streak_users=streak_users,
+        firebase_linked_count=firebase_linked_count,
     )
 
 

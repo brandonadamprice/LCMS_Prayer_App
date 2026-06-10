@@ -28,12 +28,16 @@
 
 <div class="card">
     <h2>Registered Users List</h2>
+    <p style="color: #7f8c8d; font-size: 0.9em; margin: 5px 0 10px;">
+        {{ firebase_linked_count }} of {{ registered_user_count }} users migrated to Firebase Auth.
+    </p>
     <div style="max-height: 300px; overflow-y: auto; border: 1px solid #eee; border-radius: 4px;">
         <table class="analytics-table">
             <thead>
                 <tr>
                     <th>Name</th>
                     <th>Email</th>
+                    <th style="text-align: center;">Firebase</th>
                     <th style="text-align: right;">Last Seen (EST)</th>
                 </tr>
             </thead>
@@ -42,6 +46,9 @@
                 <tr>
                     <td>{{ user.name }}</td>
                     <td>{{ user.email }}</td>
+                    <td style="text-align: center;" title="{{ 'Signed in via Firebase Auth' if user.firebase_linked else 'Not yet signed in via Firebase Auth' }}">
+                        {% if user.firebase_linked %}<span style="color: #27ae60;">&#10003;</span>{% else %}<span style="color: #bdc3c7;">&mdash;</span>{% endif %}
+                    </td>
                     <td style="text-align: right;">{{ user.last_seen }}</td>
                 </tr>
                 {% endfor %}
