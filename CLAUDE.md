@@ -36,6 +36,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
     - `models.py`: Data models (e.g., `User`).
     - `liturgy.py`: Contains logic for the liturgical year, church seasons, and calculating feast days.
     - `streak_logic.py`: Pure, dependency-free streak/grace-day math (no Firestore imports) so it stays unit-testable.
+    - `firebase_auth_logic.py`: Pure, dependency-free logic mapping Firebase Authentication sign-ins onto existing user docs (matching precedence, account-linking rules). Firestore side: `services/users.py` (`handle_firebase_login`); session bridge: `/auth/firebase` in `main.py`.
     - `utils.py`: Shared utility functions (encryption, database access, scripture fetching, etc.).
     - `services/`: Business logic services (e.g., `users.py` for user management, `scripture.py` for ESV API interaction, `reminders.py` for notifications).
     - `devotional_content/`: Logic for generating various devotional types (e.ments, Bible in a Year, etc.).

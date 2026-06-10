@@ -6,6 +6,7 @@ import re
 import uuid
 
 import communication
+import firebase_auth_logic
 import flask
 from google.cloud import firestore
 from itsdangerous import URLSafeTimedSerializer
@@ -241,6 +242,67 @@ def update_last_seen(user_id, when=None):
   db = utils.get_db_client()
   when = when or datetime.datetime.now(datetime.timezone.utc)
   db.collection("users").document(user_id).set({"last_seen": when}, merge=True)
+
+
+def _find_user_id_by_field(field, value):
+  """Returns the doc ID of the first user whose `field` equals `value`."""
+  if not value:
+    return None
+  db = utils.get_db_client()
+  query = db.collection("users").where(field, "==", value).limit(1)
+  results = list(query.stream())
+  return results[0].id if results else None
+
+
+def handle_firebase_login(claims):
+  """Signs in (or creates) a user from verified Firebase ID-token claims.
+
+  The decision logic lives in firebase_auth_logic (pure, unit-tested); this
+  function only does the Firestore lookups and writes. Existing accounts are
+  never re-keyed: legacy users gain a firebase_uid field on first Firebase
+  sign-in and keep their document, subcollections, and streak data as-is.
+
+  Args:
+    claims: decoded claims from firebase_admin.auth.verify_id_token. The
+      caller is responsible for having verified the token.
+
+  Returns:
+    (user, error_message): a models.User and None on success, or None and a
+    user-facing error string on failure.
+  """
+  identity = firebase_auth_logic.extract_identity(claims)
+  if identity is None:
+    return None, "Invalid authentication token."
+
+  action, doc_id = firebase_auth_logic.resolve_login(
+      identity,
+      uid_match_id=_find_user_id_by_field(
+          "firebase_uid", identity.firebase_uid
+      ),
+      google_match_id=_find_user_id_by_field("google_id", identity.google_sub),
+      email_match_id=_find_user_id_by_field("email", identity.email),
+  )
+
+  if action == firebase_auth_logic.REJECT_UNVERIFIED_EMAIL:
+    return None, (
+        "An account with this email already exists. Please verify your email"
+        " with your sign-in provider and try again."
+    )
+
+  if action in (firebase_auth_logic.LOGIN, firebase_auth_logic.LINK):
+    user = update_existing_user_doc(
+        doc_id, firebase_auth_logic.build_link_data(identity)
+    )
+    return user, None
+
+  # CREATE: brand-new user.
+  user_data = firebase_auth_logic.build_new_user_data(identity)
+  now = datetime.datetime.now(datetime.timezone.utc)
+  user_data["created_at"] = now
+  user_data["last_login"] = now
+  db = utils.get_db_client()
+  db.collection("users").document(doc_id).set(user_data, merge=True)
+  return models.User.get(doc_id), None
 
 
 def handle_oauth_login(user_info, provider):
