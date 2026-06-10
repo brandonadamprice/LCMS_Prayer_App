@@ -45,8 +45,11 @@ self.addEventListener('fetch', (event) => {
 
   // Exclude authentication routes from service worker interception.
   // This allows the browser to handle redirects and cookies for OAuth natively.
+  // /__/ covers the proxied Firebase Auth helper (/__/auth, /__/firebase),
+  // which runs in the sign-in popup on this origin and must never be cached.
   if (url.pathname.startsWith('/login') ||
-      url.pathname.startsWith('/authorize')) {
+      url.pathname.startsWith('/authorize') ||
+      url.pathname.startsWith('/__/')) {
     return;
   }
 
