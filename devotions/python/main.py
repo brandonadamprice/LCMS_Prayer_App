@@ -26,6 +26,7 @@ from devotional_content import psalms_by_category
 from devotional_content import short_prayers
 from devotional_content import small_catechism
 from devotional_content import trinity_study
+from firebase_admin import auth as firebase_admin_auth
 import flask
 from flask_compress import Compress
 import flask_login
@@ -709,6 +710,37 @@ def email_login():
   user = models.User.get(user_doc.id)
   flask_login.login_user(user, remember=True)
   return flask.redirect("/")
+
+
+@app.route("/auth/firebase", methods=["POST"])
+def firebase_auth_route():
+  """Session bridge for Firebase Authentication.
+
+  Verifies a Firebase ID token (sent by a web client or a native app shell,
+  where Google's OAuth pages are blocked inside webviews) and establishes the
+  same Flask-Login session that the legacy flows create, so every existing
+  @login_required route keeps working unchanged. Coexists with -- does not
+  replace -- the legacy Google-OAuth and email/password routes.
+  """
+  data = flask.request.get_json(silent=True) or {}
+  id_token = data.get("idToken")
+  if not id_token or not isinstance(id_token, str):
+    return flask.jsonify({"success": False, "error": "Missing idToken"}), 400
+
+  try:
+    # firebase_admin is initialized at import time in communication.py.
+    claims = firebase_admin_auth.verify_id_token(id_token)
+  except Exception as e:  # pylint: disable=broad-except
+    app.logger.warning("Firebase ID token verification failed: %s", e)
+    return flask.jsonify({"success": False, "error": "Invalid token"}), 401
+
+  user, error = users.handle_firebase_login(claims)
+  if user is None:
+    return flask.jsonify({"success": False, "error": error}), 409
+
+  flask_login.login_user(user, remember=True)
+  flask.session.permanent = True
+  return flask.jsonify({"success": True})
 
 
 @app.route("/forgot_password", methods=["GET", "POST"])
