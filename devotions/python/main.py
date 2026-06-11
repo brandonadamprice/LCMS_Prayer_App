@@ -831,7 +831,16 @@ def firebase_auth_route():
 
   user, error = users.handle_firebase_login(claims)
   if user is None:
-    return flask.jsonify({"success": False, "error": error}), 409
+    code, message = error
+    status = {
+        "invalid_token": 401,
+        "email_unverified": 403,
+        "unverified_email_conflict": 409,
+    }.get(code, 400)
+    return (
+        flask.jsonify({"success": False, "error": message, "code": code}),
+        status,
+    )
 
   flask_login.login_user(user, remember=True)
   flask.session.permanent = True

@@ -99,9 +99,61 @@ as a JS origin.
 **Bake before Phase 3:** watch the "N of M migrated" count climb and the logs
 show `link`/`login` (not surprise `create`s, which would indicate mis-linking).
 
-### Phase 3 — Email/password via Firebase + migration — ⏳ PLANNED
+### Phase 3 — Email/password via Firebase + migration — ⏳ IN PROGRESS
+
+**Done so far:**
+- `password_hash_logic.py` (pure, unit-tested) — classifies stored werkzeug
+  hashes and accounts; encodes the batch-import rules.
+- `scripts/audit_password_hashes.py` — **read-only** audit to run with prod
+  credentials: account categories, hash-format buckets, importable-vs-lazy
+  split, anomalies (unknown formats, credential-less docs, duplicate emails).
+  Run from `devotions/python`: `python scripts/audit_password_hashes.py`.
+
+**Key constraint discovered:** Firebase `importUsers` caps PBKDF2 rounds at
+**120,000**. werkzeug's scrypt hashes (3.x default, `scrypt:32768:8:1`) map
+cleanly onto STANDARD_SCRYPT, but werkzeug's historical pbkdf2 defaults
+(150k/260k/600k/1M rounds) all exceed the cap — those accounts **cannot** be
+batch-imported and must use the lazy-migration fallback (verify against the
+legacy hash on next login, then create their Firebase user). The audit
+quantifies the split; expect newer accounts (scrypt era) to batch-import and
+older pbkdf2 accounts to lazy-migrate.
+
+**Audit results (prod, 2026-06):** 87 docs — 45 google-only, 33 password-only,
+6 password+google, 3 firebase-linked. **All 41 password hashes are
+`scrypt:32768:8:1` → 100% batch-importable; no lazy-migration machinery
+needed** (the retained legacy form fallback covers gap accounts). Zero
+anomalies, zero duplicate emails. 2 of the 3 firebase-linked docs also hold
+passwords — the import skips them (their Firebase accounts already exist;
+their passwords stay usable via the legacy form until 3b).
+
+**Import tooling:** `scripts/import_password_users.py` — dry-run by default;
+`--uid <doc-id> --execute` for the mandatory canary (import one test account,
+verify Firebase sign-in with its known password, THEN bulk `--execute`).
+Sets Firebase `uid` = Firestore doc ID, marks emails verified (both legacy
+paths guaranteed verification), backfills `firebase_uid` on success, never
+touches `password_hash`. werkzeug's scrypt digest was verified to be exactly
+standard `scrypt(password, ascii salt, N, r, p, dkLen=64)` by recomputation;
+the canary's job is confirming Firebase's STANDARD_SCRYPT parameter
+interpretation (memory_cost passed as raw N). Prerequisite: Email/Password
+provider enabled, "one account per email" (default) — that setting is also
+what makes a later Google sign-in by the same email link onto the imported
+account.
 
 Two prod releases.
+
+**Status:** bulk import executed against prod (39/39 imported, firebase_uid
+backfilled; 2 firebase-linked password holders correctly skipped). **Canary
+sign-in verification still pending** — importUsers accepts hashes blindly, so
+a throwaway account must be registered via the legacy flow, imported with
+`--uid`, and signed in through Firebase's REST API before the client switch
+deploys. Client-side code (below) is built and riding on the branch.
+
+**Deploy-time note:** accounts registered through the legacy form between the
+bulk import and the 3a deploy have no Firebase user yet. The import script is
+idempotent (already-linked docs are skipped) — **re-run it right after
+deploying 3a** to sweep the gap. Until swept, gap accounts still sign in fine
+(user-not-found → legacy fallback), but Firebase-side password reset would
+silently no-op for them; the re-run closes that.
 
 **Release 3a — migrate + switch (non-destructive):**
 - Sign-in/register forms call Firebase (`signInWithEmailAndPassword`,

@@ -74,6 +74,19 @@ def extract_identity(claims):
   )
 
 
+def needs_email_verification(identity):
+  """True when a password-provider sign-in must be blocked until verified.
+
+  Preserves the legacy guarantee that an email/password account does not
+  exist (no session, no user doc) until its address is verified -- the old
+  /register flow enforced this with a code email before creating the doc.
+  Google sign-ins always carry verified emails, and batch-imported legacy
+  users were imported with email_verified=True, so only fresh Firebase
+  password registrations hit this.
+  """
+  return identity.provider == "password" and not identity.email_verified
+
+
 def choose_doc_id(identity):
   """Picks the document ID for a brand-new user.
 
