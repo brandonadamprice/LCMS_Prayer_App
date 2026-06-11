@@ -96,12 +96,13 @@ domains include staging + prod; OAuth client has
 `https://asimplewaytopray.com/__/auth/handler` as a redirect URI and the domain
 as a JS origin.
 
-**Bake before Phase 3:** watch the "N of M migrated" count climb and the logs
-show `link`/`login` (not surprise `create`s, which would indicate mis-linking).
+**Bake outcome (✅):** Google sign-ins flowed through the bridge in prod with
+no mis-linking — confirmed independently by the Phase 3 audit (zero duplicate
+emails across all 87 docs).
 
 ### Phase 3 — Email/password via Firebase + migration — ⏳ IN PROGRESS
 
-**Done so far:**
+**Audit tooling:**
 - `password_hash_logic.py` (pure, unit-tested) — classifies stored werkzeug
   hashes and accounts; encodes the batch-import rules.
 - `scripts/audit_password_hashes.py` — **read-only** audit to run with prod
@@ -141,42 +142,49 @@ account.
 
 Two prod releases.
 
-**Status:** bulk import executed against prod (39/39 imported, firebase_uid
-backfilled; 2 firebase-linked password holders correctly skipped). **Canary
-sign-in verification still pending** — importUsers accepts hashes blindly, so
-a throwaway account must be registered via the legacy flow, imported with
-`--uid`, and signed in through Firebase's REST API before the client switch
-deploys. Client-side code (below) is built and riding on the branch.
-
-**Deploy-time note:** accounts registered through the legacy form between the
-bulk import and the 3a deploy have no Firebase user yet. The import script is
-idempotent (already-linked docs are skipped) — **re-run it right after
-deploying 3a** to sweep the gap. Until swept, gap accounts still sign in fine
-(user-not-found → legacy fallback), but Firebase-side password reset would
-silently no-op for them; the re-run closes that.
-
-**Release 3a — migrate + switch (non-destructive):**
+**Release 3a — migrate + switch (non-destructive) — ✅ code complete, merged
+to `dev` (PRs #33, #34); migration executed:**
+- **Bulk import executed against prod**: 39/39 imported (Firebase `uid` =
+  Firestore doc ID, emails marked verified, `firebase_uid` backfilled); the 2
+  firebase-linked password holders correctly skipped.
+- **Canary verified end-to-end**: a known-password test account was imported
+  with `--uid` and signed in through Firebase's REST API
+  (`accounts:signInWithPassword` returned an `idToken`) — proving the
+  werkzeug→STANDARD_SCRYPT mapping (memory_cost = raw N) for the whole
+  population. The canary account has been deleted.
 - Sign-in/register forms call Firebase (`signInWithEmailAndPassword`,
-  `createUserWithEmailAndPassword`) and post the token to the bridge; legacy
-  form-POST stays as fallback during transition.
-- **Migrate existing password users into Firebase Auth.** First a *read-only*
-  check of the hash format in real docs (werkzeug = `pbkdf2:sha256` or
-  `scrypt`, both accepted by Firebase `importUsers`). Then a **dry-run-first
-  backfill script** that imports password users, **setting the Firebase `uid`
-  to the existing Firestore doc ID** so `firebase_uid` matching is exact for
-  everyone (no email-matching needed). Users keep their passwords; no resets.
-  Prefer this auditable batch over implicit lazy migration, since staging
-  shares the prod DB.
-- Password reset + email verification become Firebase's job
-  (`sendPasswordResetEmail`, verification emails). Preserve current behavior:
-  an unverified password-provider sign-in gets **no** session/doc until
-  verified (mirrors today's `/register/verify` gate). Reset/verification emails
-  will come from Firebase templates (customizable in console).
-- **Deferred delete:** stop *reading* `password_hash` but **leave the field in
-  Firestore** as an escape hatch. Keep linking idempotent/guarded (only write
-  `firebase_uid` if absent; never touch an unmatched doc).
+  `createUserWithEmailAndPassword`) and post the token to the bridge
+  (`_firebase_email_auth.html`); the legacy form-POST remains the fallback
+  and the authority during 3a — wrong password, missing Firebase account
+  (gap registrations), or any infrastructure failure falls through to it.
+- Password reset + email verification are Firebase's job
+  (`sendPasswordResetEmail`, verification links). The legacy behavior is
+  preserved: an unverified password-provider sign-in gets **no** session/doc
+  (bridge returns `403 email_unverified`; client resends the link) — the
+  pure rule is `firebase_auth_logic.needs_email_verification`.
+- User-facing messages include spam-folder hints (deliverability is rough
+  until the custom sending domain lands — see below).
+- **Deferred delete honored:** nothing reads less of `password_hash` yet and
+  the field is untouched; linking stays idempotent.
 
-**Release 3b — delete (after 3a proven in prod):**
+**Release 3a — remaining rollout steps:**
+1. Staging smoke test: register (verification email arrives, link works,
+   first verified sign-in creates the doc), sign in, forgot-password, and a
+   wrong-password attempt (exercises the legacy fallback path).
+2. **Email deliverability (in progress):** custom sending domain for Firebase
+   auth emails + SPF/DKIM; customize sender name/templates (Firebase console
+   → Authentication → Templates) before wide exposure.
+3. Deploy `dev` → prod.
+4. **Immediately after prod deploy:** re-run
+   `python scripts/import_password_users.py --execute` once to sweep
+   accounts registered via the legacy form since the bulk import
+   (idempotent; already-linked docs are skipped). Until swept, gap accounts
+   sign in fine via the fallback, but Firebase-side password reset silently
+   no-ops for them.
+5. Bake: admin "migrated" count (~42/87 post-import) climbing; logs show
+   `login`/`link`, no surprise `create`s; no feedback-form reports.
+
+**Release 3b — delete (after 3a proven in prod) — ⏳ NOT STARTED:**
 - Remove the now-dead code:
   - `main.py`: `/login/email`, `/register` POST, `/register/verify`,
     `/forgot_password`, `/reset_password/<token>`, `/settings/update_password`;
@@ -201,9 +209,15 @@ legacy Google OAuth path that Phase 2 keeps as a fallback:
 
 ## Open considerations
 
-- **Hash format confirmation** for Phase 3 (read-only) decides batch-import vs.
-  lazy migration parameters.
-- **Email deliverability** for Firebase auth emails (sender domain / DNS) if we
-  want them to match the current SMTP sender.
+- **Email deliverability (in progress):** Firebase auth emails currently tend
+  to land in spam. Custom sending domain + SPF/DKIM being set up; UI shows
+  spam-folder hints in the meantime.
+- **Sign in with Apple** will be required when the iOS app ships with Google
+  sign-in (see `docs/native-apps.md`). The bridge handles any Firebase
+  provider, but review `firebase_auth_logic` matching first: Apple's
+  email-relay addresses won't match existing doc emails.
 - **Native shell wiring** (Capacitor `@capacitor-firebase/authentication`) is
   downstream of these phases and out of scope here.
+
+*(Resolved: hash-format question — audit showed 100% `scrypt:32768:8:1`, all
+batch-importable; mapping proven by canary.)*

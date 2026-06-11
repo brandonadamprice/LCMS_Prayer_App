@@ -39,9 +39,13 @@ Three coexisting paths, all ending in the same Flask-Login session
    so the OAuth chooser shows our domain.
 2. **Legacy Google OAuth** (authlib): `/login/google` → `/authorize`. Kept as
    the no-JS/outage fallback until Phase 4.
-3. **Legacy email/password** (werkzeug hashes on the user doc): `/login/email`,
-   `/register` + verification, `/forgot_password`. Scheduled for replacement in
-   Phase 3.
+3. **Email/password**: the sign-in/register forms go through Firebase
+   (`_firebase_email_auth.html` → `/auth/firebase`), with the legacy
+   werkzeug-hash routes (`/login/email`, `/register` + verification,
+   `/forgot_password`) retained as the fallback and authority during Phase
+   3a. Legacy password users were batch-imported into Firebase Auth (uid =
+   doc ID), so passwords carried over. The legacy routes are deleted in
+   Phase 3b.
 
 ## Data model (Firestore)
 

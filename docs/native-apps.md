@@ -59,9 +59,12 @@ Capacitor plugin equivalents; the web fallbacks keep working inside the shell.
 
 ## Sequencing
 
-1. ✅ Firebase Auth phases 1–2 (session bridge + Google sign-in) — shipped.
-2. Firebase Auth phase 3 (email/password) — so the shell never needs the
-   legacy form flows.
+1. ✅ Firebase Auth phases 1–2 (session bridge + Google sign-in) — shipped to
+   prod and proven.
+2. 🔄 Firebase Auth phase 3 (email/password) — 3a code merged to `dev`, all
+   39 legacy password users imported and the hash mapping canary-verified;
+   prod rollout + bake remain, then the 3b cleanup release. After 3a ships,
+   the shell never needs the legacy form flows.
 3. Android TWA (can ship any time; independent of the shell work).
 4. Capacitor shell: native Firebase auth plugin + FCM wiring + iOS native
-   value items; App Store submission.
+   value items (remember Sign in with Apple); App Store submission.
