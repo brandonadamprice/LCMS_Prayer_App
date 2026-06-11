@@ -67,7 +67,8 @@
         }
         if (data.code === 'email_unverified') {
           await authMod.sendEmailVerification(credential.user).catch(() => {});
-          showToast(data.error + ' (We just sent you a fresh link.)', 'info', 8000);
+          showToast(data.error + ' We just sent a fresh link — check your'
+              + ' spam folder if you don’t see it.', 'info', 9000);
           busy = false;
           return;
         }
@@ -132,8 +133,9 @@
         }
         await authMod.sendEmailVerification(credential.user);
         showToast('Account created! Check your email for a verification'
-            + ' link, then sign in.', 'success', 10000);
-        setTimeout(() => { window.location.href = '/login'; }, 2500);
+            + ' link (it may land in your spam folder), then sign in.',
+            'success', 11000);
+        setTimeout(() => { window.location.href = '/login'; }, 3000);
       } catch (err) {
         console.warn('Firebase registration failed; using legacy flow.', err);
         registerForm.submit();
@@ -164,7 +166,8 @@
           if (!err || err.code !== 'auth/user-not-found') throw err;
         }
         showToast('If an account with that email exists, a password reset'
-            + ' link has been sent.', 'success', 8000);
+            + ' link has been sent. Check your spam folder if you don’t'
+            + ' see it.', 'success', 9000);
       } catch (err) {
         console.warn('Firebase password reset failed; using legacy flow.', err);
         window.location.href = '/forgot_password';
