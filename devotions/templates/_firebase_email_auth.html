@@ -1,0 +1,174 @@
+{# Progressive enhancement for email/password auth via Firebase (Phase 3a).
+
+   Include on pages with the legacy email forms. Intercepts:
+     - form[action="/login/email"]  -> signInWithEmailAndPassword + bridge
+     - form[action="/register"]    -> createUserWithEmailAndPassword +
+                                       verification email (no session/doc
+                                       until verified; the bridge enforces it)
+     - a[href="/forgot_password"]  -> sendPasswordResetEmail
+
+   Failure policy mirrors _firebase_signin.html: unexpected failures (SDK
+   load, network, unknown errors) fall through to the legacy form POST /
+   page, so the worst case is identical to the pre-Firebase behavior. Cases
+   where falling back would be wrong (unverified email, duplicate account)
+   show a toast instead.
+#}
+<script type="module">
+  async function firebaseAuth() {
+    const configResp = await fetch('/auth/firebase_config');
+    if (!configResp.ok) throw new Error('config fetch failed');
+    const config = await configResp.json();
+    const [{ initializeApp, getApps, getApp }, authMod] = await Promise.all([
+      import('https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js'),
+      import('https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js'),
+    ]);
+    const app = getApps().length ? getApp() : initializeApp(config);
+    return { auth: authMod.getAuth(app), authMod: authMod };
+  }
+
+  async function bridgeSession(user) {
+    const idToken = await user.getIdToken();
+    const resp = await fetch('/auth/firebase', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idToken: idToken }),
+    });
+    const data = await resp.json();
+    return { resp: resp, data: data };
+  }
+
+  // --- Sign in ---
+  const loginForm = document.querySelector('form[action="/login/email"]');
+  if (loginForm) {
+    let busy = false;
+    loginForm.addEventListener('submit', async (event) => {
+      if (busy) { event.preventDefault(); return; }
+      event.preventDefault();
+      busy = true;
+      const email = loginForm.querySelector('[name="email"]').value.trim();
+      const password = loginForm.querySelector('[name="password"]').value;
+      try {
+        const { auth, authMod } = await firebaseAuth();
+        let credential;
+        try {
+          credential = await authMod.signInWithEmailAndPassword(
+              auth, email, password);
+        } catch (err) {
+          // Wrong password, no Firebase account (gap registrations), etc.:
+          // the legacy flow is the authority during 3a.
+          busy = false;
+          loginForm.submit();
+          return;
+        }
+        const { resp, data } = await bridgeSession(credential.user);
+        if (resp.ok && data.success) {
+          window.location.href = '/';
+          return;
+        }
+        if (data.code === 'email_unverified') {
+          await authMod.sendEmailVerification(credential.user).catch(() => {});
+          showToast(data.error + ' (We just sent you a fresh link.)', 'info', 8000);
+          busy = false;
+          return;
+        }
+        if (resp.status === 409 && data.error) {
+          showToast(data.error, 'error', 8000);
+          busy = false;
+          return;
+        }
+        throw new Error(data.error || 'session bridge failed');
+      } catch (err) {
+        console.warn('Firebase email sign-in failed; using legacy flow.', err);
+        loginForm.submit();
+      }
+    });
+  }
+
+  // --- Register ---
+  const registerForm = document.querySelector('form[action="/register"]');
+  if (registerForm) {
+    let busy = false;
+    registerForm.addEventListener('submit', async (event) => {
+      if (busy) { event.preventDefault(); return; }
+      const name = registerForm.querySelector('[name="name"]').value.trim();
+      const email = registerForm.querySelector('[name="email"]').value.trim();
+      const password = registerForm.querySelector('[name="password"]').value;
+      const confirm = registerForm.querySelector('[name="confirm_password"]').value;
+
+      // Mirror the legacy server-side policy (users.validate_password) so
+      // Firebase-created accounts meet the same bar.
+      if (password !== confirm) {
+        event.preventDefault();
+        showToast('Passwords do not match.', 'error');
+        return;
+      }
+      if (password.length < 8 || !/[A-Z]/.test(password) || !/[^a-zA-Z]/.test(password)) {
+        event.preventDefault();
+        showToast('Password must be at least 8 characters long, contain a'
+            + ' capital letter, and a number or symbol.', 'error', 8000);
+        return;
+      }
+
+      event.preventDefault();
+      busy = true;
+      try {
+        const { auth, authMod } = await firebaseAuth();
+        let credential;
+        try {
+          credential = await authMod.createUserWithEmailAndPassword(
+              auth, email, password);
+        } catch (err) {
+          if (err && err.code === 'auth/email-already-in-use') {
+            showToast('An account with this email already exists. Try'
+                + ' signing in, or use "Forgot Password?".', 'error', 8000);
+            busy = false;
+            return;
+          }
+          throw err;
+        }
+        if (name) {
+          await authMod.updateProfile(credential.user, { displayName: name })
+              .catch(() => {});
+        }
+        await authMod.sendEmailVerification(credential.user);
+        showToast('Account created! Check your email for a verification'
+            + ' link, then sign in.', 'success', 10000);
+        setTimeout(() => { window.location.href = '/login'; }, 2500);
+      } catch (err) {
+        console.warn('Firebase registration failed; using legacy flow.', err);
+        registerForm.submit();
+      }
+    });
+  }
+
+  // --- Forgot password ---
+  const forgotLink = document.querySelector('a[href="/forgot_password"]');
+  if (forgotLink && loginForm) {
+    forgotLink.addEventListener('click', async (event) => {
+      event.preventDefault();
+      const emailInput = loginForm.querySelector('[name="email"]');
+      const email = emailInput.value.trim();
+      if (!email) {
+        showToast('Enter your email above first, then click Forgot'
+            + ' Password.', 'info');
+        emailInput.focus();
+        return;
+      }
+      try {
+        const { auth, authMod } = await firebaseAuth();
+        try {
+          await authMod.sendPasswordResetEmail(auth, email);
+        } catch (err) {
+          // Don't reveal whether the account exists; only infrastructure
+          // problems fall back to the legacy page.
+          if (!err || err.code !== 'auth/user-not-found') throw err;
+        }
+        showToast('If an account with that email exists, a password reset'
+            + ' link has been sent.', 'success', 8000);
+      } catch (err) {
+        console.warn('Firebase password reset failed; using legacy flow.', err);
+        window.location.href = '/forgot_password';
+      }
+    });
+  }
+</script>

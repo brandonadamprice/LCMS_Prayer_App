@@ -156,6 +156,29 @@ class ResolveLoginTest(unittest.TestCase):
     self.assertEqual(action, firebase_auth_logic.CREATE)
 
 
+class NeedsEmailVerificationTest(unittest.TestCase):
+
+  def test_unverified_password_sign_in_is_blocked(self):
+    identity = firebase_auth_logic.extract_identity(password_claims())
+    self.assertTrue(firebase_auth_logic.needs_email_verification(identity))
+
+  def test_verified_password_sign_in_passes(self):
+    identity = firebase_auth_logic.extract_identity(
+        password_claims(email_verified=True)
+    )
+    self.assertFalse(firebase_auth_logic.needs_email_verification(identity))
+
+  def test_google_sign_in_is_never_blocked(self):
+    identity = firebase_auth_logic.extract_identity(google_claims())
+    self.assertFalse(firebase_auth_logic.needs_email_verification(identity))
+    # Even a (hypothetical) unverified Google token isn't this gate's job;
+    # the unverified-email-collision rule in resolve_login covers it.
+    identity = firebase_auth_logic.extract_identity(
+        google_claims(email_verified=False)
+    )
+    self.assertFalse(firebase_auth_logic.needs_email_verification(identity))
+
+
 class BuildLinkDataTest(unittest.TestCase):
 
   def test_google_identity_links_google_fields_too(self):

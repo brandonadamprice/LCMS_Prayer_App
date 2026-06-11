@@ -267,12 +267,27 @@ def handle_firebase_login(claims):
       caller is responsible for having verified the token.
 
   Returns:
-    (user, error_message): a models.User and None on success, or None and a
-    user-facing error string on failure.
+    (user, error): a models.User and None on success, or None and an
+    (error_code, user_facing_message) tuple on failure. Codes:
+    invalid_token, email_unverified, unverified_email_conflict.
   """
   identity = firebase_auth_logic.extract_identity(claims)
   if identity is None:
-    return None, "Invalid authentication token."
+    return None, ("invalid_token", "Invalid authentication token.")
+
+  if firebase_auth_logic.needs_email_verification(identity):
+    # No session and no user doc until the address is verified, matching
+    # the legacy register flow's guarantee.
+    logger.info(
+        "Firebase password sign-in blocked pending email verification:"
+        " uid=%s",
+        identity.firebase_uid,
+    )
+    return None, (
+        "email_unverified",
+        "Please verify your email address, then sign in again. Check your"
+        " inbox for the verification link.",
+    )
 
   action, doc_id = firebase_auth_logic.resolve_login(
       identity,
@@ -291,8 +306,9 @@ def handle_firebase_login(claims):
         identity.email,
     )
     return None, (
+        "unverified_email_conflict",
         "An account with this email already exists. Please verify your email"
-        " with your sign-in provider and try again."
+        " with your sign-in provider and try again.",
     )
 
   if action in (firebase_auth_logic.LOGIN, firebase_auth_logic.LINK):

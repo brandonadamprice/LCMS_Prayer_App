@@ -141,6 +141,20 @@ account.
 
 Two prod releases.
 
+**Status:** bulk import executed against prod (39/39 imported, firebase_uid
+backfilled; 2 firebase-linked password holders correctly skipped). **Canary
+sign-in verification still pending** — importUsers accepts hashes blindly, so
+a throwaway account must be registered via the legacy flow, imported with
+`--uid`, and signed in through Firebase's REST API before the client switch
+deploys. Client-side code (below) is built and riding on the branch.
+
+**Deploy-time note:** accounts registered through the legacy form between the
+bulk import and the 3a deploy have no Firebase user yet. The import script is
+idempotent (already-linked docs are skipped) — **re-run it right after
+deploying 3a** to sweep the gap. Until swept, gap accounts still sign in fine
+(user-not-found → legacy fallback), but Firebase-side password reset would
+silently no-op for them; the re-run closes that.
+
 **Release 3a — migrate + switch (non-destructive):**
 - Sign-in/register forms call Firebase (`signInWithEmailAndPassword`,
   `createUserWithEmailAndPassword`) and post the token to the bridge; legacy
