@@ -99,7 +99,24 @@ as a JS origin.
 **Bake before Phase 3:** watch the "N of M migrated" count climb and the logs
 show `link`/`login` (not surprise `create`s, which would indicate mis-linking).
 
-### Phase 3 — Email/password via Firebase + migration — ⏳ PLANNED
+### Phase 3 — Email/password via Firebase + migration — ⏳ IN PROGRESS
+
+**Done so far:**
+- `password_hash_logic.py` (pure, unit-tested) — classifies stored werkzeug
+  hashes and accounts; encodes the batch-import rules.
+- `scripts/audit_password_hashes.py` — **read-only** audit to run with prod
+  credentials: account categories, hash-format buckets, importable-vs-lazy
+  split, anomalies (unknown formats, credential-less docs, duplicate emails).
+  Run from `devotions/python`: `python scripts/audit_password_hashes.py`.
+
+**Key constraint discovered:** Firebase `importUsers` caps PBKDF2 rounds at
+**120,000**. werkzeug's scrypt hashes (3.x default, `scrypt:32768:8:1`) map
+cleanly onto STANDARD_SCRYPT, but werkzeug's historical pbkdf2 defaults
+(150k/260k/600k/1M rounds) all exceed the cap — those accounts **cannot** be
+batch-imported and must use the lazy-migration fallback (verify against the
+legacy hash on next login, then create their Firebase user). The audit
+quantifies the split; expect newer accounts (scrypt era) to batch-import and
+older pbkdf2 accounts to lazy-migrate.
 
 Two prod releases.
 
