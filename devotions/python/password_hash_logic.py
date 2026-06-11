@@ -45,6 +45,8 @@ class HashInfo:
   params: tuple = ()  # (n, r, p) for scrypt; (rounds,) for pbkdf2.
   importable: bool = False
   reason: str = ""
+  salt: str = None  # werkzeug salts are ascii text
+  key_hex: str = None  # hex-encoded derived key
 
   @property
   def bucket(self):
@@ -68,7 +70,7 @@ def classify_hash(hash_string):
   parts = hash_string.split("$")
   if len(parts) != 3 or not parts[1] or not parts[2]:
     return HashInfo(SCHEME_UNKNOWN, reason="not in werkzeug method$salt$hash form")
-  method = parts[0]
+  method, salt, key_hex = parts
 
   if method.startswith("scrypt:"):
     try:
@@ -80,6 +82,8 @@ def classify_hash(hash_string):
         params=(n, r, p),
         importable=True,
         reason="maps to Firebase STANDARD_SCRYPT",
+        salt=salt,
+        key_hex=key_hex,
     )
 
   if method.startswith("pbkdf2:sha256"):
@@ -110,9 +114,55 @@ def classify_hash(hash_string):
         params=(rounds,),
         importable=True,
         reason="maps to Firebase PBKDF2_SHA256",
+        salt=salt,
+        key_hex=key_hex,
     )
 
   return HashInfo(SCHEME_UNKNOWN, reason=f"unrecognized method {method!r}")
+
+
+def build_import_plan(doc_id, doc_fields):
+  """Decides whether/how one user doc gets batch-imported into Firebase Auth.
+
+  Pure decision logic for scripts/import_password_users.py. The Firebase uid
+  is set to the Firestore doc ID, making firebase_uid matching exact for
+  every imported user. Emails are marked verified because both legacy paths
+  guaranteed it (the email flow required code verification before the doc
+  was created; Google-linked emails were verified by Google).
+
+  Args:
+    doc_id: the Firestore document ID (becomes the Firebase uid).
+    doc_fields: dict with password_hash / firebase_uid / email / name.
+
+  Returns:
+    (plan, skip_reason): exactly one is non-None. plan is a dict with uid,
+    email, email_verified, display_name, salt, key_hex, scheme, params.
+  """
+  if doc_fields.get("firebase_uid"):
+    # Already has a Firebase account (signed in through the bridge); a
+    # second import with the same email would fail, and must not run.
+    return None, "already firebase-linked"
+  hash_string = doc_fields.get("password_hash")
+  if not hash_string:
+    return None, "no password hash"
+  email = (doc_fields.get("email") or "").strip().lower()
+  if not email:
+    return None, "no email on doc"
+
+  info = classify_hash(hash_string)
+  if not info.importable:
+    return None, f"hash not importable ({info.reason})"
+
+  return {
+      "uid": doc_id,
+      "email": email,
+      "email_verified": True,
+      "display_name": doc_fields.get("name") or None,
+      "salt": info.salt,
+      "key_hex": info.key_hex,
+      "scheme": info.scheme,
+      "params": info.params,
+  }, None
 
 
 def classify_account(doc_fields):

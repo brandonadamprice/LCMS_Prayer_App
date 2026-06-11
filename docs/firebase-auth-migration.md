@@ -118,6 +118,27 @@ legacy hash on next login, then create their Firebase user). The audit
 quantifies the split; expect newer accounts (scrypt era) to batch-import and
 older pbkdf2 accounts to lazy-migrate.
 
+**Audit results (prod, 2026-06):** 87 docs — 45 google-only, 33 password-only,
+6 password+google, 3 firebase-linked. **All 41 password hashes are
+`scrypt:32768:8:1` → 100% batch-importable; no lazy-migration machinery
+needed** (the retained legacy form fallback covers gap accounts). Zero
+anomalies, zero duplicate emails. 2 of the 3 firebase-linked docs also hold
+passwords — the import skips them (their Firebase accounts already exist;
+their passwords stay usable via the legacy form until 3b).
+
+**Import tooling:** `scripts/import_password_users.py` — dry-run by default;
+`--uid <doc-id> --execute` for the mandatory canary (import one test account,
+verify Firebase sign-in with its known password, THEN bulk `--execute`).
+Sets Firebase `uid` = Firestore doc ID, marks emails verified (both legacy
+paths guaranteed verification), backfills `firebase_uid` on success, never
+touches `password_hash`. werkzeug's scrypt digest was verified to be exactly
+standard `scrypt(password, ascii salt, N, r, p, dkLen=64)` by recomputation;
+the canary's job is confirming Firebase's STANDARD_SCRYPT parameter
+interpretation (memory_cost passed as raw N). Prerequisite: Email/Password
+provider enabled, "one account per email" (default) — that setting is also
+what makes a later Google sign-in by the same email link onto the imported
+account.
+
 Two prod releases.
 
 **Release 3a — migrate + switch (non-destructive):**

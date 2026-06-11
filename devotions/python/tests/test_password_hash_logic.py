@@ -88,6 +88,84 @@ class ClassifyHashTest(unittest.TestCase):
     self.assertTrue(info.bucket.startswith("pbkdf2:sha256:1000000 [NOT importable"))
 
 
+class HashPartsTest(unittest.TestCase):
+
+  def test_scrypt_salt_and_key_extracted(self):
+    info = password_hash_logic.classify_hash(SCRYPT_HASH)
+    self.assertEqual(info.salt, "dLZLT2tLjCXf3Cl6")
+    self.assertEqual(len(info.key_hex), 128)  # 64-byte derived key
+    bytes.fromhex(info.key_hex)  # must be valid hex
+
+  def test_pbkdf2_salt_and_key_extracted(self):
+    info = password_hash_logic.classify_hash(PBKDF2_50K_HASH)
+    self.assertEqual(info.salt, "tPIVQbiqVQ9mZRMH")
+    self.assertEqual(len(info.key_hex), 64)  # 32-byte derived key
+
+  def test_non_importable_hash_carries_no_secret_material(self):
+    info = password_hash_logic.classify_hash(PBKDF2_1M_HASH)
+    self.assertIsNone(info.salt)
+    self.assertIsNone(info.key_hex)
+
+
+class BuildImportPlanTest(unittest.TestCase):
+
+  def make_fields(self, **overrides):
+    fields = {
+        "password_hash": SCRYPT_HASH,
+        "email": "Pray.Always@Example.com",
+        "name": "Martin Luther",
+    }
+    fields.update(overrides)
+    return fields
+
+  def test_happy_path(self):
+    plan, skip = password_hash_logic.build_import_plan(
+        "doc-123", self.make_fields()
+    )
+    self.assertIsNone(skip)
+    self.assertEqual(plan["uid"], "doc-123")
+    self.assertEqual(plan["email"], "pray.always@example.com")  # normalized
+    self.assertTrue(plan["email_verified"])
+    self.assertEqual(plan["display_name"], "Martin Luther")
+    self.assertEqual(plan["scheme"], password_hash_logic.SCHEME_SCRYPT)
+    self.assertEqual(plan["params"], (32768, 8, 1))
+    self.assertEqual(plan["salt"], "dLZLT2tLjCXf3Cl6")
+
+  def test_skips_already_firebase_linked(self):
+    plan, skip = password_hash_logic.build_import_plan(
+        "doc-123", self.make_fields(firebase_uid="fb-existing")
+    )
+    self.assertIsNone(plan)
+    self.assertIn("firebase-linked", skip)
+
+  def test_skips_doc_without_email(self):
+    plan, skip = password_hash_logic.build_import_plan(
+        "doc-123", self.make_fields(email="   ")
+    )
+    self.assertIsNone(plan)
+    self.assertIn("email", skip)
+
+  def test_skips_non_importable_hash(self):
+    plan, skip = password_hash_logic.build_import_plan(
+        "doc-123", self.make_fields(password_hash=PBKDF2_1M_HASH)
+    )
+    self.assertIsNone(plan)
+    self.assertIn("not importable", skip)
+
+  def test_skips_doc_without_password(self):
+    plan, skip = password_hash_logic.build_import_plan(
+        "doc-123", self.make_fields(password_hash=None)
+    )
+    self.assertIsNone(plan)
+    self.assertIn("password", skip)
+
+  def test_missing_name_becomes_none_not_empty(self):
+    plan, _ = password_hash_logic.build_import_plan(
+        "doc-123", self.make_fields(name="")
+    )
+    self.assertIsNone(plan["display_name"])
+
+
 class ClassifyAccountTest(unittest.TestCase):
 
   def test_firebase_linked_wins_over_everything(self):
