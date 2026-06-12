@@ -1180,6 +1180,13 @@ body.dark-mode .page-header {
     font-weight: bold;
 }
 
+/* Secondary line under the banner title (lectionary day, church season).
+   Must stay readable over the dark banner photo — don't use muted grays. */
+.page-header-meta {
+    color: rgba(255, 255, 255, 0.85);
+    text-shadow: 1px 1px 3px rgb(0 0 0 / 40%);
+}
+
 #favorite-icon {
     opacity: 0.5;
     transition: opacity 0.2s, transform 0.2s;
@@ -2429,6 +2436,10 @@ select:focus-visible,
         border-bottom-color: #000;
     }
     .page-header p { color: #000; }
+    .page-header-meta {
+        color: #555;
+        text-shadow: none;
+    }
 
     /* Cards flatten into document sections */
     .card,
