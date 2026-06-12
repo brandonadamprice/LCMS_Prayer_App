@@ -2347,3 +2347,140 @@ select:focus-visible,
     justify-content: center;
     margin-top: 24px;
 }
+
+/* =========================================================================
+   Print mode
+   Turns any devotion page into a clean handout for praying in a group:
+   app chrome and interactive controls disappear and colors flatten to ink
+   on white, even when dark mode is active on screen. Printing is WYSIWYG —
+   cards collapsed on screen stay collapsed on paper.
+
+   Personal prayers are PRIVATE by default: #personal-prayers-list never
+   prints unless the Print button's prompt sets body.print-include-personal
+   (removed again on afterprint), so a stray Ctrl+P can't leak them.
+   ========================================================================= */
+.btn-print {
+    background-color: rgba(60, 60, 60, 0.6) !important;
+    color: #e0e0e0 !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    backdrop-filter: blur(4px);
+}
+
+@media print {
+    @page { margin: 1.5cm; }
+
+    body,
+    body.dark-mode {
+        /* Restore light-surface tokens so token-driven colors print as ink */
+        --color-bg: #fff;
+        --color-text: #000;
+        --color-card-bg: #fff;
+        --color-border: #ddd;
+        --text-heading: #000;
+        --text-muted: #555;
+        background: #fff !important;
+        color: #000 !important;
+        font-size: 12pt;
+    }
+
+    /* App chrome and anything interactive: gone */
+    #top-navbar,
+    .footer,
+    #art-background,
+    #art-credit,
+    .header-actions,
+    #toast-container,
+    .modal,
+    #app-menu,
+    button,
+    .button,
+    .item-picker,
+    select,
+    label[for="reading-mode-select"],
+    label[for="psalm-mode-select"],
+    .toggle-icon,
+    .date-nav-arrow,
+    .date-nav-arrow--disabled,
+    .no-print {
+        display: none !important;
+    }
+
+    .container {
+        max-width: none;
+        padding: 0;
+    }
+
+    /* Banner becomes a plain printed title */
+    .page-header {
+        background: none !important;
+        border: none;
+        box-shadow: none;
+        color: #000;
+        margin: 0 0 20px 0;
+        padding: 0;
+    }
+    .page-header::before { display: none !important; }
+    .page-header h1,
+    .page-header h2,
+    body.dark-mode .page-header h1,
+    body.dark-mode .page-header h2 {
+        color: #000;
+        text-shadow: none;
+        border-bottom-color: #000;
+    }
+    .page-header p { color: #000; }
+
+    /* Cards flatten into document sections */
+    .card,
+    body.dark-mode .card {
+        background: #fff !important;
+        color: #000;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+        padding: 0;
+        margin-bottom: 24px;
+    }
+    .card-header {
+        break-after: avoid;
+        page-break-after: avoid;
+    }
+    h1,
+    h2,
+    body.dark-mode h1,
+    body.dark-mode h2 {
+        color: #000;
+        border-bottom-color: #999;
+    }
+    .card-content .subheader,
+    body.dark-mode .card-content .subheader {
+        border-bottom-color: #ccc;
+    }
+
+    /* Liturgical accents in fixed ink-friendly colors (same in dark mode) */
+    .rubric,
+    body.dark-mode .rubric {
+        color: #65342f !important;
+    }
+    .ref,
+    .versicle-ref,
+    .prayer-topic,
+    body.dark-mode .ref,
+    body.dark-mode .versicle-ref,
+    body.dark-mode .prayer-topic {
+        color: #555 !important;
+    }
+    a,
+    body.dark-mode a {
+        color: inherit !important;
+        text-decoration: none;
+    }
+
+    /* Personal prayers stay private unless explicitly included */
+    #personal-prayers-list {
+        display: none !important;
+    }
+    body.print-include-personal #personal-prayers-list {
+        display: block !important;
+    }
+}

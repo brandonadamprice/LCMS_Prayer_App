@@ -56,3 +56,4 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
     - Sensitive data like personal prayers are encrypted using `cryptography.fernet` (key managed via `secrets_fetcher.py` / Secret Manager).
     - Email/Password and Google OAuth authentication are implemented; Firebase Authentication is being phased in (see `docs/firebase-auth-migration.md`).
 - **PWA Support**: Includes a service worker (`sw.js`) for offline capabilities.
+- **Print Mode**: An `@media print` block in `static/styles.css` turns devotion pages into clean handouts (chrome/buttons hidden, ink-friendly colors). The Print button injected in `base.html` asks before including personal prayers; they only print when `body.print-include-personal` is set. Mark interactive-only template blocks with the `no-print` class.

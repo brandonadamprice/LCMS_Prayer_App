@@ -36,7 +36,7 @@
 
 {% macro prayer_wall_widget() %}
     <!-- Prayer Wall Intercession Button -->
-    <div style="margin-top: 15px;">
+    <div class="no-print" style="margin-top: 15px;">
         <button id="btn-fetch-random-prayer" class="button" onclick="fetchRandomPrayer()" style="background-color: #3498db;">Pray for Others (Prayer Wall)</button>
         <div id="random-prayer-display" class="random-prayer-box">
             <p style="margin-top: 0;"><strong>Prayer Request from <span id="random-prayer-name"></span>:</strong></p>
@@ -330,7 +330,7 @@ function hideRandomPrayer() {
 {% macro prayer_complete_button(devotion_type) %}
 {% if current_user.is_authenticated %}
 {% set is_completed = current_user.completed_devotions and current_user.completed_devotions.get(devotion_type) and current_user.completed_devotions.get(devotion_type).startswith(today_ymd) %}
-<div style="text-align: center; margin-top: 30px; margin-bottom: 20px;">
+<div class="no-print" style="text-align: center; margin-top: 30px; margin-bottom: 20px;">
     {% if is_completed %}
     <button class="button" disabled style="background-color: #95a5a6; cursor: not-allowed; font-size: 1.1em; padding: 12px 24px;">
         <span style="margin-right: 8px;">✓</span> Completed

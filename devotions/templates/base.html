@@ -29,7 +29,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Lora:ital,wght@0,400..700;1,400..700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <noscript><link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Lora:ital,wght@0,400..700;1,400..700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet"></noscript>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}?v=18" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}?v=19" />
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='icons/favicon.ico') }}">
     <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='icons/favicon-32x32.png') }}">
     <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='icons/favicon-16x16.png') }}">
@@ -323,8 +323,6 @@
       };
 
       function injectActionButtons() {
-          if (!isLoggedIn) return;
-          
           const pageHeader = document.querySelector('.page-header');
           if (!pageHeader) return;
 
@@ -333,69 +331,96 @@
           if (currentPath === '/' || currentPath === '/login' || currentPath === '/logout' || currentPath === '/settings') return;
 
           const devotionKey = PATH_TO_DEVOTION_KEY[currentPath];
-          
+
           // Container for buttons
           const actionsContainer = document.createElement('div');
           actionsContainer.className = 'header-actions';
-          
-          // 1. Favorite Button
-          let isFav = {% if current_user.is_authenticated %}{{ current_user.favorites|tojson }}{% else %}[]{% endif %}.some(f => f.path === currentPath);
-          
-          const favBtn = document.createElement('button');
-          favBtn.className = 'action-pill btn-favorite';
-          if (isFav) favBtn.classList.add('active');
-          
-          function updateFavUI(favState) {
-              const icon = favState ? '&#9733;' : '&#9734;'; // filled vs empty star
-              const text = 'Favorite';
-              favBtn.innerHTML = `<span>${icon}</span> ${text}`;
-              if (favState) favBtn.classList.add('active');
-              else favBtn.classList.remove('active');
-          }
-          updateFavUI(isFav);
-          
-          // Get title from H1 inside header
-          const headerH1 = pageHeader.querySelector('h1');
-          let titleToSave = document.title;
-          if (headerH1) titleToSave = headerH1.textContent.trim();
 
-          favBtn.onclick = () => {
-              toggleFavorite(currentPath, titleToSave, (newFavState) => {
-                  isFav = newFavState;
-                  updateFavUI(isFav);
-              });
-          };
-          actionsContainer.appendChild(favBtn);
+          if (isLoggedIn) {
+              // 1. Favorite Button
+              let isFav = {% if current_user.is_authenticated %}{{ current_user.favorites|tojson }}{% else %}[]{% endif %}.some(f => f.path === currentPath);
 
-          // 2. Reminder Button (Only if mapped)
-          if (devotionKey) {
-              const remindBtn = document.createElement('button');
-              remindBtn.className = 'action-pill btn-reminder';
-              remindBtn.innerHTML = 'Set Reminders';
-              remindBtn.onclick = () => {
-                  const now = new Date();
-                  let minutes = now.getMinutes();
-                  
-                  // Rounding logic: nearest 15
-                  let roundedMinutes = Math.round(minutes / 15) * 15;
-                  
-                  const d = new Date(now);
-                  d.setMinutes(roundedMinutes);
-                  d.setSeconds(0);
-                  
-                  const h = String(d.getHours()).padStart(2, '0');
-                  const m = String(d.getMinutes()).padStart(2, '0');
-                  const timeStr = `${h}:${m}`;
-                  
-                  window.location.href = `/reminders?time=${timeStr}&devotion=${devotionKey}`;
+              const favBtn = document.createElement('button');
+              favBtn.className = 'action-pill btn-favorite';
+              if (isFav) favBtn.classList.add('active');
+
+              function updateFavUI(favState) {
+                  const icon = favState ? '&#9733;' : '&#9734;'; // filled vs empty star
+                  const text = 'Favorite';
+                  favBtn.innerHTML = `<span>${icon}</span> ${text}`;
+                  if (favState) favBtn.classList.add('active');
+                  else favBtn.classList.remove('active');
+              }
+              updateFavUI(isFav);
+
+              // Get title from H1 inside header
+              const headerH1 = pageHeader.querySelector('h1');
+              let titleToSave = document.title;
+              if (headerH1) titleToSave = headerH1.textContent.trim();
+
+              favBtn.onclick = () => {
+                  toggleFavorite(currentPath, titleToSave, (newFavState) => {
+                      isFav = newFavState;
+                      updateFavUI(isFav);
+                  });
               };
-              actionsContainer.appendChild(remindBtn);
+              actionsContainer.appendChild(favBtn);
+
+              // 2. Reminder Button (Only if mapped)
+              if (devotionKey) {
+                  const remindBtn = document.createElement('button');
+                  remindBtn.className = 'action-pill btn-reminder';
+                  remindBtn.innerHTML = 'Set Reminders';
+                  remindBtn.onclick = () => {
+                      const now = new Date();
+                      let minutes = now.getMinutes();
+
+                      // Rounding logic: nearest 15
+                      let roundedMinutes = Math.round(minutes / 15) * 15;
+
+                      const d = new Date(now);
+                      d.setMinutes(roundedMinutes);
+                      d.setSeconds(0);
+
+                      const h = String(d.getHours()).padStart(2, '0');
+                      const m = String(d.getMinutes()).padStart(2, '0');
+                      const timeStr = `${h}:${m}`;
+
+                      window.location.href = `/reminders?time=${timeStr}&devotion=${devotionKey}`;
+                  };
+                  actionsContainer.appendChild(remindBtn);
+              }
           }
+
+          // 3. Print Button (everyone) — clean handout for praying in a group
+          const printBtn = document.createElement('button');
+          printBtn.className = 'action-pill btn-print';
+          printBtn.innerHTML = '<span aria-hidden="true">&#128424;</span> Print';
+          printBtn.onclick = printPage;
+          actionsContainer.appendChild(printBtn);
 
           pageHeader.appendChild(actionsContainer);
       }
 
       document.addEventListener('DOMContentLoaded', injectActionButtons);
+
+      // Print prep: personal prayers never print unless the user opts in
+      // here (print CSS hides #personal-prayers-list without this class).
+      async function printPage() {
+          document.body.classList.remove('print-include-personal');
+          if (document.getElementById('personal-prayers-list')) {
+              const include = await showConfirm(
+                  'Include your personal prayers in the printed copy?',
+                  { okText: 'Include', cancelText: 'Leave Them Out' }
+              );
+              if (include) document.body.classList.add('print-include-personal');
+          }
+          window.print();
+      }
+
+      window.addEventListener('afterprint', () => {
+          document.body.classList.remove('print-include-personal');
+      });
 
       function toggleCard(header) {
         const card = header.parentElement;

@@ -18,6 +18,8 @@ Gains LLC.
 - **Prayer wall & requests** — submit requests, pray for others, mark praise
   reports.
 - **Personal prayers** — private prayer lists, encrypted at rest.
+- **Print mode** — devotion pages print as clean handouts for praying in a
+  group; personal prayers stay off the printout unless explicitly included.
 - **Memory work** — memory verses, catechism memorization, creed studies.
 - **Reminders** — push (FCM), email, and SMS (Twilio) notifications.
 - **PWA** — installable, offline-capable (service worker), with home-screen
