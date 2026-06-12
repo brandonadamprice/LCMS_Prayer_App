@@ -2375,6 +2375,11 @@ select:focus-visible,
     color: #e0e0e0 !important;
     border: 1px solid rgba(255, 255, 255, 0.3) !important;
     backdrop-filter: blur(4px);
+    /* Icon-only pill: tighter than the text pills' 8px 20px */
+    padding: 8px 14px !important;
+}
+.btn-print svg {
+    display: block;
 }
 
 @media print {

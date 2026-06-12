@@ -29,7 +29,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Lora:ital,wght@0,400..700;1,400..700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <noscript><link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Lora:ital,wght@0,400..700;1,400..700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet"></noscript>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}?v=22" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}?v=23" />
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='icons/favicon.ico') }}">
     <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='icons/favicon-32x32.png') }}">
     <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='icons/favicon-16x16.png') }}">
@@ -392,10 +392,13 @@
               }
           }
 
-          // 3. Print Button (everyone) — clean handout for praying in a group
+          // 3. Print Button (everyone) — clean handout for praying in a group.
+          // Icon-only to fit beside the other pills on phone-width banners.
           const printBtn = document.createElement('button');
           printBtn.className = 'action-pill btn-print';
-          printBtn.innerHTML = '<span aria-hidden="true">&#128424;</span> Print';
+          printBtn.setAttribute('aria-label', 'Print');
+          printBtn.title = 'Print';
+          printBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>';
           printBtn.onclick = printPage;
           actionsContainer.appendChild(printBtn);
 
