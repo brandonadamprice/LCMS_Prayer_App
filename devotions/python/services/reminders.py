@@ -418,30 +418,29 @@ def _send_email(
       template_name = "lent_devotion.html"
 
     if data and template_name:
+      # Retired plans (memento / Lent 2026): reminders that still have the
+      # old value stored fall back to office.
+      if psalm_type == "memento":
+        psalm_type = "office"
+      if reading_type == "memento":
+        reading_type = "office"
+
       if psalm_type:
         data["default_psalm_mode"] = psalm_type
-        if psalm_type == "memento" and data.get("memento_reading"):
+        if psalm_type == "psalm_a_day":
           data["office_psalm_style"] = "display: none;"
-          data["memento_psalm_style"] = "display: block;"
-          data["psalm_a_day_style"] = "display: none;"
-        elif psalm_type == "psalm_a_day":
-          data["office_psalm_style"] = "display: none;"
-          data["memento_psalm_style"] = "display: none;"
           data["psalm_a_day_style"] = "display: block;"
         else:
           data["office_psalm_style"] = "display: block;"
-          data["memento_psalm_style"] = "display: none;"
           data["psalm_a_day_style"] = "display: none;"
       else:
         data["office_psalm_style"] = "display: block;"
-        data["memento_psalm_style"] = "display: none;"
         data["psalm_a_day_style"] = "display: none;"
 
       # Initialize all reading styles to hidden
       data["office_reading_style"] = "display: none;"
       data["lectionary_reading_style"] = "display: none;"
       data["bible_year_reading_style"] = "display: none;"
-      data["memento_reading_style"] = "display: none;"
 
       if devotion_key in [
           "morning",
@@ -458,8 +457,6 @@ def _send_email(
             "bible_in_a_year_reading"
         ):
           data["bible_year_reading_style"] = "display: block;"
-        elif reading_type == "memento" and data.get("memento_reading"):
-          data["memento_reading_style"] = "display: block;"
         else:
           # Default to office reading
           data["office_reading_style"] = "display: block;"
@@ -483,12 +480,10 @@ def _send_email(
           "office": "Office Reading (Rotating)",
           "lectionary": "Daily Lectionary (Church Year)",
           "bible_in_a_year": "Bible in a Year",
-          "memento": "Memento Mori (Lent 2026)",
       }
       psalm_names = {
           "office": "Office Psalm (Rotating)",
           "psalm_a_day": "A Psalm a Day",
-          "memento": "Memento Mori (Lent 2026)",
       }
       # Default to office if not specified or unknown
       data["reading_plan_name"] = reading_names.get(

@@ -36,7 +36,6 @@ INAPPROPRIATE_WORDS_CSV_PATH = os.path.join(DATA_DIR, "inappropriate_words.csv")
 MID_WEEK_READINGS_JSON_PATH = os.path.join(DATA_DIR, "mid_week_readings.json")
 LITURGICAL_YEAR_JSON_PATH = os.path.join(DATA_DIR, "liturgical_year.json")
 BIBLE_IN_A_YEAR_JSON_PATH = os.path.join(DATA_DIR, "bible_in_a_year.json")
-MEMENTO_READINGS_JSON_PATH = os.path.join(DATA_DIR, "memento_readings.json")
 
 # Default timezone for the app (US Eastern). Used wherever a user has no
 # timezone set or supplies an unrecognized one.
@@ -288,17 +287,6 @@ def load_bible_in_a_year_data():
     return json.load(f)
 
 
-@functools.lru_cache(maxsize=1)
-def load_memento_readings():
-  """Loads memento readings from JSON file (cached; treat as read-only)."""
-  try:
-    with open(MEMENTO_READINGS_JSON_PATH, "r", encoding="utf-8") as f:
-      return json.load(f)
-  except FileNotFoundError:
-    logger.warning(f"Warning: {MEMENTO_READINGS_JSON_PATH} not found.")
-    return []
-
-
 WEEKLY_PRAYERS = load_weekly_prayers()
 OFFICE_READINGS = load_office_readings()
 OTHER_PRAYERS = load_other_prayers()
@@ -513,32 +501,6 @@ def get_devotion_data(now: datetime.datetime, user_id=None) -> dict:
 
   # Determine Default Reading Mode based on User Preferences (for extended_evening)
   default_reading_mode = "office"
-  # Memento Check (if memento readings are relevant for this general devotion function)
-  # This function is used by extended_evening.
-  memento_reading = get_memento_reading_for_date(now)
-  memento_data = None
-
-  if memento_reading:
-    # Fetch if needed, or pass ref. Extended evening template fetches via JS if separate,
-    # but let's be consistent and pass refs if template uses them.
-    # The template uses 'memento_reading' object with nt_ref, psalms_ref etc.
-    # We need to populate texts if we want server-side rendering, but extended evening
-    # template seems to rely on fetching art or passed variables.
-    # Looking at `extended_evening_devotion.html`, it uses `memento_reading.nt_text`.
-    # So we must fetch texts here too.
-
-    try:
-      mt_texts = fetch_passages(
-          [memento_reading["nt_reading"], memento_reading["psalms_reading"]]
-      )
-      memento_data = {
-          "nt_ref": memento_reading["nt_reading"],
-          "nt_text": mt_texts[0],
-          "psalms_ref": memento_reading["psalms_reading"],
-          "psalms_text": mt_texts[1],
-      }
-    except Exception as e:
-      logger.error(f"Error fetching memento texts for extended evening: {e}")
 
   if user_id:
     user = flask_login.current_user
@@ -546,8 +508,8 @@ def get_devotion_data(now: datetime.datetime, user_id=None) -> dict:
       pref = user.reading_preferences.get("extended_evening")
       if pref:
         default_reading_mode = pref
-        # Fallback
-        if default_reading_mode == "memento" and not memento_reading:
+        # Retired plans (memento / Lent 2026) fall back to office
+        if default_reading_mode == "memento":
           default_reading_mode = "office"
 
   # 7. Combine data
@@ -557,7 +519,6 @@ def get_devotion_data(now: datetime.datetime, user_id=None) -> dict:
       "key": key,
       "default_reading_mode": default_reading_mode,
       "bible_in_a_year_reading": bible_in_a_year_data,
-      "memento_reading": memento_data,
       "psalm_ref": psalm_ref,
       "psalm_text": psalm_text,
       "ot_reading_ref": readings["OT"],
@@ -755,17 +716,6 @@ def get_bible_in_a_year_devotion_data(user_id=None, date_obj=None, current_day=N
   }
 
 
-def get_memento_reading_for_date(date_obj):
-  """Gets memento reading for a specific date."""
-  readings = load_memento_readings()
-  # Memento format is "Sun, Feb 01, 2026"
-  date_str = date_obj.strftime("%a, %b %d, %Y")
-  for r in readings:
-    if r["date"] == date_str:
-      return r
-  return None
-
-
 def get_office_devotion_data(user_id, office_name, date_obj=None):
   """Generates data for an office devotion (Morning, Evening, etc.)."""
   eastern_timezone = EASTERN_TZ
@@ -801,30 +751,13 @@ def get_office_devotion_data(user_id, office_name, date_obj=None):
       user_id, now, current_day=_bia_current_day_from_user(user_id, now)
   )
 
-  # Memento Reading
-  memento_reading = get_memento_reading_for_date(now)
-  memento_data = None
-
   all_refs = [reading_ref, psalm_ref, psalm_a_day_ref] + daily_lectionary_readings
-
-  if memento_reading:
-    all_refs.append(memento_reading["nt_reading"])
-    all_refs.append(memento_reading["psalms_reading"])
 
   all_texts = fetch_passages(all_refs)
   reading_text = all_texts[0]
   psalm_text = all_texts[1]
   psalm_a_day_text = all_texts[2]
   lectionary_texts = all_texts[3 : 3 + len(daily_lectionary_readings)]
-
-  if memento_reading:
-    memento_texts_start = 3 + len(daily_lectionary_readings)
-    memento_data = {
-        "nt_ref": memento_reading["nt_reading"],
-        "nt_text": all_texts[memento_texts_start],
-        "psalms_ref": memento_reading["psalms_reading"],
-        "psalms_text": all_texts[memento_texts_start + 1],
-    }
 
   # Determine Default Reading Mode based on User Preferences
   default_reading_mode = "office"
@@ -844,22 +777,22 @@ def get_office_devotion_data(user_id, office_name, date_obj=None):
       pref = user.reading_preferences.get(office_name)
       if pref:
         default_reading_mode = pref
-        # Fallback logic
-        if default_reading_mode == "memento" and not memento_reading:
+        # Retired plans (memento / Lent 2026) fall back to office
+        if default_reading_mode == "memento":
           default_reading_mode = "office"
         elif (
             default_reading_mode == "lectionary"
             and not daily_lectionary_readings
         ):
           default_reading_mode = "office"
-    
+
     # Psalm Preferences
     if hasattr(user, "psalm_preferences"):
         psalm_pref = user.psalm_preferences.get(office_name)
         if psalm_pref:
             default_psalm_mode = psalm_pref
-            # Fallback for memento
-            if default_psalm_mode == "memento" and not memento_reading:
+            # Retired plans (memento / Lent 2026) fall back to office
+            if default_psalm_mode == "memento":
                 default_psalm_mode = "office"
 
   # Compute prev/next date for navigation (shared with the dated devotions).
@@ -877,7 +810,6 @@ def get_office_devotion_data(user_id, office_name, date_obj=None):
       "daily_lectionary_readings": daily_lectionary_readings,
       "lectionary_texts": lectionary_texts,
       "bible_in_a_year_reading": bible_in_a_year_data,
-      "memento_reading": memento_data,
       "reading_ref": reading_ref,
       "reading_options": OFFICE_READINGS[readings_key],
       "reading_text": reading_text,

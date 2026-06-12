@@ -56,12 +56,6 @@
             <div>{{ psalm_a_day_text|safe }}</div>
         </div>
         
-        <div id="memento-psalm-container" style="{{ memento_psalm_style|default('display: none;') }}">
-            {% if memento_reading %}
-                <span class="ref">{{ memento_reading.psalms_ref }}</span>
-                <div>{{ memento_reading.psalms_text|safe }}</div>
-            {% endif %}
-        </div>
 
         <div style="margin-top: 15px;">
             <label for="psalm-mode-select" style="font-weight: bold;">Psalmody Plan:</label>
@@ -71,9 +65,6 @@
             <select id="psalm-mode-select" onchange="setPsalmMode(this.value)" class="form-input" style="width: auto; padding: 5px;">
                 <option value="office">Office Psalm (Rotating)</option>
                 <option value="psalm_a_day">A Psalm a Day</option>
-                {% if memento_reading %}
-                <option value="memento">Memento Mori (Lent 2026)</option>
-                {% endif %}
             </select>
             {% endif %}
         </div>
@@ -81,16 +72,12 @@
             async function setPsalmMode(mode) {
                 const office = document.getElementById('office-psalm-container');
                 const psalmADay = document.getElementById('psalm-a-day-container');
-                const memento = document.getElementById('memento-psalm-container');
                 
                 // Hide all
                 if(office) office.style.display = 'none';
                 if(psalmADay) psalmADay.style.display = 'none';
-                if(memento) memento.style.display = 'none';
 
-                if (mode === 'memento') {
-                    if(memento) memento.style.display = 'block';
-                } else if (mode === 'psalm_a_day') {
+                if (mode === 'psalm_a_day') {
                     if(psalmADay) psalmADay.style.display = 'block';
                 } else {
                     if(office) office.style.display = 'block';
@@ -120,7 +107,10 @@
 
                 const select = document.getElementById('psalm-mode-select');
                 if (select) {
-                    const modeToUse = forcedMode || defaultMode;
+                    // Only known plans; retired values (e.g. memento in
+                    // old reminder-email links) fall back to the default.
+                    const validModes = ['office', 'psalm_a_day'];
+                    const modeToUse = validModes.includes(forcedMode) ? forcedMode : defaultMode;
                     select.value = modeToUse;
                     setPsalmMode(modeToUse);
                 }
@@ -130,7 +120,7 @@
         {{ macros.format_prayer(config['OTHER_PRAYERS']['gloria_patri']) }}
     {% endcall %}
 
-    {{ macros.reading_card(reading_ref, reading_text, reading_options, daily_lectionary_readings, lectionary_texts, bible_in_a_year_reading, memento_reading) }}
+    {{ macros.reading_card(reading_ref, reading_text, reading_options, daily_lectionary_readings, lectionary_texts, bible_in_a_year_reading) }}
 
     {% call macros.card('Creed') %}
         {% if is_trinity_sunday %}
