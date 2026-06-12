@@ -62,12 +62,14 @@
             <p class="subheader"><strong>{{ prayer.topic }}</strong></p>
             <p>{{ prayer.prayer }}</p>
             {% if prayer.personal_prayers %}
-              <p class="subheader"><strong>Your Personal Prayers for this Topic</strong></p>
-              <ul>
-              {% for p in prayer.personal_prayers %}
-                <li>{% if p.for_whom %}<strong>(For {{ p.for_whom }}):</strong> {% endif %}{{ p.text }}</li>
-              {% endfor %}
-              </ul>
+              <div class="personal-prayers-block">
+                <p class="subheader"><strong>Your Personal Prayers for this Topic</strong></p>
+                <ul>
+                {% for p in prayer.personal_prayers %}
+                  <li>{% if p.for_whom %}<strong>(For {{ p.for_whom }}):</strong> {% endif %}{{ p.text }}</li>
+                {% endfor %}
+                </ul>
+              </div>
             {% endif %}
             {% if not loop.last %}<hr />{% endif %}
         {% endfor %}

@@ -2476,11 +2476,16 @@ select:focus-visible,
         text-decoration: none;
     }
 
-    /* Personal prayers stay private unless explicitly included */
-    #personal-prayers-list {
+    /* Personal prayers stay private unless explicitly included. Every
+       template that renders personal prayers must wrap them in
+       .personal-prayers-block (mid-week interleaves them per topic, so an
+       ID is not enough). */
+    #personal-prayers-list,
+    .personal-prayers-block {
         display: none !important;
     }
-    body.print-include-personal #personal-prayers-list {
+    body.print-include-personal #personal-prayers-list,
+    body.print-include-personal .personal-prayers-block {
         display: block !important;
     }
 }
