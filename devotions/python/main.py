@@ -176,6 +176,76 @@ def set_static_cache_headers(response):
   return response
 
 
+# Report-Only Content-Security-Policy. It never blocks anything; it reports (to
+# /csp-report and the browser console) what an enforced policy would need to
+# allow. 'unsafe-inline' is included because the templates use inline scripts
+# and styles today, so reports surface unexpected *external* sources rather than
+# the known inline usage. External origins are grounded in what the templates
+# actually load: GA / Tag Manager, the Firebase SDK (gstatic), Google Fonts,
+# d3js, jsDelivr, and the Firebase / Google auth frames.
+CSP_REPORT_ONLY = "; ".join([
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com"
+    " https://www.gstatic.com https://d3js.org https://cdn.jsdelivr.net",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com"
+    " https://cdn.jsdelivr.net",
+    "font-src 'self' https://fonts.gstatic.com",
+    "img-src 'self' data: https:",
+    "connect-src 'self' https://www.google-analytics.com"
+    " https://www.googletagmanager.com https://analytics.google.com"
+    " https://identitytoolkit.googleapis.com https://securetoken.googleapis.com"
+    " https://*.googleapis.com",
+    "frame-src 'self' https://*.firebaseapp.com https://accounts.google.com"
+    " https://docs.google.com",
+    "frame-ancestors 'self'",
+    "base-uri 'self'",
+    "form-action 'self' https://accounts.google.com",
+    "report-uri /csp-report",
+])
+
+
+@app.after_request
+def set_security_headers(response):
+  """Adds defensive security headers to every response.
+
+  CSP is sent in Report-Only mode for now: it never blocks anything, it only
+  surfaces (via /csp-report and the browser console) what a future enforced
+  policy would need to allow. The remaining headers are zero-risk hardening.
+  setdefault is used so an individual route may still override any of them.
+  """
+  response.headers.setdefault("X-Content-Type-Options", "nosniff")
+  response.headers.setdefault("X-Frame-Options", "SAMEORIGIN")
+  response.headers.setdefault(
+      "Referrer-Policy", "strict-origin-when-cross-origin"
+  )
+  # HSTS only over HTTPS (ProxyFix derives request.is_secure from
+  # X-Forwarded-Proto), so local http development isn't pinned to HTTPS.
+  if flask.request.is_secure:
+    response.headers.setdefault(
+        "Strict-Transport-Security", "max-age=31536000"
+    )
+  # CSP applies to documents; skip it on static asset (CSS/JS/image) responses.
+  if response.mimetype == "text/html":
+    response.headers.setdefault(
+        "Content-Security-Policy-Report-Only", CSP_REPORT_ONLY
+    )
+  return response
+
+
+@app.route("/csp-report", methods=["POST"])
+def csp_report_route():
+  """Logs Content-Security-Policy violation reports (Report-Only mode).
+
+  Unauthenticated by design -- browsers POST these reports without credentials.
+  Kept deliberately minimal: only payloads that look like CSP reports are logged
+  (truncated), and it always returns 204.
+  """
+  body = flask.request.get_data(as_text=True) or ""
+  if "violated-directive" in body or "csp-report" in body:
+    app.logger.warning("CSP report: %s", body[:2000])
+  return ("", 204)
+
+
 def admin_required(f):
   """Aborts with 403 unless the current user is the configured admin.
 

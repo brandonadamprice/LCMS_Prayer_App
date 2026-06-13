@@ -77,12 +77,20 @@ Recommended batching:
       Twilio's `RequestValidator` against the `X-Twilio-Signature` header.
       _Effort: S._
 
-- [ ] **5. Add security headers** — The only `@app.after_request`
+- [x] **5. Add security headers** — The only `@app.after_request`
       ([main.py:163](devotions/python/main.py#L163)) sets cache headers. Missing:
       `Content-Security-Policy`, `Strict-Transport-Security`, `X-Frame-Options`,
-      `X-Content-Type-Options: nosniff`, `Referrer-Policy`. Add them in that same
-      handler. A CSP also covers the trusted-HTML concern noted in Corrections.
-      Allow-list needed: Google Fonts, GA, Firebase Auth origins. _Effort: S._
+      `X-Content-Type-Options: nosniff`, `Referrer-Policy`. _Effort: S._
+      _Done: new `set_security_headers` after_request adds `X-Content-Type-Options:
+      nosniff`, `X-Frame-Options: SAMEORIGIN`, `Referrer-Policy:
+      strict-origin-when-cross-origin`, and HSTS (`max-age=31536000`, HTTPS-only via
+      `request.is_secure`). CSP is shipped **Report-Only** (per user choice) on HTML
+      responses, with a minimal `/csp-report` log sink — it observes violations
+      without blocking, so we can tune a real policy before enforcing._
+      _**Follow-ups before enforcing CSP:** (a) watch `/csp-report` logs for missed
+      origins; (b) decide whether to keep `'unsafe-inline'` or refactor inline
+      scripts/styles to nonces; (c) consider `includeSubDomains`/`preload` on HSTS
+      once subdomains are confirmed HTTPS-only._
 
 ### Performance (cheap wins)
 
