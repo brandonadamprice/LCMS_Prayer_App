@@ -43,6 +43,7 @@ from services import fullofeyes_scraper
 from services import prayer_requests
 from services import reminders
 from services import users
+from twilio.request_validator import RequestValidator
 from twilio.twiml.messaging_response import MessagingResponse
 import utils
 import werkzeug.middleware.proxy_fix
@@ -2167,10 +2168,38 @@ def delete_reminder_route():
   return flask.jsonify({"success": False, "error": "Failed to delete"}), 500
 
 
+def _is_authorized_task_request():
+  """Returns True if the caller is an authorized cron/task invoker.
+
+  Accepts the App Engine / Cloud Scheduler cron header (which Google strips from
+  external requests) or a shared secret in X-Tasks-Secret matching TASKS_SECRET.
+  When TASKS_SECRET is unset the endpoint stays open (its prior behavior) but
+  logs a warning, so deploying this change doesn't break an existing scheduler
+  before the secret and the scheduler's header are wired up.
+  """
+  if flask.request.headers.get("X-Appengine-Cron") == "true":
+    return True
+  expected = secrets_fetcher.get_tasks_secret()
+  if not expected:
+    app.logger.warning(
+        "/tasks/send_reminders invoked without TASKS_SECRET configured;"
+        " allowing unauthenticated. Set TASKS_SECRET to enforce."
+    )
+    return True
+  provided = flask.request.headers.get("X-Tasks-Secret", "")
+  if secrets.compare_digest(provided, expected):
+    return True
+  app.logger.warning(
+      "Rejected /tasks/send_reminders: missing or invalid X-Tasks-Secret."
+  )
+  return False
+
+
 @app.route("/tasks/send_reminders")
 def send_reminders_task():
   """Cron task to send due reminders."""
-  # In a real app, secure this endpoint (e.g. check for X-AppEngine-Cron header)
+  if not _is_authorized_task_request():
+    return flask.abort(403)
   reminders.send_due_reminders()
   return "OK", 200
 
@@ -2410,6 +2439,27 @@ def streaks_route():
 @app.route("/twilio/sms_reply", methods=["POST"])
 def twilio_sms_reply():
   """Handles incoming SMS replies from Twilio."""
+  # Reject forged webhooks. Twilio signs every request with the account auth
+  # token over the full URL + POST params, so verifying X-Twilio-Signature stops
+  # a spoofed STOP from disabling someone's SMS. If the token isn't configured
+  # (e.g. a non-prod environment) validation is skipped with a warning.
+  auth_token = secrets_fetcher.get_twilio_api_key()
+  if auth_token:
+    validator = RequestValidator(auth_token)
+    signature = flask.request.headers.get("X-Twilio-Signature", "")
+    if not validator.validate(
+        flask.request.url, flask.request.form, signature
+    ):
+      app.logger.warning(
+          "Rejected Twilio webhook with invalid signature (url=%s)",
+          flask.request.url,
+      )
+      return flask.abort(403)
+  else:
+    app.logger.warning(
+        "Twilio auth token not configured; skipping webhook signature check."
+    )
+
   incoming_msg = flask.request.values.get("Body", "").strip().upper()
   from_number = flask.request.values.get("From", "")
 

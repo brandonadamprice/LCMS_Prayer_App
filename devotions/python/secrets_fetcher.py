@@ -130,6 +130,16 @@ def get_twilio_phone_number():
   return _get_secret("TWILIO_PHONE_NUMBER", "TWILIO_PHONE_NUMBER")
 
 
+def get_tasks_secret():
+  """Fetches the shared secret authorizing cron/task endpoints (optional).
+
+  Returns None when unset, in which case task endpoints stay open (their prior
+  behavior). Set this secret -- and have the scheduler send it in the
+  X-Tasks-Secret header -- to require authentication.
+  """
+  return _get_secret("TASKS_SECRET", "TASKS_SECRET")
+
+
 def get_smtp_server():
   """Returns the SMTP server address."""
   return "smtp.gmail.com"

@@ -38,12 +38,23 @@ Recommended batching:
 
 ### Security
 
-- [ ] **1. Auth-gate the cron endpoint** — `/tasks/send_reminders`
-      ([main.py:2101](devotions/python/main.py#L2101)) has **no authentication**;
-      the code comment even says so. Anyone hitting the URL triggers a full
-      reminder send to every user (notification spam, Twilio/email cost, DoS).
-      **Fix:** require a Cloud Scheduler OIDC token, or check a shared-secret
-      header (e.g. `X-Tasks-Secret` fetched from Secret Manager). _Effort: S._
+- [x] **1. Auth-gate the cron endpoint** — `/tasks/send_reminders` had **no
+      authentication**; anyone hitting the URL triggered a full reminder send
+      (spam, Twilio/email cost, DoS). _Effort: S._
+      _Done (code), **enforcement pending your GCP config**: the route now accepts
+      either an `X-Appengine-Cron: true` header (honored automatically if you use
+      App Engine cron) or an `X-Tasks-Secret` header matching a new `TASKS_SECRET`
+      secret (`secrets_fetcher.get_tasks_secret`, constant-time compare). It is
+      **fail-open until `TASKS_SECRET` is set** — deploying this does NOT break the
+      reminder job; it just logs a warning each call until you enforce._
+      _**To enforce (do in this order to avoid a self-lockout):**_
+      _1. Add header `X-Tasks-Secret: <value>` to the Cloud Scheduler job (harmless
+      while no secret is set — the app ignores it)._
+      _2. Create the `TASKS_SECRET` secret (Secret Manager or env) = `<value>`._
+      _Once the secret exists, unauthenticated calls get 403; the scheduler already
+      sends the header, so no outage. (App Engine cron users can skip both steps.)_
+      _Alternative if preferred: switch to Cloud Scheduler OIDC tokens instead of a
+      shared secret — say the word and I'll swap the mechanism._
 
 - [ ] **2. CSRF on form routes + reconsider `SameSite=None`** — No `CSRFProtect`
       anywhere in the repo, and [main.py:74](devotions/python/main.py#L74) sets
@@ -71,11 +82,16 @@ Recommended batching:
       routes; compare codes with `secrets.compare_digest`; cap verification
       attempts. _Effort: S–M._
 
-- [ ] **4. Validate the Twilio webhook signature** — `/twilio/sms_reply`
-      ([main.py:2341](devotions/python/main.py#L2341)) is unauthenticated; a
-      spoofed POST can fake a "STOP" and disable a user's SMS. **Fix:** use
-      Twilio's `RequestValidator` against the `X-Twilio-Signature` header.
-      _Effort: S._
+- [x] **4. Validate the Twilio webhook signature** — `/twilio/sms_reply` was
+      unauthenticated; a spoofed POST could fake a "STOP" and disable a user's
+      SMS. _Effort: S._
+      _Done: validates `X-Twilio-Signature` via Twilio's `RequestValidator` over
+      `request.url` + form params, returns 403 on mismatch. Backward-compatible
+      (Twilio signs every request); if the auth token isn't configured it skips
+      with a warning rather than hard-failing. Round-trip verified (valid sig
+      accepted, forged sig rejected). If STOP handling ever 403s in prod, check the
+      logged `url=` — it must match Twilio's configured webhook URL exactly
+      (ProxyFix should make `request.url` the public https URL)._
 
 - [x] **5. Add security headers** — The only `@app.after_request`
       ([main.py:163](devotions/python/main.py#L163)) sets cache headers. Missing:
