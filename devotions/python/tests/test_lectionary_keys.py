@@ -1,27 +1,35 @@
-"""Regression tests for liturgy.ChurchYear.get_mid_week_lectionary_key.
+"""Regression tests for liturgy lectionary-key resolution.
 
-The mid-week devotion looks up readings by the liturgical "key" returned here.
-Earlier code counted raw 7-day blocks from Advent 1, which drifted by one or
-two weeks because the number of Sundays after Epiphany and after Trinity
-varies with the date of Easter. These tests verify that the key returned for
-each significant date in two contrasting church years (2025-2026 with late
-Easter; 2026-2027 with early Easter) matches the official LCMS one-year
-series calendar.
+Covers ChurchYear.get_mid_week_lectionary_key and full-year coverage of
+get_liturgical_key against the daily lectionary. The mid-week devotion looks up
+readings by the liturgical "key" returned here. Earlier code counted raw 7-day
+blocks from Advent 1, which drifted by one or two weeks because the number of
+Sundays after Epiphany and after Trinity varies with the date of Easter. These
+tests verify that the key returned for each significant date in two contrasting
+church years (2025-2026 with late Easter; 2026-2027 with early Easter) matches
+the official LCMS one-year series calendar.
 
-Run from the devotions/python directory:
-    python3 -m unittest test_liturgy
+liturgy imports only the standard library, so this suite runs without the
+google-cloud / protobuf stack (which currently can't import under Python 3.14).
+Run from the repo root:
+
+    python -m unittest discover -s devotions/python/tests -t devotions/python
 """
 
 import datetime
 import json
 import os
+import sys
 import unittest
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import liturgy
 
 
 DAILY_LECTIONARY_PATH = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
+    "..",
     "..",
     "data",
     "daily_lectionary.json",

@@ -127,18 +127,26 @@ Recommended batching:
 
 ### Structure & hygiene
 
-- [ ] **11. Fix the bare `except:`** —
-      [main.py:1808](devotions/python/main.py#L1808) swallows everything (incl.
+- [x] **11. Fix the bare `except:`** —
+      [main.py:1808](devotions/python/main.py#L1808) swallowed everything (incl.
       `KeyboardInterrupt`/`SystemExit`) with no logging, around a
       `utils.fetch_passages` validation call. Change to `except Exception as e:`
       and log it. _Effort: S._
+      _Done: now `except Exception as e:` with `app.logger.warning(...)`._
 
-- [ ] **12. Cleanup: delete duplicate test + pin deps** —
-      - `devotions/python/test_liturgy.py` duplicates
-        `devotions/python/tests/test_liturgy.py`. Delete the stray root-level one.
-      - In [requirements.txt](devotions/requirements.txt), `cryptography`,
-        `requests`, `pandas`, `twilio`, `beautifulsoup4` are **unpinned**. Pin
-        `cryptography` first (it guards the encrypted prayers); pin the rest for
+- [x] **12. Cleanup: relocate orphaned test + pin deps** —
+      - **CORRECTION:** the two `test_liturgy.py` files were **not** duplicates —
+        different sizes, different suites. The root one
+        (`MidWeekLectionaryKeyTest` + `DailyLectionaryCoverageTest`) was
+        **orphaned**: the documented discover command (`-s devotions/python/tests`)
+        never ran it, so ~5 valuable tests sat dead. Instead of deleting, **moved**
+        it to `devotions/python/tests/test_lectionary_keys.py` (fixed the relative
+        data path, added the sys.path shim its sibling uses). Suite now runs
+        **89 tests** (was 84).
+      - In [requirements.txt](devotions/requirements.txt), pinned `cryptography`,
+        `requests`, `pandas`, `twilio`, `beautifulsoup4` to the versions currently
+        resolved in the venv (cryptography==48.0.0, requests==2.34.2, pandas==3.0.3,
+        twilio==9.10.9, beautifulsoup4==4.14.3) — no behavior change, just
         reproducible builds. _Effort: S._
 
 - [ ] **13. (Larger) Split `main.py` into Blueprints** — 2,413 lines / 97 routes in

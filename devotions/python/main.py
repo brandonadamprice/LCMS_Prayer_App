@@ -1803,7 +1803,8 @@ def add_memory_verse_route():
     utils.fetch_passages(
         [ref], include_verse_numbers=False, include_copyright=False
     )
-  except:
+  except Exception as e:  # pylint: disable=broad-except
+    app.logger.warning("Memory-verse ref validation failed for %r: %s", ref, e)
     flask.flash(f"Could not validate reference: {ref}", "error")
     return flask.redirect(flask.url_for("memory_route"))
 
