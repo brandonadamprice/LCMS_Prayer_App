@@ -86,23 +86,31 @@ Recommended batching:
 
 ### Performance (cheap wins)
 
-- [ ] **6. Remove duplicate startup data load** —
-      [main.py:77](devotions/python/main.py#L77) sets
-      `app.config["OTHER_PRAYERS"] = utils.get_other_prayers()` even though callers
-      already call it on demand (and it's `lru_cache`d). Delete the line.
-      _Effort: S._
+- [x] ~~**6. Remove duplicate startup data load**~~ — **DROPPED: false positive.**
+      Verified that [main.py:77](devotions/python/main.py#L77)
+      (`app.config["OTHER_PRAYERS"] = utils.get_other_prayers()`) is **not** a
+      redundant disk load: `utils.get_other_prayers()` returns an
+      already-in-memory module-level dict, and ~10 devotion templates read it via
+      `config['OTHER_PRAYERS'][...]` (morning, evening, close_of_day, lent, etc.).
+      Deleting the line would break those pages. No change made.
 
-- [ ] **7. Drop the redundant Firestore read in Bible-in-a-Year route** — the route
+- [x] **7. Drop the redundant Firestore read in Bible-in-a-Year route** — the route
       re-fetches the user doc that's already loaded on `current_user`
       (`bia_progress`, `completed_bible_days`, `bible_streak_count` are all
       attributes). Use `flask_login.current_user.*` instead. Saves one read per
       page view. _Effort: S._
+      _Done: reads `current_user.{bia_progress,completed_bible_days,bible_streak_count}`;
+      also aligns the page's streak with the (lapse-adjusted) nav streak._
 
-- [ ] **8. Bound the prayer-wall query** —
+- [x] **8. Bound the prayer-wall query** —
       `get_active_prayer_requests()`
       ([prayer_requests.py](devotions/python/services/prayer_requests.py)) streams
       the entire non-expired collection to then randomly sample 10. Add
       `.limit(50)` to the query. _Effort: S._
+      _Done: added optional `limit` to `get_active_prayer_requests` (default
+      `None` = unchanged); wall + random-picker now pass a 100-row cap, answered
+      praise-report path stays unbounded. Behavior identical until >100 active
+      requests exist._
 
 - [ ] **9. Don't block page render on the fullofeyes scraper** —
       `_get_soup()` ([fullofeyes_scraper.py:66](devotions/python/services/fullofeyes_scraper.py#L66))
@@ -110,9 +118,12 @@ Recommended batching:
       Cache results with a long TTL (24h) or move the fetch off the request path.
       _Effort: S–M._
 
-- [ ] **10. Memoize menu generation** — the context processor recomputes the menu
+- [x] **10. Memoize menu generation** — the context processor recomputes the menu
       every request though it only changes a few times a year. `@lru_cache` keyed
       on the seasonal flags (`is_advent`, `is_new_year`, `is_lent`). _Effort: S._
+      _Done: `@functools.lru_cache` on `menu.get_menu_items`. Note: the church-year
+      calc in the same context processor was already cached (`liturgy.get_church_year`,
+      lru_cache), so this is the smaller remaining win._
 
 ### Structure & hygiene
 

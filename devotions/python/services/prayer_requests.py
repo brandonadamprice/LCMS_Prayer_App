@@ -19,6 +19,13 @@ COLLECTION_NAME = "prayer-requests"
 # this many days so it doesn't vanish from the wall right after being answered.
 ANSWERED_LINGER_DAYS = 14
 
+# Callers that only need a small random sample of active requests (the prayer
+# wall, the random intercession picker) cap the Firestore read at this many of
+# the most recently created requests, so a large collection can't force an
+# unbounded stream. Well above the handful actually displayed, so behavior is
+# unchanged until the active set grows past this size.
+WALL_SAMPLE_FETCH_LIMIT = 100
+
 # Throttle for the expired-request sweep. Without this, every prayer-wall view
 # triggered a full collection scan for expired docs. We sweep at most once per
 # interval per process; the sweep is idempotent, so per-worker throttling is
@@ -80,8 +87,14 @@ def add_prayer_request(
   return True, None
 
 
-def get_active_prayer_requests():
-  """Returns a list of active prayer requests from Firestore."""
+def get_active_prayer_requests(limit: int | None = None):
+  """Returns a list of active prayer requests from Firestore.
+
+  When `limit` is given, only the most recently created N active requests are
+  fetched. Callers that randomly sample a handful pass a generous cap so a large
+  collection can't force an unbounded stream; callers that need the full set
+  (e.g. answered praise reports, sorted by answer date) leave it unset.
+  """
   db = utils.get_db_client()
   now = datetime.datetime.now(datetime.timezone.utc)
   collection_ref = db.collection(COLLECTION_NAME)
@@ -89,6 +102,8 @@ def get_active_prayer_requests():
   query = collection_ref.where(
       filter=base_query.FieldFilter("expires_at", ">", now)
   ).order_by("created_at", direction=firestore_query_module.Query.DESCENDING)
+  if limit is not None:
+    query = query.limit(limit)
   docs = query.stream()
   requests = []
   for doc in docs:
@@ -101,7 +116,9 @@ def get_active_prayer_requests():
 def get_prayer_wall_requests(limit: int = 10) -> list[dict]:
   """Returns a random sample of active, unanswered prayer requests."""
   active_requests = [
-      r for r in get_active_prayer_requests() if not r.get("answered")
+      r
+      for r in get_active_prayer_requests(limit=WALL_SAMPLE_FETCH_LIMIT)
+      if not r.get("answered")
   ]
   if not active_requests:
     return []
@@ -123,7 +140,9 @@ def get_answered_prayer_requests(limit: int = 10) -> list[dict]:
 def get_random_prayer_request(exclude_user_id: str = None) -> dict | None:
   """Returns a single random active prayer request, optionally excluding a user."""
   active_requests = [
-      r for r in get_active_prayer_requests() if not r.get("answered")
+      r
+      for r in get_active_prayer_requests(limit=WALL_SAMPLE_FETCH_LIMIT)
+      if not r.get("answered")
   ]
 
   if exclude_user_id:

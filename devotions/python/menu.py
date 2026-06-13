@@ -1,8 +1,17 @@
 """Defines the application menu structure."""
 
+import functools
 
+
+@functools.lru_cache(maxsize=None)
 def get_menu_items(is_advent, is_new_year, is_lent):
-  """Returns the list of menu items with their properties."""
+  """Returns the list of menu items with their properties.
+
+  The result depends only on the three seasonal booleans (at most eight
+  combinations), so it is memoized to avoid rebuilding the structure on every
+  request. Callers must treat the returned list as read-only -- it is shared
+  across requests.
+  """
   return [
       {
           "label": "Daily Prayer",

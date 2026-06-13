@@ -1221,13 +1221,11 @@ def bible_in_a_year_route():
   bible_streak = 0
 
   if flask_login.current_user.is_authenticated:
-    db = utils.get_db_client()
-    doc = db.collection("users").document(flask_login.current_user.id).get()
-    if doc.exists:
-      data = doc.to_dict()
-      bia_progress = data.get("bia_progress")
-      completed_days = data.get("completed_bible_days", [])
-      bible_streak = data.get("bible_streak_count", 0)
+    # The user document is already loaded onto current_user by the Flask-Login
+    # user_loader, so read from it instead of issuing a second Firestore get.
+    bia_progress = flask_login.current_user.bia_progress
+    completed_days = flask_login.current_user.completed_bible_days
+    bible_streak = flask_login.current_user.bible_streak_count
 
   return bible_in_a_year.generate_bible_in_a_year_page(
       bia_progress, completed_days, bible_streak
