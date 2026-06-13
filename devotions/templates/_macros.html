@@ -12,9 +12,11 @@
 
 {% macro card(title, collapsed=False) %}
 <div class="card{% if collapsed %} collapsed{% endif %}">
-  <div class="card-header" onclick="toggleCard(this)">
+  <div class="card-header" role="button" tabindex="0"
+       aria-expanded="{{ 'false' if collapsed else 'true' }}"
+       onclick="toggleCard(this)" onkeydown="handleCardKeydown(event, this)">
     <h2>{{ title|safe }}</h2>
-    <span class="toggle-icon">▼</span>
+    <span class="toggle-icon" aria-hidden="true">▼</span>
   </div>
   <div class="card-content">
     {{ caller() }}

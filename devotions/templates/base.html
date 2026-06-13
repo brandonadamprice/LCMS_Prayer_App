@@ -99,7 +99,7 @@
             <span style="margin-right: 5px;">🔥</span> <span id="nav-streak-count">{{ current_user.streak_count }}</span>
         </a>
         {% endif %}
-        <button id="menu-button" aria-label="Menu">&#9776;</button>
+        <button id="menu-button" aria-label="Menu" aria-haspopup="true" aria-expanded="false" aria-controls="app-menu">&#9776;</button>
         <div id="app-menu">
           <div class="app-menu-section">
             <strong>Account</strong>
@@ -171,7 +171,7 @@
       </footer>
     </main>
 
-    <div id="milestone-modal" class="modal">
+    <div id="milestone-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="milestone-title">
         <div class="modal-content milestone-content">
             <span class="close-modal" onclick="closeMilestoneModal()">&times;</span>
             <div class="milestone-badge">🔥</div>
@@ -429,7 +429,17 @@
 
       function toggleCard(header) {
         const card = header.parentElement;
-        card.classList.toggle("collapsed");
+        const collapsed = card.classList.toggle("collapsed");
+        header.setAttribute("aria-expanded", collapsed ? "false" : "true");
+      }
+
+      // Let keyboard users toggle a collapsible card header (role="button")
+      // with Enter or Space, like a native button.
+      function handleCardKeydown(event, header) {
+        if (event.key === "Enter" || event.key === " " || event.key === "Spacebar") {
+          event.preventDefault();
+          toggleCard(header);
+        }
       }
 
       function togglePersonalPrayers(button) {
@@ -697,7 +707,9 @@
 
       // Toggle app menu
       menuButton.addEventListener('click', function(event) {
-        appMenu.style.display = appMenu.style.display === 'block' ? 'none' : 'block';
+        const isOpen = appMenu.style.display === 'block';
+        appMenu.style.display = isOpen ? 'none' : 'block';
+        menuButton.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
         event.stopPropagation();
       });
 
@@ -705,6 +717,7 @@
       document.addEventListener('click', function(event) {
         if (appMenu.style.display === 'block' && !appMenu.contains(event.target) && event.target !== menuButton) {
           appMenu.style.display = 'none';
+          menuButton.setAttribute('aria-expanded', 'false');
         }
       });
 

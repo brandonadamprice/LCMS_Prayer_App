@@ -41,7 +41,7 @@ Recommended batching:
 - [x] **1. Auth-gate the cron endpoint** — `/tasks/send_reminders` had **no
       authentication**; anyone hitting the URL triggered a full reminder send
       (spam, Twilio/email cost, DoS). _Effort: S._
-      _Done (code), **enforcement pending your GCP config**: the route now accepts
+      _Done & **verified live (staging + prod)**: the route now accepts
       either an `X-Appengine-Cron: true` header (honored automatically if you use
       App Engine cron) or an `X-Tasks-Secret` header matching a new `TASKS_SECRET`
       secret (`secrets_fetcher.get_tasks_secret`, constant-time compare). It is
@@ -53,8 +53,9 @@ Recommended batching:
       _2. Create the `TASKS_SECRET` secret (Secret Manager or env) = `<value>`._
       _Once the secret exists, unauthenticated calls get 403; the scheduler already
       sends the header, so no outage. (App Engine cron users can skip both steps.)_
-      _Alternative if preferred: switch to Cloud Scheduler OIDC tokens instead of a
-      shared secret — say the word and I'll swap the mechanism._
+      _**Verified:** `TASKS_SECRET` set in Secret Manager + the Cloud Scheduler job
+      sends `X-Tasks-Secret`. Probed staging + prod — no-secret and wrong-secret both
+      return 403; the scheduler's authorized run came back green. Enforced end-to-end._
 
 - [ ] **2. CSRF on form routes + reconsider `SameSite=None`** — No `CSRFProtect`
       anywhere in the repo, and [main.py:74](devotions/python/main.py#L74) sets
@@ -185,20 +186,30 @@ Recommended batching:
 
 ### Frontend / accessibility
 
-- [ ] **15. Make collapsible card headers keyboard-operable** —
-      [_macros.html:15](devotions/templates/_macros.html#L15) uses
+- [x] **15. Make collapsible card headers keyboard-operable** —
+      [_macros.html:15](devotions/templates/_macros.html#L15) used
       `<div class="card-header" onclick="toggleCard(this)">`, which keyboard users
-      can't activate. This card appears on **every devotion page**. Change to
-      `<button>` with `aria-expanded` toggled in JS. Highest-impact a11y fix.
-      _Effort: S._
+      couldn't activate. This card appears on **every devotion page**. _Effort: S._
+      _Done: kept the `<div>` (so **zero CSS/visual change** across all cards) but made
+      it operable — `role="button"`, `tabindex="0"`, `aria-expanded` synced in
+      `toggleCard`, and a `handleCardKeydown` handler for Enter/Space. Decorative ▼
+      marked `aria-hidden`. (Chose role+tabindex over a real `<button>` to avoid
+      inheriting browser button styling on every card.)_
 
-- [ ] **16. Add a skip-to-content link + menu `aria-expanded`** — no skip link in
-      `base.html`; the menu button lacks `aria-expanded` state. _Effort: S._
+- [ ] **16. (PARTIAL) Skip-to-content link + menu `aria-expanded`** — _Effort: S._
+      _**Done:** menu button now has `aria-haspopup`, `aria-controls="app-menu"`, and
+      `aria-expanded` synced on open / close / outside-click._
+      _**Deferred to its own batch:** the skip link needs new CSS (`.skip-link` +
+      `:focus`) and therefore a `styles.css` `?v=` bump **and** a service-worker
+      cache-version bump (forces all clients to re-fetch cached assets) — split out so
+      that version bump gets isolated review._
 
-- [ ] **17. Add `autocomplete` to auth forms** — sign-in/register password and
-      email fields lack `autocomplete` (`username`, `current-password`,
-      `new-password`), hurting password-manager UX. Also consider
-      `role="dialog"`/`aria-modal` on the milestone modal. _Effort: S._
+- [x] **17. Add `autocomplete` to auth forms** — sign-in/register email + password
+      fields lacked `autocomplete`, hurting password-manager UX. _Effort: S._
+      _Done: sign-in → `username` / `current-password`; register → `name`,
+      `username`, `new-password` (×2). Also added `role="dialog"` / `aria-modal` /
+      `aria-labelledby="milestone-title"` to the milestone modal (the confirm modal
+      already had them)._
 
 ---
 

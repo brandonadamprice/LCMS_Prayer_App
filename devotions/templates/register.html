@@ -33,19 +33,19 @@
     <form action="/register" method="POST" class="auth-form">
         <div>
             <label for="name" class="form-label">Name</label>
-            <input type="text" id="name" name="name" class="form-input" required>
+            <input type="text" id="name" name="name" class="form-input" autocomplete="name" required>
         </div>
         <div>
             <label for="email" class="form-label">Email</label>
-            <input type="email" id="email" name="email" class="form-input" required>
+            <input type="email" id="email" name="email" class="form-input" autocomplete="username" required>
         </div>
         <div>
             <label for="password" class="form-label">Password</label>
-            <input type="password" id="password" name="password" class="form-input" required>
+            <input type="password" id="password" name="password" class="form-input" autocomplete="new-password" required>
         </div>
         <div>
             <label for="confirm_password" class="form-label">Confirm Password</label>
-            <input type="password" id="confirm_password" name="confirm_password" class="form-input" required>
+            <input type="password" id="confirm_password" name="confirm_password" class="form-input" autocomplete="new-password" required>
         </div>
         <p class="form-hint">
             Password must be at least 8 characters long, contain at least one capital letter, and one number or symbol.
