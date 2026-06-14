@@ -57,7 +57,7 @@ Recommended batching:
       sends `X-Tasks-Secret`. Probed staging + prod — no-secret and wrong-secret both
       return 403; the scheduler's authorized run came back green. Enforced end-to-end._
 
-- [ ] **2. CSRF on form routes + reconsider `SameSite=None`** — No `CSRFProtect`
+- [ ] **2. CSRF on form routes + `SameSite`** _(IN PROGRESS — Lax on staging, awaiting sign-in test)_ — No `CSRFProtect`
       anywhere in the repo, and [main.py:74](devotions/python/main.py#L74) sets
       `SESSION_COOKIE_SAMESITE = "None"`, which disables the browser's built-in
       CSRF defense.
@@ -72,9 +72,15 @@ Recommended batching:
         OAuth navigations), change `SameSite` to `"Lax"`. That alone neutralizes
         most CSRF.
       - **Belt-and-suspenders:** add Flask-WTF CSRF tokens to the form routes.
-      - ⚠️ **OPEN QUESTION:** confirm *why* `SameSite=None` was chosen. If the site
-        is embedded cross-origin somewhere, keep `None` and use CSRF tokens
-        instead of flipping to `Lax`. _Effort: S (Lax) / M (tokens)._
+      - ✅ **RESOLVED → shipped to staging:** git history showed `SameSite` was
+        `Lax`→`None` during Firebase-login debugging, but the flow analysis shows
+        the session cookie is set **first-party** (the `signInWithPopup` handshake
+        is browser↔Google/Firebase; our cookie is set by the same-origin POST to
+        `/auth/firebase`), so `None` was unnecessary. **Flipped both cookies back to
+        `Lax`.** _Effort: S._
+      - ⏳ **Pending your verification:** test Google sign-in on
+        `staging.asimplewaytopray.com`. Works → promote to prod. Breaks → revert to
+        `None` and add Flask-WTF CSRF tokens to the form routes instead.
 
 - [ ] **3. Rate-limit auth + constant-time code compare** — No throttling on
       `/login/email`, `/register`, `/forgot_password`, or email verification. The

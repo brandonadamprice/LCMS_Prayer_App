@@ -72,9 +72,15 @@ app.config["PREFERRED_URL_SCHEME"] = "https"
 app.config["PERMANENT_SESSION_LIFETIME"] = datetime.timedelta(days=31)
 app.config["REMEMBER_COOKIE_DURATION"] = datetime.timedelta(days=31)
 app.config["SESSION_COOKIE_SECURE"] = True
-app.config["SESSION_COOKIE_SAMESITE"] = "None"
+# SameSite=Lax: the session cookie is established first-party (the Firebase
+# sign-in popup is between the browser and Google/Firebase; our cookie is set by
+# the same-origin POST to /auth/firebase), so Lax is sufficient. Lax also stops
+# the cookie from riding cross-site POSTs, which closes the CSRF vector on the
+# form routes. (Was "None" from earlier fb-login debugging; see Fable_audit.md
+# item 2 -- verify Google sign-in on staging before promoting to prod.)
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 app.config["REMEMBER_COOKIE_SECURE"] = True
-app.config["REMEMBER_COOKIE_SAMESITE"] = "None"
+app.config["REMEMBER_COOKIE_SAMESITE"] = "Lax"
 app.config["OTHER_PRAYERS"] = utils.get_other_prayers()
 try:
   app.config["ADMIN_USER_ID"] = secrets_fetcher.get_brandon_user_id()
