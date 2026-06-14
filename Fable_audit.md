@@ -137,11 +137,18 @@ Recommended batching:
       praise-report path stays unbounded. Behavior identical until >100 active
       requests exist._
 
-- [ ] **9. Don't block page render on the fullofeyes scraper** —
-      `_get_soup()` ([fullofeyes_scraper.py:66](devotions/python/services/fullofeyes_scraper.py#L66))
-      does `time.sleep(random.uniform(1.0, 3.0))` synchronously on every fetch.
-      Cache results with a long TTL (24h) or move the fetch off the request path.
-      _Effort: S–M._
+- [x] ~~**9. Don't block page render on the fullofeyes scraper**~~ — **CLOSED:
+      premise wrong, no change made.** `_get_soup()` does sleep 1–3s, but
+      `get_art_for_reading` is called **only** from `/api/lectionary/art`, which
+      every devotion template hits via **async `fetch()` after the page loads**
+      (e.g. [morning_devotion.html:177](devotions/templates/morning_devotion.html#L177)).
+      So it never blocks render — only the decorative background art arrives a
+      couple seconds late, and only on a cache miss (`search_images_cached` /
+      `fetch_recent_images_cached` already memoize results). The sleep is also
+      *deliberate* anti-block politeness toward fullofeyes.com (the code handles 403
+      blocks), so removing it would risk losing art entirely. Left as-is. _(A
+      persistent cross-restart cache like `scripture.py` uses is a possible future
+      nicety, but marginal for an async decorative element.)_
 
 - [x] **10. Memoize menu generation** — the context processor recomputes the menu
       every request though it only changes a few times a year. `@lru_cache` keyed
@@ -179,10 +186,11 @@ Recommended batching:
       webhooks, static. Biggest long-term maintainability/testability lever, but
       purely internal so lowest urgency. _Effort: M–L._
 
-- [ ] **14. (Optional) Add tests for `menu.py`** — it's pure logic with no
-      Firestore imports, so it fits the existing "testable-logic-stays-importable"
-      pattern (works around the Python 3.14 protobuf blocker), but currently has no
-      tests. _Effort: S–M._
+- [x] **14. Add tests for `menu.py`** — it's pure logic with no Firestore imports,
+      so it fits the existing "testable-logic-stays-importable" pattern. _Effort: S–M._
+      _Done: `tests/test_menu.py` covers seasonal enable/disable (Advent / New Year /
+      Lent), flag independence, evergreen items, and structure shape. Suite now runs
+      **95 tests** (was 89)._
 
 ### Frontend / accessibility
 
