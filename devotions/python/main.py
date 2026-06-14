@@ -201,8 +201,9 @@ CSP_REPORT_ONLY = "; ".join([
     " https://identitytoolkit.googleapis.com https://securetoken.googleapis.com"
     " https://*.googleapis.com",
     "frame-src 'self' https://*.firebaseapp.com https://accounts.google.com"
-    " https://docs.google.com",
-    "frame-ancestors 'self'",
+    " https://apis.google.com https://docs.google.com",
+    "frame-ancestors 'self' https://apis.google.com https://accounts.google.com"
+    " https://*.firebaseapp.com",
     "base-uri 'self'",
     "form-action 'self' https://accounts.google.com",
     "report-uri /csp-report",
@@ -215,11 +216,16 @@ def set_security_headers(response):
 
   CSP is sent in Report-Only mode for now: it never blocks anything, it only
   surfaces (via /csp-report and the browser console) what a future enforced
-  policy would need to allow. The remaining headers are zero-risk hardening.
-  setdefault is used so an individual route may still override any of them.
+  policy would need to allow. setdefault is used so an individual route may
+  still override any of them.
+
+  Note: we deliberately do NOT send X-Frame-Options. SAMEORIGIN broke the
+  Firebase Google sign-in popup, which needs Google's domains (apis.google.com)
+  to frame this origin during the handshake, and X-Frame-Options can't
+  allow-list origins (ALLOW-FROM is dead in modern browsers). Anti-clickjacking
+  framing control belongs to the CSP frame-ancestors directive instead.
   """
   response.headers.setdefault("X-Content-Type-Options", "nosniff")
-  response.headers.setdefault("X-Frame-Options", "SAMEORIGIN")
   response.headers.setdefault(
       "Referrer-Policy", "strict-origin-when-cross-origin"
   )

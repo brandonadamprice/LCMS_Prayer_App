@@ -82,18 +82,20 @@ and `py_compile`/`jinja` parse (the app can't fully boot under Python 3.14).
         OAuth navigations), change `SameSite` to `"Lax"`. That alone neutralizes
         most CSRF.
       - **Belt-and-suspenders:** add Flask-WTF CSRF tokens to the form routes.
-      - ❌ **`SameSite=Lax` tried on staging → broke Google sign-in** (despite the
-        first-party flow analysis). `signInWithPopup` hung after account selection;
-        the console COOP/`window.frames` message is Google's own, not ours. `None`
-        is empirically load-bearing for the Firebase popup, so **reverted both
-        cookies to `None`** ([main.py](devotions/python/main.py)).
-      - ➡️ **Path forward: keep `SameSite=None`, add Flask-WTF CSRF tokens** to the
-        form-based POST routes (`/register`, `/login/email`, `/settings/update_profile`,
-        add/edit/delete personal prayer, `/add_memory_verse`). JSON/`request.json`
-        endpoints stay implicitly protected. _Effort: M (form templates + the AJAX
-        `fetch` calls; new `Flask-WTF` dep)._ **Awaiting your go.**
-      - ⚠️ If sign-in is **still** broken after this revert, the Batch 3 security
-        headers become the next suspect (try exempting `/__/`, `/login`, `/authorize`).
+      - 🔎 **The staging sign-in failure was NOT SameSite — it was
+        `X-Frame-Options: SAMEORIGIN`** (added in Batch 3 / item 5). The Firebase
+        popup needs `apis.google.com` to frame our origin, which SAMEORIGIN hard-
+        blocked ("Refused to display … in a frame"). The earlier `Lax` test was
+        **confounded** by that header, so its result is inconclusive. X-Frame-Options
+        has been **removed** (see item 5); `SameSite` is back at the known-good `None`.
+      - **Current state:** pending your **re-test on staging** — sign-in should work
+        again now that X-Frame-Options is gone.
+      - ➡️ **Two ways to close CSRF, once sign-in is confirmed green:**
+        (a) **re-test `SameSite=Lax`** now that the confounder is gone — it may work,
+        giving the one-line fix; or (b) **keep `None` + add Flask-WTF CSRF tokens** to
+        the form routes (`/register`, `/login/email`, `/settings/update_profile`,
+        personal prayers, memory verses). _Effort: S (re-test Lax) / M (tokens)._
+        **Awaiting your go.**
 
 - [ ] **3. Rate-limit auth + constant-time code compare** — No throttling on
       `/login/email`, `/register`, `/forgot_password`, or email verification. The
@@ -118,11 +120,16 @@ and `py_compile`/`jinja` parse (the app can't fully boot under Python 3.14).
       `Content-Security-Policy`, `Strict-Transport-Security`, `X-Frame-Options`,
       `X-Content-Type-Options: nosniff`, `Referrer-Policy`. _Effort: S._
       _Done: new `set_security_headers` after_request adds `X-Content-Type-Options:
-      nosniff`, `X-Frame-Options: SAMEORIGIN`, `Referrer-Policy:
-      strict-origin-when-cross-origin`, and HSTS (`max-age=31536000`, HTTPS-only via
-      `request.is_secure`). CSP is shipped **Report-Only** (per user choice) on HTML
-      responses, with a minimal `/csp-report` log sink — it observes violations
-      without blocking, so we can tune a real policy before enforcing._
+      nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, and HSTS
+      (`max-age=31536000`, HTTPS-only via `request.is_secure`). CSP is shipped
+      **Report-Only** (per user choice) on HTML responses, with a minimal
+      `/csp-report` log sink — it observes violations without blocking._
+      _**⚠️ X-Frame-Options removed (regression fix):** `SAMEORIGIN` broke the
+      Firebase Google sign-in popup on staging — the gapi handshake needs
+      `apis.google.com` to frame our origin, and X-Frame-Options can't allow-list
+      origins. Removed it; anti-clickjacking framing is left to CSP `frame-ancestors`
+      (report-only for now, Google auth origins allow-listed so a future enforcement
+      won't re-break sign-in)._
       _**Follow-ups before enforcing CSP:** (a) watch `/csp-report` logs for missed
       origins; (b) decide whether to keep `'unsafe-inline'` or refactor inline
       scripts/styles to nonces; (c) consider `includeSubDomains`/`preload` on HSTS
