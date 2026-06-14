@@ -204,13 +204,13 @@ Recommended batching:
       marked `aria-hidden`. (Chose role+tabindex over a real `<button>` to avoid
       inheriting browser button styling on every card.)_
 
-- [ ] **16. (PARTIAL) Skip-to-content link + menu `aria-expanded`** — _Effort: S._
-      _**Done:** menu button now has `aria-haspopup`, `aria-controls="app-menu"`, and
-      `aria-expanded` synced on open / close / outside-click._
-      _**Deferred to its own batch:** the skip link needs new CSS (`.skip-link` +
-      `:focus`) and therefore a `styles.css` `?v=` bump **and** a service-worker
-      cache-version bump (forces all clients to re-fetch cached assets) — split out so
-      that version bump gets isolated review._
+- [x] **16. Skip-to-content link + menu `aria-expanded`** — _Effort: S._
+      _**Done (Batch 5):** menu button has `aria-haspopup`, `aria-controls="app-menu"`,
+      and `aria-expanded` synced on open / close / outside-click._
+      _**Done (Batch 7):** skip link added as the first focusable element in
+      `base.html` targeting `#main-content` (`<main>` given `tabindex="-1"` so focus
+      actually moves there; its focus outline suppressed). New `.skip-link` CSS;
+      bumped `styles.css?v=24→25` and SW `CACHE_NAME` `prayer-app-v24→v25` together._
 
 - [x] **17. Add `autocomplete` to auth forms** — sign-in/register email + password
       fields lacked `autocomplete`, hurting password-manager UX. _Effort: S._

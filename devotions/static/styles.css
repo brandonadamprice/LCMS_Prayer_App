@@ -2301,6 +2301,32 @@ select:focus-visible,
     border-radius: 4px;
 }
 
+/* Skip link: off-screen until focused, then pinned top-left so keyboard users
+   can jump past the navbar straight to the main content. */
+.skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    z-index: 10000;
+    padding: 10px 16px;
+    background: var(--color-primary);
+    color: #fff;
+    text-decoration: none;
+    border-radius: 0 0 6px 0;
+}
+
+.skip-link:focus {
+    left: 0;
+    outline: 3px solid var(--color-accent);
+    outline-offset: 0;
+}
+
+/* The skip-link target is focusable (tabindex="-1") but shouldn't show an
+   outline around the entire content region when focus jumps to it. */
+#main-content:focus {
+    outline: none;
+}
+
 /* =========================================================================
    Toast notifications (replaces native alert())
    ========================================================================= */
