@@ -34,17 +34,18 @@ Worked in small per-theme batches on `dev` (= staging — see deploy topology).
 Commits `53a31d6 → 8…` on `dev`; verified each via the unit suite (now **95 tests**)
 and `py_compile`/`jinja` parse (the app can't fully boot under Python 3.14).
 
-- **✅ Implemented & on `dev`/staging:** 1, 4, 5, 7, 8, 10, 11, 12, 14, 15, 16, 17,
-  18 (offline-cache bug found mid-work), and 19 (per-env authDomain + uncached
-  `/auth/`, found while validating item 5 — staging Google sign-in now works in
-  incognito with X-Frame-Options present).
+- **✅ Implemented & on `dev`/staging:** 1, 2, 4, 5, 7, 8, 10, 11, 12, 14, 15, 16,
+  17, 18 (offline-cache bug found mid-work), and 19 (per-env authDomain + uncached
+  `/auth/`, found while validating item 5). Item 2 = `SameSite=Lax`, validated on
+  staging (Google sign-in + email login + stay-logged-in all work in incognito).
   - **Item 1 (cron auth) also verified live in prod.**
 - **✅ Closed with no code change (verified false/non-issue):** 6 (would have broken
   ~10 templates), 9 (art is async, never render-blocking). See
   [Corrections](#corrections-do-not-chase-these).
-- **⏳ In progress — needs YOU:** **2 (CSRF)** — `SameSite=Lax` re-shipped to staging
-  for a clean test (the earlier "Lax broke sign-in" was the framing bug, not the
-  cookie). **Test Google sign-in on staging**, then promote if healthy.
+- **🚀 Ready to promote:** everything above is validated on staging; `dev` is ahead
+  of `main`/prod and can be merged when you are. Net prod changes: `SameSite`→`Lax`,
+  the `/auth/` cache fix, batches 5–7, offline-cache fix. Prod `authDomain` stays
+  `asimplewaytopray.com` (the per-env logic only special-cases staging).
 - **⬜ Not started (need a decision):** **3** (rate-limit — adds a `Flask-Limiter`
   dependency; per-worker vs shared-storage question), **13** (Blueprint split of
   `main.py` — large internal refactor).
@@ -70,7 +71,7 @@ and `py_compile`/`jinja` parse (the app can't fully boot under Python 3.14).
       sends `X-Tasks-Secret`. Probed staging + prod — no-secret and wrong-secret both
       return 403; the scheduler's authorized run came back green. Enforced end-to-end._
 
-- [ ] **2. CSRF on form routes** _(SameSite=Lax ruled out on staging — CSRF tokens pending)_ — No `CSRFProtect`
+- [x] **2. CSRF on form routes** _(SameSite=Lax — validated on staging)_ — No `CSRFProtect`
       anywhere in the repo, and [main.py:74](devotions/python/main.py#L74) sets
       `SESSION_COOKIE_SAMESITE = "None"`, which disables the browser's built-in
       CSRF defense.
@@ -85,20 +86,14 @@ and `py_compile`/`jinja` parse (the app can't fully boot under Python 3.14).
         OAuth navigations), change `SameSite` to `"Lax"`. That alone neutralizes
         most CSRF.
       - **Belt-and-suspenders:** add Flask-WTF CSRF tokens to the form routes.
-      - 🔎 **The staging sign-in failure was NOT SameSite — it was
-        `X-Frame-Options: SAMEORIGIN`** (added in Batch 3 / item 5). The Firebase
-        popup needs `apis.google.com` to frame our origin, which SAMEORIGIN hard-
-        blocked ("Refused to display … in a frame"). The earlier `Lax` test was
-        **confounded** by that header, so its result is inconclusive. X-Frame-Options
-        has been **removed** (see item 5); `SameSite` is back at the known-good `None`.
-      - **Current state:** pending your **re-test on staging** — sign-in should work
-        again now that X-Frame-Options is gone.
-      - ➡️ **Two ways to close CSRF, once sign-in is confirmed green:**
-        (a) **re-test `SameSite=Lax`** now that the confounder is gone — it may work,
-        giving the one-line fix; or (b) **keep `None` + add Flask-WTF CSRF tokens** to
-        the form routes (`/register`, `/login/email`, `/settings/update_profile`,
-        personal prayers, memory verses). _Effort: S (re-test Lax) / M (tokens)._
-        **Awaiting your go.**
+      - ✅ **DONE: `SameSite=Lax`** (both session + remember cookies). The earlier
+        "Lax broke sign-in" was confounded by the X-Frame-Options / cross-origin
+        authDomain bug (items 5 / 19); once staging sign-in was healthy, Lax was
+        re-tested in incognito on staging — Google sign-in, email login, and
+        stay-logged-in all work. Lax stops the cookie from riding cross-site POSTs,
+        closing the CSRF vector on the form routes. _Effort: S._
+      - _Optional future hardening:_ Flask-WTF CSRF tokens as belt-and-suspenders
+        (defense beyond SameSite). Not required now that Lax is in place.
 
 - [ ] **3. Rate-limit auth + constant-time code compare** — No throttling on
       `/login/email`, `/register`, `/forgot_password`, or email verification. The
