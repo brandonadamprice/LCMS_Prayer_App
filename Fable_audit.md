@@ -67,7 +67,7 @@ and `py_compile`/`jinja` parse (the app can't fully boot under Python 3.14).
       sends `X-Tasks-Secret`. Probed staging + prod — no-secret and wrong-secret both
       return 403; the scheduler's authorized run came back green. Enforced end-to-end._
 
-- [ ] **2. CSRF on form routes + `SameSite`** _(IN PROGRESS — Lax on staging, awaiting sign-in test)_ — No `CSRFProtect`
+- [ ] **2. CSRF on form routes** _(SameSite=Lax ruled out on staging — CSRF tokens pending)_ — No `CSRFProtect`
       anywhere in the repo, and [main.py:74](devotions/python/main.py#L74) sets
       `SESSION_COOKIE_SAMESITE = "None"`, which disables the browser's built-in
       CSRF defense.
@@ -82,15 +82,18 @@ and `py_compile`/`jinja` parse (the app can't fully boot under Python 3.14).
         OAuth navigations), change `SameSite` to `"Lax"`. That alone neutralizes
         most CSRF.
       - **Belt-and-suspenders:** add Flask-WTF CSRF tokens to the form routes.
-      - ✅ **RESOLVED → shipped to staging:** git history showed `SameSite` was
-        `Lax`→`None` during Firebase-login debugging, but the flow analysis shows
-        the session cookie is set **first-party** (the `signInWithPopup` handshake
-        is browser↔Google/Firebase; our cookie is set by the same-origin POST to
-        `/auth/firebase`), so `None` was unnecessary. **Flipped both cookies back to
-        `Lax`.** _Effort: S._
-      - ⏳ **Pending your verification:** test Google sign-in on
-        `staging.asimplewaytopray.com`. Works → promote to prod. Breaks → revert to
-        `None` and add Flask-WTF CSRF tokens to the form routes instead.
+      - ❌ **`SameSite=Lax` tried on staging → broke Google sign-in** (despite the
+        first-party flow analysis). `signInWithPopup` hung after account selection;
+        the console COOP/`window.frames` message is Google's own, not ours. `None`
+        is empirically load-bearing for the Firebase popup, so **reverted both
+        cookies to `None`** ([main.py](devotions/python/main.py)).
+      - ➡️ **Path forward: keep `SameSite=None`, add Flask-WTF CSRF tokens** to the
+        form-based POST routes (`/register`, `/login/email`, `/settings/update_profile`,
+        add/edit/delete personal prayer, `/add_memory_verse`). JSON/`request.json`
+        endpoints stay implicitly protected. _Effort: M (form templates + the AJAX
+        `fetch` calls; new `Flask-WTF` dep)._ **Awaiting your go.**
+      - ⚠️ If sign-in is **still** broken after this revert, the Batch 3 security
+        headers become the next suspect (try exempting `/__/`, `/login`, `/authorize`).
 
 - [ ] **3. Rate-limit auth + constant-time code compare** — No throttling on
       `/login/email`, `/register`, `/forgot_password`, or email verification. The
