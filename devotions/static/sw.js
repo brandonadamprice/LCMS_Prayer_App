@@ -1,4 +1,4 @@
-const CACHE_NAME = 'prayer-app-v25';
+const CACHE_NAME = 'prayer-app-v26';
 // Stable, version-independent cache for user-downloaded offline devotions
 // (Settings -> "Download Next 3 Days"). Kept across deploys by the activate
 // handler below, so a CACHE_NAME bump doesn't wipe what the user saved.
@@ -54,10 +54,13 @@ self.addEventListener('fetch', (event) => {
 
   // Exclude authentication routes from service worker interception.
   // This allows the browser to handle redirects and cookies for OAuth natively.
-  // /__/ covers the proxied Firebase Auth helper (/__/auth, /__/firebase),
-  // which runs in the sign-in popup on this origin and must never be cached.
+  // /__/ covers the proxied Firebase Auth helper (/__/auth, /__/firebase).
+  // /auth/ covers /auth/firebase_config (the per-environment authDomain) and the
+  // /auth/firebase session bridge -- these must always be fresh, never cached,
+  // or a stale authDomain sends the sign-in popup to the wrong origin.
   if (url.pathname.startsWith('/login') ||
       url.pathname.startsWith('/authorize') ||
+      url.pathname.startsWith('/auth/') ||
       url.pathname.startsWith('/__/')) {
     return;
   }
