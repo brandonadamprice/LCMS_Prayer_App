@@ -72,13 +72,15 @@ app.config["PREFERRED_URL_SCHEME"] = "https"
 app.config["PERMANENT_SESSION_LIFETIME"] = datetime.timedelta(days=31)
 app.config["REMEMBER_COOKIE_DURATION"] = datetime.timedelta(days=31)
 app.config["SESSION_COOKIE_SECURE"] = True
-# SameSite=None is load-bearing for the Firebase Google sign-in popup flow.
-# Flipping to Lax was tested on staging (2026-06) and broke signInWithPopup --
-# the popup hung after account selection -- so it is kept at None. CSRF on the
-# form routes is handled with tokens instead (see Fable_audit.md item 2).
-app.config["SESSION_COOKIE_SAMESITE"] = "None"
+# SameSite=Lax: closes the CSRF vector on the form routes (the session cookie no
+# longer rides cross-site POSTs). The earlier "Lax broke sign-in" result was
+# confounded -- that break was X-Frame-Options + a cross-origin authDomain (now
+# fixed; see Fable_audit.md items 5 and 19), not the cookie. Firebase sign-in is
+# same-origin, so Lax should not affect it. Verify Google sign-in on staging
+# before promoting to prod.
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 app.config["REMEMBER_COOKIE_SECURE"] = True
-app.config["REMEMBER_COOKIE_SAMESITE"] = "None"
+app.config["REMEMBER_COOKIE_SAMESITE"] = "Lax"
 app.config["OTHER_PRAYERS"] = utils.get_other_prayers()
 try:
   app.config["ADMIN_USER_ID"] = secrets_fetcher.get_brandon_user_id()

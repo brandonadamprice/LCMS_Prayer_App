@@ -42,9 +42,9 @@ and `py_compile`/`jinja` parse (the app can't fully boot under Python 3.14).
 - **✅ Closed with no code change (verified false/non-issue):** 6 (would have broken
   ~10 templates), 9 (art is async, never render-blocking). See
   [Corrections](#corrections-do-not-chase-these).
-- **⏳ In progress — needs YOU:** **2 (CSRF)** — staging sign-in is healthy again, so
-  `SameSite=Lax` can finally be tested cleanly (currently reverted to `None`). Your
-  call: try Lax, or keep `None` + add CSRF tokens.
+- **⏳ In progress — needs YOU:** **2 (CSRF)** — `SameSite=Lax` re-shipped to staging
+  for a clean test (the earlier "Lax broke sign-in" was the framing bug, not the
+  cookie). **Test Google sign-in on staging**, then promote if healthy.
 - **⬜ Not started (need a decision):** **3** (rate-limit — adds a `Flask-Limiter`
   dependency; per-worker vs shared-storage question), **13** (Blueprint split of
   `main.py` — large internal refactor).
