@@ -584,7 +584,11 @@
              // We can manually open the cache and add them.
              
              try {
-                 const cache = await caches.open('prayer-app-v8');
+                 // Stable cache name preserved across deploys by the service
+                 // worker's activate handler (must match OFFLINE_CACHE_NAME in
+                 // sw.js). The old 'prayer-app-v8' name was version-style, so the
+                 // SW deleted it on the next deploy and wiped the download.
+                 const cache = await caches.open('prayer-app-offline');
                  let completed = 0;
                  const total = urlsToCache.length;
                  

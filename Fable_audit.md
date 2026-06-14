@@ -28,13 +28,23 @@ don't waste effort on them.
 
 ---
 
-## Priority checklist
+## Progress snapshot
 
-Recommended batching:
-- **Batch A (one PR off `dev`)** — small, independent, low-risk: items 1, 5, 6, 7,
-  8, 9, 10, 11, 12.
-- **Separate focused changes** — behavioral risk: items 2, 3, 4.
-- **Its own project** — item 13 (Blueprint split).
+Worked in small per-theme batches on `dev` (= staging — see deploy topology).
+Commits `53a31d6 → 8…` on `dev`; verified each via the unit suite (now **95 tests**)
+and `py_compile`/`jinja` parse (the app can't fully boot under Python 3.14).
+
+- **✅ Implemented & on `dev`/staging:** 1, 4, 5, 7, 8, 10, 11, 12, 14, 15, 16, 17,
+  and 18 (offline-cache bug found mid-work).
+  - **Item 1 (cron auth) also verified live in prod.**
+- **✅ Closed with no code change (verified false/non-issue):** 6 (would have broken
+  ~10 templates), 9 (art is async, never render-blocking). See
+  [Corrections](#corrections-do-not-chase-these).
+- **⏳ In progress — needs YOU:** **2 (CSRF)** — `SameSite=Lax` shipped to staging;
+  **test Google sign-in on `staging.asimplewaytopray.com`** before promoting to prod.
+- **⬜ Not started (need a decision):** **3** (rate-limit — adds a `Flask-Limiter`
+  dependency; per-worker vs shared-storage question), **13** (Blueprint split of
+  `main.py` — large internal refactor).
 
 ### Security
 
@@ -224,6 +234,21 @@ Recommended batching:
       `username`, `new-password` (×2). Also added `role="dialog"` / `aria-modal` /
       `aria-labelledby="milestone-title"` to the milestone modal (the confirm modal
       already had them)._
+
+### Discovered during cleanup
+
+- [x] **18. Offline-download cache wiped on every deploy** — the Settings
+      "Download Next 3 Days" feature wrote to a version-style cache name
+      `prayer-app-v8` ([settings.html](devotions/templates/settings.html)), but the
+      service worker's `activate` handler deletes every cache ≠ `CACHE_NAME`, so the
+      saved offline devotions were wiped on the next deploy (and the stale `v8` never
+      matched the bumped asset cache anyway). _Effort: S._
+      _Done: added a stable, version-independent `OFFLINE_CACHE_NAME =
+      'prayer-app-offline'` in `sw.js`; `activate` now preserves it across deploys;
+      `settings.html` writes to that name. The SW fetch handler already uses global
+      `caches.match()` (all caches), so offline serving needed no change. Verified by
+      JS syntax + reasoning; full end-to-end check needs a download-then-deploy cycle.
+      (Pre-existing bug, unrelated to the audit.)_
 
 ---
 

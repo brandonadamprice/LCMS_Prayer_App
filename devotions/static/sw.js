@@ -1,4 +1,9 @@
 const CACHE_NAME = 'prayer-app-v25';
+// Stable, version-independent cache for user-downloaded offline devotions
+// (Settings -> "Download Next 3 Days"). Kept across deploys by the activate
+// handler below, so a CACHE_NAME bump doesn't wipe what the user saved.
+// settings.html writes to this exact name -- keep the two in sync.
+const OFFLINE_CACHE_NAME = 'prayer-app-offline';
 const ASSETS_TO_CACHE = [
   '/static/styles.css',
   '/static/banner.jpg',
@@ -22,7 +27,11 @@ self.addEventListener('activate', (event) => {
       caches.keys()
           .then((cacheNames) => {
             return Promise.all(cacheNames.map((cacheName) => {
-              if (cacheName !== CACHE_NAME) {
+              // Preserve the current versioned asset cache and the stable
+              // user-downloaded offline cache; drop everything else (old
+              // versions, and the legacy 'prayer-app-v8' offline name).
+              if (cacheName !== CACHE_NAME &&
+                  cacheName !== OFFLINE_CACHE_NAME) {
                 return caches.delete(cacheName);
               }
             }));
