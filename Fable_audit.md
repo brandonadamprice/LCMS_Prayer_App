@@ -35,13 +35,16 @@ Commits `53a31d6 → 8…` on `dev`; verified each via the unit suite (now **95 
 and `py_compile`/`jinja` parse (the app can't fully boot under Python 3.14).
 
 - **✅ Implemented & on `dev`/staging:** 1, 4, 5, 7, 8, 10, 11, 12, 14, 15, 16, 17,
-  and 18 (offline-cache bug found mid-work).
+  18 (offline-cache bug found mid-work), and 19 (per-env authDomain + uncached
+  `/auth/`, found while validating item 5 — staging Google sign-in now works in
+  incognito with X-Frame-Options present).
   - **Item 1 (cron auth) also verified live in prod.**
 - **✅ Closed with no code change (verified false/non-issue):** 6 (would have broken
   ~10 templates), 9 (art is async, never render-blocking). See
   [Corrections](#corrections-do-not-chase-these).
-- **⏳ In progress — needs YOU:** **2 (CSRF)** — `SameSite=Lax` shipped to staging;
-  **test Google sign-in on `staging.asimplewaytopray.com`** before promoting to prod.
+- **⏳ In progress — needs YOU:** **2 (CSRF)** — staging sign-in is healthy again, so
+  `SameSite=Lax` can finally be tested cleanly (currently reverted to `None`). Your
+  call: try Lax, or keep `None` + add CSRF tokens.
 - **⬜ Not started (need a decision):** **3** (rate-limit — adds a `Flask-Limiter`
   dependency; per-worker vs shared-storage question), **13** (Blueprint split of
   `main.py` — large internal refactor).
@@ -120,16 +123,16 @@ and `py_compile`/`jinja` parse (the app can't fully boot under Python 3.14).
       `Content-Security-Policy`, `Strict-Transport-Security`, `X-Frame-Options`,
       `X-Content-Type-Options: nosniff`, `Referrer-Policy`. _Effort: S._
       _Done: new `set_security_headers` after_request adds `X-Content-Type-Options:
-      nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, and HSTS
-      (`max-age=31536000`, HTTPS-only via `request.is_secure`). CSP is shipped
-      **Report-Only** (per user choice) on HTML responses, with a minimal
-      `/csp-report` log sink — it observes violations without blocking._
-      _**⚠️ X-Frame-Options removed (regression fix):** `SAMEORIGIN` broke the
-      Firebase Google sign-in popup on staging — the gapi handshake needs
-      `apis.google.com` to frame our origin, and X-Frame-Options can't allow-list
-      origins. Removed it; anti-clickjacking framing is left to CSP `frame-ancestors`
-      (report-only for now, Google auth origins allow-listed so a future enforcement
-      won't re-break sign-in)._
+      nosniff`, `X-Frame-Options: SAMEORIGIN`, `Referrer-Policy:
+      strict-origin-when-cross-origin`, and HSTS (`max-age=31536000`, HTTPS-only via
+      `request.is_secure`). CSP is shipped **Report-Only** (per user choice) on HTML
+      responses, with a minimal `/csp-report` log sink._
+      _**X-Frame-Options saga (resolved):** `SAMEORIGIN` broke Google sign-in on
+      **staging only** — staging was cross-origin-framing the prod authDomain because
+      of a stale cached `/auth/firebase_config`. Prod always worked (its sign-in is
+      same-origin). Root-caused and fixed by **item 19** (per-environment authDomain +
+      uncached `/auth/`); X-Frame-Options is **kept** on both envs. Verified: staging
+      Google sign-in works in incognito with the header present._
       _**Follow-ups before enforcing CSP:** (a) watch `/csp-report` logs for missed
       origins; (b) decide whether to keep `'unsafe-inline'` or refactor inline
       scripts/styles to nonces; (c) consider `includeSubDomains`/`preload` on HSTS
@@ -259,6 +262,22 @@ and `py_compile`/`jinja` parse (the app can't fully boot under Python 3.14).
       `caches.match()` (all caches), so offline serving needed no change. Verified by
       JS syntax + reasoning; full end-to-end check needs a download-then-deploy cycle.
       (Pre-existing bug, unrelated to the audit.)_
+
+- [x] **19. Per-environment Firebase authDomain + uncached `/auth/`** — surfaced
+      while validating item 5 on staging. Google sign-in worked on prod but hung on
+      staging. Root cause: `signInWithPopup` runs its helper on `authDomain`, which
+      was hardcoded to `asimplewaytopray.com`; from staging that framing is
+      cross-origin, which `X-Frame-Options: SAMEORIGIN` refuses. _Effort: M (lots of
+      debugging)._
+      _Done: (a) `/auth/firebase_config` now returns `authDomain =
+      staging.asimplewaytopray.com` when served from staging, so each environment's
+      auth framing is same-origin; (b) the service worker no longer caches `/auth/`
+      (it was serving a stale `authDomain` that routed staging's popup to the prod
+      handler), `CACHE_NAME` bumped `v25→v26` to purge it. Verified working in
+      incognito on staging with X-Frame-Options present._
+      _**Console prerequisites (done by user):** `staging.asimplewaytopray.com` added
+      to Firebase Auth "Authorized domains" and to the OAuth client's redirect URIs
+      (`…/__/auth/handler`). Prod authDomain unchanged._
 
 ---
 
