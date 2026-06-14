@@ -805,13 +805,23 @@ def firebase_auth_config_route():
   via ID-token verification in /auth/firebase.
   """
   try:
+    # authDomain must be SAME-ORIGIN with the page running signInWithPopup so
+    # the Firebase auth-helper iframe/handler framing stays same-origin --
+    # otherwise X-Frame-Options: SAMEORIGIN blocks it. Prod (asimplewaytopray.com)
+    # is naturally same-origin; staging must self-reference, because framing the
+    # prod authDomain from staging is cross-origin and gets refused. Each host
+    # used here must be a Firebase "Authorized domain" AND have its
+    # /__/auth/handler registered as an OAuth redirect URI.
+    auth_domain = "asimplewaytopray.com"
+    if flask.request.host == "staging.asimplewaytopray.com":
+      auth_domain = "staging.asimplewaytopray.com"
     return flask.jsonify({
         "apiKey": secrets_fetcher.get_firebase_api_key(),
         # Our own domain, so Google's account chooser says "to continue to
-        # asimplewaytopray.com" rather than the default firebaseapp.com
-        # domain. Requires the /__/auth + /__/firebase reverse proxy below
-        # and the matching redirect URI on the OAuth client.
-        "authDomain": "asimplewaytopray.com",
+        # <our domain>" rather than the default firebaseapp.com domain.
+        # Requires the /__/auth + /__/firebase reverse proxy below and the
+        # matching redirect URI on the OAuth client.
+        "authDomain": auth_domain,
         "projectId": "lcms-prayer-app",
         "messagingSenderId": secrets_fetcher.get_firebase_messaging_sender_id(),
         "appId": secrets_fetcher.get_firebase_app_id(),
