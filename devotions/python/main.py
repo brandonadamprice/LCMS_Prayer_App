@@ -219,13 +219,14 @@ def set_security_headers(response):
   policy would need to allow. setdefault is used so an individual route may
   still override any of them.
 
-  Note: we deliberately do NOT send X-Frame-Options. SAMEORIGIN broke the
-  Firebase Google sign-in popup, which needs Google's domains (apis.google.com)
-  to frame this origin during the handshake, and X-Frame-Options can't
-  allow-list origins (ALLOW-FROM is dead in modern browsers). Anti-clickjacking
-  framing control belongs to the CSP frame-ancestors directive instead.
+  X-Frame-Options: SAMEORIGIN is safe here because the Firebase sign-in popup
+  frames each environment's OWN origin (authDomain is environment-specific --
+  see /auth/firebase_config), so the auth-helper framing is same-origin. It
+  only broke earlier when staging cross-origin-framed the prod authDomain,
+  which the environment-specific authDomain now prevents.
   """
   response.headers.setdefault("X-Content-Type-Options", "nosniff")
+  response.headers.setdefault("X-Frame-Options", "SAMEORIGIN")
   response.headers.setdefault(
       "Referrer-Policy", "strict-origin-when-cross-origin"
   )
