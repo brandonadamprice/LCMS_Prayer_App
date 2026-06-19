@@ -142,6 +142,29 @@ def redirect_to_new_domain():
 
 
 @app.before_request
+def redirect_www_to_apex():
+  """Canonicalizes www.* to the bare apex so Google sign-in stays same-origin.
+
+  Firebase runs its sign-in auth helper on authDomain=asimplewaytopray.com (the
+  apex; see /auth/firebase_config). On a www page that auth-helper iframe is
+  cross-origin, and X-Frame-Options: SAMEORIGIN refuses to frame it -- so
+  signInWithPopup finishes the Google step but can never relay the result back
+  to the opener, and the popup just closes without signing the user in. Forcing
+  every request onto the apex keeps the page, its authDomain, and the proxied
+  /__/auth helper all on one origin. (staging.asimplewaytopray.com has no www.
+  prefix, so it is unaffected and self-references per fe2e931.)
+  """
+  host = flask.request.host
+  if host.startswith("www."):
+    apex = host[len("www."):]
+    target = f"{flask.request.scheme}://{apex}{flask.request.path}"
+    query = flask.request.query_string.decode("utf-8")
+    if query:
+      target += f"?{query}"
+    return flask.redirect(target, code=301)
+
+
+@app.before_request
 def track_last_seen():
   """Records when an authenticated user was last active.
 
