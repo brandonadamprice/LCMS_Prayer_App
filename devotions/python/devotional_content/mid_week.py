@@ -22,7 +22,9 @@ def generate_mid_week_devotion(date_obj=None):
         error_message="Mid-week reading data not available for this week.",
     )
 
-  catechism_data = utils.get_catechism_for_day(now, rotation="weekly")
+  catechism_data = utils.get_catechism_for_day(
+      now, rotation="weekly", hidden=utils.catechism_hidden_for_user()
+  )
 
   refs_to_fetch = [
       reading_data["Psalm"],

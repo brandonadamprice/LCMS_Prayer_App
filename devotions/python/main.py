@@ -1564,6 +1564,16 @@ def save_background_art_route():
   return _save_user_fields({"background_art": value})
 
 
+@app.route("/save_hide_catechism", methods=["POST"])
+@flask_login.login_required
+def save_hide_catechism_route():
+  """Saves the hide-catechism preference for the current user."""
+  value = flask.request.json.get("hide_catechism")
+  if not isinstance(value, bool):
+    return flask.jsonify({"success": False, "error": "Invalid data"}), 400
+  return _save_user_fields({"hide_catechism": value})
+
+
 @app.route("/save_font_size", methods=["POST"])
 @flask_login.login_required
 def save_font_size_route():

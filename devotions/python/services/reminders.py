@@ -404,7 +404,11 @@ def _send_email(
         "close_of_day",
         "night_watch",
     ]:
-      data = utils.get_office_devotion_data(user_data.get("id"), devotion_key)
+      data = utils.get_office_devotion_data(
+          user_data.get("id"),
+          devotion_key,
+          hide_catechism=utils.catechism_hidden_for_user(user_data),
+      )
       template_name = f"{devotion_key}_devotion.html"
     elif devotion_key == "bible_in_a_year":
       bia = user_data.get("bia_progress") or {}

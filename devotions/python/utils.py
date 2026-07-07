@@ -344,11 +344,22 @@ def devotion_nav_dates(now):
   return prev_date, next_date
 
 
+def catechism_hidden_for_user(user_data=None) -> bool:
+  """True when the user opted to hide the catechism card in devotions.
+
+  Pass a Firestore user dict when outside a request (e.g. reminder emails);
+  otherwise the session user is checked. Anonymous users never hide it.
+  """
+  if user_data is not None:
+    return bool(user_data.get("hide_catechism"))
+  return bool(getattr(flask_login.current_user, "hide_catechism", False))
+
+
 def get_catechism_for_day(
-    now: datetime.datetime, rotation: str = "daily"
+    now: datetime.datetime, rotation: str = "daily", hidden: bool = False
 ) -> dict:
   """Returns the catechism section for a given day or week."""
-  if not ENABLE_CATECHISM:
+  if not ENABLE_CATECHISM or hidden:
     return {"catechism_enabled": False}
 
   if rotation == "weekly":
@@ -489,7 +500,9 @@ def get_devotion_data(now: datetime.datetime, user_id=None) -> dict:
   ot_text, nt_text, psalm_text = fetch_passages(refs_to_fetch)
 
   # 5. Catechism - USE HELPER
-  catechism_data = get_catechism_for_day(now, rotation="daily")
+  catechism_data = get_catechism_for_day(
+      now, rotation="daily", hidden=catechism_hidden_for_user()
+  )
 
   # 6. Weekly Prayer - USE HELPER
   weekly_prayer_data = get_weekly_prayer_for_day(now)
@@ -716,8 +729,14 @@ def get_bible_in_a_year_devotion_data(user_id=None, date_obj=None, current_day=N
   }
 
 
-def get_office_devotion_data(user_id, office_name, date_obj=None):
-  """Generates data for an office devotion (Morning, Evening, etc.)."""
+def get_office_devotion_data(
+    user_id, office_name, date_obj=None, hide_catechism=None
+):
+  """Generates data for an office devotion (Morning, Evening, etc.).
+
+  hide_catechism=None reads the preference from the session user; background
+  jobs (reminder emails) must pass it explicitly since there is no session.
+  """
   eastern_timezone = EASTERN_TZ
   now = date_obj or datetime.datetime.now(eastern_timezone)
   cy = liturgy.get_church_year(now.year)
@@ -822,7 +841,11 @@ def get_office_devotion_data(user_id, office_name, date_obj=None):
 
   # Add Catechism if enabled and not Night Watch (which usually doesn't have it)
   if office_name != "night_watch":
-    catechism_data = get_catechism_for_day(now, rotation="daily")
+    if hide_catechism is None:
+      hide_catechism = catechism_hidden_for_user()
+    catechism_data = get_catechism_for_day(
+        now, rotation="daily", hidden=hide_catechism
+    )
     data.update(catechism_data)
 
   # Add Concluding Prayer

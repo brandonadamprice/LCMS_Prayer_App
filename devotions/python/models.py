@@ -53,6 +53,7 @@ class User(flask_login.UserMixin):
       google_id=None,
       timezone=None,
       background_art=True,
+      hide_catechism=False,
       streak_count=0,
       best_streak_count=0,
       last_prayer_date=None,
@@ -93,6 +94,7 @@ class User(flask_login.UserMixin):
     self.google_id = google_id
     self.timezone = timezone
     self.background_art = background_art
+    self.hide_catechism = hide_catechism
     self.achievements = achievements or []
     self.completed_devotions = completed_devotions or {}
     self.completed_bible_days = completed_bible_days or []
@@ -154,6 +156,7 @@ class User(flask_login.UserMixin):
           google_id=data.get("google_id"),
           timezone=data.get("timezone"),
           background_art=data.get("background_art", True),
+          hide_catechism=data.get("hide_catechism", False),
           streak_count=data.get("streak_count", 0),
           best_streak_count=data.get("best_streak_count", 0),
           last_prayer_date=data.get("last_prayer_date"),

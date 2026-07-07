@@ -60,6 +60,21 @@
 
 {% if current_user.is_authenticated %}
 <div class="card">
+  <h2>Devotion Content</h2>
+
+  <div>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <label for="settings-hide-catechism-toggle" style="font-size: 1.1em; font-weight: bold;">Hide Catechism</label>
+        <label class="switch">
+            <input type="checkbox" id="settings-hide-catechism-toggle" {% if current_user.hide_catechism %}checked{% endif %}>
+            <span class="slider"></span>
+        </label>
+      </div>
+      <p style="color: #7f8c8d; font-size: 0.9em; margin-top: 0;">Remove the daily Catechism card from devotions, including printed and emailed versions.</p>
+  </div>
+</div>
+
+<div class="card">
   <h2>Notification Settings</h2>
   
   <!-- Browser Permission (Client-side) -->
@@ -527,6 +542,30 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
+        const hideCatechismToggle = document.getElementById('settings-hide-catechism-toggle');
+        if (hideCatechismToggle) {
+            hideCatechismToggle.addEventListener('change', async (e) => {
+                try {
+                    const response = await fetch('/save_hide_catechism', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ hide_catechism: e.target.checked })
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                        showToast(e.target.checked ? "Catechism hidden from devotions." : "Catechism restored to devotions.", "success");
+                    } else {
+                        e.target.checked = !e.target.checked;
+                        showToast("Error saving preference.", "error");
+                    }
+                } catch (err) {
+                    console.error('Failed to save catechism preference:', err);
+                    e.target.checked = !e.target.checked;
+                    showToast("An error occurred.", "error");
+                }
+            });
+        }
+
         const radios = document.querySelectorAll('input[name="pic_source"]');
         const customInputDiv = document.getElementById('custom-url-input');
 

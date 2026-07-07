@@ -15,7 +15,9 @@ def generate_childrens_devotion():
   """Generates HTML for the children's devotion."""
   eastern_timezone = utils.EASTERN_TZ
   now = datetime.datetime.now(eastern_timezone)
-  catechism_data = utils.get_catechism_for_day(now, rotation="daily")
+  catechism_data = utils.get_catechism_for_day(
+      now, rotation="daily", hidden=utils.catechism_hidden_for_user()
+  )
 
   ten_commandments = get_ten_commandments()
 

@@ -25,7 +25,8 @@ Gains LLC.
 - **PWA** — installable, offline-capable (service worker), with home-screen
   shortcuts.
 - **Personalization** — timezones, dark mode, font size, favorites,
-  background art (Full of Eyes).
+  background art (Full of Eyes), optional hiding of the catechism card in
+  devotions (applies to web, print, and emailed versions).
 
 ## Tech stack
 
