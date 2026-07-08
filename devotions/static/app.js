@@ -653,3 +653,100 @@ document.addEventListener('click', function (event) {
         });
     }
 });
+
+// ---------------------------------------------------------------------------
+// Native app shell (Capacitor) support. Inside the Capacitor WebView (the
+// mobile/ project) the shell injects window.Capacitor, and push + Google
+// sign-in must go through native plugins because Android WebViews have no
+// Push API and Google blocks its OAuth pages in embedded webviews. On the
+// regular web isNativeShell is false and this whole section is inert.
+window.isNativeShell = !!(window.Capacitor &&
+    window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+
+if (window.isNativeShell) {
+    const { PushNotifications } = window.Capacitor.Plugins;
+
+    // Whenever the OS hands us a (possibly rotated) FCM token, persist it
+    // server-side and remember it locally so nativePush.disable() can remove
+    // it later (the plugin has no "get current token" call).
+    PushNotifications.addListener('registration', async (token) => {
+        localStorage.setItem('native_fcm_token', token.value);
+        try {
+            await fetch('/save_fcm_token', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: token.value })
+            });
+        } catch (e) {
+            console.warn('Failed to save native FCM token', e);
+        }
+    });
+
+    // Tap on a system notification (app in background): deep-link to the url
+    // the server put in the message's data payload.
+    PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
+        const data = (action.notification && action.notification.data) || {};
+        if (data.url) {
+            window.location.href = new URL(data.url, window.location.origin).href;
+        }
+    });
+
+    // Foreground pushes are not displayed by the OS on Android; surface a
+    // toast instead (mirrors the web's onMessage handler in reminders.html).
+    PushNotifications.addListener('pushNotificationReceived', (n) => {
+        const data = n.data || {};
+        const title = n.title || data.title || 'Prayer Reminder';
+        const body = n.body || data.body || '';
+        showToast(body ? title + ': ' + body : title, 'info', 8000);
+    });
+
+    // FCM tokens rotate. If this user already enabled notifications and the
+    // OS permission is granted, re-register on every launch (no prompt) so
+    // the server always holds a live token.
+    if (isLoggedIn &&
+        localStorage.getItem('notifications_enabled') === 'true') {
+        PushNotifications.checkPermissions().then((status) => {
+            if (status.receive === 'granted') PushNotifications.register();
+        }).catch(() => {});
+    }
+
+    // Push controls used by settings.html's notification toggle in place of
+    // the web Notification/getToken flow.
+    window.nativePush = {
+        async enable() {
+            let status = await PushNotifications.checkPermissions();
+            if (status.receive === 'prompt' ||
+                status.receive === 'prompt-with-rationale') {
+                status = await PushNotifications.requestPermissions();
+            }
+            if (status.receive !== 'granted') {
+                showToast('Notifications are disabled for this app. Enable ' +
+                    'them under Android Settings > Apps > A Simple Way to ' +
+                    'Pray > Notifications.', 'info', 9000);
+                return false;
+            }
+            // Token arrives via the 'registration' listener above, which
+            // also saves it to the server.
+            await PushNotifications.register();
+            return true;
+        },
+        async disable() {
+            const token = localStorage.getItem('native_fcm_token');
+            if (token) {
+                try {
+                    await fetch('/remove_fcm_token', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ token: token })
+                    });
+                } catch (e) {
+                    console.warn('Failed to remove native FCM token', e);
+                }
+                localStorage.removeItem('native_fcm_token');
+            }
+            try {
+                await PushNotifications.unregister();
+            } catch (e) { /* not fatal; token was already removed server-side */ }
+        }
+    };
+}

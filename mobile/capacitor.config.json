@@ -1,0 +1,15 @@
+{
+  "appId": "com.asimplewaytopray.app",
+  "appName": "A Simple Way to Pray",
+  "webDir": "www",
+  "server": {
+    "url": "https://asimplewaytopray.com",
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "FirebaseAuthentication": {
+      "skipNativeAuth": false,
+      "providers": ["google.com"]
+    }
+  }
+}
