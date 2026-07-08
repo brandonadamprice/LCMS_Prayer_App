@@ -16,5 +16,9 @@
 
     WORKDIR /app/python
 
-    # Command to run your application (e.g., with Gunicorn)
-    CMD ["gunicorn", "--bind", "0.0.0.0:8080", "main:app"]
+    # Command to run your application (e.g., with Gunicorn).
+    # 2 workers x 8 threads: the app is I/O-bound (Firestore, ESV API), so
+    # threads absorb slow upstream calls; the default single sync worker let
+    # one slow request block everything. Timeout raised 30s -> 60s to cover
+    # cold ESV/Firestore calls without killing the worker.
+    CMD ["gunicorn", "--workers", "2", "--threads", "8", "--timeout", "60", "--bind", "0.0.0.0:8080", "main:app"]
