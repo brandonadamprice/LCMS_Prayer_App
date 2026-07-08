@@ -126,6 +126,8 @@ def load_user(user_id):
 @app.before_request
 def log_request_info():
   """Logs details about the incoming request for debugging."""
+  if flask.request.path == "/health":
+    return  # Health probes would drown out real traffic in the logs.
   app.logger.info(
       f"Incoming Request: {flask.request.method} {flask.request.url}"
   )
@@ -353,6 +355,17 @@ def index_route():
 def service_worker():
   """Serves the service worker file from static."""
   return app.send_static_file("sw.js")
+
+
+@app.route("/health")
+def health_route():
+  """Liveness probe for load balancers / uptime monitors.
+
+  Deliberately touches no Firestore or Secret Manager state: it answers "is
+  the process serving requests", not "are all dependencies up", so probes
+  never add load to (or flap with) the backends.
+  """
+  return flask.jsonify({"status": "ok"})
 
 
 @app.route("/feedback")
