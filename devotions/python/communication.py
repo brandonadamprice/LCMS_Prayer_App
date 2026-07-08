@@ -116,6 +116,17 @@ def send_push_result(token, title, body, url=None, data=None):
 
   try:
     message = messaging.Message(
+        # The notification block is what makes a native app (Capacitor shell)
+        # display the message when it is backgrounded or killed — data-only
+        # messages are never shown by the OS on Android/iOS. Web push is
+        # unaffected: sw.js's custom `push` handler is the only thing that
+        # displays there (no firebase-messaging SW library is loaded, so
+        # nothing auto-displays twice), and it reads the title/body/url
+        # duplicated into `data` above.
+        notification=messaging.Notification(title=title, body=body),
+        # Reminders are scheduled for a specific time, so ask Android to
+        # deliver immediately instead of batching through Doze.
+        android=messaging.AndroidConfig(priority="high"),
         data=data,
         token=token,
     )
