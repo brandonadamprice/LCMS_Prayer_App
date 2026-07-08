@@ -12,7 +12,6 @@ import flask_login
 import liturgy
 import menu
 import models
-import rate_limit_logic
 import secrets_fetcher
 from services import users
 import utils
@@ -254,49 +253,6 @@ def csp_report_route():
   return ("", 204)
 
 
-# Brute-force protection for the credential/verification endpoints (Fable
-# audit item 3). Keyed by client IP (ProxyFix restores the real address from
-# X-Forwarded-For). In-memory and per-process by design -- see
-# rate_limit_logic's module docstring for why that is sufficient here.
-# /auth/firebase is deliberately not limited: it only accepts
-# already-verified Firebase ID tokens, and Firebase applies its own
-# credential throttling upstream.
-_AUTH_LIMITERS = {
-    # 6-digit code space is 10^6; 10 guesses per 10 min makes brute force
-    # take years even across several instances.
-    "register_verify": rate_limit_logic.SlidingWindowLimiter(10, 600),
-    "email_login": rate_limit_logic.SlidingWindowLimiter(10, 300),
-    # These two send email on every attempt, so the caps are tighter.
-    "register": rate_limit_logic.SlidingWindowLimiter(10, 3600),
-    "forgot_password": rate_limit_logic.SlidingWindowLimiter(5, 3600),
-}
-
-
-def rate_limited(limiter_name):
-  """Returns 429 when the client IP exceeds the named limiter's budget.
-
-  Only POSTs count: GETs on the same routes just render forms. Apply below
-  @app.route.
-  """
-  limiter = _AUTH_LIMITERS[limiter_name]
-
-  def decorator(f):
-    @functools.wraps(f)
-    def wrapper(*args, **kwargs):
-      if flask.request.method == "POST":
-        client_ip = flask.request.remote_addr or "unknown"
-        if not limiter.allow(client_ip):
-          app.logger.warning(
-              "Rate limit hit: %s from %s", limiter_name, client_ip
-          )
-          return flask.abort(429)
-      return f(*args, **kwargs)
-
-    return wrapper
-
-  return decorator
-
-
 def admin_required(f):
   """Aborts with 403 unless the current user is the configured admin.
 
@@ -345,12 +301,6 @@ def page_not_found(_error):
   return flask.render_template("404.html"), 404
 
 
-@app.errorhandler(429)
-def too_many_requests(_error):
-  """Render a branded 429 page when a rate limit trips."""
-  return flask.render_template("429.html"), 429
-
-
 @app.errorhandler(500)
 def internal_server_error(_error):
   """Render a branded 500 page instead of Flask's default."""
@@ -369,7 +319,7 @@ from routes import misc as misc_routes  # noqa: E402
 from routes import prayers as prayers_routes  # noqa: E402
 from routes import settings as settings_routes  # noqa: E402
 
-auth_routes.register(app, google=google, rate_limited=rate_limited)
+auth_routes.register(app, google=google)
 settings_routes.register(app)
 devotions_routes.register(app)
 prayers_routes.register(app)

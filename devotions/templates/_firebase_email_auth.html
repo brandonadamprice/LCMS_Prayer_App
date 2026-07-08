@@ -1,17 +1,17 @@
-{# Progressive enhancement for email/password auth via Firebase (Phase 3a).
+{# Email/password auth via Firebase — the ONLY email/password path since
+   migration Phase 3b removed the legacy form-POST routes
+   (docs/firebase-auth-migration.md). Include on pages containing:
+     - #email-signin-form     -> signInWithEmailAndPassword + session bridge
+     - #email-register-form   -> createUserWithEmailAndPassword +
+                                 verification email (no session/doc until
+                                 verified; the bridge enforces it)
+     - #forgot-password-link  -> sendPasswordResetEmail
 
-   Include on pages with the legacy email forms. Intercepts:
-     - form[action="/login/email"]  -> signInWithEmailAndPassword + bridge
-     - form[action="/register"]    -> createUserWithEmailAndPassword +
-                                       verification email (no session/doc
-                                       until verified; the bridge enforces it)
-     - a[href="/forgot_password"]  -> sendPasswordResetEmail
-
-   Failure policy mirrors _firebase_signin.html: unexpected failures (SDK
-   load, network, unknown errors) fall through to the legacy form POST /
-   page, so the worst case is identical to the pre-Firebase behavior. Cases
-   where falling back would be wrong (unverified email, duplicate account)
-   show a toast instead.
+   Failure policy: there is no legacy fallback anymore. Credential errors
+   show "Invalid email or password."; infrastructure failures (SDK load,
+   network) show a temporary-unavailability toast. The forms carry an
+   inline onsubmit="event.preventDefault()" so a failed module load can
+   never fall through to a native POST against a removed route.
 #}
 <script type="module">
   async function firebaseAuth() {
@@ -37,13 +37,24 @@
     return { resp: resp, data: data };
   }
 
+  const UNAVAILABLE = 'Sign-in is temporarily unavailable. Please try again'
+      + ' in a few minutes, or use the feedback link below to reach us.';
+
+  function isBadCredential(err) {
+    const code = err && err.code;
+    return code === 'auth/wrong-password'
+        || code === 'auth/user-not-found'
+        || code === 'auth/invalid-credential'
+        || code === 'auth/invalid-email';
+  }
+
   // --- Sign in ---
-  const loginForm = document.querySelector('form[action="/login/email"]');
+  const loginForm = document.getElementById('email-signin-form');
   if (loginForm) {
     let busy = false;
     loginForm.addEventListener('submit', async (event) => {
-      if (busy) { event.preventDefault(); return; }
       event.preventDefault();
+      if (busy) return;
       busy = true;
       const email = loginForm.querySelector('[name="email"]').value.trim();
       const password = loginForm.querySelector('[name="password"]').value;
@@ -54,10 +65,16 @@
           credential = await authMod.signInWithEmailAndPassword(
               auth, email, password);
         } catch (err) {
-          // Wrong password, no Firebase account (gap registrations), etc.:
-          // the legacy flow is the authority during 3a.
+          if (isBadCredential(err)) {
+            showToast('Invalid email or password.', 'error');
+          } else if (err && err.code === 'auth/too-many-requests') {
+            showToast('Too many attempts. Please wait a few minutes and try'
+                + ' again, or reset your password.', 'error', 8000);
+          } else {
+            console.warn('Firebase email sign-in failed.', err);
+            showToast(UNAVAILABLE, 'error', 9000);
+          }
           busy = false;
-          loginForm.submit();
           return;
         }
         const { resp, data } = await bridgeSession(credential.user);
@@ -79,38 +96,37 @@
         }
         throw new Error(data.error || 'session bridge failed');
       } catch (err) {
-        console.warn('Firebase email sign-in failed; using legacy flow.', err);
-        loginForm.submit();
+        console.warn('Firebase email sign-in failed.', err);
+        showToast(UNAVAILABLE, 'error', 9000);
+        busy = false;
       }
     });
   }
 
   // --- Register ---
-  const registerForm = document.querySelector('form[action="/register"]');
+  const registerForm = document.getElementById('email-register-form');
   if (registerForm) {
     let busy = false;
     registerForm.addEventListener('submit', async (event) => {
-      if (busy) { event.preventDefault(); return; }
+      event.preventDefault();
+      if (busy) return;
       const name = registerForm.querySelector('[name="name"]').value.trim();
       const email = registerForm.querySelector('[name="email"]').value.trim();
       const password = registerForm.querySelector('[name="password"]').value;
       const confirm = registerForm.querySelector('[name="confirm_password"]').value;
 
-      // Mirror the legacy server-side policy (users.validate_password) so
-      // Firebase-created accounts meet the same bar.
+      // Mirror the historical server-side policy so Firebase-created
+      // accounts meet the same bar.
       if (password !== confirm) {
-        event.preventDefault();
         showToast('Passwords do not match.', 'error');
         return;
       }
       if (password.length < 8 || !/[A-Z]/.test(password) || !/[^a-zA-Z]/.test(password)) {
-        event.preventDefault();
         showToast('Password must be at least 8 characters long, contain a'
             + ' capital letter, and a number or symbol.', 'error', 8000);
         return;
       }
 
-      event.preventDefault();
       busy = true;
       try {
         const { auth, authMod } = await firebaseAuth();
@@ -137,14 +153,15 @@
             'success', 11000);
         setTimeout(() => { window.location.href = '/login'; }, 3000);
       } catch (err) {
-        console.warn('Firebase registration failed; using legacy flow.', err);
-        registerForm.submit();
+        console.warn('Firebase registration failed.', err);
+        showToast(UNAVAILABLE, 'error', 9000);
+        busy = false;
       }
     });
   }
 
   // --- Forgot password ---
-  const forgotLink = document.querySelector('a[href="/forgot_password"]');
+  const forgotLink = document.getElementById('forgot-password-link');
   if (forgotLink && loginForm) {
     forgotLink.addEventListener('click', async (event) => {
       event.preventDefault();
@@ -161,16 +178,16 @@
         try {
           await authMod.sendPasswordResetEmail(auth, email);
         } catch (err) {
-          // Don't reveal whether the account exists; only infrastructure
-          // problems fall back to the legacy page.
+          // Don't reveal whether the account exists.
           if (!err || err.code !== 'auth/user-not-found') throw err;
         }
         showToast('If an account with that email exists, a password reset'
             + ' link has been sent. Check your spam folder if you don’t'
             + ' see it.', 'success', 9000);
       } catch (err) {
-        console.warn('Firebase password reset failed; using legacy flow.', err);
-        window.location.href = '/forgot_password';
+        console.warn('Firebase password reset failed.', err);
+        showToast('Password reset is temporarily unavailable. Please try'
+            + ' again in a few minutes.', 'error', 9000);
       }
     });
   }

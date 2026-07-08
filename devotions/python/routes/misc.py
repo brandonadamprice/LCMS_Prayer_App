@@ -59,8 +59,6 @@ _ROBOTS_DISALLOW = (
     "/login",
     "/logout",
     "/register",
-    "/forgot_password",
-    "/reset_password/",
     "/complete_prayer_email/",
     "/tasks/",
     "/debug/",

@@ -12,8 +12,6 @@ import secrets_fetcher
 from services import reminders
 from services import users
 import utils
-from werkzeug.security import check_password_hash
-from werkzeug.security import generate_password_hash
 
 
 def _save_user_fields(updates, use_merge=True):
@@ -216,46 +214,6 @@ def register(app):
         app.logger.error("Failed to update picture: %s", e)
         flask.flash("Error updating picture.", "error")
 
-    return flask.redirect("/settings")
-
-
-  @app.route("/settings/update_password", methods=["POST"])
-  @flask_login.login_required
-  def update_password():
-    """Updates or sets the user's password."""
-    current_password = flask.request.form.get("current_password")
-    new_password = flask.request.form.get("new_password")
-    confirm_new_password = flask.request.form.get("confirm_new_password")
-
-    if not new_password or not confirm_new_password:
-      flask.flash("New password and confirmation are required.", "error")
-      return flask.redirect("/settings")
-
-    if new_password != confirm_new_password:
-      flask.flash("New passwords do not match.", "error")
-      return flask.redirect("/settings")
-
-    password_error = users.validate_password(new_password)
-    if password_error:
-      flask.flash(password_error, "error")
-      return flask.redirect("/settings")
-
-    user = flask_login.current_user
-    db = utils.get_db_client()
-    user_ref = db.collection("users").document(user.id)
-
-    if user.password_hash:
-      if not current_password:
-        flask.flash("Current password is required.", "error")
-        return flask.redirect("/settings")
-      if not check_password_hash(user.password_hash, current_password):
-        flask.flash("Incorrect current password.", "error")
-        return flask.redirect("/settings")
-
-    hashed_password = generate_password_hash(new_password)
-    user_ref.update({"password_hash": hashed_password})
-
-    flask.flash("Password updated successfully.", "success")
     return flask.redirect("/settings")
 
 

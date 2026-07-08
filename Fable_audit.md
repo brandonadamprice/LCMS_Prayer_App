@@ -46,10 +46,14 @@ and `py_compile`/`jinja` parse (the app can't fully boot under Python 3.14).
   of `main`/prod and can be merged when you are. Net prod changes: `SameSite`→`Lax`,
   the `/auth/` cache fix, batches 5–7, offline-cache fix. Prod `authDomain` stays
   `asimplewaytopray.com` (the per-env logic only special-cases staging).
-- **⬜ Not started (need a decision):** **13** (Blueprint split of
-  `main.py` — large internal refactor).
-- **✅ Item 3 done (2026-07-07):** auth rate limiting via a dependency-free
-  in-process sliding-window limiter + constant-time code compare (see item 3).
+- **✅ Item 13 done (2026-07-07):** `main.py` split into a `routes/` package
+  (register(app) modules, not Blueprints, so endpoint names — and therefore
+  every template `url_for()` — are unchanged; verified by url_map diff).
+- **✅ Item 3 done (2026-07-07), then superseded (2026-07-08):** auth rate
+  limiting shipped via a dependency-free in-process sliding-window limiter +
+  constant-time code compare; migration Phase 3b then deleted the legacy
+  credential endpoints entirely (Firebase throttles its own auth API), so the
+  limiter was removed with them (see item 3; git history has the module).
 
 ### Security
 
