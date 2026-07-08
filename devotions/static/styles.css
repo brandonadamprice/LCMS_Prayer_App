@@ -2489,6 +2489,14 @@ select:focus-visible,
         box-shadow: none;
         padding: 0;
         margin-bottom: 24px;
+        /* Keep a card on one page when it fits (a card taller than a page
+           still breaks normally), so prayers aren't orphaned mid-thought. */
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+    p, li, blockquote {
+        orphans: 3;
+        widows: 3;
     }
     .card-header {
         break-after: avoid;
