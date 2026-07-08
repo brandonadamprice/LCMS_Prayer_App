@@ -388,7 +388,7 @@ def get_weekly_prayer_for_day(
   If personal_prayers_by_category (the grouped, already-decrypted output of
   get_all_personal_prayers_for_user) is supplied, the day's personal prayers are
   taken from it instead of re-streaming and re-decrypting the user's
-  personal-prayers subcollection.
+  personal-prayers subcollection. Either way, answered prayers are excluded.
   """
   weekday_idx = now.weekday()
   prayer_data = WEEKLY_PRAYERS.get(
@@ -396,22 +396,9 @@ def get_weekly_prayer_for_day(
   )
   topic = prayer_data["topic"]
 
-  if personal_prayers_by_category is not None:
-    personal_prayers_list = list(personal_prayers_by_category.get(topic, []))
-  else:
-    personal_prayers_list = []
-    target_id = user_id
-    if target_id is None and flask_login.current_user.is_authenticated:
-      target_id = flask_login.current_user.id
-
-    if target_id:
-      raw_prayers = fetch_personal_prayers(target_id)
-      for prayer in raw_prayers:
-        if prayer.get("category") == topic:
-          prayer["text"] = decrypt_text(prayer["text"])
-          if prayer.get("for_whom"):
-            prayer["for_whom"] = decrypt_text(prayer["for_whom"])
-          personal_prayers_list.append(prayer)
+  if personal_prayers_by_category is None:
+    personal_prayers_by_category = get_all_personal_prayers_for_user(user_id)
+  personal_prayers_list = list(personal_prayers_by_category.get(topic, []))
 
   return {
       "prayer_topic": topic,
