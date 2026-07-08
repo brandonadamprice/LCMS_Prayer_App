@@ -746,7 +746,9 @@ def register_verify():
     )
 
   code = flask.request.form.get("code", "").strip()
-  if code == pending_data["code"]:
+  # Constant-time compare, same as the cron-auth check: a 6-digit code is too
+  # short for a practical timing attack, but == leaks match length/prefix.
+  if secrets.compare_digest(code, pending_data["code"]):
     # Verification successful
     db = utils.get_db_client()
     users_ref = db.collection("users")
