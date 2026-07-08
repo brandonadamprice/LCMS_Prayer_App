@@ -21,10 +21,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
     - `pip install -r devotions/requirements.txt`
 - **Run tests**:
     - `python -m unittest discover -s devotions/python/tests -t devotions/python`
-    - Tests use only the standard library and cover import-light modules
-      (`streak_logic.py`, `liturgy.py`) so they run without the Firestore/protobuf
-      stack, which currently fails to import under Python 3.14. Keep pure,
-      testable logic out of modules that import `firebase`/`google-cloud`.
+    - Tests cover the pure, import-light modules (`streak_logic.py`,
+      `liturgy.py`, `firebase_auth_logic.py`, `password_hash_logic.py`,
+      `rate_limit_logic.py`, `reminder_logic.py`, `menu.py`) and run without
+      touching Firestore. Keep pure, testable logic out of modules that
+      import `firebase`/`google-cloud`.
+    - The whole app imports cleanly under Python 3.14 (protobuf is pinned to
+      6.x for this — see the comment in `requirements.txt`). For a local
+      smoke test without Secret Manager, set dummy env vars for the secrets
+      (`secrets_fetcher` reads env first; `FERNET_KEY` must be a valid
+      Fernet key) and `import main`.
 - **Environment Variables/Secrets**:
     - The app uses `devotions/python/secrets_fetcher.py` to fetch secrets from Google Cloud Secret Manager.
     - For local development, ensure necessary secrets are available or mocked.
@@ -32,7 +38,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Architecture Overview
 
 - **Core Logic (`devotions/python/`)**:
-    - `main.py`: The primary Flask application entry point, containing routes and app configuration.
+    - `main.py`: App setup only — config, request hooks, security headers, auth rate limiting, error handlers. Route handlers live in `routes/` (`auth`, `settings`, `devotions`, `prayers`, `api`, `misc`), each exposing `register(app, **deps)` with plain `@app.route`. Deliberately NOT Flask Blueprints: Blueprints would prefix endpoint names and break the bare `url_for()` calls used throughout the templates.
+    - `rate_limit_logic.py`: Pure, stdlib-only sliding-window rate limiter backing the `@rate_limited` decorator on the auth routes.
+    - `reminder_logic.py`: Pure, DST-safe "next reminder run" math (Firestore side: `services/reminders.py`).
     - `models.py`: Data models (e.g., `User`).
     - `liturgy.py`: Contains logic for the liturgical year, church seasons, and calculating feast days.
     - `streak_logic.py`: Pure, dependency-free streak/grace-day math (no Firestore imports) so it stays unit-testable.
