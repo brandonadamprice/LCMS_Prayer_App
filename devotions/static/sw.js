@@ -1,15 +1,18 @@
-const CACHE_NAME = 'prayer-app-v26';
+const CACHE_NAME = 'prayer-app-v27';
 // Stable, version-independent cache for user-downloaded offline devotions
 // (Settings -> "Download Next 3 Days"). Kept across deploys by the activate
 // handler below, so a CACHE_NAME bump doesn't wipe what the user saved.
 // settings.html writes to this exact name -- keep the two in sync.
 const OFFLINE_CACHE_NAME = 'prayer-app-offline';
+// Self-contained fallback page served when a navigation fails offline.
+const OFFLINE_PAGE = '/static/offline.html';
 const ASSETS_TO_CACHE = [
   '/static/styles.css',
   '/static/banner.jpg',
   '/static/icons/favicon.ico',
   '/static/icons/android-chrome-192x192.png',
-  '/static/icons/android-chrome-512x512.png'
+  '/static/icons/android-chrome-512x512.png',
+  OFFLINE_PAGE
 ];
 
 // Install event: Cache static assets
@@ -81,7 +84,13 @@ self.addEventListener('fetch', (event) => {
                             return response;
                           })
                           .catch(() => {
-                            return caches.match(event.request);
+                            // caches.match() searches every cache, so pages
+                            // saved via "Download Next 3 Days" are found too.
+                            // If this exact page was never cached, show the
+                            // offline fallback instead of a browser error.
+                            return caches.match(event.request)
+                                .then((cached) => cached ||
+                                          caches.match(OFFLINE_PAGE));
                           }));
   } else {
     // Cross-origin requests (Google Fonts, CDN scripts, analytics) pass

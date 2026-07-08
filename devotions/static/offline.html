@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline — A Simple Way to Pray</title>
+    <!-- Served by the service worker when a navigation fails offline. Fully
+         self-contained: no external CSS/JS/images, since nothing else may be
+         reachable or cached. -->
+    <style>
+      :root {
+        --bg: #f7f3e3;
+        --card: #ffffff;
+        --text: #333333;
+        --heading: #65342f;
+        --border: #ddd6c3;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #1e1b16;
+          --card: #2a2620;
+          --text: #e8e2d4;
+          --heading: #c4a878;
+          --border: #454036;
+        }
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: Georgia, 'Times New Roman', serif;
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        box-sizing: border-box;
+        text-align: center;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        max-width: 26em;
+        padding: 32px 28px;
+      }
+      h1 {
+        color: var(--heading);
+        font-size: 1.5em;
+        margin: 0 0 12px 0;
+      }
+      p { line-height: 1.5; margin: 0 0 12px 0; }
+      .emoji { font-size: 3em; margin-bottom: 8px; }
+      .verse { font-style: italic; }
+      .verse-ref { font-size: 0.85em; opacity: 0.75; font-style: normal; }
+      button {
+        background: var(--heading);
+        border: none;
+        border-radius: 8px;
+        color: var(--bg);
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 1em;
+        margin-top: 8px;
+        padding: 10px 24px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="emoji" aria-hidden="true">🙏</div>
+      <h1>You're Offline</h1>
+      <p>This page isn't available without a connection. Pages you've visited
+         recently — and devotions saved with &ldquo;Download Next 3 Days&rdquo;
+         in Settings — still work offline.</p>
+      <p class="verse">&ldquo;Be still, and know that I am God.&rdquo;<br>
+         <span class="verse-ref">Psalm 46:10</span></p>
+      <button onclick="location.reload()">Try Again</button>
+    </div>
+  </body>
+</html>
