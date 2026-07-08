@@ -167,22 +167,29 @@ to `dev` (PRs #33, #34); migration executed:**
 - **Deferred delete honored:** nothing reads less of `password_hash` yet and
   the field is untouched; linking stays idempotent.
 
-**Release 3a — remaining rollout steps:**
-1. Staging smoke test: register (verification email arrives, link works,
-   first verified sign-in creates the doc), sign in, forgot-password, and a
-   wrong-password attempt (exercises the legacy fallback path).
-2. **Email deliverability (in progress):** custom sending domain for Firebase
-   auth emails + SPF/DKIM; customize sender name/templates (Firebase console
-   → Authentication → Templates) before wide exposure.
-3. Deploy `dev` → prod.
-4. **Immediately after prod deploy:** re-run
-   `python scripts/import_password_users.py --execute` once to sweep
-   accounts registered via the legacy form since the bulk import
-   (idempotent; already-linked docs are skipped). Until swept, gap accounts
-   sign in fine via the fallback, but Firebase-side password reset silently
-   no-ops for them.
-5. Bake: admin "migrated" count (~42/87 post-import) climbing; logs show
-   `login`/`link`, no surprise `create`s; no feedback-form reports.
+**Release 3a — rollout status (verified against repo/DNS 2026-07-07):**
+1. ~~Staging smoke test~~ — superseded by the prod bake: the 3a client has
+   been live in prod since 2026-06-11 (commit `899cf1c` on `main`).
+2. ✅ **Email deliverability (DNS confirmed 2026-07-07):** apex TXT has
+   `v=spf1 include:_spf.firebasemail.com ~all` and both
+   `firebase1/firebase2._domainkey` DKIM CNAMEs resolve to
+   firebasemail.com. Remaining (console-only, unverified from the repo):
+   sender name / email templates under Firebase console → Authentication →
+   Templates.
+3. ✅ Deployed to prod 2026-06-11 (`899cf1c` merged to `main`).
+4. ⬜ **THE REMAINING STEP — post-deploy sweep:** re-run
+   `python scripts/import_password_users.py` (dry-run first, then
+   `--execute`) once to sweep accounts registered via the legacy form since
+   the bulk import (idempotent; already-linked docs are skipped). Until
+   swept, gap accounts sign in fine via the fallback, but Firebase-side
+   password reset silently no-ops for them. Precede with the read-only
+   `python scripts/audit_password_hashes.py` to quantify (attempted
+   2026-07-07 but local ADC creds were expired — run
+   `gcloud auth application-default login` first). No commit or doc note
+   records this sweep having run.
+5. ⬜ Bake check before 3b: admin "migrated" count (~42/87 post-import)
+   climbing; logs show `login`/`link`, no surprise `create`s; no
+   feedback-form reports.
 
 **Release 3b — delete (after 3a proven in prod) — ⏳ NOT STARTED:**
 - Remove the now-dead code:
