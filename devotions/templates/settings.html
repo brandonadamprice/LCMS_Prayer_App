@@ -332,6 +332,11 @@
   }
 
   async function requestPushPermission() {
+    // Inside the Capacitor shell the WebView has no Push API; the native
+    // plugin (via app.js) registers with FCM and saves the token itself.
+    if (window.isNativeShell) {
+        return window.nativePush.enable();
+    }
     if (!('Notification' in window)) {
         showToast("This browser does not support desktop notifications.", "error");
         return false;
@@ -377,6 +382,10 @@
   }
 
   async function disableNotifications() {
+    if (window.isNativeShell) {
+        await window.nativePush.disable();
+        return;
+    }
     try {
         if (!messaging) await initFirebase();
         if (!messaging) return;
@@ -398,6 +407,19 @@
   }
 
   function updateToggleState() {
+    // Native shell: no web Notification API. The OS permission was checked
+    // when the user enabled; reflect the stored preference.
+    if (window.isNativeShell) {
+        const localEnabled = localStorage.getItem('notifications_enabled') === 'true';
+        if (notifToggle) {
+            notifToggle.checked = localEnabled;
+            notifToggle.disabled = false;
+        }
+        if (notifStatusText) {
+            notifStatusText.textContent = localEnabled ? "Notifications Enabled" : "Enable Notifications";
+        }
+        return;
+    }
     if (!('Notification' in window)) {
         if(notifToggle) notifToggle.disabled = true;
         if(notifStatusText) notifStatusText.textContent = "Notifications not supported on this browser/device.";
@@ -439,14 +461,18 @@
 
   if (notifToggle) {
       notifToggle.addEventListener('change', async (e) => {
-        if (!('Notification' in window)) return;
+        // Web-only guards; in the native shell permission handling (incl.
+        // the denied case) lives in nativePush.enable().
+        if (!window.isNativeShell) {
+            if (!('Notification' in window)) return;
 
-        // If explicitly denied, we can't request again. Show instructions.
-        if (Notification.permission === 'denied') {
-            e.preventDefault();
-            e.target.checked = false;
-            showToast("Notifications are currently disabled for this site in your browser settings.\n\nTo enable them:\n- iOS: Go to Settings > Notifications > [This App/Browser] and Allow.\n- Android/Chrome: Tap the lock icon in the address bar > Permissions > Notifications.", "info", 9000);
-            return;
+            // If explicitly denied, we can't request again. Show instructions.
+            if (Notification.permission === 'denied') {
+                e.preventDefault();
+                e.target.checked = false;
+                showToast("Notifications are currently disabled for this site in your browser settings.\n\nTo enable them:\n- iOS: Go to Settings > Notifications > [This App/Browser] and Allow.\n- Android/Chrome: Tap the lock icon in the address bar > Permissions > Notifications.", "info", 9000);
+                return;
+            }
         }
 
         if (e.target.checked) {
@@ -615,7 +641,7 @@
         // unversioned copy would never be served. Keep the ?v= values in
         // sync with base.html.
         urlsToCache.push('/static/styles.css?v=26');
-        urlsToCache.push('/static/app.js?v=1');
+        urlsToCache.push('/static/app.js?v=2');
         urlsToCache.push('/static/icons/favicon.ico');
         urlsToCache.push('/static/icons/android-chrome-192x192.png');
         urlsToCache.push('/static/icons/android-chrome-512x512.png');

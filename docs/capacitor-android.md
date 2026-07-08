@@ -1,0 +1,127 @@
+# Capacitor Android: Build & Ship Checklist
+
+The code side is done and lives in this repo:
+
+- `mobile/` — the Capacitor project. `capacitor.config.json` points the
+  WebView at the live site (`https://asimplewaytopray.com`), so the app has
+  no bundled web code; web deploys update the app instantly with no store
+  release. `mobile/android/` is the generated native project (near-zero
+  hand-written code; `MainActivity.java` is 5 generated lines).
+- Plugins installed: `@capacitor-firebase/authentication` (OS-level Google
+  sign-in → `/auth/firebase` bridge) and `@capacitor/push-notifications`
+  (native FCM token → `/save_fcm_token`, tap deep-links).
+- Web-side wiring (ships with the Flask app; inert in normal browsers):
+  `static/app.js` (shell detection, token registration/rotation, tap
+  deep-link, foreground toast), `settings.html` (notification toggle native
+  path), `_firebase_signin.html` (native Google sign-in path).
+
+Everything below happens **outside the code** — console dashboards, keys,
+and the store. Do them in order.
+
+## 1. Register the Android app in Firebase
+
+1. [Firebase console](https://console.firebase.google.com/) → project
+   **lcms-prayer-app** → Project settings → *Your apps* → **Add app** →
+   Android.
+2. Package name: **`com.asimplewaytopray.app`** — must match exactly.
+   ⚠️ This ID is permanent once the app is on Google Play; if you want a
+   different one, change it NOW in `mobile/capacitor.config.json`,
+   `mobile/android/app/build.gradle` (`namespace` + `applicationId`), and
+   `MainActivity.java`'s package/path, before anything is published.
+3. Download **`google-services.json`** and put it at
+   `mobile/android/app/google-services.json`, then commit it (it's client
+   config — IDs, not secrets; same class of values `/auth/firebase_config`
+   already serves publicly). The Gradle build auto-detects it; Google
+   sign-in and push both stay broken until this file is in place.
+
+## 2. Add SHA fingerprints (required for Google sign-in)
+
+Native Google sign-in only works for APK signatures Firebase knows about.
+
+1. Debug key (created automatically by Android Studio; used for local runs):
+
+   ```
+   keytool -list -v -alias androiddebugkey -keystore ~/.android/debug.keystore -storepass android | grep -E 'SHA1|SHA256'
+   ```
+
+2. Firebase console → Project settings → your Android app → **Add
+   fingerprint** → paste the SHA-1 and SHA-256.
+3. **Re-download `google-services.json`** afterwards (it now embeds the
+   OAuth client) and replace the one in the repo.
+4. Repeat this step later for the **Play App Signing** key (step 6) — sign-in
+   works on your device but fails for Play-installed users until you do.
+
+Prerequisite that's already true: the Google provider is enabled in
+Firebase Authentication (the web sign-in uses it).
+
+## 3. Build and run locally
+
+1. Install [Android Studio](https://developer.android.com/studio) (bundles
+   the SDK and JDK).
+2. From `mobile/`: `npm install`, then `npx cap sync android`, then
+   `npx cap open android` (opens Android Studio).
+3. Run on an emulator or a USB-connected phone (enable Developer options →
+   USB debugging). First Gradle sync downloads dependencies; be patient.
+
+## 4. Device test checklist
+
+- [ ] App opens to the live site; navigation, offline page after airplane
+      mode, dark mode all behave.
+- [ ] **Google sign-in**: OS account chooser appears (no browser redirect),
+      lands signed in. Backing out of the chooser just resets the button.
+- [ ] **Email sign-in** (Firebase web SDK — works in the WebView unchanged).
+- [ ] Settings → enable notifications: Android 13+ system permission prompt
+      appears; toggle sticks.
+- [ ] Send a test reminder (`/settings` → reminders): notification appears
+      with the app **backgrounded and killed**; tapping it opens the right
+      devotion page (the `url` deep link).
+- [ ] Foreground push shows the toast.
+- [ ] External links (e.g. ESV copyright link) open in the browser, not the
+      WebView.
+
+## 5. Release build & Google Play
+
+1. [Play Console](https://play.google.com/console) developer account
+   ($25 one-time, individual is fine).
+2. Create app → accept **Play App Signing** (Google holds the final signing
+   key; you only manage an *upload* key). Generate the upload keystore:
+
+   ```
+   keytool -genkey -v -keystore upload-keystore.jks -alias upload -keyalg RSA -keysize 2048 -validity 10000
+   ```
+
+   Keep the keystore + passwords somewhere safe and **out of the repo**;
+   wire it into Android Studio via Build → Generate Signed App Bundle.
+3. Build an **AAB** (Android App Bundle), upload to an **Internal testing**
+   track first, install via the opt-in link on a real phone, re-run the
+   step 4 checklist on that build.
+4. Store listing chores before production rollout: app name, short/full
+   description, screenshots (phone + 7" tablet), 512×512 icon, feature
+   graphic, **privacy policy URL** (required — host one on the site),
+   Data safety form (declare: account data/email collected, encrypted in
+   transit, deletable; push tokens), content rating questionnaire, target
+   audience. Budget an afternoon.
+
+## 6. After the first Play upload
+
+Play Console → your app → Setup → **App integrity** → copy the *App signing
+key* SHA-1 and SHA-256 → add both as fingerprints in Firebase (step 2) →
+re-download and commit `google-services.json`. Without this, Google sign-in
+fails on Play-installed builds even though your local build works.
+
+## Nice-to-haves (any time)
+
+- **App icon / splash screen**: the project currently has Capacitor's
+  defaults. Put a 1024×1024 logo + 2732×2732 splash source in
+  `mobile/assets/` and run `npx @capacitor/assets generate --android`.
+- Play's pre-launch report (automatic on internal testing) exercises the
+  app on real devices — read it, it's free QA.
+
+## Ongoing
+
+- Web deploys update the app content immediately; no store release needed.
+- A new APK/AAB is only needed when `mobile/` changes: Capacitor/plugin
+  upgrades or config changes. After any `mobile/package.json` change run
+  `npx cap sync android` and commit the result.
+- iOS later reuses this exact project: `npx cap add ios`, plus the items in
+  `docs/native-apps.md` step 5 (Sign in with Apple, APNs, Guideline 4.2).

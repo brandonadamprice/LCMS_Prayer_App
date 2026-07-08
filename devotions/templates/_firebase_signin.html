@@ -12,15 +12,67 @@
    the worst case is identical to the pre-Firebase behavior. A deliberately
    closed popup just resets the button, and a 409 from the bridge carries a
    real user-facing message, so neither falls through to the legacy flow.
+
+   Native shell (Capacitor): the sign-in goes through the OS-level Google
+   flow via the FirebaseAuthentication plugin instead of the web popup, and
+   failures NEVER fall back to /login/google -- Google refuses its OAuth
+   pages inside webviews (disallowed_useragent), which is the whole reason
+   the native path exists.
 #}
 <script type="module">
   const googleBtn = document.querySelector('a[href="/login/google"]');
   if (googleBtn) {
     let busy = false;
+
+    // POSTs a Firebase ID token to the session bridge. Returns true when a
+    // session was created (caller should navigate), false when the bridge
+    // showed/threw a user-facing outcome that just resets the button.
+    // Throws on anything unexpected so each caller applies its own fallback.
+    async function createSession(idToken) {
+      const resp = await fetch('/auth/firebase', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken: idToken }),
+      });
+      const data = await resp.json();
+      if (resp.ok && data.success) return true;
+      if (resp.status === 409 && data.error) {
+        showToast(data.error, 'error');
+        return false;
+      }
+      throw new Error(data.error || 'session bridge failed');
+    }
+
+    async function nativeSignIn() {
+      try {
+        const { FirebaseAuthentication } = window.Capacitor.Plugins;
+        await FirebaseAuthentication.signInWithGoogle();
+        // The bridge needs the *Firebase* ID token, not the Google OAuth
+        // credential returned by signInWithGoogle().
+        const { token } = await FirebaseAuthentication.getIdToken();
+        if (await createSession(token)) {
+          window.location.href = '/';
+          return;
+        }
+      } catch (err) {
+        const msg = String((err && (err.message || err.code)) || '');
+        // User backed out of the account chooser: not an error.
+        if (!/cancel|12501/i.test(msg)) {
+          console.warn('Native Google sign-in failed.', err);
+          showToast('Google sign-in failed. Please try again.', 'error');
+        }
+      }
+      busy = false;
+    }
+
     googleBtn.addEventListener('click', async (event) => {
       event.preventDefault();
       if (busy) return;
       busy = true;
+      if (window.isNativeShell) {
+        await nativeSignIn();
+        return;
+      }
       try {
         const configResp = await fetch('/auth/firebase_config');
         if (!configResp.ok) throw new Error('config fetch failed');
@@ -49,22 +101,11 @@
         }
 
         const idToken = await result.user.getIdToken();
-        const resp = await fetch('/auth/firebase', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ idToken: idToken }),
-        });
-        const data = await resp.json();
-        if (resp.ok && data.success) {
+        if (await createSession(idToken)) {
           window.location.href = '/';
-          return;
-        }
-        if (resp.status === 409 && data.error) {
-          showToast(data.error, 'error');
+        } else {
           busy = false;
-          return;
         }
-        throw new Error(data.error || 'session bridge failed');
       } catch (err) {
         console.warn('Firebase sign-in failed; using legacy flow.', err);
         window.location.href = '/login/google';
