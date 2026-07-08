@@ -393,6 +393,97 @@ def privacy_route():
   return flask.render_template("privacy.html")
 
 
+# Public, evergreen pages worth indexing, with a hint at how often the
+# content behind them changes. Account/auth/API routes are deliberately
+# absent; robots.txt below also disallows them.
+_SITEMAP_PATHS = (
+    ("/", "daily"),
+    ("/office/morning", "daily"),
+    ("/office/midday", "daily"),
+    ("/office/evening", "daily"),
+    ("/office/close_of_day", "daily"),
+    ("/office/night_watch", "daily"),
+    ("/extended_evening_devotion", "daily"),
+    ("/mid_week_devotion", "daily"),
+    ("/childrens_devotion", "daily"),
+    ("/advent_devotion", "daily"),
+    ("/lent_devotion", "daily"),
+    ("/new_year_devotion", "daily"),
+    ("/daily_lectionary", "daily"),
+    ("/prayer_wall", "daily"),
+    ("/bible_in_a_year", "daily"),
+    ("/litany", "monthly"),
+    ("/short_prayers", "monthly"),
+    ("/prayer_weaver", "monthly"),
+    ("/small_catechism", "monthly"),
+    ("/nicene_creed_study", "monthly"),
+    ("/trinity_study", "monthly"),
+    ("/bible_family_tree", "monthly"),
+    ("/psalms_by_category", "monthly"),
+    ("/gospels_by_category", "monthly"),
+    ("/memory", "weekly"),
+    ("/catechism_memory", "weekly"),
+    ("/liturgical_calendar", "weekly"),
+    ("/about", "monthly"),
+    ("/privacy", "yearly"),
+    ("/copyright", "yearly"),
+)
+
+_ROBOTS_DISALLOW = (
+    "/settings",
+    "/my_prayers",
+    "/reminders",
+    "/streaks",
+    "/prayer_requests",
+    "/admin/",
+    "/api/",
+    "/auth/",
+    "/__/",
+    "/login",
+    "/logout",
+    "/register",
+    "/forgot_password",
+    "/reset_password/",
+    "/complete_prayer_email/",
+    "/tasks/",
+    "/debug/",
+    "/twilio/",
+    "/firebase_config",
+    "/get_passage_text",
+    "/csp-report",
+    "/health",
+)
+
+
+@app.route("/robots.txt")
+def robots_txt_route():
+  """Crawler directives; staging is kept out of the index entirely."""
+  if flask.request.host.startswith("staging."):
+    body = "User-agent: *\nDisallow: /\n"
+  else:
+    lines = ["User-agent: *"]
+    lines += [f"Disallow: {path}" for path in _ROBOTS_DISALLOW]
+    lines.append(f"Sitemap: https://{flask.request.host}/sitemap.xml")
+    body = "\n".join(lines) + "\n"
+  return flask.Response(body, mimetype="text/plain")
+
+
+@app.route("/sitemap.xml")
+def sitemap_route():
+  """XML sitemap of the public content pages."""
+  base = "https://" + flask.request.host
+  entries = "".join(
+      f"<url><loc>{base}{path}</loc><changefreq>{freq}</changefreq></url>"
+      for path, freq in _SITEMAP_PATHS
+  )
+  xml = (
+      '<?xml version="1.0" encoding="UTF-8"?>'
+      '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+      f"{entries}</urlset>"
+  )
+  return flask.Response(xml, mimetype="application/xml")
+
+
 @app.route("/login")
 def login():
   """Renders the sign-in page."""
