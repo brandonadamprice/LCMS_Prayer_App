@@ -46,16 +46,7 @@ def generate_mid_week_devotion(date_obj=None):
   personal_prayers_by_topic = {}
   if flask_login.current_user.is_authenticated:
     try:
-      raw_prayers = utils.fetch_personal_prayers(flask_login.current_user.id)
-      for prayer in raw_prayers:
-        topic = prayer.get("category")
-        if topic:
-          if topic not in personal_prayers_by_topic:
-            personal_prayers_by_topic[topic] = []
-          prayer["text"] = utils.decrypt_text(prayer["text"])
-          if prayer.get("for_whom"):
-            prayer["for_whom"] = utils.decrypt_text(prayer["for_whom"])
-          personal_prayers_by_topic[topic].append(prayer)
+      personal_prayers_by_topic = utils.get_all_personal_prayers_for_user()
     except Exception as e:
       logger.error(f"Error fetching personal prayers for mid-week: {e}")
 
