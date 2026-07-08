@@ -10,7 +10,11 @@ shell around the live site plus native capabilities where they matter.
 - Service worker with offline caching and push handling.
 - Push notifications already via **FCM** (`/save_fcm_token` backend), which has
   first-class native SDKs on both platforms — the existing token storage
-  carries straight over.
+  carries straight over. Messages carry both a `notification` block (so the OS
+  displays them for a native shell in the background — data-only messages
+  never show natively) and the `data` duplicate that the web service worker
+  renders from; native tokens can therefore share the same `fcm_tokens` array
+  and send path.
 - Firebase Auth session bridge (`/auth/firebase`) — built specifically so a
   native shell can sign in via the native Firebase SDK and exchange the ID
   token for the normal web session. See
