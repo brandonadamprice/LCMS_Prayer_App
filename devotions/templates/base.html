@@ -580,13 +580,16 @@
       if(decreaseFontSettings) decreaseFontSettings.addEventListener('click', handleDecreaseFont);
       if(resetFontSettings) resetFontSettings.addEventListener('click', handleResetFont);
 
-      function applyDarkMode(isDark) {
+      function applyDarkMode(isDark, persist = true) {
+        // persist=false is used when following the OS theme: nothing is
+        // written, so the site keeps tracking the OS until the user makes an
+        // explicit choice (toggle, or a saved account preference).
         if (isDark) {
           document.body.classList.add('dark-mode');
-          localStorage.setItem('darkMode', 'enabled');
+          if (persist) localStorage.setItem('darkMode', 'enabled');
         } else {
           document.body.classList.remove('dark-mode');
-          localStorage.setItem('darkMode', 'disabled');
+          if (persist) localStorage.setItem('darkMode', 'disabled');
         }
         // Sync toggles
         if(darkModeToggleSidebar) darkModeToggleSidebar.checked = isDark;
@@ -608,11 +611,22 @@
           }
       }
 
-      // Set initial dark mode state
+      // Set initial dark mode state: account preference, then an explicit
+      // local choice, then the OS theme (prefers-color-scheme) as default.
+      const osDarkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const storedDarkMode = localStorage.getItem('darkMode');
       if (isLoggedIn && userDarkMode !== null) {
           applyDarkMode(userDarkMode);
+      } else if (storedDarkMode !== null) {
+          applyDarkMode(storedDarkMode === 'enabled');
       } else {
-          applyDarkMode(localStorage.getItem('darkMode') === 'enabled');
+          applyDarkMode(osDarkQuery.matches, false);
+          // Keep following OS theme changes until an explicit choice is made.
+          osDarkQuery.addEventListener('change', (e) => {
+              if (localStorage.getItem('darkMode') === null) {
+                  applyDarkMode(e.matches, false);
+              }
+          });
       }
 
       // Set initial font size
