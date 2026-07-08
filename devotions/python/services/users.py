@@ -5,7 +5,6 @@ import logging
 import re
 import uuid
 
-import communication
 import firebase_auth_logic
 import flask
 from google.cloud import firestore
@@ -52,56 +51,6 @@ def get_user_by_email(email):
   return None
 
 
-def get_reset_token(email):
-  """Generates a password reset token."""
-  serializer = URLSafeTimedSerializer(utils.secrets.get_flask_secret_key())
-  return serializer.dumps(email, salt="password-reset-salt")
-
-
-def verify_reset_token(token, expiration=1800):
-  """Verifies a password reset token."""
-  serializer = URLSafeTimedSerializer(utils.secrets.get_flask_secret_key())
-  try:
-    email = serializer.loads(
-        token, salt="password-reset-salt", max_age=expiration
-    )
-  except Exception:
-    return None
-  return email
-
-
-def send_password_reset_email(email, reset_link):
-  """Sends a password reset email."""
-  body = (
-      f"To reset your password, visit the following link: {reset_link}\n\n"
-      "This link will expire in 30 minutes.\n\n"
-      "If you did not make this request then simply ignore this email and no"
-      " changes will be made."
-  )
-  success = communication.send_email(
-      email, "Password Reset Request", body_text=body
-  )
-
-  if not success:
-    logger.warning("Email sending failed for password reset to %s", email)
-    logger.info("Reset Link: %s", reset_link)
-
-  return True
-
-
-def reset_password(email, new_password_hash):
-  """Resets the user's password."""
-  user = get_user_by_email(email)
-  if not user:
-    return False
-
-  db = utils.get_db_client()
-  db.collection("users").document(user.id).update(
-      {"password_hash": new_password_hash}
-  )
-  return True
-
-
 def get_completion_token(user_id, devotion_type, date_str, bible_year_day=None):
   """Generates a token for marking a prayer as complete."""
   serializer = URLSafeTimedSerializer(utils.secrets.get_flask_secret_key())
@@ -123,41 +72,11 @@ def verify_completion_token(token, expiration=86400 * 2):
     return None
 
 
-def validate_password(password):
-  """Checks password complexity."""
-  if len(password) < 8:
-    return "Password must be at least 8 characters long."
-  if not re.search(r"[A-Z]", password):
-    return "Password must contain at least one capital letter."
-  if not re.search(r"[^a-zA-Z]", password):
-    return "Password must contain at least one number or symbol."
-  return None
-
-
 def validate_email(email):
   """Checks if email format is valid."""
   if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
     return "Invalid email address format."
   return None
-
-
-def send_verification_email(email, code):
-  """Sends a verification email using SMTP."""
-  body = f"Your verification code for A Simple Way to Pray is: {code}"
-  success = communication.send_email(
-      email, "Your Verification Code", body_text=body
-  )
-
-  if not success:
-    # If sending failed (e.g. no credentials in dev), log the code.
-    logger.warning("Email sending failed. Logging verification code.")
-    logger.info("========== EMAIL VERIFICATION ==========")
-    logger.info("To: %s", email)
-    logger.info("Code: %s", code)
-    logger.info("========================================")
-    return True
-
-  return success
 
 
 def get_oauth_user_data(user_info, provider):

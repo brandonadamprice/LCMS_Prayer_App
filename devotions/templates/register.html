@@ -30,7 +30,9 @@
     <div style="text-align: center; margin-bottom: 20px; border-bottom: 1px solid var(--color-border); line-height: 0.1em;">
       <span style="background: var(--color-card-bg); padding: 0 10px; color: var(--color-muted);">OR</span>
     </div>
-    <form action="/register" method="POST" class="auth-form">
+    {# Handled entirely by _firebase_email_auth.html; the inline onsubmit
+       guard means a failed script load can never POST to a removed route. #}
+    <form id="email-register-form" class="auth-form" onsubmit="event.preventDefault();">
         <div>
             <label for="name" class="form-label">Name</label>
             <input type="text" id="name" name="name" class="form-input" autocomplete="name" required>

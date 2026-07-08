@@ -30,7 +30,9 @@
 
   <div class="auth-divider">
     <h3 style="text-align: center;">Or sign in with email</h3>
-    <form action="/login/email" method="POST" class="auth-form">
+    {# Handled entirely by _firebase_email_auth.html; the inline onsubmit
+       guard means a failed script load can never POST to a removed route. #}
+    <form id="email-signin-form" class="auth-form" onsubmit="event.preventDefault();">
       <div>
         <label for="email" class="form-label">Email</label>
         <input type="email" id="email" name="email" class="form-input" autocomplete="username" required>
@@ -42,7 +44,7 @@
       <button type="submit" class="button">Sign In</button>
     </form>
     <div style="text-align: center; margin-top: 15px;">
-        <a href="/forgot_password" style="font-size: 0.9em; color: var(--color-muted);">Forgot Password?</a>
+        <a href="#" id="forgot-password-link" style="font-size: 0.9em; color: var(--color-muted);">Forgot Password?</a>
     </div>
     <p style="text-align: center; margin-top: 20px;">
       Don't have an account? <a href="/register">Sign Up</a>

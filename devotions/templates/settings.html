@@ -194,45 +194,44 @@
 
   <hr>
 
-  <!-- Password Management -->
+  <!-- Password Management (Firebase-managed since migration Phase 3b) -->
   <h3>Password</h3>
   {% if current_user.password_hash %}
-    <p>Change your password.</p>
-    <form action="/settings/update_password" method="post" style="max-width: 400px;">
-        <div style="margin-bottom: 15px;">
-            <label for="current_password">Current Password:</label><br>
-            <input type="password" id="current_password" name="current_password" required class="form-input">
-        </div>
-        <div style="margin-bottom: 15px;">
-            <label for="new_password">New Password:</label><br>
-            <input type="password" id="new_password" name="new_password" required class="form-input">
-        </div>
-        <div style="margin-bottom: 15px;">
-            <label for="confirm_new_password">Confirm New Password:</label><br>
-            <input type="password" id="confirm_new_password" name="confirm_new_password" required class="form-input">
-        </div>
-        <p style="font-size: 0.8em; color: #666; margin-top: 5px; margin-bottom: 15px;">
-            Password must be at least 8 characters long, contain at least one capital letter, and one number or symbol.
-        </p>
-        <button type="submit" class="button">Change Password</button>
-    </form>
+    <p>To change your password, we'll email you a secure reset link.</p>
   {% else %}
-    <p>You do not have a password set. Set one to sign in with email.</p>
-    <form action="/settings/update_password" method="post" style="max-width: 400px;">
-        <div style="margin-bottom: 15px;">
-            <label for="new_password">New Password:</label><br>
-            <input type="password" id="new_password" name="new_password" required class="form-input">
-        </div>
-        <div style="margin-bottom: 15px;">
-            <label for="confirm_new_password">Confirm New Password:</label><br>
-            <input type="password" id="confirm_new_password" name="confirm_new_password" required class="form-input">
-        </div>
-        <p style="font-size: 0.8em; color: #666; margin-top: 5px; margin-bottom: 15px;">
-            Password must be at least 8 characters long, contain at least one capital letter, and one number or symbol.
-        </p>
-        <button type="submit" class="button">Set Password</button>
-    </form>
+    <p>You sign in with Google. To also sign in with email and a password,
+       we'll email you a secure link that lets you set one.</p>
   {% endif %}
+  <button type="button" id="password-reset-button" class="button">Email Me a Password Link</button>
+  <script type="module">
+    const RESET_EMAIL = {{ (current_user.email if current_user.is_authenticated else '')|tojson }};
+    const btn = document.getElementById('password-reset-button');
+    btn.addEventListener('click', async () => {
+      if (!RESET_EMAIL) {
+        showToast('No email address on this account.', 'error');
+        return;
+      }
+      btn.disabled = true;
+      try {
+        const configResp = await fetch('/auth/firebase_config');
+        if (!configResp.ok) throw new Error('config fetch failed');
+        const config = await configResp.json();
+        const [{ initializeApp, getApps, getApp }, authMod] = await Promise.all([
+          import('https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js'),
+          import('https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js'),
+        ]);
+        const app = getApps().length ? getApp() : initializeApp(config);
+        await authMod.sendPasswordResetEmail(authMod.getAuth(app), RESET_EMAIL);
+        showToast('Password link sent to ' + RESET_EMAIL + '. Check your'
+            + ' spam folder if you don’t see it.', 'success', 9000);
+      } catch (err) {
+        console.warn('Password reset email failed.', err);
+        showToast('Could not send the email right now. Please try again in'
+            + ' a few minutes.', 'error', 8000);
+        btn.disabled = false;
+      }
+    });
+  </script>
 </div>
 
 <div class="card" id="profile-section">

@@ -6,13 +6,10 @@ import secrets
 from firebase_admin import auth as firebase_admin_auth
 import flask
 import flask_login
-import models
 import requests
 import secrets_fetcher
 from services import users
 import utils
-from werkzeug.security import check_password_hash
-from werkzeug.security import generate_password_hash
 
 
 # Where the Firebase-hosted auth helper actually lives; the proxy below
@@ -35,7 +32,7 @@ _PROXY_SKIP_HEADERS = frozenset({
 })
 
 
-def register(app, *, google, rate_limited):
+def register(app, *, google):
   """Registers the authentication routes on the app."""
 
   @app.route("/login")
@@ -116,232 +113,18 @@ def register(app, *, google, rate_limited):
       return "Authentication failed.", 400
 
 
-  @app.route("/register", methods=["GET", "POST"])
-  @rate_limited("register")
+  @app.route("/register")
   def register():
-    """Handles user registration."""
+    """Renders the registration page.
+
+    Sign-up itself happens client-side via Firebase
+    (createUserWithEmailAndPassword in _firebase_email_auth.html) and the
+    /auth/firebase session bridge; the legacy form-POST flow was removed in
+    migration Phase 3b (docs/firebase-auth-migration.md).
+    """
     if flask_login.current_user.is_authenticated:
       return flask.redirect("/")
-
-    if flask.request.method == "GET":
-      return flask.render_template("register.html")
-
-    name = flask.request.form.get("name")
-    email = flask.request.form.get("email", "").strip().lower()
-    password = flask.request.form.get("password")
-    confirm_password = flask.request.form.get("confirm_password")
-
-    if not name or not email or not password or not confirm_password:
-      flask.flash("All fields are required.", "error")
-      return flask.render_template("register.html")
-
-    email_error = users.validate_email(email)
-    if email_error:
-      flask.flash(email_error, "error")
-      return flask.render_template("register.html")
-
-    if password != confirm_password:
-      flask.flash("Passwords do not match.", "error")
-      return flask.render_template("register.html")
-
-    password_error = users.validate_password(password)
-    if password_error:
-      flask.flash(password_error, "error")
-      return flask.render_template("register.html")
-
-    db = utils.get_db_client()
-    users_ref = db.collection("users")
-
-    # Check if email already exists
-    query_email = users_ref.where("email", "==", email).limit(1)
-    email_results = list(query_email.stream())
-
-    if email_results:
-      existing_user_doc = email_results[0]
-      existing_data = existing_user_doc.to_dict()
-
-      # If user exists but has no password (e.g. Google user), allow "merge" by setting password
-      if not existing_data.get("password_hash"):
-        # We still verify email even for merge to ensure ownership
-        pass  # Continue to verification flow
-      else:
-        flask.flash("Account with this email already exists.", "error")
-        return flask.render_template("register.html")
-
-    # Generate verification code
-    verification_code = "".join([str(secrets.randbelow(10)) for _ in range(6)])
-    hashed_password = generate_password_hash(password)
-
-    # Store pending data in session
-    flask.session["pending_registration"] = {
-        "name": name,
-        "email": email,
-        "password_hash": hashed_password,
-        "code": verification_code,
-        "is_merge": bool(email_results),
-        "merge_user_id": email_results[0].id if email_results else None,
-    }
-
-    users.send_verification_email(email, verification_code)
-    return flask.redirect("/register/verify")
-
-
-  @app.route("/register/verify", methods=["GET", "POST"])
-  @rate_limited("register_verify")
-  def register_verify():
-    """Handles email verification step."""
-    pending_data = flask.session.get("pending_registration")
-    if not pending_data:
-      flask.flash("Registration session expired. Please start over.", "error")
-      return flask.redirect("/register")
-
-    if flask.request.method == "GET":
-      return flask.render_template(
-          "verify_email.html", email=pending_data["email"]
-      )
-
-    code = flask.request.form.get("code", "").strip()
-    # Constant-time compare, same as the cron-auth check: a 6-digit code is too
-    # short for a practical timing attack, but == leaks match length/prefix.
-    if secrets.compare_digest(code, pending_data["code"]):
-      # Verification successful
-      db = utils.get_db_client()
-      users_ref = db.collection("users")
-
-      if pending_data.get("is_merge"):
-        # Merge logic
-        user_id = pending_data["merge_user_id"]
-        users_ref.document(user_id).update({
-            "password_hash": pending_data["password_hash"],
-            "name": pending_data["name"],
-        })
-        user = models.User.get(user_id)
-        flask.flash(
-            'Account verified and updated! Visit <a href="/settings">Settings</a>'
-            " to manage notification preferences.",
-            "success",
-        )
-      else:
-        # Create new user
-        user_data = {
-            "name": pending_data["name"],
-            "email": pending_data["email"],
-            "password_hash": pending_data["password_hash"],
-            "created_at": datetime.datetime.now(datetime.timezone.utc),
-        }
-        user = users.create_new_user_doc(user_data, "email")
-        flask.flash(
-            'Account created successfully! Visit <a href="/settings">Settings</a>'
-            " to manage notification preferences.",
-            "success",
-        )
-
-      flask_login.login_user(user, remember=True)
-      flask.session.pop("pending_registration", None)
-      return flask.redirect("/")
-    else:
-      flask.flash("Invalid verification code. Please try again.", "error")
-      return flask.render_template(
-          "verify_email.html", email=pending_data["email"]
-      )
-
-
-  @app.route("/login/email", methods=["POST"])
-  @rate_limited("email_login")
-  def email_login():
-    """Handles email/password login."""
-    email = flask.request.form.get("email", "").strip().lower()
-    password = flask.request.form.get("password")
-
-    if not email or not password:
-      flask.flash("Email and password are required.", "error")
-      return flask.redirect("/login")
-
-    db = utils.get_db_client()
-    users_ref = db.collection("users")
-    query_email = users_ref.where("email", "==", email).limit(1)
-    email_results = list(query_email.stream())
-
-    if not email_results:
-      flask.flash("Invalid email or password.", "error")
-      return flask.redirect("/login")
-
-    user_doc = email_results[0]
-    user_data = user_doc.to_dict()
-    stored_hash = user_data.get("password_hash")
-
-    if not stored_hash or not check_password_hash(stored_hash, password):
-      flask.flash("Invalid email or password.", "error")
-      return flask.redirect("/login")
-
-    user = models.User.get(user_doc.id)
-    flask_login.login_user(user, remember=True)
-    return flask.redirect("/")
-
-
-  @app.route("/forgot_password", methods=["GET", "POST"])
-  @rate_limited("forgot_password")
-  def forgot_password_route():
-    """Handles forgotten password requests."""
-    if flask.request.method == "POST":
-      email = flask.request.form.get("email", "").strip().lower()
-      if not email:
-        flask.flash("Please enter an email address.", "error")
-        return flask.render_template("forgot_password.html")
-
-      user = users.get_user_by_email(email)
-      if user:
-        token = users.get_reset_token(email)
-        reset_link = flask.url_for(
-            "reset_password_route", token=token, _external=True
-        )
-        users.send_password_reset_email(email, reset_link)
-
-      flask.flash(
-          "If an account with that email exists, a password reset link has been"
-          " sent.",
-          "success",
-      )
-      return flask.redirect("/login")
-
-    return flask.render_template("forgot_password.html")
-
-
-  @app.route("/reset_password/<token>", methods=["GET", "POST"])
-  def reset_password_route(token):
-    """Handles password reset with token."""
-    email = users.verify_reset_token(token)
-    if not email:
-      flask.flash("The password reset link is invalid or has expired.", "error")
-      return flask.redirect("/forgot_password")
-
-    if flask.request.method == "POST":
-      password = flask.request.form.get("password")
-      confirm_password = flask.request.form.get("confirm_password")
-
-      if not password or not confirm_password:
-        flask.flash("Please fill out all fields.", "error")
-        return flask.render_template("reset_password.html")
-
-      if password != confirm_password:
-        flask.flash("Passwords do not match.", "error")
-        return flask.render_template("reset_password.html")
-
-      password_error = users.validate_password(password)
-      if password_error:
-        flask.flash(password_error, "error")
-        return flask.render_template("reset_password.html")
-
-      hashed_password = generate_password_hash(password)
-      if users.reset_password(email, hashed_password):
-        flask.flash(
-            "Your password has been updated! You can now log in.", "success"
-        )
-        return flask.redirect("/login")
-      else:
-        flask.flash("An error occurred. Please try again.", "error")
-
-    return flask.render_template("reset_password.html")
+    return flask.render_template("register.html")
 
 
   @app.route("/login/merge")

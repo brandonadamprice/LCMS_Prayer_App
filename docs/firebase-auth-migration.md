@@ -191,16 +191,30 @@ to `dev` (PRs #33, #34); migration executed:**
    climbing; logs show `login`/`link`, no surprise `create`s; no
    feedback-form reports.
 
-**Release 3b — delete (after 3a proven in prod) — ⏳ NOT STARTED:**
-- Remove the now-dead code:
-  - `main.py`: `/login/email`, `/register` POST, `/register/verify`,
-    `/forgot_password`, `/reset_password/<token>`, `/settings/update_password`;
-    `werkzeug.security` imports.
-  - `services/users.py`: `validate_password`, reset-token make/verify,
-    reset/verification email senders.
-  - Templates: `forgot_password.html`, `reset_password.html`,
-    `verify_email.html`, and the password forms in signin/register/settings.
-- Optionally drop the `password_hash` field from docs (small migration).
+**Release 3b — delete — ✅ DONE on `dev` (2026-07-08), pending staging
+verify + promote:**
+- Preconditions confirmed first (2026-07-08 audit + dry-run against prod):
+  every password holder already `firebase_linked` (47/89 docs linked, zero
+  gap accounts — the post-import sweep was a verified no-op), zero
+  anomalies/duplicates.
+- Removed: `routes/auth.py` `/login/email`, `/register` POST (GET page
+  stays), `/register/verify`, `/forgot_password`, `/reset_password/<token>`;
+  `routes/settings.py` `/settings/update_password`; `werkzeug.security`
+  imports; `services/users.py` `validate_password`, reset-token
+  make/verify, reset/verification email senders; templates
+  `forgot_password.html`, `reset_password.html`, `verify_email.html`.
+- `_firebase_email_auth.html` no longer falls back to legacy form POSTs:
+  credential errors show "Invalid email or password."; infrastructure
+  failures show a temporary-unavailability toast. Forms carry an inline
+  `onsubmit="event.preventDefault()"` so a failed script load can't POST
+  to a removed route.
+- Settings "Set/Change Password" forms replaced by a single
+  `sendPasswordResetEmail` button — for Google-only users, completing the
+  reset link is also how a password provider gets ADDED to their account.
+- The interim auth rate limiter (Fable audit item 3) was removed with the
+  endpoints it protected; Firebase throttles credential attacks upstream.
+- `password_hash` fields in Firestore are intentionally untouched (safety
+  net; delete in a later cleanup if ever).
 
 ### Phase 4 — Retire legacy Google OAuth — ⏳ PLANNED (later)
 
