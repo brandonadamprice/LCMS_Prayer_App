@@ -6,6 +6,7 @@ import logging
 import os
 import re
 import secrets
+import urllib.parse
 
 from authlib.integrations.flask_client import OAuth
 from devotional_content import advent
@@ -550,6 +551,18 @@ def update_picture():
       updates["selected_pic_source"] = "google"
   elif source == "custom":
     if custom_url:
+      # The value lands in an <img src>; accept only a plausible https URL so
+      # javascript:/data: schemes and junk never reach the template.
+      parsed = urllib.parse.urlparse(custom_url)
+      if (
+          parsed.scheme != "https"
+          or not parsed.netloc
+          or len(custom_url) > 500
+      ):
+        flask.flash(
+            "Picture URL must be an https:// image link.", "error"
+        )
+        return flask.redirect("/settings")
       updates["profile_pic"] = custom_url
       updates["selected_pic_source"] = "custom"
 
