@@ -9,7 +9,7 @@ from devotional_content import lent
 import flask
 from google.cloud import firestore
 import liturgy
-import pytz
+import reminder_logic
 from services import users
 import utils
 
@@ -37,20 +37,15 @@ DEVOTION_URLS = {
 
 
 def calculate_next_run(time_str, timezone_str):
-  """Calculates the next occurrence of time_str in UTC."""
+  """Calculates the next occurrence of time_str in UTC.
+
+  The math lives in reminder_logic.next_run_utc (pure, DST-safe,
+  unit-tested); this wrapper only resolves the timezone string and supplies
+  the clock.
+  """
   tz = utils.resolve_timezone(timezone_str)
-
-  now = datetime.datetime.now(tz)
-  hour, minute = map(int, time_str.split(":"))
-
-  # Create candidate time for today
-  candidate = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
-
-  # If candidate is in the past, schedule for tomorrow
-  if candidate <= now:
-    candidate += datetime.timedelta(days=1)
-
-  return candidate.astimezone(pytz.UTC)
+  now = datetime.datetime.now(datetime.timezone.utc)
+  return reminder_logic.next_run_utc(time_str, tz, now)
 
 
 def add_reminder(
