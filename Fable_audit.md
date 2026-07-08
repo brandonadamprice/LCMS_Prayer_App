@@ -46,9 +46,10 @@ and `py_compile`/`jinja` parse (the app can't fully boot under Python 3.14).
   of `main`/prod and can be merged when you are. Net prod changes: `SameSite`→`Lax`,
   the `/auth/` cache fix, batches 5–7, offline-cache fix. Prod `authDomain` stays
   `asimplewaytopray.com` (the per-env logic only special-cases staging).
-- **⬜ Not started (need a decision):** **3** (rate-limit — adds a `Flask-Limiter`
-  dependency; per-worker vs shared-storage question), **13** (Blueprint split of
+- **⬜ Not started (need a decision):** **13** (Blueprint split of
   `main.py` — large internal refactor).
+- **✅ Item 3 done (2026-07-07):** auth rate limiting via a dependency-free
+  in-process sliding-window limiter + constant-time code compare (see item 3).
 
 ### Security
 
@@ -95,12 +96,22 @@ and `py_compile`/`jinja` parse (the app can't fully boot under Python 3.14).
       - _Optional future hardening:_ Flask-WTF CSRF tokens as belt-and-suspenders
         (defense beyond SameSite). Not required now that Lax is in place.
 
-- [ ] **3. Rate-limit auth + constant-time code compare** — No throttling on
+- [x] **3. Rate-limit auth + constant-time code compare** — No throttling on
       `/login/email`, `/register`, `/forgot_password`, or email verification. The
       6-digit verification code is compared with `==` (timing-unsafe) and has no
-      attempt cap → brute-forceable in minutes. **Fix:** add Flask-Limiter to auth
-      routes; compare codes with `secrets.compare_digest`; cap verification
-      attempts. _Effort: S–M._
+      attempt cap → brute-forceable in minutes. _Effort: S–M._
+      _Done (2026-07-07), without the Flask-Limiter dependency: a pure stdlib
+      sliding-window limiter (`rate_limit_logic.py`, unit-tested like
+      `streak_logic.py`) backs a `@rate_limited` decorator in `main.py`, keyed
+      by client IP, POSTs only. Caps: `/register/verify` 10/10min,
+      `/login/email` 10/5min, `/register` 10/hr, `/forgot_password` 5/hr
+      (the last two send email per attempt). Over-limit → branded 429 page.
+      In-memory per process: N workers ⇒ N×limit effective, still years to
+      brute-force a 6-digit code. The verification code is now compared with
+      `secrets.compare_digest`. `/auth/firebase` is intentionally unlimited —
+      it takes only verified Firebase ID tokens and Firebase throttles
+      credential attempts upstream; note these legacy routes are deleted
+      entirely in migration Phase 3b._
 
 - [x] **4. Validate the Twilio webhook signature** — `/twilio/sms_reply` was
       unauthenticated; a spoofed POST could fake a "STOP" and disable a user's

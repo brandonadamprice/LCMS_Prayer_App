@@ -36,6 +36,7 @@ import liturgy
 import menu
 import models
 import pytz
+import rate_limit_logic
 import requests
 import secrets_fetcher
 import streak_logic
@@ -287,6 +288,49 @@ def csp_report_route():
   return ("", 204)
 
 
+# Brute-force protection for the credential/verification endpoints (Fable
+# audit item 3). Keyed by client IP (ProxyFix restores the real address from
+# X-Forwarded-For). In-memory and per-process by design -- see
+# rate_limit_logic's module docstring for why that is sufficient here.
+# /auth/firebase is deliberately not limited: it only accepts
+# already-verified Firebase ID tokens, and Firebase applies its own
+# credential throttling upstream.
+_AUTH_LIMITERS = {
+    # 6-digit code space is 10^6; 10 guesses per 10 min makes brute force
+    # take years even across several instances.
+    "register_verify": rate_limit_logic.SlidingWindowLimiter(10, 600),
+    "email_login": rate_limit_logic.SlidingWindowLimiter(10, 300),
+    # These two send email on every attempt, so the caps are tighter.
+    "register": rate_limit_logic.SlidingWindowLimiter(10, 3600),
+    "forgot_password": rate_limit_logic.SlidingWindowLimiter(5, 3600),
+}
+
+
+def rate_limited(limiter_name):
+  """Returns 429 when the client IP exceeds the named limiter's budget.
+
+  Only POSTs count: GETs on the same routes just render forms. Apply below
+  @app.route.
+  """
+  limiter = _AUTH_LIMITERS[limiter_name]
+
+  def decorator(f):
+    @functools.wraps(f)
+    def wrapper(*args, **kwargs):
+      if flask.request.method == "POST":
+        client_ip = flask.request.remote_addr or "unknown"
+        if not limiter.allow(client_ip):
+          app.logger.warning(
+              "Rate limit hit: %s from %s", limiter_name, client_ip
+          )
+          return flask.abort(429)
+      return f(*args, **kwargs)
+
+    return wrapper
+
+  return decorator
+
+
 def admin_required(f):
   """Aborts with 403 unless the current user is the configured admin.
 
@@ -333,6 +377,12 @@ def inject_globals():
 def page_not_found(_error):
   """Render a branded 404 page instead of Flask's default."""
   return flask.render_template("404.html"), 404
+
+
+@app.errorhandler(429)
+def too_many_requests(_error):
+  """Render a branded 429 page when a rate limit trips."""
+  return flask.render_template("429.html"), 429
 
 
 @app.errorhandler(500)
@@ -781,6 +831,7 @@ def authorize():
 
 
 @app.route("/register", methods=["GET", "POST"])
+@rate_limited("register")
 def register():
   """Handles user registration."""
   if flask_login.current_user.is_authenticated:
@@ -850,6 +901,7 @@ def register():
 
 
 @app.route("/register/verify", methods=["GET", "POST"])
+@rate_limited("register_verify")
 def register_verify():
   """Handles email verification step."""
   pending_data = flask.session.get("pending_registration")
@@ -909,6 +961,7 @@ def register_verify():
 
 
 @app.route("/login/email", methods=["POST"])
+@rate_limited("email_login")
 def email_login():
   """Handles email/password login."""
   email = flask.request.form.get("email", "").strip().lower()
@@ -1085,6 +1138,7 @@ def firebase_auth_route():
 
 
 @app.route("/forgot_password", methods=["GET", "POST"])
+@rate_limited("forgot_password")
 def forgot_password_route():
   """Handles forgotten password requests."""
   if flask.request.method == "POST":
