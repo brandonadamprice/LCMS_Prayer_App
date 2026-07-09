@@ -23,11 +23,12 @@ and the store. Do them in order.
 1. [Firebase console](https://console.firebase.google.com/) → project
    **lcms-prayer-app** → Project settings → *Your apps* → **Add app** →
    Android.
-2. Package name: **`com.asimplewaytopray.app`** — must match exactly.
-   ⚠️ This ID is permanent once the app is on Google Play; if you want a
-   different one, change it NOW in `mobile/capacitor.config.json`,
-   `mobile/android/app/build.gradle` (`namespace` + `applicationId`), and
-   `MainActivity.java`'s package/path, before anything is published.
+2. Package name: **`com.hallowedgains.aswtp`** — must match exactly what
+   the repo uses (`mobile/capacitor.config.json` `appId`,
+   `mobile/android/app/build.gradle` `namespace`/`applicationId`,
+   `MainActivity.java`'s package). ✅ Done 2026-07 — registered in Firebase
+   and the repo renamed to match. The ID is permanent once the app is on
+   Google Play.
 3. Download **`google-services.json`** and put it at
    `mobile/android/app/google-services.json`, then commit it (it's client
    config — IDs, not secrets; same class of values `/auth/firebase_config`
@@ -38,11 +39,21 @@ and the store. Do them in order.
 
 Native Google sign-in only works for APK signatures Firebase knows about.
 
-1. Debug key (created automatically by Android Studio; used for local runs):
+1. Get the debug key's fingerprints (the debug keystore is created
+   automatically the first time Android Studio builds the app — so install
+   Android Studio / do step 3's first build before this). Easiest path, no
+   `keytool` needed: in Android Studio open the Gradle panel (right edge) →
+   `app` → Tasks → android → **signingReport**, and read SHA1/SHA-256 for
+   the `debug` variant from the output. Terminal equivalent from
+   `mobile/android/`: `./gradlew signingReport` (`gradlew.bat` on Windows).
 
-   ```
-   keytool -list -v -alias androiddebugkey -keystore ~/.android/debug.keystore -storepass android | grep -E 'SHA1|SHA256'
-   ```
+   If you'd rather use `keytool`: it ships inside a JDK, not standalone,
+   which is why a bare terminal says "keytool not found". Use Android
+   Studio's bundled one:
+
+   - **Windows**: `"C:\Program Files\Android\Android Studio\jbr\bin\keytool.exe" -list -v -alias androiddebugkey -keystore "%USERPROFILE%\.android\debug.keystore" -storepass android`
+   - **macOS**: `"/Applications/Android Studio.app/Contents/jbr/Contents/Home/bin/keytool" -list -v -alias androiddebugkey -keystore ~/.android/debug.keystore -storepass android`
+   - **Linux**: `<android-studio>/jbr/bin/keytool` with the same arguments.
 
 2. Firebase console → Project settings → your Android app → **Add
    fingerprint** → paste the SHA-1 and SHA-256.
@@ -84,14 +95,12 @@ Firebase Authentication (the web sign-in uses it).
 1. [Play Console](https://play.google.com/console) developer account
    ($25 one-time, individual is fine).
 2. Create app → accept **Play App Signing** (Google holds the final signing
-   key; you only manage an *upload* key). Generate the upload keystore:
-
-   ```
-   keytool -genkey -v -keystore upload-keystore.jks -alias upload -keyalg RSA -keysize 2048 -validity 10000
-   ```
-
-   Keep the keystore + passwords somewhere safe and **out of the repo**;
-   wire it into Android Studio via Build → Generate Signed App Bundle.
+   key; you only manage an *upload* key). Create the upload keystore inside
+   Android Studio — Build → **Generate Signed App Bundle / APK** → Create
+   new… (no `keytool` needed; if you prefer the CLI, use the bundled
+   `keytool` paths from step 2 with
+   `-genkey -v -keystore upload-keystore.jks -alias upload -keyalg RSA -keysize 2048 -validity 10000`).
+   Keep the keystore + passwords somewhere safe and **out of the repo**.
 3. Build an **AAB** (Android App Bundle), upload to an **Internal testing**
    track first, install via the opt-in link on a real phone, re-run the
    step 4 checklist on that build.
