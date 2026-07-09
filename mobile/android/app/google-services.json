@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "978583660884",
+    "project_id": "lcms-prayer-app",
+    "storage_bucket": "lcms-prayer-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:978583660884:android:2dc129ea5f5f3f87d600c1",
+        "android_client_info": {
+          "package_name": "com.hallowedgains.aswtp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "978583660884-8v8lah1b9624lqhd5n0j6tl04jtq7k79.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBNF3g_UotCgTxC7nhJb5iC1rJy_50_wvE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "978583660884-8v8lah1b9624lqhd5n0j6tl04jtq7k79.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
