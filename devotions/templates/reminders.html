@@ -361,7 +361,9 @@ async function forceReminders() {
     }
   }
 
-  initFirebase();
+  // In the native shell foreground pushes arrive through the Capacitor
+  // plugin (toast in app.js); the WebView has no Push API for getMessaging.
+  if (!window.isNativeShell) initFirebase();
 </script>
 <script>
 {% endblock %}

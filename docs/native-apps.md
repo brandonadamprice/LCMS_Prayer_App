@@ -81,10 +81,13 @@ Capacitor plugin equivalents; the web fallbacks keep working inside the shell.
 3. ✅ Push payload made native-ready: messages carry a `notification` block
    (data-only messages are never displayed for a backgrounded native app)
    plus Android high priority; web SW display path unchanged.
-4. **Capacitor shell — Android first**: scaffold the project (remote-URL
-   mode), wire `@capacitor-firebase/authentication` → `/auth/firebase` and
-   native FCM token registration → `/save_fcm_token`, handle the
-   notification-tap `url` deep link; Play Store submission.
+4. 🔄 **Capacitor shell — Android first**: code complete — `mobile/`
+   scaffolded (remote-URL mode), `@capacitor-firebase/authentication` →
+   `/auth/firebase`, native FCM registration → `/save_fcm_token`, and
+   notification-tap deep links wired through the web templates/`app.js`.
+   Remaining are the console/store steps (Firebase Android app +
+   `google-services.json`, SHA fingerprints, device testing, Play Console):
+   see [capacitor-android.md](capacitor-android.md).
 5. **iOS follow-on from the same shell**: add Sign in with Apple (review
    `firebase_auth_logic` matching first — Apple's relay emails won't match
    existing docs), APNs setup, and the Guideline 4.2 native-value items
