@@ -81,7 +81,7 @@
   <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #eee;">
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <div>
-            <strong>Browser Push Notifications</strong><br>
+            <strong id="push-notif-title">Browser Push Notifications</strong><br>
             <span style="font-size: 0.9em; color: #7f8c8d;" id="notif-status-text">Required for Push notifications on this device.</span>
         </div>
         <label class="switch">
@@ -89,6 +89,7 @@
             <span class="slider"></span>
         </label>
       </div>
+      <button id="test-push-btn" class="button" style="margin-top: 12px; background-color: #7f8c8d; font-size: 0.9em;">Send Test Notification</button>
   </div>
 
   <!-- Contact Info Display -->
@@ -315,6 +316,34 @@
   const notifStatusText = document.getElementById('notif-status-text');
   let messaging = null;
   let cachedConfig = null;
+
+  // Inside the native app shell "browser" is the wrong word.
+  if (window.isNativeShell) {
+    const pushTitle = document.getElementById('push-notif-title');
+    if (pushTitle) pushTitle.textContent = 'Mobile Push Notifications';
+  }
+
+  // End-to-end push check: server sends a real FCM message to every device
+  // registered for this account (works for web and native tokens alike).
+  const testPushBtn = document.getElementById('test-push-btn');
+  if (testPushBtn) {
+    testPushBtn.addEventListener('click', async () => {
+      testPushBtn.disabled = true;
+      try {
+        const resp = await fetch('/send_test_push', { method: 'POST' });
+        const data = await resp.json();
+        if (data.success) {
+          showToast('Test notification sent to ' + data.sent +
+              ' device(s). It should arrive momentarily.', 'success');
+        } else {
+          showToast(data.error || 'Could not send the test notification.', 'error');
+        }
+      } catch (e) {
+        showToast('Could not send the test notification.', 'error');
+      }
+      testPushBtn.disabled = false;
+    });
+  }
 
   async function initFirebase() {
     try {

@@ -345,6 +345,37 @@ def register(app):
       )
 
 
+  @app.route("/send_test_push", methods=["POST"])
+  @flask_login.login_required
+  def send_test_push_route():
+    """Sends a test push so the user can verify notifications end-to-end."""
+    try:
+      sent, failed = reminders.send_generic_push_to_user(
+          flask_login.current_user.id,
+          "Test Notification",
+          "Push notifications are working on this device.",
+          "/settings",
+      )
+      if sent == 0 and failed == 0:
+        return flask.jsonify({
+            "success": False,
+            "error": "No devices are registered for notifications yet. "
+                     "Enable notifications first, then try again.",
+        })
+      if sent == 0:
+        return flask.jsonify({
+            "success": False,
+            "error": "Sending failed for every registered device. "
+                     "Try disabling and re-enabling notifications.",
+        })
+      return flask.jsonify({"success": True, "sent": sent, "failed": failed})
+    except Exception as e:
+      app.logger.error("Failed to send test push: %s", e)
+      return flask.jsonify(
+          {"success": False, "error": "Failed to send test notification"}
+      ), 500
+
+
   @app.route("/remove_fcm_token", methods=["POST"])
   @flask_login.login_required
   def remove_fcm_token_route():

@@ -251,11 +251,11 @@ def force_send_reminders_for_user(user_id):
 
 
 def _send_push(user_data, title, body, url):
-  """Sends a push notification using Firebase Cloud Messaging."""
+  """Sends a push via FCM. Returns (success_count, failure_count)."""
   tokens = user_data.get("fcm_tokens", [])
   if not tokens:
     flask.current_app.logger.warning("[PUSH] No tokens found for user.")
-    return
+    return 0, 0
 
   success_count = 0
   failure_count = 0
@@ -279,6 +279,7 @@ def _send_push(user_data, title, body, url):
   )
   if invalid_tokens:
     _remove_fcm_tokens(user_data.get("id"), invalid_tokens)
+  return success_count, failure_count
 
 
 def _remove_fcm_tokens(user_id, tokens):
@@ -300,15 +301,15 @@ def _remove_fcm_tokens(user_id, tokens):
 
 
 def send_generic_push_to_user(user_id, title, body, url):
-  """Sends a generic push notification to a user by ID."""
+  """Sends a push to a user by ID. Returns (success_count, failure_count)."""
   db = utils.get_db_client()
   user_doc = db.collection("users").document(user_id).get()
   if not user_doc.exists:
     flask.current_app.logger.warning(f"[PUSH] User {user_id} not found.")
-    return
+    return 0, 0
   user_data = user_doc.to_dict()
   user_data["id"] = user_id
-  _send_push(user_data, title, body, url)
+  return _send_push(user_data, title, body, url)
 
 
 def send_generic_notification_to_user(
