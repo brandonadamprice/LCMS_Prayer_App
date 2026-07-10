@@ -35,6 +35,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
     - The app uses `devotions/python/secrets_fetcher.py` to fetch secrets from Google Cloud Secret Manager.
     - For local development, ensure necessary secrets are available or mocked.
 
+## Versioning — increment on every release
+
+- **Android shell (Play uploads)**: `mobile/android/app/build.gradle` —
+  `versionCode` MUST increase for every AAB uploaded to Play Console (Play
+  rejects a reused code). Bump the human-facing `versionName` alongside it,
+  and keep `mobile/package.json`'s `version` in step with `versionName`.
+- **Web static assets**: any change to `static/app.js` or `static/styles.css`
+  requires bumping its `?v=` query in `base.html` AND the matching entry in
+  the offline-download list in `settings.html` — the two must stay in sync or
+  offline caching serves stale files. Bump `CACHE_NAME` in `static/sw.js` on
+  deploys that change the cached static assets.
+
 ## Architecture Overview
 
 - **Core Logic (`devotions/python/`)**:
