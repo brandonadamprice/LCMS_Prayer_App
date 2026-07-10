@@ -1,4 +1,4 @@
-package com.asimplewaytopray.app;
+package com.hallowedgains.aswtp;
 
 import com.getcapacitor.BridgeActivity;
 
