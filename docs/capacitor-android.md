@@ -140,6 +140,21 @@ key* SHA-1 and SHA-256 → add both as fingerprints in Firebase (step 2) →
 re-download and commit `google-services.json`. Without this, Google sign-in
 fails on Play-installed builds even though your local build works.
 
+## Troubleshooting
+
+- **Build fails with `JdkImageTransform` / `jlink.exe` /
+  `androidJdkImage`** (often mentioning a `C:\Program Files\Java\jdk-XX`
+  path): Gradle picked up a system JDK that's newer than the Android
+  Gradle Plugin supports. The build needs **JDK 21** — Android Studio
+  bundles it. Fix in Android Studio: Settings → Build, Execution,
+  Deployment → Build Tools → Gradle → **Gradle JDK** → the bundled
+  `jbr-21` ("Embedded JDK"). For terminal builds, put
+  `org.gradle.java.home=C:/Program Files/Android/Android Studio/jbr`
+  in `%USERPROFILE%\.gradle\gradle.properties` (macOS:
+  `/Applications/Android Studio.app/Contents/jbr/Contents/Home`), run
+  `gradlew --stop` to kill the old daemon, and rebuild. Don't uninstall
+  the newer JDK — just keep Gradle off it.
+
 ## Nice-to-haves (any time)
 
 - **App icon / splash screen**: the project currently has Capacitor's
