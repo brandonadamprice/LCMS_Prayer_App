@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "978583660884-mrjlf9m55jaqhofhufuchm6tfa15aogl.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hallowedgains.aswtp",
+            "certificate_hash": "f4035c703db9bb24c88ba447ed88cd7654d495af"
+          }
+        },
+        {
           "client_id": "978583660884-8v8lah1b9624lqhd5n0j6tl04jtq7k79.apps.googleusercontent.com",
           "client_type": 3
         }
