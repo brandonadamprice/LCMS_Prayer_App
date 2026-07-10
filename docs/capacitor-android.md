@@ -114,7 +114,19 @@ Firebase Authentication (the web sign-in uses it).
 3. Build an **AAB** (Android App Bundle), upload to an **Internal testing**
    track first, install via the opt-in link on a real phone, re-run the
    step 4 checklist on that build.
-4. Store listing chores before production rollout: app name, short/full
+4. **App access test account** (required — the app has login-gated
+   functionality, so review needs a demo login):
+   - Register a dedicated account through the site's normal sign-up (e.g.
+     `playreview@…`) with a strong, unique password.
+   - **Verify its email before submitting** — the `/auth/firebase` bridge
+     rejects unverified password accounts (`403 email_unverified`), which
+     would lock the reviewer out.
+   - Sign in once in the built app to confirm it works.
+   - Enter the credentials ONLY in Play Console → App content → **App
+     access** (visible to Google's review team only). ⚠️ Never commit the
+     real credentials anywhere in this repo — it is public, and unlike the
+     Firebase client config a password is a true secret.
+5. Store listing chores before production rollout: app name, short/full
    description, screenshots (phone + 7" tablet), 512×512 icon, feature
    graphic, **privacy policy URL** (required — host one on the site),
    Data safety form (declare: account data/email collected, encrypted in
