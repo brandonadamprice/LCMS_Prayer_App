@@ -32,8 +32,18 @@ and the store. Do them in order.
 3. Download **`google-services.json`** and put it at
    `mobile/android/app/google-services.json`, then commit it (it's client
    config — IDs, not secrets; same class of values `/auth/firebase_config`
-   already serves publicly). The Gradle build auto-detects it; Google
-   sign-in and push both stay broken until this file is in place.
+   already serves publicly, and every shipped APK embeds the same file).
+   The Gradle build auto-detects it; Google sign-in and push both stay
+   broken until this file is in place.
+
+   **Expect a GitHub "secret detected" warning** — the scanner
+   pattern-matches the `AIza…` API key without knowing it's a Firebase
+   *client* key. It's a false positive; bypass/dismiss it as such. The real
+   protection is key restriction, not secrecy: in Google Cloud console →
+   APIs & Services → Credentials, edit **"Android key (auto created by
+   Firebase)"** → Application restrictions → Android apps → add
+   `com.hallowedgains.aswtp` + the SHA-1s from step 2. Then the key only
+   works from the signed app, no matter who copies it.
 
 ## 2. Add SHA fingerprints (required for Google sign-in)
 
