@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "978583660884-2du1jhiejbb9v4tduu8v4b4jlassagnl.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hallowedgains.aswtp",
+            "certificate_hash": "d7623b2e3bd067ba0731ea98ca64264584af11c0"
+          }
+        },
+        {
           "client_id": "978583660884-8v8lah1b9624lqhd5n0j6tl04jtq7k79.apps.googleusercontent.com",
           "client_type": 3
         }
