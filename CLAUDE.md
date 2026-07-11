@@ -37,9 +37,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Versioning — increment on every release
 
-- **Android shell (Play uploads)**: `mobile/android/app/build.gradle` —
-  `versionCode` MUST increase for every AAB uploaded to Play Console (Play
-  rejects a reused code). Bump the human-facing `versionName` alongside it,
+- **Android shell**: any PR that touches `mobile/` (native resources,
+  manifest, plugins, config) MUST bump `versionCode` in
+  `mobile/android/app/build.gradle` in the same PR — assume the previous
+  code is already consumed (Play rejects a reused code, and the bump is
+  harmless if it wasn't). Bump the human-facing `versionName` alongside it,
   and keep `mobile/package.json`'s `version` in step with `versionName`.
 - **Web static assets**: any change to `static/app.js` or `static/styles.css`
   requires bumping its `?v=` query in `base.html` AND the matching entry in
