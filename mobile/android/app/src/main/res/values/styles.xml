@@ -13,6 +13,9 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:background">@null</item>
+        <!-- Parchment status bar with dark icons, matching the site. -->
+        <item name="android:statusBarColor">@color/brand_parchment</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 
 

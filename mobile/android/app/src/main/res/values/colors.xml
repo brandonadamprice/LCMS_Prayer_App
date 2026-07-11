@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Tint FCM applies to the (alpha-only) status-bar notification icon. -->
+    <color name="notification_accent">#65342F</color>
+    <!-- Matches the site's parchment background. -->
+    <color name="brand_parchment">#F7F3E3</color>
+</resources>
