@@ -168,14 +168,21 @@ domain, `/.well-known/assetlinks.json` route, and the in-app deep-link
 handler in `app.js`. What remains is YOUR fingerprints (verification fails
 harmlessly until then; links just keep opening in the browser):
 
-1. Edit `devotions/static/well-known/assetlinks.json` and replace the two
+1. Edit `devotions/static/well-known/assetlinks.json` and replace the
    placeholders with real **SHA-256** fingerprints (colon-separated hex,
-   uppercase — the same format the tools print):
-   - Debug cert: Gradle `signingReport`, the `SHA-256:` line of the debug
-     variant (covers Android-Studio installs).
-   - Play App Signing cert: Play Console → Test and release → Setup →
-     App signing → *App signing key certificate* → SHA-256 (covers
-     Play-installed builds).
+   uppercase — the format the tools print). The rule: list the cert of
+   every signature that ends up installed on a device. The array can hold
+   any number:
+   - **Play App Signing cert** (covers store installs): Play Console →
+     Test and release → Setup → App signing → *App signing key
+     certificate* → SHA-256.
+   - **Whatever signs your local installs.** Sideloading the signed APK →
+     that's the upload key; the foolproof way is to read it off the APK
+     itself: `keytool -printcert -jarfile app-release.apk` (bundled
+     keytool paths in step 2). Installing via Run ▶ in Android Studio →
+     that's the debug cert: `gradlew signingReport` (View → Tool Windows →
+     Terminal; the Gradle panel hides task lists by default), `SHA-256:`
+     line under `Variant: debug`.
 2. Deploy the site (the file must return 200 directly on
    `https://asimplewaytopray.com/.well-known/assetlinks.json` — the
    verifier does not follow redirects, which is also why the intent filter
