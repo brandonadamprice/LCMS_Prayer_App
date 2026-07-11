@@ -125,8 +125,16 @@ def send_push_result(token, title, body, url=None, data=None):
         # duplicated into `data` above.
         notification=messaging.Notification(title=title, body=body),
         # Reminders are scheduled for a specific time, so ask Android to
-        # deliver immediately instead of batching through Doze.
-        android=messaging.AndroidConfig(priority="high"),
+        # deliver immediately instead of batching through Doze. The
+        # 'reminders' channel is created by app.js in the native shell with
+        # high importance (heads-up pop + sound); if a device doesn't have
+        # the channel yet, FCM falls back to the app's default channel.
+        android=messaging.AndroidConfig(
+            priority="high",
+            notification=messaging.AndroidNotification(
+                channel_id="reminders"
+            ),
+        ),
         data=data,
         token=token,
     )

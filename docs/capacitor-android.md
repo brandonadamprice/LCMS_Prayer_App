@@ -155,6 +155,12 @@ fails on Play-installed builds even though your local build works.
   `gradlew --stop` to kill the old daemon, and rebuild. Don't uninstall
   the newer JDK — just keep Gradle off it.
 
+- **Warning: "Using flatDir should be avoided…"** — harmless, present in
+  every Capacitor project. The generated `capacitor-cordova-android-plugins`
+  module declares a `flatDir` repo for Cordova plugin `.aar`s; we have no
+  Cordova plugins, so it resolves nothing. Don't patch the file — `npx cap
+  sync` regenerates it.
+
 ## Nice-to-haves (any time)
 
 - **App icon / splash screen**: the project currently has Capacitor's

@@ -666,6 +666,19 @@ window.isNativeShell = !!(window.Capacitor &&
 if (window.isNativeShell) {
     const { PushNotifications } = window.Capacitor.Plugins;
 
+    // High-importance channel so reminders pop as heads-up banners with
+    // sound on Android 8+ (the default channel only lands quietly in the
+    // tray). The server tags its FCM messages with this channel_id.
+    // Re-creating an existing channel is a no-op, so this runs every launch.
+    PushNotifications.createChannel({
+        id: 'reminders',
+        name: 'Prayer Reminders',
+        description: 'Scheduled prayer and devotion reminders',
+        importance: 5,
+        visibility: 1,
+        vibration: true
+    }).catch(() => {});
+
     // Whenever the OS hands us a (possibly rotated) FCM token, persist it
     // server-side and remember it locally so nativePush.disable() can remove
     // it later (the plugin has no "get current token" call).
