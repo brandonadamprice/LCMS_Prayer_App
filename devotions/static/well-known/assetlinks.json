@@ -5,7 +5,6 @@
       "namespace": "android_app",
       "package_name": "com.hallowedgains.aswtp",
       "sha256_cert_fingerprints": [
-        "REPLACE_WITH_DEBUG_CERT_SHA256",
         "REPLACE_WITH_PLAY_APP_SIGNING_SHA256"
       ]
     }

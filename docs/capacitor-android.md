@@ -169,20 +169,20 @@ handler in `app.js`. What remains is YOUR fingerprints (verification fails
 harmlessly until then; links just keep opening in the browser):
 
 1. Edit `devotions/static/well-known/assetlinks.json` and replace the
-   placeholders with real **SHA-256** fingerprints (colon-separated hex,
-   uppercase — the format the tools print). The rule: list the cert of
-   every signature that ends up installed on a device. The array can hold
-   any number:
-   - **Play App Signing cert** (covers store installs): Play Console →
-     Test and release → Setup → App signing → *App signing key
-     certificate* → SHA-256.
-   - **Whatever signs your local installs.** Sideloading the signed APK →
-     that's the upload key; the foolproof way is to read it off the APK
-     itself: `keytool -printcert -jarfile app-release.apk` (bundled
-     keytool paths in step 2). Installing via Run ▶ in Android Studio →
-     that's the debug cert: `gradlew signingReport` (View → Tool Windows →
-     Terminal; the Gradle panel hides task lists by default), `SHA-256:`
-     line under `Variant: debug`.
+   placeholder with the real **SHA-256** fingerprint (colon-separated hex,
+   uppercase — the format the tools print). The rule: the file must list
+   the cert of every signature that ends up installed on a device, and
+   ONLY real fingerprints (a malformed entry can invalidate the whole
+   statement):
+   - **Play App Signing cert** — the only one needed when every install
+     comes from Play (including internal testing): Play Console → Test
+     and release → Setup → App signing → *App signing key certificate* →
+     SHA-256.
+   - Add more entries only if other signatures get installed later:
+     Run ▶ installs carry the debug cert (`gradlew signingReport` in the
+     Android Studio terminal — the Gradle panel hides task lists by
+     default — `SHA-256:` under `Variant: debug`); sideloaded APKs carry
+     the upload cert (`keytool -printcert -jarfile app-release.apk`).
 2. Deploy the site (the file must return 200 directly on
    `https://asimplewaytopray.com/.well-known/assetlinks.json` — the
    verifier does not follow redirects, which is also why the intent filter
