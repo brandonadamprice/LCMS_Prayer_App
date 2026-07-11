@@ -330,7 +330,17 @@
     testPushBtn.addEventListener('click', async () => {
       testPushBtn.disabled = true;
       try {
-        const resp = await fetch('/send_test_push', { method: 'POST' });
+        const opts = { method: 'POST' };
+        if (window.isNativeShell) {
+          // A foreground app never gets a system notification (only the
+          // in-app toast), so delay the send to leave time to background
+          // the app and see the real pop-up behavior.
+          showToast('Close or background the app now — the test ' +
+              'notification arrives in about 10 seconds.', 'info', 9000);
+          opts.headers = { 'Content-Type': 'application/json' };
+          opts.body = JSON.stringify({ delay_seconds: 10 });
+        }
+        const resp = await fetch('/send_test_push', opts);
         const data = await resp.json();
         if (data.success) {
           showToast('Test notification sent to ' + data.sent +
@@ -339,7 +349,11 @@
           showToast(data.error || 'Could not send the test notification.', 'error');
         }
       } catch (e) {
-        showToast('Could not send the test notification.', 'error');
+        // In the shell the fetch dies when the app is backgrounded --
+        // expected; the server still sends after the delay.
+        if (!window.isNativeShell) {
+          showToast('Could not send the test notification.', 'error');
+        }
       }
       testPushBtn.disabled = false;
     });
@@ -670,7 +684,7 @@
         // unversioned copy would never be served. Keep the ?v= values in
         // sync with base.html.
         urlsToCache.push('/static/styles.css?v=26');
-        urlsToCache.push('/static/app.js?v=2');
+        urlsToCache.push('/static/app.js?v=3');
         urlsToCache.push('/static/icons/favicon.ico');
         urlsToCache.push('/static/icons/android-chrome-192x192.png');
         urlsToCache.push('/static/icons/android-chrome-512x512.png');

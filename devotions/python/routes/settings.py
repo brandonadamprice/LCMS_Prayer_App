@@ -1,6 +1,7 @@
 """Settings-page and user-preference routes."""
 
 import re
+import time
 import urllib.parse
 
 import flask
@@ -348,7 +349,22 @@ def register(app):
   @app.route("/send_test_push", methods=["POST"])
   @flask_login.login_required
   def send_test_push_route():
-    """Sends a test push so the user can verify notifications end-to-end."""
+    """Sends a test push so the user can verify notifications end-to-end.
+
+    Accepts optional JSON {"delay_seconds": N} (capped at 30). The native
+    shell uses the delay to give the user time to background the app, so the
+    test arrives as a real system notification instead of the foreground
+    toast. The delay holds the request rather than using a timer thread:
+    after a response is sent, Cloud Run throttles CPU, so a background
+    timer might never fire.
+    """
+    data = flask.request.get_json(silent=True) or {}
+    try:
+      delay = min(max(int(data.get("delay_seconds", 0)), 0), 30)
+    except (TypeError, ValueError):
+      delay = 0
+    if delay:
+      time.sleep(delay)
     try:
       sent, failed = reminders.send_generic_push_to_user(
           flask_login.current_user.id,
