@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.hallowedgains.aswtp",
+      "sha256_cert_fingerprints": [
+        "5B:8F:85:FC:F7:91:98:C5:35:EA:EF:35:FC:74:5E:45:E0:7D:74:6F:7B:92:3D:84:5D:3F:36:AA:96:72:5E:91"
+      ]
+    }
+  }
+]

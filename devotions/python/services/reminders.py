@@ -179,8 +179,10 @@ def _process_reminder_notification(reminder_data, user_data, reminder_id=None):
       )
       return 0
 
-  # Prepare URLs
-  base_url = "https://www.asimplewaytopray.com"
+  # Prepare URLs. Apex (not www): www 301s to the apex, and Android App
+  # Links only claim the apex host, so www links would open in the browser
+  # instead of the app.
+  base_url = "https://asimplewaytopray.com"
   relative_path = DEVOTION_URLS.get(devotion_key, "/")
 
   reading_type = reminder_data.get("reading_type")
