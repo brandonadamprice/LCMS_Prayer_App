@@ -161,6 +161,33 @@ fails on Play-installed builds even though your local build works.
   Cordova plugins, so it resolves nothing. Don't patch the file — `npx cap
   sync` regenerates it.
 
+## App Links (site links open in the app)
+
+The pieces are in place — manifest `autoVerify` intent filter for the apex
+domain, `/.well-known/assetlinks.json` route, and the in-app deep-link
+handler in `app.js`. What remains is YOUR fingerprints (verification fails
+harmlessly until then; links just keep opening in the browser):
+
+1. Edit `devotions/static/well-known/assetlinks.json` and replace the two
+   placeholders with real **SHA-256** fingerprints (colon-separated hex,
+   uppercase — the same format the tools print):
+   - Debug cert: Gradle `signingReport`, the `SHA-256:` line of the debug
+     variant (covers Android-Studio installs).
+   - Play App Signing cert: Play Console → Test and release → Setup →
+     App signing → *App signing key certificate* → SHA-256 (covers
+     Play-installed builds).
+2. Deploy the site (the file must return 200 directly on
+   `https://asimplewaytopray.com/.well-known/assetlinks.json` — the
+   verifier does not follow redirects, which is also why the intent filter
+   claims only the apex, never www).
+3. Reinstall/update the app; Android verifies on install. Check with:
+   `adb shell pm get-app-links com.hallowedgains.aswtp` (want
+   `verified`), and force a re-check with
+   `adb shell pm verify-app-links --re-verify com.hallowedgains.aswtp`.
+
+Once verified, links from reminder emails / shared prayers open straight
+into the app, and launcher shortcuts become possible later.
+
 ## Nice-to-haves (any time)
 
 - **App icon / splash screen**: the project currently has Capacitor's

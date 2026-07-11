@@ -22,6 +22,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
+            <!-- App Links: open https://asimplewaytopray.com/... in the app.
+                 autoVerify checks /.well-known/assetlinks.json on the apex
+                 (www is excluded: it 301s to the apex, and the verifier does
+                 not follow redirects). -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="asimplewaytopray.com" />
+            </intent-filter>
+
         </activity>
 
         <!-- Status-bar icon for FCM notifications. Android renders only the

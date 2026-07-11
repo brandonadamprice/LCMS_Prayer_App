@@ -679,6 +679,32 @@ if (window.isNativeShell) {
         vibration: true
     }).catch(() => {});
 
+    // App Links: a tapped https://asimplewaytopray.com/... link launches the
+    // shell; route the WebView to that page. appUrlOpen fires when the app
+    // was already running; getLaunchUrl covers cold starts (guarded by
+    // sessionStorage because it keeps returning the launch URL for the whole
+    // app session, and re-navigating on every page load would trap the
+    // user). The App plugin guard keeps older shell builds working.
+    const { App } = window.Capacitor.Plugins;
+    if (App) {
+        const openDeepLink = (url) => {
+            try {
+                const u = new URL(url);
+                if (u.hostname.replace(/^www\./, '') === 'asimplewaytopray.com' &&
+                    u.href !== window.location.href) {
+                    window.location.href = u.href;
+                }
+            } catch (e) { /* not a navigable URL */ }
+        };
+        App.addListener('appUrlOpen', (event) => openDeepLink(event.url));
+        if (!sessionStorage.getItem('launchUrlHandled')) {
+            sessionStorage.setItem('launchUrlHandled', 'true');
+            App.getLaunchUrl()
+                .then((r) => { if (r && r.url) openDeepLink(r.url); })
+                .catch(() => {});
+        }
+    }
+
     // Whenever the OS hands us a (possibly rotated) FCM token, persist it
     // server-side and remember it locally so nativePush.disable() can remove
     // it later (the plugin has no "get current token" call).

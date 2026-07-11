@@ -90,6 +90,20 @@ def register(app, *, admin_required):
     return app.send_static_file("sw.js")
 
 
+  @app.route("/.well-known/assetlinks.json")
+  def assetlinks_route():
+    """Android App Links verification file.
+
+    Lets Android open https://asimplewaytopray.com/... links directly in the
+    native app (the manifest's autoVerify intent filter points here). Only
+    apps signed with the SHA-256 fingerprints listed in the file are granted
+    the association -- see docs/capacitor-android.md for filling those in.
+    Android's verifier does not follow redirects, so this must be reachable
+    on the apex domain with a direct 200.
+    """
+    return app.send_static_file("well-known/assetlinks.json")
+
+
   @app.route("/health")
   def health_route():
     """Liveness probe for load balancers / uptime monitors.
