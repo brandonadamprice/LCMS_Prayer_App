@@ -789,3 +789,42 @@ if (window.isNativeShell) {
         }
     };
 }
+
+// ---------------------------------------------------------------------------
+// "Get the Android app" banner for mobile-web visitors. The manifest's
+// prefer_related_applications already points Chrome's own install prompt at
+// the Play listing; this covers browsers that never show that prompt.
+// Hidden inside the native shell and the installed PWA, and stays dismissed
+// once closed.
+(function () {
+    const isAndroidBrowser = /android/i.test(navigator.userAgent) &&
+        !window.isNativeShell &&
+        !window.matchMedia('(display-mode: standalone)').matches;
+    if (!isAndroidBrowser ||
+        localStorage.getItem('playStoreBannerDismissed') === 'true') {
+        return;
+    }
+
+    const PLAY_URL =
+        'https://play.google.com/store/apps/details?id=com.hallowedgains.aswtp';
+    const banner = document.createElement('div');
+    banner.className = 'no-print';
+    banner.style.cssText =
+        'position:fixed;bottom:0;left:0;right:0;z-index:1000;' +
+        'display:flex;align-items:center;gap:10px;padding:10px 14px;' +
+        'background:#65342f;color:#f7f3e3;font-size:15px;' +
+        'box-shadow:0 -2px 8px rgba(0,0,0,0.25);';
+    banner.innerHTML =
+        '<span style="flex:1;">A Simple Way to Pray is on Google Play</span>' +
+        '<a href="' + PLAY_URL + '" style="background:#f7f3e3;color:#65342f;' +
+        'padding:7px 14px;border-radius:6px;text-decoration:none;' +
+        'font-weight:bold;white-space:nowrap;">Get the app</a>' +
+        '<button aria-label="Dismiss" style="background:none;border:none;' +
+        'color:#f7f3e3;font-size:22px;line-height:1;padding:4px 8px;">' +
+        '&times;</button>';
+    banner.querySelector('button').addEventListener('click', () => {
+        localStorage.setItem('playStoreBannerDismissed', 'true');
+        banner.remove();
+    });
+    document.body.appendChild(banner);
+})();
