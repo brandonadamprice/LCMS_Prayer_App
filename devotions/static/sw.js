@@ -1,4 +1,4 @@
-const CACHE_NAME = 'prayer-app-v28';
+const CACHE_NAME = 'prayer-app-v29';
 // Stable, version-independent cache for user-downloaded offline devotions
 // (Settings -> "Download Next 3 Days"). Kept across deploys by the activate
 // handler below, so a CACHE_NAME bump doesn't wipe what the user saved.

@@ -120,6 +120,10 @@
     cursor: grab;
     position: relative;
     user-select: none;
+    /* Touches over the tree always pan/zoom the tree, never scroll the page —
+       without this the browser and d3-zoom fight over each gesture. */
+    touch-action: none;
+    overscroll-behavior: contain;
   }
   .tree-viewport::before {
     content: "";
@@ -130,7 +134,7 @@
     pointer-events: none;
   }
   .tree-viewport:active { cursor: grabbing; }
-  #tree-svg { width: 100%; height: 100%; display: block; position: relative; }
+  #tree-svg { width: 100%; height: 100%; display: block; position: relative; touch-action: none; }
 
   .tree-link {
     fill: none;
@@ -151,14 +155,16 @@
     user-select: none;
     letter-spacing: 0.15px;
   }
-  .tree-node circle {
+  .tree-node circle,
+  .tree-node .jesus-cross {
     cursor: pointer;
     transition: r 0.22s cubic-bezier(.34,1.56,.64,1), stroke-width 0.22s;
     filter: drop-shadow(0 2px 4px rgba(0,0,0,0.18));
   }
-  .tree-node:hover circle { stroke-width: 3.5px !important; }
+  .tree-node:hover circle,
+  .tree-node:hover .jesus-cross { stroke-width: 3.5px !important; }
   .tree-node.m-node circle { filter: drop-shadow(0 0 6px rgba(175,145,100,0.6)) drop-shadow(0 2px 3px rgba(0,0,0,0.15)); }
-  .tree-node.jesus-node circle {
+  .tree-node.jesus-node .jesus-cross {
     filter: drop-shadow(0 0 14px rgba(175,145,100,0.9)) drop-shadow(0 0 4px rgba(255,255,255,0.6));
     animation: jesus-pulse 3s ease-in-out infinite;
   }
@@ -695,15 +701,16 @@
   var EASE  = d3.easeCubicInOut;
   var showM = true;
 
+  // Latin cross drawn in place of the circle for Jesus, centered on the node point.
+  var CROSS_D = 'M-4.5,-20 H4.5 V-12.5 H13 V-3.5 H4.5 V20 H-4.5 V-3.5 H-13 V-12.5 H-4.5 Z';
+
   function cfill(d) {
-    if (d.data.n === 'Jesus Christ') { return 'url(#ngrad-jesus)'; }
     if (d.data.m && showM) {
       return (d._kids && !(d.children && d.children.length)) ? '#f0e6d2' : 'url(#ngrad-m)';
     }
     return (d._kids && !(d.children && d.children.length)) ? '#f1ebdc' : 'url(#ngrad-o)';
   }
   function cstroke(d) {
-    if (d.data.n === 'Jesus Christ') { return '#65342f'; }
     return (d.data.m && showM) ? '#8a6e45' : '#948a78';
   }
   function hasKids(d) { return d.children && d.children.length > 0; }
@@ -763,7 +770,14 @@
 
     nEnter.append('text').attr('class', 'nhalo').text(function(d) { return d.data.n; });
     nEnter.append('text').attr('class', 'nlbl').text(function(d) { return d.data.n; });
-    nEnter.append('circle').attr('r', 0);
+    nEnter.each(function(d) {
+      var el = d3.select(this);
+      if (d.data.n === 'Jesus Christ') {
+        el.append('path').attr('class', 'jesus-cross').attr('d', CROSS_D).attr('transform', 'scale(0)');
+      } else {
+        el.append('circle').attr('r', 0);
+      }
+    });
 
     var nAll = nEnter.merge(node);
 
@@ -778,12 +792,22 @@
       .attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
 
     nAll.select('circle').transition().duration(DUR).ease(EASE)
-      .attr('r', function(d) { return d.data.n === 'Jesus Christ' ? 15 : (d.data.m && showM ? 10 : 7.5); })
+      .attr('r', function(d) { return d.data.m && showM ? 10 : 7.5; })
       .attr('fill',   function(d) { return cfill(d); })
       .attr('stroke', function(d) { return cstroke(d); })
-      .attr('stroke-width', function(d) { return d.data.n === 'Jesus Christ' ? 3 : 2.2; });
+      .attr('stroke-width', 2.2);
 
-    var ly = function(d) { return hasKids(d) ? -16 : 20; };
+    nAll.select('path.jesus-cross').transition().duration(DUR).ease(EASE)
+      .attr('transform', 'scale(1)')
+      .attr('fill', 'url(#ngrad-jesus)')
+      .attr('stroke', '#65342f')
+      .attr('stroke-width', 2)
+      .attr('stroke-linejoin', 'round');
+
+    var ly = function(d) {
+      if (d.data.n === 'Jesus Christ') { return hasKids(d) ? -30 : 32; }
+      return hasKids(d) ? -16 : 20;
+    };
     var ta = function(d) { return 'middle'; };
     var fw = function(d) { return d.data.m ? '700' : '400'; };
     var fs = function(d) { return d.data.n === 'Jesus Christ' ? '13px' : '11px'; };
@@ -950,7 +974,7 @@
   }
 
   function doSearch(q) {
-    g.selectAll('circle').attr('filter', null);
+    g.selectAll('circle, path.jesus-cross').attr('filter', null);
     if (!q) { return; }
     var ql = q.toLowerCase();
 
@@ -982,7 +1006,7 @@
 
     setTimeout(function() {
       g.selectAll('g.tree-node').each(function(d) {
-        d3.select(this).select('circle')
+        d3.select(this).select('circle, path.jesus-cross')
           .attr('filter', nodeMatchesQuery(d, ql) ? 'drop-shadow(0 0 7px #c0392b)' : null);
       });
       var first = matches[0];
