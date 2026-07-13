@@ -19,11 +19,11 @@
     align-items: center;
     gap: 10px;
     padding: 12px 22px;
-    background: rgba(255,255,255,0.82);
+    background: rgba(255,255,255,0.85);
     backdrop-filter: blur(16px) saturate(180%);
     -webkit-backdrop-filter: blur(16px) saturate(180%);
-    border-bottom: 1px solid rgba(200,200,200,0.3);
-    box-shadow: 0 4px 20px -6px rgba(26,82,118,0.08);
+    border-bottom: 1px solid var(--color-border);
+    box-shadow: 0 4px 20px -6px rgba(101,52,47,0.1);
     position: sticky;
     top: 60px;
     z-index: 50;
@@ -40,30 +40,30 @@
     top: 50%;
     transform: translateY(-50%);
     pointer-events: none;
-    color: #aaa;
+    color: var(--text-faint);
   }
   #tree-search {
     width: 100%;
     box-sizing: border-box;
     padding: 7px 12px 7px 32px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--color-border);
     border-radius: 20px;
     font-family: 'Montserrat', sans-serif;
     font-size: 0.83em;
-    background: #f7f3e3;
-    color: #4a4a4a;
+    background: var(--color-bg);
+    color: var(--color-text);
     outline: none;
     transition: border-color 0.2s, box-shadow 0.2s;
   }
-  #tree-search:focus { border-color: #2980b9; box-shadow: 0 0 0 3px rgba(41,128,185,0.12); }
+  #tree-search:focus { border-color: var(--color-accent); box-shadow: 0 0 0 3px var(--focus-ring); }
 
   .tree-btn-group { display: flex; gap: 6px; flex-wrap: wrap; }
   .tree-btn {
     padding: 7px 14px;
-    border: 1px solid rgba(200,200,200,0.45);
+    border: 1px solid var(--color-border);
     border-radius: 22px;
     background: rgba(255,255,255,0.7);
-    color: #4a4a4a;
+    color: var(--color-muted);
     font-family: 'Montserrat', sans-serif;
     font-size: 0.76em;
     font-weight: 700;
@@ -77,16 +77,16 @@
   }
   .tree-btn:hover {
     background: #fff;
-    border-color: #2980b9;
-    color: #2980b9;
+    border-color: var(--color-accent-dark);
+    color: var(--color-accent-dark);
     transform: translateY(-1px);
-    box-shadow: 0 4px 10px -2px rgba(41,128,185,0.25);
+    box-shadow: 0 4px 10px -2px rgba(138,110,69,0.3);
   }
   .tree-btn.active {
-    background: linear-gradient(135deg, #5dade2, #1a5276);
-    border-color: #1a5276;
+    background: linear-gradient(135deg, #7a453e, var(--color-primary-dark));
+    border-color: var(--color-primary-dark);
     color: white;
-    box-shadow: 0 4px 14px -2px rgba(26,82,118,0.5), inset 0 1px 0 rgba(255,255,255,0.25);
+    box-shadow: 0 4px 14px -2px rgba(78,39,35,0.5), inset 0 1px 0 rgba(255,255,255,0.2);
   }
   .tree-btn.active:hover { color: white; transform: translateY(-1px); }
 
@@ -96,7 +96,7 @@
     align-items: center;
     font-family: 'Montserrat', sans-serif;
     font-size: 0.76em;
-    color: #708090;
+    color: var(--color-muted);
     margin-left: auto;
     flex-wrap: wrap;
   }
@@ -112,10 +112,11 @@
   .tree-viewport {
     width: 100%;
     height: calc(100vh - 200px);
+    height: calc(100dvh - 200px);
     min-height: 460px;
     overflow: hidden;
     background:
-      radial-gradient(ellipse at top, #fdfcf8 0%, #f3efe3 55%, #e8e2d0 100%);
+      radial-gradient(ellipse at top, #fdfbf4 0%, #f3eeda 55%, #eae1c9 100%);
     cursor: grab;
     position: relative;
     user-select: none;
@@ -124,8 +125,8 @@
     content: "";
     position: absolute; inset: 0;
     background-image:
-      radial-gradient(circle at 20% 15%, rgba(41,128,185,0.05) 0, transparent 40%),
-      radial-gradient(circle at 80% 85%, rgba(183,149,11,0.05) 0, transparent 40%);
+      radial-gradient(circle at 20% 15%, rgba(175,145,100,0.08) 0, transparent 40%),
+      radial-gradient(circle at 80% 85%, rgba(101,52,47,0.05) 0, transparent 40%);
     pointer-events: none;
   }
   .tree-viewport:active { cursor: grabbing; }
@@ -133,7 +134,7 @@
 
   .tree-link {
     fill: none;
-    stroke: #c9c4b6;
+    stroke: #cfc8b5;
     stroke-width: 1.5px;
     stroke-linecap: round;
     transition: stroke 0.3s, stroke-width 0.3s, opacity 0.3s;
@@ -142,7 +143,7 @@
     stroke: url(#msgrad);
     stroke-width: 2.75px;
     stroke-dasharray: 1 0;
-    filter: drop-shadow(0 0 3px rgba(41,128,185,0.35));
+    filter: drop-shadow(0 0 3px rgba(175,145,100,0.45));
   }
   .tree-node text {
     font-family: 'Montserrat', sans-serif;
@@ -156,24 +157,24 @@
     filter: drop-shadow(0 2px 4px rgba(0,0,0,0.18));
   }
   .tree-node:hover circle { stroke-width: 3.5px !important; }
-  .tree-node.m-node circle { filter: drop-shadow(0 0 6px rgba(41,128,185,0.55)) drop-shadow(0 2px 3px rgba(0,0,0,0.15)); }
+  .tree-node.m-node circle { filter: drop-shadow(0 0 6px rgba(175,145,100,0.6)) drop-shadow(0 2px 3px rgba(0,0,0,0.15)); }
   .tree-node.jesus-node circle {
-    filter: drop-shadow(0 0 14px rgba(41,128,185,0.85)) drop-shadow(0 0 4px rgba(255,255,255,0.6));
+    filter: drop-shadow(0 0 14px rgba(175,145,100,0.9)) drop-shadow(0 0 4px rgba(255,255,255,0.6));
     animation: jesus-pulse 3s ease-in-out infinite;
   }
   @keyframes jesus-pulse {
-    0%, 100% { filter: drop-shadow(0 0 14px rgba(41,128,185,0.85)) drop-shadow(0 0 4px rgba(255,255,255,0.6)); }
-    50%      { filter: drop-shadow(0 0 22px rgba(41,128,185,1)) drop-shadow(0 0 7px rgba(255,255,255,0.85)); }
+    0%, 100% { filter: drop-shadow(0 0 14px rgba(175,145,100,0.9)) drop-shadow(0 0 4px rgba(255,255,255,0.6)); }
+    50%      { filter: drop-shadow(0 0 22px rgba(196,168,120,1)) drop-shadow(0 0 7px rgba(255,255,255,0.85)); }
   }
 
   .tree-tip {
     position: fixed;
-    background: rgba(255,255,255,0.88);
+    background: rgba(255,255,255,0.92);
     backdrop-filter: blur(14px) saturate(160%);
     -webkit-backdrop-filter: blur(14px) saturate(160%);
     border-radius: 14px;
     box-shadow:
-      0 14px 40px -10px rgba(26,82,118,0.28),
+      0 14px 40px -10px rgba(78,39,35,0.3),
       0 2px 6px rgba(0,0,0,0.08),
       inset 0 1px 0 rgba(255,255,255,0.85);
     padding: 15px 19px;
@@ -183,10 +184,10 @@
     opacity: 0;
     transform: translateY(8px) scale(0.97);
     transition: opacity 0.2s ease, transform 0.25s cubic-bezier(.34,1.56,.64,1);
-    border: 1px solid rgba(255,255,255,0.6);
+    border: 1px solid var(--color-border);
   }
   .tree-tip.show { opacity: 1; transform: translateY(0) scale(1); }
-  .tip-name { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 1em; color: #333; margin: 0 0 3px; }
+  .tip-name { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 1em; color: var(--text-heading); margin: 0 0 3px; padding-right: 22px; }
   .tip-badges { margin-bottom: 7px; }
   .tip-badge {
     display: inline-block;
@@ -199,78 +200,144 @@
     text-transform: uppercase;
     margin-right: 4px;
   }
-  .badge-m  { background: #d6eaf8; color: #2471a3; }
+  .badge-m  { background: #f1e8d6; color: #8a6e45; }
   .badge-k  { background: #e8f8f5; color: #1e8449; }
   .badge-pr { background: #fef9e7; color: #b7950b; }
   .badge-p  { background: #f4ecf7; color: #7d3c98; }
-  .badge-x  { background: #fdedec; color: #c0392b; }
+  .badge-x  { background: #f5e9e3; color: #65342f; }
   .tip-detail { font-family: 'Lora', serif; font-size: 0.84em; color: #555; line-height: 1.5; margin: 3px 0 0; }
-  .tip-ref    { font-family: 'Montserrat', sans-serif; font-size: 0.74em; color: #2980b9; margin-top: 6px; }
-  .tip-hint   { font-family: 'Montserrat', sans-serif; font-size: 0.71em; color: #aaa; margin-top: 5px; font-style: italic; }
+  .tip-ref    { font-family: 'Montserrat', sans-serif; font-size: 0.74em; color: var(--color-accent-dark); margin-top: 6px; font-weight: 700; }
+  .tip-hint   { font-family: 'Montserrat', sans-serif; font-size: 0.71em; color: var(--text-faint); margin-top: 5px; font-style: italic; }
+  .tip-close {
+    display: none;
+    position: absolute;
+    top: 8px; right: 8px;
+    width: 30px; height: 30px;
+    padding: 0; margin: 0;
+    border: none; border-radius: 50%;
+    background: rgba(0,0,0,0.06);
+    color: var(--color-muted);
+    font-size: 1.1em;
+    line-height: 30px;
+    text-align: center;
+    cursor: pointer;
+  }
+  .tip-toggle {
+    display: block;
+    width: 100%;
+    margin: 12px 0 0;
+    padding: 9px 14px;
+    border: none;
+    border-radius: 22px;
+    background: var(--color-primary);
+    color: white;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.78em;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
 
   body.dark-mode .tree-controls {
-    background: rgba(30,30,34,0.75);
-    border-color: rgba(255,255,255,0.08);
+    background: rgba(42,38,34,0.88);
+    border-color: var(--color-border);
     box-shadow: 0 4px 20px -6px rgba(0,0,0,0.4);
   }
   body.dark-mode .tree-btn {
-    background: rgba(50,52,58,0.75);
-    border-color: rgba(255,255,255,0.09);
-    color: #d8d8d8;
+    background: rgba(58,53,47,0.85);
+    border-color: var(--color-border);
+    color: #d8d2c4;
     box-shadow: 0 1px 2px rgba(0,0,0,0.25);
   }
   body.dark-mode .tree-btn:hover {
-    background: rgba(70,75,85,0.9);
-    border-color: #5dade2;
-    color: #5dade2;
-    box-shadow: 0 4px 12px -2px rgba(93,173,226,0.3);
+    background: rgba(74,68,61,0.95);
+    border-color: var(--color-accent);
+    color: #c4a878;
+    box-shadow: 0 4px 12px -2px rgba(175,145,100,0.3);
   }
   body.dark-mode .tree-btn.active {
-    background: linear-gradient(135deg, #2980b9, #0e3a5b);
-    border-color: #0e3a5b;
+    background: linear-gradient(135deg, #65342f, #3a1e1b);
+    border-color: #3a1e1b;
     color: white;
-    box-shadow: 0 4px 14px -2px rgba(41,128,185,0.5), inset 0 1px 0 rgba(255,255,255,0.15);
+    box-shadow: 0 4px 14px -2px rgba(101,52,47,0.6), inset 0 1px 0 rgba(255,255,255,0.12);
   }
   body.dark-mode #tree-search {
-    background: rgba(50,52,58,0.75);
-    border-color: rgba(255,255,255,0.09);
-    color: #e0e0e0;
+    background: rgba(58,53,47,0.85);
+    border-color: var(--color-border);
+    color: var(--color-text);
   }
   body.dark-mode .tree-viewport {
     background:
-      radial-gradient(ellipse at top, #1a1f2b 0%, #0f1218 55%, #060810 100%);
+      radial-gradient(ellipse at top, #322c25 0%, #262019 55%, #171310 100%);
   }
   body.dark-mode .tree-viewport::before {
     background-image:
-      radial-gradient(circle at 20% 15%, rgba(93,173,226,0.08) 0, transparent 40%),
-      radial-gradient(circle at 80% 85%, rgba(183,149,11,0.05) 0, transparent 40%),
-      radial-gradient(1px 1px at 30% 40%, rgba(255,255,255,0.5), transparent),
-      radial-gradient(1px 1px at 70% 25%, rgba(255,255,255,0.4), transparent),
-      radial-gradient(1px 1px at 55% 70%, rgba(255,255,255,0.35), transparent),
-      radial-gradient(1px 1px at 15% 80%, rgba(255,255,255,0.45), transparent),
-      radial-gradient(1px 1px at 85% 55%, rgba(255,255,255,0.4), transparent);
+      radial-gradient(circle at 20% 15%, rgba(196,168,120,0.09) 0, transparent 40%),
+      radial-gradient(circle at 80% 85%, rgba(101,52,47,0.12) 0, transparent 40%),
+      radial-gradient(1px 1px at 30% 40%, rgba(255,248,230,0.5), transparent),
+      radial-gradient(1px 1px at 70% 25%, rgba(255,248,230,0.4), transparent),
+      radial-gradient(1px 1px at 55% 70%, rgba(255,248,230,0.35), transparent),
+      radial-gradient(1px 1px at 15% 80%, rgba(255,248,230,0.45), transparent),
+      radial-gradient(1px 1px at 85% 55%, rgba(255,248,230,0.4), transparent);
   }
   body.dark-mode .tree-tip {
-    background: rgba(30,34,42,0.82);
-    border-color: rgba(255,255,255,0.08);
+    background: rgba(58,53,47,0.92);
+    border-color: var(--color-border);
     box-shadow:
       0 14px 40px -10px rgba(0,0,0,0.7),
       0 2px 6px rgba(0,0,0,0.35),
       inset 0 1px 0 rgba(255,255,255,0.08);
   }
-  body.dark-mode .tip-name { color: #eee; }
-  body.dark-mode .tip-detail { color: #bbb; }
-  body.dark-mode .tree-link { stroke: rgba(160,170,185,0.28); }
-  body.dark-mode .tree-link.m-link { filter: drop-shadow(0 0 4px rgba(93,173,226,0.6)); }
-  body.dark-mode .tree-legend { color: #9aa4b0; }
+  body.dark-mode .tip-name { color: #efe8d8; }
+  body.dark-mode .tip-detail { color: #cbc4b5; }
+  body.dark-mode .tip-close { background: rgba(255,255,255,0.1); color: #cbc4b5; }
+  body.dark-mode .badge-m { background: rgba(175,145,100,0.2); color: #d4b988; }
+  body.dark-mode .badge-x { background: rgba(101,52,47,0.35); color: #e0a8a0; }
+  body.dark-mode .tip-ref { color: #c4a878; }
+  body.dark-mode .tree-link { stroke: rgba(185,175,155,0.25); }
+  body.dark-mode .tree-link.m-link { filter: drop-shadow(0 0 4px rgba(196,168,120,0.6)); }
+  body.dark-mode .tree-legend { color: #a89f8e; }
 
   @media (max-width: 600px) {
+    .page-header { margin: 12px 12px 0; }
     .tree-legend { display: none; }
-    .tree-controls { padding: 10px 12px; gap: 8px; }
+    .tree-controls { padding: 8px 10px; gap: 8px; }
     .tree-search-wrap { min-width: 0; max-width: none; flex: 1 1 100%; }
-    .tree-btn-group { flex: 1 1 100%; justify-content: flex-start; }
-    .tree-btn { padding: 7px 11px; font-size: 0.72em; }
-    .tree-viewport { height: calc(100vh - 220px); }
+    .tree-btn-group {
+      flex: 1 1 100%;
+      flex-wrap: nowrap;
+      justify-content: flex-start;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding-bottom: 2px;
+    }
+    .tree-btn-group::-webkit-scrollbar { display: none; }
+    .tree-btn { flex: 0 0 auto; padding: 7px 11px; font-size: 0.72em; }
+    .tree-viewport {
+      height: calc(100vh - 220px);
+      height: calc(100dvh - 220px);
+      min-height: 380px;
+    }
+    /* On phones the tooltip becomes a bottom sheet: fixed to the bottom edge,
+       scrollable, tappable (close button + expand/collapse action). */
+    .tree-tip {
+      left: 10px !important;
+      right: 10px;
+      top: auto !important;
+      bottom: 10px;
+      max-width: none;
+      max-height: 45vh;
+      max-height: 45dvh;
+      overflow-y: auto;
+      pointer-events: auto;
+      transform: translateY(14px);
+      padding-bottom: env(safe-area-inset-bottom, 15px);
+    }
+    .tree-tip.show { transform: translateY(0); }
+    .tip-close { display: block; }
+    .tip-hint { display: none; }
   }
 </style>
 {% endblock %}
@@ -278,7 +345,7 @@
 {% block content %}
 <div class="page-header">
   <h1>Bible Family Tree</h1>
-  <p>Trace the lineage of Scripture from Adam to Jesus Christ. Click any node to expand or collapse its family. The blue path is the Messianic line.</p>
+  <p>Trace the lineage of Scripture from Adam to Jesus Christ. Tap any name to read about that person; the golden path is the Messianic line.</p>
 </div>
 
 <div class="tree-controls">
@@ -299,9 +366,9 @@
   </div>
 
   <div class="tree-legend">
-    <span><span class="leg-dot" style="background:#2980b9;"></span>Messianic</span>
-    <span><span class="leg-dot" style="background:#708090;"></span>Other</span>
-    <span><span class="leg-dot" style="background:#f7f3e3; border:2px dashed #aaa;"></span>Has children</span>
+    <span><span class="leg-dot" style="background:#af9164;"></span>Messianic</span>
+    <span><span class="leg-dot" style="background:#857c6f;"></span>Other</span>
+    <span><span class="leg-dot" style="background:#f0e6d2; border:2px dashed #af9164;"></span>Has children</span>
   </div>
 </div>
 
@@ -316,7 +383,6 @@
 
   var PEOPLE = [
     {id:"adam",    n:"Adam",        m:1, par:null,       sp:"Eve",                ref:"Gen 1-5",    yrs:"930 yrs", desc:"First man, formed by God from the dust of the ground on the sixth day; God breathed into his nostrils the breath of life and he became a living soul. Placed in the Garden of Eden to work it and keep it. Named every beast of the field and bird of the sky. Eve was fashioned from his rib while he slept. Ate from the tree of the knowledge of good and evil; cursed to toil with the ground all his days. Exiled from Eden, the way guarded by cherubim and a flaming sword. Fathered Cain, Abel, Seth, and other sons and daughters."},
-    {id:"eve",     n:"Eve",              par:"adam",      col:1, ref:"Gen 2-4",   desc:"The woman, fashioned by God from Adam's rib; called Woman because she was taken out of Man. Named Eve by Adam, 'mother of all living.' Deceived by the serpent; ate of the forbidden fruit and gave to Adam. Sorrow in childbirth and desire for her husband became her portion. Bore Cain ('I have gotten a man with the help of the LORD'), Abel, and Seth ('God has appointed another offspring for me in place of Abel')."},
     {id:"abel",    n:"Abel",             par:"adam",      ref:"Gen 4",    desc:"Second son of Adam; a keeper of sheep. Brought the firstlings of his flock as offering; the LORD had regard for Abel and his offering. Hated and slain in the field by his brother Cain. His blood cried out from the ground. 'By faith Abel offered a more acceptable sacrifice than Cain' (Heb 11:4)."},
     {id:"cain",    n:"Cain",             par:"adam",      col:1, ref:"Gen 4",    desc:"Firstborn son of Adam; a tiller of the ground. His offering of fruit was not accepted; sin crouched at his door. Murdered Abel in the field. Cursed from the ground, a fugitive and wanderer; the LORD set a mark on him so none would kill him. Dwelt in the land of Nod, east of Eden; built the first city and named it for his son Enoch."},
     {id:"seth",    n:"Seth",       m:1,  par:"adam",      ref:"Gen 4-5",    yrs:"912 yrs", desc:"Third named son of Adam, born when Adam was 130. His mother said, 'God has appointed another offspring for me in place of Abel.' In his days men began to call upon the name of the LORD. Ancestor of the righteous Sethite line and the Messianic promise."},
@@ -586,22 +652,22 @@
   var defs = svg.append('defs');
   var msgrad = defs.append('linearGradient')
     .attr('id', 'msgrad').attr('x1', '0%').attr('y1', '0%').attr('x2', '0%').attr('y2', '100%');
-  msgrad.append('stop').attr('offset', '0%').attr('stop-color', '#5dade2');
-  msgrad.append('stop').attr('offset', '50%').attr('stop-color', '#2980b9');
-  msgrad.append('stop').attr('offset', '100%').attr('stop-color', '#1a5276');
+  msgrad.append('stop').attr('offset', '0%').attr('stop-color', '#cdb489');
+  msgrad.append('stop').attr('offset', '50%').attr('stop-color', '#af9164');
+  msgrad.append('stop').attr('offset', '100%').attr('stop-color', '#8a6e45');
 
   var nodeGrad = defs.append('radialGradient').attr('id', 'ngrad-m').attr('cx', '35%').attr('cy', '30%');
-  nodeGrad.append('stop').attr('offset', '0%').attr('stop-color', '#7fb7dd');
-  nodeGrad.append('stop').attr('offset', '100%').attr('stop-color', '#1f618d');
+  nodeGrad.append('stop').attr('offset', '0%').attr('stop-color', '#d8c49c');
+  nodeGrad.append('stop').attr('offset', '100%').attr('stop-color', '#8a6e45');
 
   var jesusGrad = defs.append('radialGradient').attr('id', 'ngrad-jesus').attr('cx', '35%').attr('cy', '30%');
-  jesusGrad.append('stop').attr('offset', '0%').attr('stop-color', '#eaf5fc');
-  jesusGrad.append('stop').attr('offset', '55%').attr('stop-color', '#2980b9');
-  jesusGrad.append('stop').attr('offset', '100%').attr('stop-color', '#0e3a5b');
+  jesusGrad.append('stop').attr('offset', '0%').attr('stop-color', '#fdf4dd');
+  jesusGrad.append('stop').attr('offset', '55%').attr('stop-color', '#b28f57');
+  jesusGrad.append('stop').attr('offset', '100%').attr('stop-color', '#65342f');
 
   var otherGrad = defs.append('radialGradient').attr('id', 'ngrad-o').attr('cx', '35%').attr('cy', '30%');
-  otherGrad.append('stop').attr('offset', '0%').attr('stop-color', '#cfd6dd');
-  otherGrad.append('stop').attr('offset', '100%').attr('stop-color', '#7d8894');
+  otherGrad.append('stop').attr('offset', '0%').attr('stop-color', '#d6d0c2');
+  otherGrad.append('stop').attr('offset', '100%').attr('stop-color', '#857c6f');
 
   var g   = svg.append('g');
 
@@ -632,13 +698,13 @@
   function cfill(d) {
     if (d.data.n === 'Jesus Christ') { return 'url(#ngrad-jesus)'; }
     if (d.data.m && showM) {
-      return (d._kids && !(d.children && d.children.length)) ? '#d6eaf8' : 'url(#ngrad-m)';
+      return (d._kids && !(d.children && d.children.length)) ? '#f0e6d2' : 'url(#ngrad-m)';
     }
-    return (d._kids && !(d.children && d.children.length)) ? '#f3efe3' : 'url(#ngrad-o)';
+    return (d._kids && !(d.children && d.children.length)) ? '#f1ebdc' : 'url(#ngrad-o)';
   }
   function cstroke(d) {
-    if (d.data.n === 'Jesus Christ') { return '#1a5276'; }
-    return (d.data.m && showM) ? '#2471a3' : '#8fa0ac';
+    if (d.data.n === 'Jesus Christ') { return '#65342f'; }
+    return (d.data.m && showM) ? '#8a6e45' : '#948a78';
   }
   function hasKids(d) { return d.children && d.children.length > 0; }
 
@@ -685,11 +751,15 @@
         return c;
       })
       .attr('transform', function() { return 'translate(' + sx + ',' + sy + ')'; })
-      .on('click', function(e, d) { e.stopPropagation(); toggleNode(d); })
-      .on('mouseenter', showTip)
-      .on('mousemove',  moveTip)
-      .on('mouseleave', hideTip)
-      .on('touchstart', function(e, d) { e.preventDefault(); showTip(e, d); moveTip(e); });
+      .on('click', function(e, d) {
+        e.stopPropagation();
+        // Phones: tapping opens the detail sheet (which holds the
+        // expand/collapse button). Desktop: hover shows the tip, click toggles.
+        if (sheetMode()) { showTip(e, d); } else { toggleNode(d); }
+      })
+      .on('mouseenter', function(e, d) { if (!sheetMode()) { showTip(e, d); } })
+      .on('mousemove',  function(e)    { if (!sheetMode()) { moveTip(e); } })
+      .on('mouseleave', function()     { if (!sheetMode()) { hideTip(); } });
 
     nEnter.append('text').attr('class', 'nhalo').text(function(d) { return d.data.n; });
     nEnter.append('text').attr('class', 'nlbl').text(function(d) { return d.data.n; });
@@ -719,10 +789,10 @@
     var fs = function(d) { return d.data.n === 'Jesus Christ' ? '13px' : '11px'; };
     var dark = document.body.classList.contains('dark-mode');
     var fc = function(d) {
-      if (dark) { return d.data.n === 'Jesus Christ' ? '#7fb7dd' : (d.data.m ? '#bcd8ee' : '#e0e0e0'); }
-      return d.data.n === 'Jesus Christ' ? '#1a5276' : (d.data.m ? '#1c3a52' : '#5a5a5a');
+      if (dark) { return d.data.n === 'Jesus Christ' ? '#e3c78f' : (d.data.m ? '#d9c8a4' : '#cfc8bc'); }
+      return d.data.n === 'Jesus Christ' ? '#65342f' : (d.data.m ? '#5d4a2f' : '#5a5a5a');
     };
-    var haloCol = dark ? 'rgba(20,20,20,0.95)' : 'rgba(249,248,244,0.95)';
+    var haloCol = dark ? 'rgba(30,25,20,0.95)' : 'rgba(250,246,236,0.95)';
 
     nAll.select('text.nhalo')
       .attr('dy', '0.31em')
@@ -756,6 +826,9 @@
     update(d);
   }
 
+  var sheetQuery = window.matchMedia('(max-width: 600px)');
+  function sheetMode() { return sheetQuery.matches; }
+
   function showTip(event, d) {
     var da = d.data;
     var badges = '';
@@ -769,19 +842,45 @@
     if (da.role === 'leader')     { badges += '<span class="tip-badge" style="background:#fff3e0;color:#e65100;">Leader</span>'; }
     if (da.role === 'mother')     { badges += '<span class="tip-badge" style="background:#fce4ec;color:#880e4f;">Blessed Mother</span>'; }
     var hk = d.children || d._kids;
-    var html = '<div class="tip-name">' + da.n + '</div>';
+    var expanded = !!(d.children && d.children.length);
+    var html = '<button class="tip-close" type="button" aria-label="Close">&times;</button>';
+    html += '<div class="tip-name">' + da.n + '</div>';
     if (badges) { html += '<div class="tip-badges">' + badges + '</div>'; }
     if (da.sp)  { html += '<div class="tip-detail"><strong>Spouse:</strong> ' + da.sp + '</div>'; }
     if (da.yrs) { html += '<div class="tip-detail"><strong>Lived:</strong> ' + da.yrs + '</div>'; }
     if (da.desc){ html += '<div class="tip-detail">' + da.desc + '</div>'; }
     if (da.ref) { html += '<div class="tip-ref">' + da.ref + '</div>'; }
-    if (hk)     { html += '<div class="tip-hint">' + (d.children && d.children.length ? 'Click to collapse' : 'Click to expand children') + '</div>'; }
+    if (hk) {
+      if (sheetMode()) {
+        html += '<button class="tip-toggle" type="button">' + (expanded ? 'Collapse family' : 'Expand family') + '</button>';
+      } else {
+        html += '<div class="tip-hint">' + (expanded ? 'Click to collapse' : 'Click to expand children') + '</div>';
+      }
+    }
     tip.innerHTML = html;
+    var closeBtn = tip.querySelector('.tip-close');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', function(ev) { ev.stopPropagation(); hideTip(); });
+    }
+    var toggleBtn = tip.querySelector('.tip-toggle');
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', function(ev) {
+        ev.stopPropagation();
+        hideTip();
+        toggleNode(d);
+      });
+    }
     tip.classList.add('show');
     moveTip(event);
   }
 
   function moveTip(event) {
+    if (sheetMode()) {
+      // Bottom sheet is positioned entirely by CSS on phones.
+      tip.style.left = '';
+      tip.style.top  = '';
+      return;
+    }
     var cx = event.clientX || (event.touches && event.touches[0] ? event.touches[0].clientX : 0);
     var cy = event.clientY || (event.touches && event.touches[0] ? event.touches[0].clientY : 0);
     var x = cx + 16, y = cy + 16;
@@ -793,6 +892,7 @@
 
   function hideTip() { tip.classList.remove('show'); }
   svg.on('click', hideTip);
+  zoomBeh.on('start.tip', hideTip);
 
   function centerView() {
     var t = d3.zoomIdentity.translate(W / 2, 60).scale(0.62);
@@ -883,7 +983,7 @@
     setTimeout(function() {
       g.selectAll('g.tree-node').each(function(d) {
         d3.select(this).select('circle')
-          .attr('filter', nodeMatchesQuery(d, ql) ? 'drop-shadow(0 0 7px #e67e22)' : null);
+          .attr('filter', nodeMatchesQuery(d, ql) ? 'drop-shadow(0 0 7px #c0392b)' : null);
       });
       var first = matches[0];
       if (first.x !== undefined) {
