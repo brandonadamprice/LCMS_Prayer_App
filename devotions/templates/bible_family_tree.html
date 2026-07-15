@@ -75,12 +75,17 @@
     margin: 0;
     box-shadow: 0 1px 2px rgba(0,0,0,0.04);
   }
-  .tree-btn:hover {
-    background: #fff;
-    border-color: var(--color-accent-dark);
-    color: var(--color-accent-dark);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 10px -2px rgba(138,110,69,0.3);
+  /* Hover styling only where a real hover exists — on touch screens these
+     rules would stick to the last-tapped button until the next tap. */
+  @media (hover: hover) {
+    .tree-btn:hover {
+      background: #fff;
+      border-color: var(--color-accent-dark);
+      color: var(--color-accent-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px -2px rgba(138,110,69,0.3);
+    }
+    .tree-btn.active:hover { color: white; transform: translateY(-1px); }
   }
   .tree-btn.active {
     background: linear-gradient(135deg, #7a453e, var(--color-primary-dark));
@@ -88,7 +93,9 @@
     color: white;
     box-shadow: 0 4px 14px -2px rgba(78,39,35,0.5), inset 0 1px 0 rgba(255,255,255,0.2);
   }
-  .tree-btn.active:hover { color: white; transform: translateY(-1px); }
+  /* Keep the pill shape when the global keyboard-focus outline applies
+     (the site-wide rule forces border-radius: 4px on :focus-visible). */
+  .tree-btn:focus-visible { border-radius: 22px; }
 
   .tree-legend {
     display: flex;
@@ -256,11 +263,13 @@
     color: #d8d2c4;
     box-shadow: 0 1px 2px rgba(0,0,0,0.25);
   }
-  body.dark-mode .tree-btn:hover {
-    background: rgba(74,68,61,0.95);
-    border-color: var(--color-accent);
-    color: #c4a878;
-    box-shadow: 0 4px 12px -2px rgba(175,145,100,0.3);
+  @media (hover: hover) {
+    body.dark-mode .tree-btn:hover {
+      background: rgba(74,68,61,0.95);
+      border-color: var(--color-accent);
+      color: #c4a878;
+      box-shadow: 0 4px 12px -2px rgba(175,145,100,0.3);
+    }
   }
   body.dark-mode .tree-btn.active {
     background: linear-gradient(135deg, #65342f, #3a1e1b);
@@ -363,12 +372,12 @@
   </div>
 
   <div class="tree-btn-group">
-    <button class="tree-btn" id="btn-zi">+ Zoom</button>
-    <button class="tree-btn" id="btn-zo">- Zoom</button>
-    <button class="tree-btn" id="btn-rst">Reset</button>
-    <button class="tree-btn active" id="btn-m">Messianic Line</button>
-    <button class="tree-btn" id="btn-exp">Expand All</button>
-    <button class="tree-btn" id="btn-col">Collapse</button>
+    <button class="tree-btn" id="btn-zi" type="button" title="Zoom in">+ Zoom</button>
+    <button class="tree-btn" id="btn-zo" type="button" title="Zoom out">&minus; Zoom</button>
+    <button class="tree-btn" id="btn-rst" type="button" title="Return to the default view">Reset View</button>
+    <button class="tree-btn active" id="btn-m" type="button" title="Toggle golden highlighting of the Messianic line">Messianic Line</button>
+    <button class="tree-btn" id="btn-exp" type="button" title="Show every branch and fit the whole tree on screen">Expand All</button>
+    <button class="tree-btn" id="btn-col" type="button" title="Hide side branches, leaving the direct line from Adam to Jesus">Collapse to Line</button>
   </div>
 
   <div class="tree-legend">
@@ -923,9 +932,34 @@
     svg.transition().duration(500).call(zoomBeh.transform, t);
   }
 
+  // Pan/zoom so every currently visible node fits in the viewport.
+  function fitView() {
+    var nodes = root.descendants();
+    var x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+    nodes.forEach(function(d) {
+      if (d.x < x0) { x0 = d.x; } if (d.x > x1) { x1 = d.x; }
+      if (d.y < y0) { y0 = d.y; } if (d.y > y1) { y1 = d.y; }
+    });
+    var pad = 80;
+    var k = Math.min(W / (x1 - x0 + pad * 2), H / (y1 - y0 + pad * 2));
+    k = Math.max(0.05, Math.min(1, k));
+    var t = d3.zoomIdentity
+      .translate(W / 2 - k * (x0 + x1) / 2, H / 2 - k * (y0 + y1) / 2)
+      .scale(k);
+    svg.transition().duration(600).call(zoomBeh.transform, t);
+  }
+
   document.getElementById('btn-zi').addEventListener('click', function() { svg.transition().duration(280).call(zoomBeh.scaleBy, 1.45); });
   document.getElementById('btn-zo').addEventListener('click', function() { svg.transition().duration(280).call(zoomBeh.scaleBy, 0.69); });
   document.getElementById('btn-rst').addEventListener('click', centerView);
+
+  // These controls fire one-shot actions; the browser still leaves them
+  // focused after a mouse/touch press, which keeps a focus ring glowing on
+  // the last button pressed. Drop pointer-driven focus (pointerup never
+  // fires for keyboard activation, so keyboard focus outlines still work).
+  document.querySelectorAll('.tree-btn').forEach(function(btn) {
+    btn.addEventListener('pointerup', function() { btn.blur(); });
+  });
 
   document.getElementById('btn-m').addEventListener('click', function() {
     showM = !showM;
@@ -945,19 +979,25 @@
     }
     expandAll(root);
     update(root);
+    fitView();
   });
 
   document.getElementById('btn-col').addEventListener('click', function() {
-    root.descendants().forEach(function(d) {
-      if (d.depth > 0 && d.children) {
-        var hasM = d.children.some(function(c) { return c.data.m; });
-        if (!d.data.m || !hasM) {
-          d._kids = (d._kids || []).concat(d.children);
-          d.children = null;
-        }
-      }
-    });
+    // Collapse to the Messianic line: hide every side branch so only the
+    // direct chain from Adam to Jesus remains, then fit it on screen.
+    // Walks hidden (_kids) subtrees too, so it also re-opens any manually
+    // collapsed link in the line.
+    (function toLine(d) {
+      var all = (d.children || []).concat(d._kids || []);
+      if (!all.length) { return; }
+      var keep = all.filter(function(c) { return c.data.m; });
+      var hide = all.filter(function(c) { return !c.data.m; });
+      d.children = keep.length ? keep : null;
+      d._kids = hide.length ? hide : null;
+      all.forEach(toLine);
+    }(root));
     update(root);
+    fitView();
   });
 
   var searchTimer;
