@@ -234,8 +234,10 @@ def register(app, *, google, rate_limited):
   @app.route("/__/firebase/<path:_subpath>", methods=["GET", "POST"])
   # Every hit makes an outbound request (up to 15s) on a worker thread, so
   # this is the site's most abusable endpoint. A real sign-in loads ~a dozen
-  # helper resources; 60/min per IP is far above legitimate use.
-  @rate_limited("firebase_auth_proxy", 60, 60)
+  # helper resources (so 120/min ~= 10 sign-ins/min per IP); kept roomy
+  # because one carrier-NAT IP can front many users and a 429 here breaks
+  # the sign-in popup mid-flow with no client-side fallback.
+  @rate_limited("firebase_auth_proxy", 120, 60)
   def firebase_auth_helper_proxy(_subpath):
     """Reverse-proxies the Firebase Auth helper pages onto our domain.
 

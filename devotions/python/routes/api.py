@@ -54,8 +54,10 @@ def register(app, *, admin_required, rate_limited):
 
 
   @app.route("/api/random_prayer_request")
-  # Unauthenticated Firestore read on every call.
-  @rate_limited("random_prayer_request", 30, 60)
+  # Unauthenticated Firestore read on every call. Click-driven, but it's a
+  # group behavior (a congregation on shared wifi tapping "Pray for Others"
+  # together), so the cap is per-IP generous.
+  @rate_limited("random_prayer_request", 60, 60)
   def random_prayer_request_route():
     """Returns a random active prayer request."""
     exclude_user_id = None
