@@ -272,7 +272,10 @@ def rate_limited(name, limit, window_seconds):
 
 
 @app.route("/csp-report", methods=["POST"])
-@rate_limited("csp_report", 20, 60)
+# Log-spam backstop only; a single page view can emit several reports, so a
+# busy NAT can legitimately exceed a tight cap. Over-limit drops are invisible
+# to users either way.
+@rate_limited("csp_report", 60, 60)
 def csp_report_route():
   """Logs Content-Security-Policy violation reports (Report-Only mode).
 

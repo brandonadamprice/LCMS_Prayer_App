@@ -388,9 +388,10 @@ def register(app, *, rate_limited):
 
   @app.route("/update_pray_count", methods=["POST"])
   # Unauthenticated Firestore write per POST. Praying through the wall is one
-  # click per request and groups do it together on shared wifi, so the cap
-  # covers a roomful of users; over-limit clicks fail silently (counts only).
-  @rate_limited("update_pray_count", 120, 600)
+  # click per request and groups do it together on shared wifi, so the cap is
+  # deliberately liberal (~1 write/s average per IP) -- it only clips
+  # scripted count-stuffing, never a roomful of users.
+  @rate_limited("update_pray_count", 600, 600)
   def update_pray_count_route():
     """Updates prayer count for a request."""
     data = flask.request.json

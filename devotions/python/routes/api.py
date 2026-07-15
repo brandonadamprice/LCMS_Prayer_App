@@ -56,8 +56,9 @@ def register(app, *, admin_required, rate_limited):
   @app.route("/api/random_prayer_request")
   # Unauthenticated Firestore read on every call. Click-driven, but it's a
   # group behavior (a congregation on shared wifi tapping "Pray for Others"
-  # together), so the cap is per-IP generous.
-  @rate_limited("random_prayer_request", 60, 60)
+  # together), so the cap is deliberately liberal -- 3 req/s sustained from
+  # one IP is scripted, not human.
+  @rate_limited("random_prayer_request", 180, 60)
   def random_prayer_request_route():
     """Returns a random active prayer request."""
     exclude_user_id = None
@@ -186,9 +187,11 @@ def register(app, *, admin_required, rate_limited):
 
 
   @app.route("/complete_prayer_email/<token>")
-  # Unauthenticated token redemption -- the cap makes guessing tokens by
-  # volume impractical while leaving real email-link clicks unaffected.
-  @rate_limited("complete_prayer_email", 15, 600)
+  # Unauthenticated token redemption. Tokens are HMAC-signed (itsdangerous),
+  # so guessing is cryptographically infeasible at any rate -- this cap only
+  # stops resource-burn hammering, and is liberal enough that an office NAT
+  # full of morning email clicks (plus mail-link scanners) never trips it.
+  @rate_limited("complete_prayer_email", 100, 600)
   def complete_prayer_email_route(token):
     """Marks prayer as complete from an email link."""
     data = users.verify_completion_token(token)
