@@ -282,9 +282,11 @@ def register(app, *, google, rate_limited):
 
 
   @app.route("/auth/firebase", methods=["POST"])
-  # Firebase throttles credential guessing upstream, but each POST here still
-  # costs a token verification plus Firestore lookups. One sign-in = one POST.
-  @rate_limited("firebase_session_bridge", 20, 300)
+  # Resource-burn protection only: a valid signed token can't be guessed, and
+  # password guessing happens upstream against Firebase. Kept loose because
+  # one carrier-NAT/church-wifi IP can front many simultaneous sign-ins and
+  # the native shell has no fallback when the bridge refuses.
+  @rate_limited("firebase_session_bridge", 60, 300)
   def firebase_auth_route():
     """Session bridge for Firebase Authentication.
 
