@@ -932,23 +932,6 @@
     svg.transition().duration(500).call(zoomBeh.transform, t);
   }
 
-  // Pan/zoom so every currently visible node fits in the viewport.
-  function fitView() {
-    var nodes = root.descendants();
-    var x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
-    nodes.forEach(function(d) {
-      if (d.x < x0) { x0 = d.x; } if (d.x > x1) { x1 = d.x; }
-      if (d.y < y0) { y0 = d.y; } if (d.y > y1) { y1 = d.y; }
-    });
-    var pad = 80;
-    var k = Math.min(W / (x1 - x0 + pad * 2), H / (y1 - y0 + pad * 2));
-    k = Math.max(0.05, Math.min(1, k));
-    var t = d3.zoomIdentity
-      .translate(W / 2 - k * (x0 + x1) / 2, H / 2 - k * (y0 + y1) / 2)
-      .scale(k);
-    svg.transition().duration(600).call(zoomBeh.transform, t);
-  }
-
   document.getElementById('btn-zi').addEventListener('click', function() { svg.transition().duration(280).call(zoomBeh.scaleBy, 1.45); });
   document.getElementById('btn-zo').addEventListener('click', function() { svg.transition().duration(280).call(zoomBeh.scaleBy, 0.69); });
   document.getElementById('btn-rst').addEventListener('click', centerView);
@@ -979,14 +962,16 @@
     }
     expandAll(root);
     update(root);
-    fitView();
   });
 
   document.getElementById('btn-col').addEventListener('click', function() {
     // Collapse to the Messianic line: hide every side branch so only the
-    // direct chain from Adam to Jesus remains, then fit it on screen.
-    // Walks hidden (_kids) subtrees too, so it also re-opens any manually
-    // collapsed link in the line.
+    // direct chain from Adam to Jesus remains. Walks hidden (_kids)
+    // subtrees too, so it also re-opens any manually collapsed link in
+    // the line. Then return to the default readable view — Adam at the
+    // top, the line running straight down (fitting all ~60 generations
+    // on screen would shrink them to unreadable specks, on phones
+    // especially).
     (function toLine(d) {
       var all = (d.children || []).concat(d._kids || []);
       if (!all.length) { return; }
@@ -997,7 +982,7 @@
       all.forEach(toLine);
     }(root));
     update(root);
-    fitView();
+    centerView();
   });
 
   var searchTimer;
