@@ -32,7 +32,7 @@ _PROXY_SKIP_HEADERS = frozenset({
 })
 
 
-def register(app, *, google):
+def register(app, *, google, rate_limited):
   """Registers the authentication routes on the app."""
 
   @app.route("/login")
@@ -232,6 +232,10 @@ def register(app, *, google):
 
   @app.route("/__/auth/<path:_subpath>", methods=["GET", "POST"])
   @app.route("/__/firebase/<path:_subpath>", methods=["GET", "POST"])
+  # Every hit makes an outbound request (up to 15s) on a worker thread, so
+  # this is the site's most abusable endpoint. A real sign-in loads ~a dozen
+  # helper resources; 60/min per IP is far above legitimate use.
+  @rate_limited("firebase_auth_proxy", 60, 60)
   def firebase_auth_helper_proxy(_subpath):
     """Reverse-proxies the Firebase Auth helper pages onto our domain.
 
@@ -278,6 +282,9 @@ def register(app, *, google):
 
 
   @app.route("/auth/firebase", methods=["POST"])
+  # Firebase throttles credential guessing upstream, but each POST here still
+  # costs a token verification plus Firestore lookups. One sign-in = one POST.
+  @rate_limited("firebase_session_bridge", 20, 300)
   def firebase_auth_route():
     """Session bridge for Firebase Authentication.
 

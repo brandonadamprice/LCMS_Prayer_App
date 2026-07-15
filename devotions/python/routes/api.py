@@ -18,7 +18,7 @@ from twilio.twiml.messaging_response import MessagingResponse
 import utils
 
 
-def register(app, *, admin_required):
+def register(app, *, admin_required, rate_limited):
   """Registers the API/task/webhook routes on the app."""
 
   @app.route("/api/save_reading_preference", methods=["POST"])
@@ -54,6 +54,8 @@ def register(app, *, admin_required):
 
 
   @app.route("/api/random_prayer_request")
+  # Unauthenticated Firestore read on every call.
+  @rate_limited("random_prayer_request", 30, 60)
   def random_prayer_request_route():
     """Returns a random active prayer request."""
     exclude_user_id = None
@@ -182,6 +184,9 @@ def register(app, *, admin_required):
 
 
   @app.route("/complete_prayer_email/<token>")
+  # Unauthenticated token redemption -- the cap makes guessing tokens by
+  # volume impractical while leaving real email-link clicks unaffected.
+  @rate_limited("complete_prayer_email", 15, 600)
   def complete_prayer_email_route(token):
     """Marks prayer as complete from an email link."""
     data = users.verify_completion_token(token)

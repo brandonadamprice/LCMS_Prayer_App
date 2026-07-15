@@ -54,6 +54,16 @@ and `py_compile`/`jinja` parse (the app can't fully boot under Python 3.14).
   constant-time code compare; migration Phase 3b then deleted the legacy
   credential endpoints entirely (Firebase throttles its own auth API), so the
   limiter was removed with them (see item 3; git history has the module).
+- **✅ Limiter restored (2026-07-15) for abuse protection:** `rate_limit_logic.py`
+  (+ tests + branded 429) is back, now guarding the public endpoints that do
+  real work per request rather than the deleted credential forms: the
+  `/__/auth/*` reverse proxy (60/min — each hit holds a worker thread on an
+  outbound call), `/auth/firebase` (20/5min), `/api/random_prayer_request`
+  (30/min), `/complete_prayer_email/<token>` (15/10min), `/update_pray_count`
+  (60/10min), `/csp-report` (20/min). All per client IP. A global
+  `MAX_CONTENT_LENGTH` of 1 MB was added alongside (no route accepts uploads).
+  This is scripted-abuse/cost protection, not volumetric-DDoS defense — that
+  layer (instance caps, edge/CDN) lives outside the app.
 
 ### Security
 
