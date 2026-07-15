@@ -32,7 +32,7 @@ _PROXY_SKIP_HEADERS = frozenset({
 })
 
 
-def register(app, *, google):
+def register(app, *, google, rate_limited):
   """Registers the authentication routes on the app."""
 
   @app.route("/login")
@@ -232,6 +232,13 @@ def register(app, *, google):
 
   @app.route("/__/auth/<path:_subpath>", methods=["GET", "POST"])
   @app.route("/__/firebase/<path:_subpath>", methods=["GET", "POST"])
+  # Every hit makes an outbound request (up to 15s) on a worker thread, so
+  # this is the site's most abusable endpoint. A real sign-in loads ~a dozen
+  # helper resources (so 300/min ~= 25 sign-ins/min per IP). Deliberately
+  # liberal: one carrier-NAT IP can front hundreds of users, and a 429 here
+  # breaks the sign-in popup mid-flow with no client-side fallback -- the cap
+  # exists only to clip a sustained single-IP hammer (5+ req/s nonstop).
+  @rate_limited("firebase_auth_proxy", 300, 60)
   def firebase_auth_helper_proxy(_subpath):
     """Reverse-proxies the Firebase Auth helper pages onto our domain.
 
@@ -278,6 +285,12 @@ def register(app, *, google):
 
 
   @app.route("/auth/firebase", methods=["POST"])
+  # Resource-burn protection only: a valid signed token can't be guessed, and
+  # password guessing happens upstream against Firebase. Deliberately liberal
+  # (~1 req/s average): one carrier-NAT/church-wifi IP can front many
+  # simultaneous sign-ins and the native shell has no fallback when the
+  # bridge refuses, so only a nonstop single-IP hammer should ever trip it.
+  @rate_limited("firebase_session_bridge", 300, 300)
   def firebase_auth_route():
     """Session bridge for Firebase Authentication.
 

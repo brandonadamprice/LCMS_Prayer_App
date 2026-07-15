@@ -23,7 +23,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
     - `python -m unittest discover -s devotions/python/tests -t devotions/python`
     - Tests cover the pure, import-light modules (`streak_logic.py`,
       `liturgy.py`, `firebase_auth_logic.py`, `password_hash_logic.py`,
-      `reminder_logic.py`, `menu.py`) and run without
+      `reminder_logic.py`, `menu.py`, `rate_limit_logic.py`) and run without
       touching Firestore. Keep pure, testable logic out of modules that
       import `firebase`/`google-cloud`.
     - The whole app imports cleanly under Python 3.14 (protobuf is pinned to

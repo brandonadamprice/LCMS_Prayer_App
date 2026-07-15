@@ -12,7 +12,7 @@ from services import users
 import utils
 
 
-def register(app):
+def register(app, *, rate_limited):
   """Registers the prayer routes on the app."""
 
   @app.route("/my_prayers")
@@ -387,6 +387,11 @@ def register(app):
 
 
   @app.route("/update_pray_count", methods=["POST"])
+  # Unauthenticated Firestore write per POST. Praying through the wall is one
+  # click per request and groups do it together on shared wifi, so the cap is
+  # deliberately liberal (~1 write/s average per IP) -- it only clips
+  # scripted count-stuffing, never a roomful of users.
+  @rate_limited("update_pray_count", 600, 600)
   def update_pray_count_route():
     """Updates prayer count for a request."""
     data = flask.request.json

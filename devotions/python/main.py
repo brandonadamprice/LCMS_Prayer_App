@@ -12,6 +12,7 @@ import flask_login
 import liturgy
 import menu
 import models
+import rate_limit_logic
 import secrets_fetcher
 from services import users
 import utils
@@ -48,6 +49,10 @@ app.config["SESSION_COOKIE_SECURE"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 app.config["REMEMBER_COOKIE_SECURE"] = True
 app.config["REMEMBER_COOKIE_SAMESITE"] = "Lax"
+# No route accepts uploads; the largest legitimate bodies are prayer-request
+# text and CSP reports, all far under 1 MB. Oversized bodies get 413 before
+# the handler reads them, so bots can't make workers swallow huge payloads.
+app.config["MAX_CONTENT_LENGTH"] = 1024 * 1024
 app.config["OTHER_PRAYERS"] = utils.get_other_prayers()
 try:
   app.config["ADMIN_USER_ID"] = secrets_fetcher.get_brandon_user_id()
@@ -239,7 +244,38 @@ def set_security_headers(response):
   return response
 
 
+def rate_limited(name, limit, window_seconds):
+  """Returns a decorator that 429s a client IP over `limit` per window.
+
+  Abuse protection for the public endpoints that do real work per request
+  (outbound proxy calls, Firestore writes, token checks) — see
+  rate_limit_logic's module docstring for why in-process memory is enough.
+  Keyed by client IP (ProxyFix restores the real address from
+  X-Forwarded-For). Every method counts: unlike the old form routes, each
+  decorated route is single-purpose, so there is no harmless GET to exempt.
+  Apply below @app.route.
+  """
+  limiter = rate_limit_logic.SlidingWindowLimiter(limit, window_seconds)
+
+  def decorator(f):
+    @functools.wraps(f)
+    def wrapper(*args, **kwargs):
+      client_ip = flask.request.remote_addr or "unknown"
+      if not limiter.allow(client_ip):
+        app.logger.warning("Rate limit hit: %s from %s", name, client_ip)
+        return flask.abort(429)
+      return f(*args, **kwargs)
+
+    return wrapper
+
+  return decorator
+
+
 @app.route("/csp-report", methods=["POST"])
+# Log-spam backstop only; a single page view can emit several reports, so a
+# busy NAT can legitimately exceed a tight cap. Over-limit drops are invisible
+# to users either way.
+@rate_limited("csp_report", 60, 60)
 def csp_report_route():
   """Logs Content-Security-Policy violation reports (Report-Only mode).
 
@@ -301,6 +337,14 @@ def page_not_found(_error):
   return flask.render_template("404.html"), 404
 
 
+@app.errorhandler(429)
+def too_many_requests(_error):
+  """Render a branded 429 page when a rate limit trips."""
+  response = flask.make_response(flask.render_template("429.html"), 429)
+  response.headers["Retry-After"] = "60"
+  return response
+
+
 @app.errorhandler(500)
 def internal_server_error(_error):
   """Render a branded 500 page instead of Flask's default."""
@@ -319,11 +363,11 @@ from routes import misc as misc_routes  # noqa: E402
 from routes import prayers as prayers_routes  # noqa: E402
 from routes import settings as settings_routes  # noqa: E402
 
-auth_routes.register(app, google=google)
+auth_routes.register(app, google=google, rate_limited=rate_limited)
 settings_routes.register(app)
 devotions_routes.register(app)
-prayers_routes.register(app)
-api_routes.register(app, admin_required=admin_required)
+prayers_routes.register(app, rate_limited=rate_limited)
+api_routes.register(app, admin_required=admin_required, rate_limited=rate_limited)
 misc_routes.register(app, admin_required=admin_required)
 
 
