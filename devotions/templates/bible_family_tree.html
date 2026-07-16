@@ -203,6 +203,11 @@
       inset 0 1px 0 rgba(255,255,255,0.85);
     padding: 15px 19px;
     max-width: 320px;
+    /* Long entries (David, Jesus, Moses) scroll inside the tip instead of
+       running off the bottom of the screen. */
+    max-height: min(420px, 65vh);
+    overflow-y: auto;
+    overscroll-behavior: contain;
     pointer-events: none;
     z-index: 300;
     opacity: 0;
@@ -210,7 +215,8 @@
     transition: opacity 0.2s ease, transform 0.25s cubic-bezier(.34,1.56,.64,1);
     border: 1px solid var(--color-border);
   }
-  .tree-tip.show { opacity: 1; transform: translateY(0) scale(1); }
+  /* Interactive only while shown, so the hidden tip never blocks the tree. */
+  .tree-tip.show { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
   .tip-name { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 1em; color: var(--text-heading); margin: 0 0 3px; padding-right: 22px; }
   .tip-badges { margin-bottom: 7px; }
   .tip-badge {
@@ -360,7 +366,6 @@
       max-height: 45vh;
       max-height: 45dvh;
       overflow-y: auto;
-      pointer-events: auto;
       transform: translateY(14px);
       padding-bottom: env(safe-area-inset-bottom, 15px);
     }
@@ -907,8 +912,7 @@
         if (sheetMode()) { showTip(e, d); } else { toggleNode(d); }
       })
       .on('mouseenter', function(e, d) { if (!sheetMode()) { showTip(e, d); } })
-      .on('mousemove',  function(e)    { if (!sheetMode()) { moveTip(e); } })
-      .on('mouseleave', function()     { if (!sheetMode()) { hideTip(); } });
+      .on('mouseleave', function()     { if (!sheetMode()) { scheduleHideTip(); } });
 
     nEnter.append('text').attr('class', 'nhalo').text(function(d) { return d.data.n; });
     nEnter.append('text').attr('class', 'nlbl').text(function(d) { return d.data.n; });
@@ -1004,6 +1008,7 @@
   function sheetMode() { return sheetQuery.matches; }
 
   function showTip(event, d) {
+    clearTimeout(tipHideTimer);
     var da = d.data;
     var badges = '';
     if (da.n === 'Jesus Christ')  { badges += '<span class="tip-badge badge-x">The Messiah</span>'; }
@@ -1045,6 +1050,7 @@
         toggleNode(d);
       });
     }
+    tip.scrollTop = 0;
     tip.classList.add('show');
     moveTip(event);
   }
@@ -1056,16 +1062,33 @@
       tip.style.top  = '';
       return;
     }
+    // Position once per hover (the tip no longer chases the cursor, so the
+    // pointer can travel into it and scroll long entries), clamped to the
+    // viewport using its real rendered size.
     var cx = event.clientX || (event.touches && event.touches[0] ? event.touches[0].clientX : 0);
     var cy = event.clientY || (event.touches && event.touches[0] ? event.touches[0].clientY : 0);
+    var w = tip.offsetWidth  || 300;
+    var h = tip.offsetHeight || 180;
     var x = cx + 16, y = cy + 16;
-    if (x + 270 > window.innerWidth)  { x = cx - 270 - 16; }
-    if (y + 160 > window.innerHeight) { y = cy - 160 - 16; }
+    if (x + w > window.innerWidth - 10)  { x = Math.max(10, cx - w - 16); }
+    if (y + h > window.innerHeight - 10) { y = Math.max(10, window.innerHeight - h - 10); }
     tip.style.left = x + 'px';
     tip.style.top  = y + 'px';
   }
 
-  function hideTip() { tip.classList.remove('show'); }
+  var tipHideTimer = null;
+  function hideTip() {
+    clearTimeout(tipHideTimer);
+    tip.classList.remove('show');
+  }
+  // Hide on a short delay so the pointer can cross the gap from the node
+  // into the tip; arriving there cancels the hide.
+  function scheduleHideTip() {
+    clearTimeout(tipHideTimer);
+    tipHideTimer = setTimeout(function() { tip.classList.remove('show'); }, 260);
+  }
+  tip.addEventListener('mouseenter', function() { clearTimeout(tipHideTimer); });
+  tip.addEventListener('mouseleave', function() { if (!sheetMode()) { scheduleHideTip(); } });
   svg.on('click', hideTip);
   zoomBeh.on('start.tip', hideTip);
 
