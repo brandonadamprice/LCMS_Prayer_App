@@ -156,6 +156,16 @@
     stroke-dasharray: 1 0;
     filter: drop-shadow(0 0 3px rgba(175,145,100,0.45));
   }
+  /* Marriage link: joins a woman's node to her husband's. */
+  .sp-link {
+    fill: none;
+    stroke: #c98a9a;
+    stroke-width: 1.6px;
+    stroke-dasharray: 4 4;
+    stroke-linecap: round;
+    opacity: 0.9;
+    transition: opacity 0.3s;
+  }
   .tree-node text {
     font-family: 'Montserrat', sans-serif;
     pointer-events: none;
@@ -171,6 +181,7 @@
   .tree-node:hover circle,
   .tree-node:hover .jesus-cross { stroke-width: 3.5px !important; }
   .tree-node.m-node circle { filter: drop-shadow(0 0 6px rgba(175,145,100,0.6)) drop-shadow(0 2px 3px rgba(0,0,0,0.15)); }
+  .tree-node.w-node circle { filter: drop-shadow(0 0 5px rgba(201,138,154,0.55)) drop-shadow(0 2px 3px rgba(0,0,0,0.12)); }
   .tree-node.jesus-node .jesus-cross {
     filter: drop-shadow(0 0 14px rgba(175,145,100,0.9)) drop-shadow(0 0 4px rgba(255,255,255,0.6));
     animation: jesus-pulse 3s ease-in-out infinite;
@@ -192,6 +203,11 @@
       inset 0 1px 0 rgba(255,255,255,0.85);
     padding: 15px 19px;
     max-width: 320px;
+    /* Long entries (David, Jesus, Moses) scroll inside the tip instead of
+       running off the bottom of the screen. */
+    max-height: min(420px, 65vh);
+    overflow-y: auto;
+    overscroll-behavior: contain;
     pointer-events: none;
     z-index: 300;
     opacity: 0;
@@ -199,7 +215,8 @@
     transition: opacity 0.2s ease, transform 0.25s cubic-bezier(.34,1.56,.64,1);
     border: 1px solid var(--color-border);
   }
-  .tree-tip.show { opacity: 1; transform: translateY(0) scale(1); }
+  /* Interactive only while shown, so the hidden tip never blocks the tree. */
+  .tree-tip.show { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
   .tip-name { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 1em; color: var(--text-heading); margin: 0 0 3px; padding-right: 22px; }
   .tip-badges { margin-bottom: 7px; }
   .tip-badge {
@@ -218,6 +235,7 @@
   .badge-pr { background: #fef9e7; color: #b7950b; }
   .badge-p  { background: #f4ecf7; color: #7d3c98; }
   .badge-x  { background: #f5e9e3; color: #65342f; }
+  .badge-w  { background: #fbe7ec; color: #a05563; }
   .tip-detail { font-family: 'Lora', serif; font-size: 0.84em; color: #555; line-height: 1.5; margin: 3px 0 0; }
   .tip-ref    { font-family: 'Montserrat', sans-serif; font-size: 0.74em; color: var(--color-accent-dark); margin-top: 6px; font-weight: 700; }
   .tip-hint   { font-family: 'Montserrat', sans-serif; font-size: 0.71em; color: var(--text-faint); margin-top: 5px; font-style: italic; }
@@ -309,8 +327,10 @@
   body.dark-mode .tip-close { background: rgba(255,255,255,0.1); color: #cbc4b5; }
   body.dark-mode .badge-m { background: rgba(175,145,100,0.2); color: #d4b988; }
   body.dark-mode .badge-x { background: rgba(101,52,47,0.35); color: #e0a8a0; }
+  body.dark-mode .badge-w { background: rgba(160,85,99,0.3); color: #ecc3cd; }
   body.dark-mode .tip-ref { color: #c4a878; }
   body.dark-mode .tree-link { stroke: rgba(185,175,155,0.25); }
+  body.dark-mode .sp-link { stroke: rgba(224,150,168,0.5); }
   body.dark-mode .tree-link.m-link { filter: drop-shadow(0 0 4px rgba(196,168,120,0.6)); }
   body.dark-mode .tree-legend { color: #a89f8e; }
 
@@ -346,7 +366,6 @@
       max-height: 45vh;
       max-height: 45dvh;
       overflow-y: auto;
-      pointer-events: auto;
       transform: translateY(14px);
       padding-bottom: env(safe-area-inset-bottom, 15px);
     }
@@ -360,7 +379,7 @@
 {% block content %}
 <div class="page-header">
   <h1>Bible Family Tree</h1>
-  <p>Trace the lineage of Scripture from Adam to Jesus Christ. Tap any name to read about that person; the golden path is the Messianic line.</p>
+  <p>Trace the lineage of Scripture from Adam to Jesus Christ. Tap any name to read about that person; the golden path is the Messianic line, and rose nodes are the women of the family.</p>
 </div>
 
 <div class="tree-controls">
@@ -376,12 +395,14 @@
     <button class="tree-btn" id="btn-zo" type="button" title="Zoom out">&minus; Zoom</button>
     <button class="tree-btn" id="btn-rst" type="button" title="Return to the default view">Reset View</button>
     <button class="tree-btn active" id="btn-m" type="button" title="Toggle golden highlighting of the Messianic line">Messianic Line</button>
+    <button class="tree-btn active" id="btn-w" type="button" title="Show or hide the women of the family tree">Women</button>
     <button class="tree-btn" id="btn-exp" type="button" title="Show every branch and fit the whole tree on screen">Expand All</button>
     <button class="tree-btn" id="btn-col" type="button" title="Hide side branches, leaving the direct line from Adam to Jesus">Collapse to Line</button>
   </div>
 
   <div class="tree-legend">
     <span><span class="leg-dot" style="background:#af9164;"></span>Messianic</span>
+    <span><span class="leg-dot" style="background:#a05563;"></span>Women</span>
     <span><span class="leg-dot" style="background:#857c6f;"></span>Other</span>
     <span><span class="leg-dot" style="background:#f0e6d2; border:2px dashed #af9164;"></span>Has children</span>
   </div>
@@ -446,10 +467,9 @@
     {id:"nahor2",  n:"Nahor (son)",     par:"terah",      col:1, ref:"Gen 11:29", sp:"Milcah", desc:"Son of Terah; married his niece Milcah (daughter of Haran). Fathered eight sons by Milcah, including Bethuel (Rebekah's father), and four more by Reumah his concubine."},
     {id:"abr",     n:"Abraham",    m:1, par:"terah",      ref:"Gen 12-25", role:"patriarch", sp:"Sarah, Hagar, Keturah", yrs:"175 yrs", desc:"Originally Abram of Ur of the Chaldeans. Called by God at age 75: 'Go from your country... I will make of you a great nation, and I will bless you... in you all the families of the earth shall be blessed.' Journeyed to Canaan; built altars at Shechem and Bethel. Rescued Lot from four kings and was blessed by Melchizedek, king of Salem and priest of God Most High. Justified by faith (Gen 15:6). God cut the covenant of the pieces and promised the land from the river of Egypt to the Euphrates. Circumcision given as the sign of the covenant when he was 99; renamed Abraham ('father of a multitude'). Entertained three visitors at Mamre and interceded for Sodom. Offered up Isaac on Mount Moriah; God provided a ram in his place. Bought the cave of Machpelah to bury Sarah. Died at 175, 'an old man and full of years,' gathered to his people."},
     {id:"lot",     n:"Lot",             par:"haran",      col:1, ref:"Gen 13-19", desc:"Nephew of Abraham; left Ur with him. Chose the well-watered Jordan plain and settled in Sodom. Captured in the war of four kings, rescued by Abraham. Received two angels as guests; his household alone was spared when fire and sulfur destroyed Sodom and Gomorrah. His wife looked back and became a pillar of salt. Fled to Zoar, then to a cave in the mountains; fathered Moab and Ben-Ammi by his two daughters, ancestors of the Moabites and Ammonites."},
-    {id:"milcah",  n:"Milcah",          par:"haran",      col:1, ref:"Gen 11:29", desc:"Daughter of Haran; wife of her uncle Nahor. Mother of eight sons including Bethuel (father of Rebekah)."},
+    {id:"milcah",  n:"Milcah",          par:"haran",      col:1, w:1, ref:"Gen 11:29", desc:"Daughter of Haran; wife of her uncle Nahor. Mother of eight sons including Bethuel (father of Rebekah)."},
     {id:"bethuel", n:"Bethuel",         par:"nahor2",     col:1, ref:"Gen 22:22", desc:"Son of Nahor and Milcah; father of Laban and Rebekah. Lived in Paddan-aram / Haran."},
     {id:"laban",   n:"Laban",           par:"bethuel",    col:1, ref:"Gen 24-31", desc:"Son of Bethuel; brother of Rebekah and father of Leah and Rachel. Welcomed Abraham's servant and sent Rebekah to Isaac. Later deceived Jacob, giving him Leah instead of Rachel, and changed his wages ten times. Pursued Jacob when he fled, but warned by God in a dream not to harm him. Made a covenant heap with Jacob at Mizpah."},
-    {id:"rebecca", n:"Rebekah",         par:"bethuel",    col:1, ref:"Gen 24-27", desc:"Daughter of Bethuel; met Abraham's servant at the well of Nahor and drew water for his camels. Consented to leave her family and become Isaac's wife. Barren twenty years until Isaac's prayer; the twins struggled in her womb and the LORD told her 'the older shall serve the younger.' Favored Jacob and helped him obtain Isaac's blessing, then sent him to her brother Laban to escape Esau's wrath."},
     {id:"ishmael", n:"Ishmael",         par:"abr",        col:1, ref:"Gen 16-17; 25", yrs:"137 yrs", sp:"Egyptian woman", desc:"Son of Abraham by Hagar the Egyptian, born when Abraham was 86. His name means 'God hears,' for the LORD heard Hagar's affliction. An angel of the LORD promised he would be 'a wild donkey of a man,' dwelling over against all his kin. Circumcised at 13. Sent away with Hagar when Isaac was weaned; God heard the boy's cry in the wilderness of Beersheba and opened Hagar's eyes to a well. Dwelt in Paran; became an expert archer. Fathered twelve princes according to the promise; returned with Isaac to bury their father Abraham."},
     {id:"ketura",  n:"Sons by Keturah", par:"abr",        col:1, ref:"Gen 25:1-6", desc:"Abraham married Keturah after Sarah's death; she bore him Zimran, Jokshan, Medan, Midian, Ishbak, and Shuah - ancestors of the Midianites and other eastern peoples. Abraham gave gifts to them and sent them away east, giving all that he had to Isaac."},
     {id:"isaac",   n:"Isaac",      m:1, par:"abr",        ref:"Gen 21-35", sp:"Rebekah", yrs:"180 yrs", role:"patriarch", desc:"Child of promise; son of Abraham and Sarah, born when Abraham was 100 and Sarah 90. Name means 'he laughs.' Offered by his father on Mount Moriah; the LORD provided a ram in his place - a type of Christ. Married Rebekah at 40; prayed twenty years for her barrenness until the twins Esau and Jacob were born. In famine dwelt at Gerar and said Rebekah was his sister; the LORD blessed his sowing a hundredfold. Dug again the wells of Abraham. Blessed Jacob (thinking him Esau) with the inheritance of the covenant. Died at 180, gathered to his people; buried by Esau and Jacob."},
@@ -472,14 +492,14 @@
     {id:"asher",   n:"Asher",           par:"jacob",      col:1, ref:"Gen 30:13; 49:20", desc:"Second son by Zilpah; his name means 'happy.' Jacob's blessing: 'Asher's food shall be rich, and he shall yield royal delicacies.' His tribe dwelt on the fertile northern coastal plain."},
     {id:"issach",  n:"Issachar",        par:"jacob",      col:1, ref:"Gen 30:18; 49:14-15", desc:"Ninth son of Jacob, by Leah. Jacob said, 'Issachar is a strong donkey, crouching between the sheepfolds... he bowed his shoulder to bear and became a servant at forced labor.' His tribe in the Jezreel Valley; 'the men of Issachar had understanding of the times' (1 Chr 12:32)."},
     {id:"zebulun", n:"Zebulun",         par:"jacob",      col:1, ref:"Gen 30:20; 49:13", desc:"Tenth son of Jacob, by Leah. Jacob's blessing: 'Zebulun shall dwell at the shore of the sea; he shall become a haven for ships, and his border shall be at Sidon.' Isaiah prophesied light would dawn on 'the land of Zebulun and Naphtali' (Isa 9:1), fulfilled in Jesus' Galilean ministry."},
-    {id:"dinah",   n:"Dinah",           par:"jacob",      col:1, ref:"Gen 30:21; 34", desc:"Only daughter of Jacob named in Scripture, born to Leah. Violated by Shechem son of Hamor the Hivite; her brothers Simeon and Levi deceitfully slew all the males of Shechem in revenge."},
+    {id:"dinah",   n:"Dinah",           par:"jacob",      col:1, w:1, ref:"Gen 30:21; 34", desc:"Only daughter of Jacob named in Scripture, born to Leah. Violated by Shechem son of Hamor the Hivite; her brothers Simeon and Levi deceitfully slew all the males of Shechem in revenge."},
     {id:"joseph_j",n:"Joseph",          par:"jacob",      col:1, ref:"Gen 30-50", sp:"Asenath", yrs:"110 yrs", desc:"Firstborn of Rachel and beloved of Jacob, who gave him a coat of many colors. Dreamed that sheaves and stars bowed down to him. Hated by his brothers; stripped, cast into a pit, and sold to Ishmaelite traders for twenty pieces of silver. Served in Potiphar's house; refused Potiphar's wife and was falsely imprisoned. Interpreted dreams for the cupbearer, baker, and at last for Pharaoh. Made ruler over all Egypt at 30; stored grain during seven years of plenty. Tested his brothers when they came for grain; wept aloud as he revealed himself: 'I am Joseph your brother, whom you sold into Egypt... it was not you who sent me here, but God.' Brought Jacob and all his father's house (70 persons) to Goshen. Received the double-portion blessing through Ephraim and Manasseh. Died at 110; embalmed in Egypt; his bones were later carried to Canaan by Moses."},
     {id:"benjamin",n:"Benjamin",        par:"jacob",      col:1, ref:"Gen 35:18; 49:27", desc:"Youngest son of Jacob; born of Rachel, who died in his birth near Bethlehem; she named him Ben-oni ('son of my sorrow'), but Jacob called him Benjamin ('son of my right hand'). Joseph loved him above all and gave him five portions. Jacob's blessing: 'Benjamin is a ravenous wolf, in the morning devouring the prey and at evening dividing the spoil.' Tribe of King Saul and of the apostle Paul."},
     {id:"gershon", n:"Gershon",         par:"levi",       col:1, ref:"Exod 6:16", desc:"Firstborn of Levi. His descendants (Gershonites) were given charge of the tabernacle curtains, coverings, and the screen for the door of the tent."},
     {id:"merari",  n:"Merari",          par:"levi",       col:1, ref:"Exod 6:16", desc:"Youngest son of Levi. The Merarites carried the frames, bars, pillars, and bases of the tabernacle."},
     {id:"kohath",  n:"Kohath",          par:"levi",       col:1, ref:"Exod 6:18", desc:"Second son of Levi; father of Amram, Izhar, Hebron, and Uzziel. The Kohathites carried the ark, the table, the lampstand, and the altars - the holy things of the sanctuary on their shoulders (Num 4:15)."},
     {id:"amram",   n:"Amram",           par:"kohath",     col:1, ref:"Exod 6:20", sp:"Jochebed", desc:"Son of Kohath; married his father's sister Jochebed, who bore him Miriam, Aaron, and Moses. Lived 137 years."},
-    {id:"miriam",  n:"Miriam",          par:"amram",      col:1, ref:"Exod 2; 15; Num 12",   role:"prophet", desc:"Elder sister of Aaron and Moses. As a girl she watched over the baby Moses in the basket among the reeds and arranged for his own mother to nurse him for Pharaoh's daughter. After the crossing of the Red Sea she took a tambourine; all the women followed with dancing as she sang, 'Sing to the LORD, for he has triumphed gloriously.' Spoke against Moses because of his Cushite wife and was struck with leprosy; healed after seven days of Moses' prayer. Died and was buried at Kadesh."},
+    {id:"miriam",  n:"Miriam",          par:"amram",      col:1, w:1, ref:"Exod 2; 15; Num 12",   role:"prophet", desc:"Elder sister of Aaron and Moses. As a girl she watched over the baby Moses in the basket among the reeds and arranged for his own mother to nurse him for Pharaoh's daughter. After the crossing of the Red Sea she took a tambourine; all the women followed with dancing as she sang, 'Sing to the LORD, for he has triumphed gloriously.' Spoke against Moses because of his Cushite wife and was struck with leprosy; healed after seven days of Moses' prayer. Died and was buried at Kadesh."},
     {id:"aaron",   n:"Aaron",           par:"amram",      col:1, ref:"Exod 4 - Num 20",  role:"priest",  desc:"Elder brother of Moses and his prophet/spokesman before Pharaoh. His rod became a serpent and swallowed the rods of the magicians. Consecrated as the first High Priest with his sons; wore the ephod, breastpiece with twelve stones, and turban inscribed 'Holy to the LORD.' Made the golden calf when Moses delayed on Sinai; was spared by Moses' intercession. His two eldest sons Nadab and Abihu were consumed for offering unauthorized fire. His budding almond rod vindicated his priesthood against Korah. Forbidden Canaan for the waters of Meribah; died on Mount Hor at 123."},
     {id:"moses",   n:"Moses",           par:"amram",      col:1, ref:"Exod-Deut", role:"prophet", yrs:"120 yrs", desc:"Born a Levite during Pharaoh's edict to drown Hebrew boys; hidden three months, then placed in a basket of bulrushes on the Nile. Drawn out and raised as Pharaoh's daughter's son. At 40 killed an Egyptian beating a Hebrew and fled to Midian, where he married Zipporah, daughter of Jethro the priest, and shepherded his flock. At the burning bush God revealed His name, 'I AM WHO I AM,' and sent him to deliver Israel. Through the ten plagues broke Pharaoh's power; led Israel out of Egypt, through the parted Red Sea, to Mount Sinai where God spoke the Ten Commandments and gave the law. The LORD spoke to him face to face, as a man speaks with his friend. Interceded for Israel after the golden calf and after Kadesh-barnea. Struck the rock at Meribah instead of speaking to it and was denied entry to Canaan. Saw the land from Mount Pisgah; died on Mount Nebo at 120; his eye was undimmed and his vigor unabated. The LORD buried him in the valley in the land of Moab; no man knows his grave."},
     {id:"manas",   n:"Manasseh",        par:"joseph_j",   col:1, ref:"Gen 41:51; 48", desc:"Firstborn son of Joseph by Asenath, daughter of Potiphera priest of On. His name means 'God has made me forget my hardship.' Jacob adopted him and Ephraim as his own and crossed his hands to lay his right hand on the younger Ephraim. Manasseh's tribe settled both east and west of the Jordan; eastern Manasseh was the home of Machir, Gideon, and Jephthah."},
@@ -505,6 +525,7 @@
     {id:"amnon",   n:"Amnon",          par:"david",       col:1, ref:"2 Sam 13", desc:"David's firstborn, by Ahinoam. Violated his half-sister Tamar; killed by Absalom's servants two years later to avenge her."},
     {id:"absalom", n:"Absalom",        par:"david",       col:1, ref:"2 Sam 13-18", desc:"Third son of David, by Maacah daughter of Talmai king of Geshur. 'In all Israel there was no one so much to be praised for his handsome appearance.' Slew Amnon for violating Tamar; exiled three years. Stole the hearts of the men of Israel at the gate; rebelled against David, entering Jerusalem while David fled. Caught by his hair in an oak and slain by Joab. David wept, 'O my son Absalom, my son, my son Absalom! Would I had died instead of you.'"},
     {id:"adonij",  n:"Adonijah",       par:"david",       col:1, ref:"1 Kgs 1-2",  desc:"Fourth son of David, by Haggith. Exalted himself saying, 'I will be king,' and feasted with Joab and Abiathar. Solomon was anointed instead; Adonijah fled to the horns of the altar for refuge. Later sought Abishag the Shunammite as wife and was put to death by Solomon."},
+    {id:"tamar_d", n:"Tamar (David)",  par:"david",       col:1, w:1, ref:"2 Sam 13", desc:"Beautiful daughter of David and sister of Absalom. Violated by her half-brother Amnon, who then hated her more than he had loved her. She tore her long robe, put ashes on her head, and lived 'a desolate woman' in Absalom's house; two years later Absalom avenged her. Her grief set in motion the sorrows of David's house that Nathan had foretold."},
     {id:"nathan_d",n:"Nathan (son)",   par:"david",       col:1, ref:"2 Sam 5:14; Luke 3:31",desc:"A son of David by Bathsheba, brother of Solomon. Named in Luke's genealogy of Jesus: 'the son of Nathan, the son of David.' Luke traces the line through Nathan (likely Mary's ancestry) while Matthew traces it through Solomon (the royal line through Joseph)."},
     {id:"solomon", n:"Solomon",    m:1, par:"david",      ref:"1 Kgs 1-11", role:"king", sp:"Daughter of Pharaoh and many others", desc:"Son of David and Bathsheba; also called Jedidiah ('beloved of the LORD'). At Gibeon God appeared and said, 'Ask what I shall give you.' Solomon asked for 'an understanding mind... to discern between good and evil,' and the LORD gave him wisdom, riches, and honor. Judged between the two harlots claiming one child. Built the Temple in Jerusalem in seven years (begun 480 years after the Exodus), and his own palace in thirteen. At the dedication fire came down and the glory of the LORD filled the house. The Queen of Sheba came to test him with hard questions. Wrote 3000 proverbs and 1005 songs; spoke of trees 'from the cedar of Lebanon to the hyssop.' 700 wives and 300 concubines turned his heart to other gods in his old age; the LORD said the kingdom would be torn from his son. Reigned 40 years."},
     {id:"rehoboam",n:"Rehoboam",   m:1, par:"solomon",    ref:"1 Kgs 12-14", role:"king", desc:"Son of Solomon by Naamah the Ammonite. Forsook the counsel of the elders, saying to Israel, 'My father disciplined you with whips, but I will discipline you with scorpions.' The ten northern tribes broke away under Jeroboam. Reigned over Judah and Benjamin 17 years. Pharaoh Shishak of Egypt plundered Jerusalem and carried off the gold shields of Solomon; Rehoboam made bronze shields in their place."},
@@ -513,6 +534,7 @@
     {id:"jehosh",  n:"Jehoshaphat",m:1, par:"asa",        ref:"1 Kgs 22; 2 Chr 17-20", role:"king", desc:"Son of Asa; walked in the earlier ways of David. Sent Levites throughout Judah teaching the Book of the Law of the LORD. Facing a vast coalition from Moab, Ammon, and Edom, he proclaimed a fast; Jahaziel the Levite prophesied, 'Do not be afraid... the battle is not yours but God's.' Appointed singers to go before the army praising; the LORD set ambushes and the enemies destroyed themselves. Unwisely allied with Ahab of Israel in marriage and war."},
     {id:"joram",   n:"Joram",      m:1, par:"jehosh",     ref:"2 Kgs 8; 2 Chr 21",  role:"king", sp:"Athaliah", desc:"Also called Jehoram. Married Athaliah, daughter of Ahab; 'walked in the way of the kings of Israel, as the house of Ahab had done.' Murdered all his brothers. A letter came to him from the prophet Elijah foretelling disaster. The LORD struck him with an incurable disease in his bowels; he died in agony, departing with no one's regret. Edom and Libnah revolted from his hand."},
     {id:"uzziah",  n:"Uzziah",     m:1, par:"joram",      ref:"2 Kgs 15; 2 Chr 26", role:"king", desc:"Also called Azariah; made king at 16, reigned 52 years. 'He did what was right in the eyes of the LORD.' Sought God in the days of Zechariah, and God made him prosper: defeated the Philistines, built towers in Jerusalem, loved the soil. But when he was strong he grew proud; entered the Temple to burn incense on the altar. Eighty-one priests resisted him; he raged against them with a censer in his hand, and leprosy broke out on his forehead. He was a leper to the day of his death and dwelt in a separate house. Isaiah saw the LORD 'in the year that King Uzziah died' (Isa 6)."},
+    {id:"jehosheba",n:"Jehosheba",     par:"joram",       col:1, w:1, ref:"2 Kgs 11:2-3; 2 Chr 22:11", desc:"Daughter of King Joram, sister of Ahaziah, and wife of Jehoiada the High Priest. When Athaliah arose to destroy all the royal family, Jehosheba stole the infant Joash from among the king's sons who were being put to death and hid him and his nurse in a bedchamber in the house of the LORD for six years. By her courage the lamp of David was not quenched, and the line of the Messiah was preserved."},
     {id:"jotham",  n:"Jotham",     m:1, par:"uzziah",     ref:"2 Kgs 15; 2 Chr 27", role:"king", desc:"Co-regent during his father's leprosy; reigned 16 years. Did what was right in the eyes of the LORD; but the people still did corruptly. Built the upper gate of the house of the LORD and much on the wall of Ophel. Jotham became mighty because he ordered his ways before the LORD his God."},
     {id:"ahaz",    n:"Ahaz",       m:1, par:"jotham",     ref:"2 Kgs 16; Isa 7", role:"king", desc:"Reigned 16 years and did not do what was right in the eyes of the LORD. Walked in the ways of the kings of Israel; burned his sons as offerings and sacrificed on the high places. When Rezin of Syria and Pekah of Israel besieged Jerusalem, Isaiah gave him the Immanuel sign: 'Behold, the virgin shall conceive and bear a son, and shall call his name Immanuel' (Isa 7:14). Ahaz refused to ask for a sign, pretending piety. Stripped the Temple gold to pay Tiglath-pileser of Assyria; set up an Assyrian-style altar in the Temple."},
     {id:"hezek",   n:"Hezekiah",   m:1, par:"ahaz",       ref:"2 Kgs 18-20; Isa 36-39", role:"king", desc:"Reigned 29 years. 'He trusted in the LORD the God of Israel, so that there was none like him among all the kings of Judah after him.' Removed the high places, broke the pillars, cut down the Asherah, and broke in pieces the bronze serpent Moses had made, calling it Nehushtan. When Sennacherib of Assyria taunted the LORD, Hezekiah spread the letter before the LORD in the Temple and prayed; the angel of the LORD struck down 185,000 Assyrians in one night. When he was sick to death Isaiah said, 'Set your house in order'; Hezekiah prayed and wept, and God added 15 years to his life, with the shadow going back ten steps on the sundial as a sign. Later showed the Babylonian envoys all his treasures; Isaiah rebuked him."},
@@ -652,8 +674,72 @@
     {id:"daniel_p",  n:"Daniel",               par:"judah",       col:1, ref:"Dan 1-12", role:"prophet", desc:"Taken captive to Babylon as a youth; interpreted Nebuchadnezzar's dreams; survived the lions' den. Prophesied the 70 weeks and the coming Son of Man."},
     // MARY - Luke's genealogy via Nathan (David's son), Luke 3:23-38
     {id:"heli",      n:"Heli",                 par:"nathan_d",    col:1, ref:"Luke 3:23", desc:"Named in Luke's genealogy as father of 'Joseph the son of Heli' - traditionally understood as Joseph's father-in-law, Mary's father. Many generations lie between Nathan and Heli; Luke traces the line through Mary's ancestry back to David and ultimately to Adam, 'the son of God.'"},
-    {id:"mary_m",    n:"Mary",                 par:"heli",        col:1, ref:"Matt 1-2; Luke 1-2; John 2; 19; Acts 1", role:"mother", desc:"A virgin of Nazareth betrothed to Joseph of the house of David. The angel Gabriel came to her: 'Greetings, O favored one, the Lord is with you!' When she asked how it could be since she had no husband, he answered, 'The Holy Spirit will come upon you, and the power of the Most High will overshadow you; therefore the child to be born will be called holy - the Son of God.' She replied, 'Behold, I am the servant of the Lord; let it be to me according to your word.' Visited Elizabeth and sang the Magnificat: 'My soul magnifies the Lord, and my spirit rejoices in God my Savior.' Bore Jesus in Bethlehem and laid him in a manger. Treasured the shepherds' and Simeon's words in her heart; Simeon said, 'A sword will pierce through your own soul also.' At Cana she said to the servants, 'Do whatever he tells you.' Stood near the cross, where Jesus entrusted her to the beloved disciple: 'Woman, behold, your son.' With the disciples in the upper room after the Ascension, devoting themselves to prayer."}
+    {id:"mary_m",    n:"Mary",                 par:"heli",        col:1, w:1, m:1, ref:"Matt 1-2; Luke 1-2; John 2; 19; Acts 1", role:"mother", desc:"A virgin of Nazareth betrothed to Joseph of the house of David. The angel Gabriel came to her: 'Greetings, O favored one, the Lord is with you!' When she asked how it could be since she had no husband, he answered, 'The Holy Spirit will come upon you, and the power of the Most High will overshadow you; therefore the child to be born will be called holy - the Son of God.' She replied, 'Behold, I am the servant of the Lord; let it be to me according to your word.' Visited Elizabeth and sang the Magnificat: 'My soul magnifies the Lord, and my spirit rejoices in God my Savior.' Bore Jesus in Bethlehem and laid him in a manger. Treasured the shepherds' and Simeon's words in her heart; Simeon said, 'A sword will pierce through your own soul also.' At Cana she said to the servants, 'Do whatever he tells you.' Stood near the cross, where Jesus entrusted her to the beloved disciple: 'Woman, behold, your son.' With the disciples in the upper room after the Ascension, devoting themselves to prayer."}
   ];
+
+  // Important women rendered as companion nodes beside their husbands (same
+  // generation, joined by a dashed marriage link) rather than as children in
+  // the hierarchy — d3.tree would otherwise push a "sibling" wife to the far
+  // side of her husband's entire subtree. `husb` names the anchor node;
+  // `m:1` marks ancestresses of Christ (the women Matthew 1 names, and the
+  // matriarchs of the line). Toggled with the Women button.
+  var WOMEN = [
+    {id:"eve",       n:"Eve",       husb:"adam",        m:1, role:"matriarch", sp:"Adam", ref:"Gen 2-4", desc:"Fashioned by God from Adam's rib and brought to him — 'bone of my bones and flesh of my flesh.' The mother of all living. Deceived by the serpent, she ate of the tree and gave to her husband; yet in the curse on the serpent she received the first gospel promise: her Seed would bruise the serpent's head (Gen 3:15). Bore Cain, Abel, and Seth, saying at Seth's birth, 'God has appointed for me another offspring instead of Abel.'"},
+    {id:"sarah",     n:"Sarah",     husb:"abr",         m:1, role:"matriarch", sp:"Abraham", yrs:"127 yrs", ref:"Gen 11-23; Heb 11:11", desc:"Sarai, Abram's wife, barren through long years of the promise. Renamed Sarah ('princess') when God promised, 'I will bless her, and she shall become nations.' Laughed at the tent door at Mamre; the LORD answered, 'Is anything too hard for the LORD?' Bore Isaac at 90. By faith she considered Him faithful who had promised. Died at 127; buried in the cave of Machpelah — the only woman whose age at death Scripture records."},
+    {id:"hagar",     n:"Hagar",     husb:"abr",         ref:"Gen 16; 21", desc:"Egyptian servant of Sarah, given to Abram; mother of Ishmael. Fled from Sarai's harshness; the angel of the LORD found her by a spring in the wilderness, and she called the name of the LORD 'You are a God of seeing.' Later sent away with her son; when the water was gone God heard the boy's voice, opened her eyes to a well, and promised to make of Ishmael a great nation."},
+    {id:"keturah",   n:"Keturah",   husb:"abr",         sp:"Abraham", ref:"Gen 25:1-6; 1 Chr 1:32", desc:"Wife of Abraham after Sarah's death. Bore him six sons — Zimran, Jokshan, Medan, Midian, Ishbak, and Shuah — ancestors of the Midianites and other peoples of the east. Abraham gave them gifts and sent them away eastward while he yet lived, giving all that he had to Isaac, the son of promise."},
+    {id:"rebecca",   n:"Rebekah",   husb:"isaac",       m:1, role:"matriarch", sp:"Isaac", ref:"Gen 24-27", desc:"Daughter of Bethuel; met Abraham's servant at the well of Nahor and drew water for his camels. Consented to leave her family and become Isaac's wife. Barren twenty years until Isaac's prayer; the twins struggled in her womb and the LORD told her 'the older shall serve the younger.' Favored Jacob and helped him obtain Isaac's blessing, then sent him to her brother Laban to escape Esau's wrath."},
+    {id:"leah",      n:"Leah",      husb:"jacob",       m:1, role:"matriarch", sp:"Jacob", ref:"Gen 29-30; 49:31", desc:"Elder daughter of Laban, given to Jacob by deception in place of Rachel. Her eyes were weak, and she was unloved — but the LORD saw it and opened her womb. Mother of six of the twelve tribes, including Levi (the priestly line) and Judah (the royal and Messianic line), at whose birth she said, 'This time I will praise the LORD.' Buried with Jacob in the cave of Machpelah."},
+    {id:"rachel",    n:"Rachel",    husb:"jacob",       role:"matriarch", sp:"Jacob", ref:"Gen 29-35", desc:"Younger daughter of Laban, beautiful in form and appearance; Jacob served seven years for her, 'and they seemed to him but a few days because of the love he had for her.' Long barren, then 'God remembered Rachel' and she bore Joseph. Died bearing Benjamin on the way to Ephrath (Bethlehem), and was buried there; Jeremiah pictured her weeping for her children (Jer 31:15), a word Matthew saw fulfilled at Bethlehem (Matt 2:18)."},
+    {id:"bathshua",  n:"Bath-shua", husb:"judah",       sp:"Judah", ref:"Gen 38:2-12; 1 Chr 2:3", desc:"The daughter of Shua, a Canaanite whom Judah saw and took at Adullam. Mother of Er, Onan, and Shelah. After her death Judah went up to his sheepshearers at Timnah — the road on which Tamar waited."},
+    {id:"bilhah",    n:"Bilhah",    husb:"jacob",       ref:"Gen 29:29; 30:1-8; 35:22", desc:"Rachel's servant, given to Jacob when Rachel despaired of children — 'that she may give birth on my behalf, that even I may have children through her.' Mother of Dan ('God has judged me') and Naphtali ('with mighty wrestlings I have wrestled with my sister, and have prevailed'). Later defiled by Reuben, Jacob's firstborn, who thereby lost his preeminence."},
+    {id:"zilpah",    n:"Zilpah",    husb:"jacob",       ref:"Gen 29:24; 30:9-13", desc:"Leah's servant, given to Jacob when Leah ceased bearing. Mother of Gad ('Good fortune has come!') and Asher ('Happy am I! For women have called me happy') — two of the twelve tribes of Israel."},
+    {id:"asenath",   n:"Asenath",   husb:"joseph_j",    sp:"Joseph", ref:"Gen 41:45-52", desc:"Daughter of Potiphera, priest of On, given to Joseph by Pharaoh when he was made ruler over Egypt. Mother of Manasseh ('God has made me forget all my hardship') and Ephraim ('God has made me fruitful in the land of my affliction') — the two tribes Jacob adopted and blessed as his own."},
+    {id:"tamar_j",   n:"Tamar",     husb:"judah",       m:1, ref:"Gen 38; Matt 1:3", desc:"Daughter-in-law of Judah, widowed by Er and Onan and wrongly denied his third son Shelah. Veiled herself at the entrance to Enaim; by Judah she conceived the twins Perez and Zerah. When exposed, Judah confessed, 'She is more righteous than I.' Named in Matthew's genealogy of Christ."},
+    {id:"jochebed",  n:"Jochebed",  husb:"amram",       sp:"Amram", ref:"Exod 2; 6:20; Num 26:59", desc:"Daughter of Levi and wife of Amram; mother of Miriam, Aaron, and Moses. When Pharaoh commanded every Hebrew boy drowned, she hid her son three months, then laid him in a basket of bulrushes among the reeds of the Nile — and was hired by Pharaoh's daughter to nurse her own child. 'By faith Moses, when he was born, was hidden for three months by his parents... and they were not afraid of the king's edict' (Heb 11:23)."},
+    {id:"elisheba",  n:"Elisheba",  husb:"aaron",       sp:"Aaron", ref:"Exod 6:23", desc:"Daughter of Amminadab and sister of Nahshon, prince of Judah; wife of Aaron the first High Priest. In her marriage the royal tribe of Judah and the priestly house of Levi were joined. Mother of Nadab, Abihu, Eleazar, and Ithamar."},
+    {id:"zipporah",  n:"Zipporah",  husb:"moses",       sp:"Moses", ref:"Exod 2:21; 4:24-26; 18:2-6", desc:"Daughter of Jethro (Reuel), priest of Midian; given to Moses after he defended the seven sisters at the well. Mother of Gershom and Eliezer. On the way back to Egypt, when the LORD confronted Moses, she circumcised her son with a flint and touched Moses' feet with it — 'a bridegroom of blood' — and he was spared. Jethro brought her and her sons out to Moses at the mountain of God."},
+    {id:"rahab",     n:"Rahab",     husb:"salmon",      m:1, sp:"Salmon", ref:"Josh 2; 6; Matt 1:5; Heb 11:31", desc:"Harlot of Jericho who hid the two spies under stalks of flax and confessed, 'The LORD your God, he is God in the heavens above and on the earth beneath.' Spared with all her father's household when the walls fell, marked by the scarlet cord in her window. By faith she did not perish with the disobedient; named in Matthew's genealogy as the mother of Boaz."},
+    {id:"ruth_w",    n:"Ruth",      husb:"boaz",        m:1, sp:"Boaz", ref:"Ruth 1-4; Matt 1:5", desc:"Moabite widow who clung to Naomi: 'Where you go I will go... your people shall be my people, and your God my God.' Gleaned in the field of Boaz, who spread his wings over her as kinsman-redeemer. All the town knew her to be a worthy woman. Mother of Obed, great-grandmother of King David — a Gentile grafted into the line of Christ."},
+    {id:"michal",    n:"Michal",    husb:"david",       sp:"David", ref:"1 Sam 18-19; 2 Sam 6", desc:"Younger daughter of King Saul; loved David, and was given to him for the bride-price of a hundred Philistines. Let David down through the window and deceived Saul's messengers with an idol in the bed, saving his life. Given by Saul to Palti son of Laish, then returned to David when he reigned. Despised David in her heart when he danced before the ark with all his might; 'and Michal the daughter of Saul had no child to the day of her death.'"},
+    {id:"abigail_c", n:"Abigail",   husb:"david",       sp:"Nabal, then David", ref:"1 Sam 25", desc:"Discerning and beautiful wife of Nabal the fool, a harsh Calebite of Carmel. When Nabal repaid David's protection with insults, she rode to meet David with provisions and turned him from bloodguilt: 'The life of my lord shall be bound in the bundle of the living in the care of the LORD your God.' David blessed her discretion. When Nabal's heart died within him and the LORD struck him, David took Abigail as his wife; mother of Chileab."},
+    {id:"bathsheba", n:"Bathsheba", husb:"david",       m:1, sp:"Uriah, then David", ref:"2 Sam 11-12; 1 Kgs 1-2; Matt 1:6", desc:"Daughter of Eliam and wife of Uriah the Hittite, taken by David; the child of that sin died, but Nathan's word and David's repentance followed (Ps 51). Bore Solomon, 'and the LORD loved him.' With Nathan the prophet she secured Solomon's succession to the throne. Matthew's genealogy names her pointedly as 'the wife of Uriah.'"},
+    {id:"naamah",    n:"Naamah",    husb:"solomon",     m:1, sp:"Solomon", ref:"1 Kgs 14:21, 31", desc:"The Ammonite wife of Solomon and mother of Rehoboam — the only mother of a king of Judah named from among Solomon's thousand wives and concubines. A Gentile, like Rahab and Ruth before her, standing in the royal line of the Messiah."},
+    {id:"maacah_q",  n:"Maacah",    husb:"rehoboam",    m:1, sp:"Rehoboam", ref:"1 Kgs 15:2, 13; 2 Chr 11:20-22", desc:"Granddaughter of Absalom and the favorite of Rehoboam's eighteen wives; mother of King Abijah. As queen mother she made an abominable image for Asherah — and her own grandson Asa cut it down, burned it at the brook Kidron, and removed her from being queen mother."},
+    {id:"azubah",    n:"Azubah",    husb:"asa",         m:1, sp:"Asa", ref:"1 Kgs 22:42; 2 Chr 20:31", desc:"Daughter of Shilhi; wife of King Asa and mother of Jehoshaphat, who 'walked in all the way of Asa his father, not turning aside from it, doing what was right in the sight of the LORD.'"},
+    {id:"athaliah",  n:"Athaliah",  husb:"joram",       sp:"Joram", ref:"2 Kgs 8:26; 11; 2 Chr 22-23", desc:"Daughter of Ahab and granddaughter of Omri, married to Joram of Judah to seal the alliance with the house of Ahab; she counseled her son Ahaziah in wickedness. When Ahaziah was slain, she arose and destroyed all the royal family and reigned six years — the only queen to sit on David's throne. But the infant Joash was hidden from her in the house of the LORD, and in the seventh year Jehoiada the priest crowned him; Athaliah tore her clothes, crying 'Treason! Treason!' and was put to death at the horse gate. Through her the promise to David hung by a single thread — and held."},
+    {id:"jerusha",   n:"Jerusha",   husb:"uzziah",      m:1, sp:"Uzziah", ref:"2 Kgs 15:33; 2 Chr 27:1", desc:"Daughter of Zadok; wife of King Uzziah and mother of Jotham, who became mighty because he ordered his ways before the LORD his God."},
+    {id:"abi_q",     n:"Abi",       husb:"ahaz",        m:1, sp:"Ahaz", ref:"2 Kgs 18:2; 2 Chr 29:1", desc:"Daughter of Zechariah (called Abijah in Chronicles); wife of King Ahaz and mother of Hezekiah. From a wicked father's house came Judah's most faithful reformer — 'he trusted in the LORD, the God of Israel, so that there was none like him among all the kings of Judah.'"},
+    {id:"hephzibah", n:"Hephzibah", husb:"hezek",       m:1, sp:"Hezekiah", ref:"2 Kgs 21:1; Isa 62:4", desc:"Wife of King Hezekiah and mother of Manasseh. Her name means 'my delight is in her' — the very name Isaiah gives to restored Zion: 'You shall no more be termed Forsaken... but you shall be called Hephzibah... for the LORD delights in you.'"},
+    {id:"meshullemeth", n:"Meshullemeth", husb:"manass", m:1, sp:"Manasseh", ref:"2 Kgs 21:19", desc:"Daughter of Haruz of Jotbah; wife of King Manasseh and mother of Amon."},
+    {id:"jedidah",   n:"Jedidah",   husb:"amon",        m:1, sp:"Amon", ref:"2 Kgs 22:1", desc:"Daughter of Adaiah of Bozkath; wife of King Amon and mother of Josiah. Her name means 'beloved.' Amon reigned in wickedness only two years — yet from her son came the greatest reformation Judah ever knew."},
+    {id:"zebidah",   n:"Zebidah",   husb:"josiah",      m:1, sp:"Josiah", ref:"2 Kgs 23:36", desc:"Daughter of Pedaiah of Rumah; wife of King Josiah and mother of Jehoiakim, grandmother of Jeconiah, through whom the royal line passed into exile."},
+    {id:"nehushta",  n:"Nehushta",  husb:"jehoiak",     m:1, sp:"Jehoiakim", ref:"2 Kgs 24:8-15; Jer 13:18; 29:2", desc:"Daughter of Elnathan of Jerusalem; wife of Jehoiakim and mother of King Jeconiah. When Nebuchadnezzar besieged the city she went out with her son and was carried to Babylon; Jeremiah's word came to her: 'Say to the king and the queen mother: Take a lowly seat, for your beautiful crown has come down from your head.'"},
+    {id:"hannah",    n:"Hannah",    husb:"elkanah_s",   sp:"Elkanah", ref:"1 Sam 1-2", desc:"Beloved but barren wife of Elkanah, provoked year by year at Shiloh. Wept and prayed silently before the LORD, vowing her son to Him; Eli thought her drunk. 'For this child I prayed, and the LORD has granted me my petition' — she lent Samuel to the LORD all his days. Her song, 'My heart exults in the LORD... He raises up the poor from the dust,' is echoed centuries later in Mary's Magnificat."},
+    {id:"peninnah",  n:"Peninnah",  husb:"elkanah_s",   sp:"Elkanah", ref:"1 Sam 1:2-7", desc:"Elkanah's other wife, who had children when Hannah had none, and provoked her grievously year by year at Shiloh to make her fret. Through the rivalry of the two wives the LORD prepared the prayer that gave Israel Samuel."},
+    {id:"elizabeth", n:"Elizabeth", husb:"zechariah_p", sp:"Zechariah", ref:"Luke 1", desc:"Of the daughters of Aaron; righteous before God with her husband Zechariah, walking blamelessly — yet barren, and advanced in years. Conceived John the Baptist after Gabriel's word; hid herself five months, saying, 'Thus the Lord has done for me.' When Mary greeted her, the babe leaped in her womb, and filled with the Holy Spirit she cried, 'Blessed are you among women, and blessed is the fruit of your womb!'"}
+  ];
+
+  // Mary belongs beside Joseph, directly above Jesus — where every eye
+  // looks for her — not as a leaf deep in Nathan's branch. Luke traces
+  // that lineage (Nathan → Heli → Mary) and Heli's entry explains it, so
+  // reanchor her record as Joseph's companion instead of a tree child.
+  var mary = PEOPLE.splice(PEOPLE.findIndex(function(p) { return p.id === 'mary_m'; }), 1)[0];
+  delete mary.par;
+  delete mary.col;
+  mary.husb = 'joseph';
+  mary.sp = 'Joseph';
+  WOMEN.push(mary);
+
+  // Persistent wrappers so positions survive between updates (search zooms
+  // to them). Women are always leaves; `slot` spaces co-wives (Sarah/Hagar,
+  // Leah/Rachel) side by side.
+  var wSlots = {};
+  var WNODES = WOMEN.map(function(w) {
+    w.w = 1;
+    wSlots[w.husb] = (wSlots[w.husb] || 0) + 1;
+    return { id: 'w:' + w.id, data: w, isW: true, slot: wSlots[w.husb] };
+  });
 
   var vp  = document.getElementById('tree-viewport');
   var tip = document.getElementById('tree-tip');
@@ -666,7 +752,13 @@
 
   var defs = svg.append('defs');
   var msgrad = defs.append('linearGradient')
-    .attr('id', 'msgrad').attr('x1', '0%').attr('y1', '0%').attr('x2', '0%').attr('y2', '100%');
+    // userSpaceOnUse (spanning the tree's full depth) rather than
+    // objectBoundingBox: a perfectly vertical link has a zero-width
+    // bounding box, and SVG paints no gradient stroke at all on those —
+    // which made the Messianic line invisible wherever it ran straight
+    // down. This also shades the gold continuously from Adam to Jesus.
+    .attr('id', 'msgrad').attr('gradientUnits', 'userSpaceOnUse')
+    .attr('x1', 0).attr('y1', 0).attr('x2', 0).attr('y2', 5700);
   msgrad.append('stop').attr('offset', '0%').attr('stop-color', '#cdb489');
   msgrad.append('stop').attr('offset', '50%').attr('stop-color', '#af9164');
   msgrad.append('stop').attr('offset', '100%').attr('stop-color', '#8a6e45');
@@ -683,6 +775,10 @@
   var otherGrad = defs.append('radialGradient').attr('id', 'ngrad-o').attr('cx', '35%').attr('cy', '30%');
   otherGrad.append('stop').attr('offset', '0%').attr('stop-color', '#d6d0c2');
   otherGrad.append('stop').attr('offset', '100%').attr('stop-color', '#857c6f');
+
+  var womanGrad = defs.append('radialGradient').attr('id', 'ngrad-w').attr('cx', '35%').attr('cy', '30%');
+  womanGrad.append('stop').attr('offset', '0%').attr('stop-color', '#ecc3cd');
+  womanGrad.append('stop').attr('offset', '100%').attr('stop-color', '#a05563');
 
   var g   = svg.append('g');
 
@@ -702,6 +798,12 @@
 
   // All nodes start fully expanded — _kids stays null until user collapses manually
 
+  // Snapshot every hierarchy node by person id while the tree is fully
+  // expanded (descendants() only walks visible children); used to expand a
+  // companion woman's husband when search matches her.
+  var byIdAll = {};
+  root.descendants().forEach(function(d) { byIdAll[d.data.id] = d; });
+
   root.x0 = 0;
   root.y0 = 0;
 
@@ -709,17 +811,20 @@
   var DUR   = 420;
   var EASE  = d3.easeCubicInOut;
   var showM = true;
+  var showW = true;
 
   // Latin cross drawn in place of the circle for Jesus, centered on the node point.
   var CROSS_D = 'M-4.5,-20 H4.5 V-12.5 H13 V-3.5 H4.5 V20 H-4.5 V-3.5 H-13 V-12.5 H-4.5 Z';
 
   function cfill(d) {
+    if (d.data.w) { return 'url(#ngrad-w)'; }
     if (d.data.m && showM) {
       return (d._kids && !(d.children && d.children.length)) ? '#f0e6d2' : 'url(#ngrad-m)';
     }
     return (d._kids && !(d.children && d.children.length)) ? '#f1ebdc' : 'url(#ngrad-o)';
   }
   function cstroke(d) {
+    if (d.data.w) { return '#8d4351'; }
     return (d.data.m && showM) ? '#8a6e45' : '#948a78';
   }
   function hasKids(d) { return d.children && d.children.length > 0; }
@@ -735,8 +840,40 @@
 
     var nodes = root.descendants();
     var links = root.links();
+    // Women are always leaves (a data invariant), so filtering them out
+    // when toggled off can never orphan part of the tree.
+    if (!showW) {
+      nodes = nodes.filter(function(d) { return !d.data.w; });
+      links = links.filter(function(l) { return !l.target.data.w; });
+    }
     var sx = (src.x0 !== undefined) ? src.x0 : 0;
     var sy = (src.y0 !== undefined) ? src.y0 : 0;
+
+    // Companion women stand beside their (visible) husbands at the same
+    // generation, offset to the right; co-wives take successive slots.
+    var byId = {};
+    nodes.forEach(function(d) { byId[d.data.id] = d; });
+    var wives = [];
+    if (showW) {
+      WNODES.forEach(function(wn) {
+        var h = byId[wn.data.husb];
+        if (!h) { return; }
+        wn.x = h.x + 64 * wn.slot;
+        wn.y = h.y;
+        wn.hx = h.x;
+        wn.hy = h.y;
+        wives.push(wn);
+      });
+    }
+    nodes = nodes.concat(wives);
+
+    var sp = g.selectAll('path.sp-link').data(wives, function(d) { return d.id; });
+    var spEnter = sp.enter().insert('path', 'g')
+      .attr('class', 'sp-link')
+      .attr('d', 'M' + sx + ',' + sy + ' L' + sx + ',' + sy);
+    sp.merge(spEnter).transition().duration(DUR).ease(EASE)
+      .attr('d', function(d) { return 'M' + d.hx + ',' + d.hy + ' L' + d.x + ',' + d.y; });
+    sp.exit().transition().duration(DUR).ease(EASE).style('opacity', 0).remove();
 
     var link = g.selectAll('path.tree-link').data(links, function(d) { return d.target.id; });
 
@@ -763,6 +900,7 @@
       .attr('class', function(d) {
         var c = 'tree-node';
         if (d.data.n === 'Jesus Christ') c += ' jesus-node';
+        else if (d.data.w) c += ' w-node';
         else if (d.data.m) c += ' m-node';
         return c;
       })
@@ -774,8 +912,7 @@
         if (sheetMode()) { showTip(e, d); } else { toggleNode(d); }
       })
       .on('mouseenter', function(e, d) { if (!sheetMode()) { showTip(e, d); } })
-      .on('mousemove',  function(e)    { if (!sheetMode()) { moveTip(e); } })
-      .on('mouseleave', function()     { if (!sheetMode()) { hideTip(); } });
+      .on('mouseleave', function()     { if (!sheetMode()) { scheduleHideTip(); } });
 
     nEnter.append('text').attr('class', 'nhalo').text(function(d) { return d.data.n; });
     nEnter.append('text').attr('class', 'nlbl').text(function(d) { return d.data.n; });
@@ -793,6 +930,7 @@
     nAll.attr('class', function(d) {
       var c = 'tree-node';
       if (d.data.n === 'Jesus Christ') c += ' jesus-node';
+      else if (d.data.w) c += ' w-node';
       else if (d.data.m && showM) c += ' m-node';
       return c;
     });
@@ -801,7 +939,7 @@
       .attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
 
     nAll.select('circle').transition().duration(DUR).ease(EASE)
-      .attr('r', function(d) { return d.data.m && showM ? 10 : 7.5; })
+      .attr('r', function(d) { return d.data.w ? 8 : (d.data.m && showM ? 10 : 7.5); })
       .attr('fill',   function(d) { return cfill(d); })
       .attr('stroke', function(d) { return cstroke(d); })
       .attr('stroke-width', 2.2);
@@ -822,8 +960,14 @@
     var fs = function(d) { return d.data.n === 'Jesus Christ' ? '13px' : '11px'; };
     var dark = document.body.classList.contains('dark-mode');
     var fc = function(d) {
-      if (dark) { return d.data.n === 'Jesus Christ' ? '#e3c78f' : (d.data.m ? '#d9c8a4' : '#cfc8bc'); }
-      return d.data.n === 'Jesus Christ' ? '#65342f' : (d.data.m ? '#5d4a2f' : '#5a5a5a');
+      if (dark) {
+        if (d.data.n === 'Jesus Christ') { return '#e3c78f'; }
+        if (d.data.w) { return '#dfa9b6'; }
+        return d.data.m ? '#d9c8a4' : '#cfc8bc';
+      }
+      if (d.data.n === 'Jesus Christ') { return '#65342f'; }
+      if (d.data.w) { return '#8d4f5e'; }
+      return d.data.m ? '#5d4a2f' : '#5a5a5a';
     };
     var haloCol = dark ? 'rgba(30,25,20,0.95)' : 'rgba(250,246,236,0.95)';
 
@@ -849,6 +993,7 @@
   }
 
   function toggleNode(d) {
+    if (d.isW) { return; }
     if (d.children && d.children.length) {
       d._kids = d.children.concat(d._kids || []);
       d.children = null;
@@ -863,6 +1008,7 @@
   function sheetMode() { return sheetQuery.matches; }
 
   function showTip(event, d) {
+    clearTimeout(tipHideTimer);
     var da = d.data;
     var badges = '';
     if (da.n === 'Jesus Christ')  { badges += '<span class="tip-badge badge-x">The Messiah</span>'; }
@@ -871,6 +1017,7 @@
     if (da.role === 'priest')     { badges += '<span class="tip-badge badge-p">Priest</span>'; }
     if (da.role === 'prophet')    { badges += '<span class="tip-badge badge-pr">Prophet</span>'; }
     if (da.role === 'patriarch')  { badges += '<span class="tip-badge badge-m">Patriarch</span>'; }
+    if (da.role === 'matriarch')  { badges += '<span class="tip-badge badge-w">Matriarch</span>'; }
     if (da.role === 'judge')      { badges += '<span class="tip-badge" style="background:#e8f5e9;color:#1b5e20;">Judge</span>'; }
     if (da.role === 'leader')     { badges += '<span class="tip-badge" style="background:#fff3e0;color:#e65100;">Leader</span>'; }
     if (da.role === 'mother')     { badges += '<span class="tip-badge" style="background:#fce4ec;color:#880e4f;">Blessed Mother</span>'; }
@@ -903,6 +1050,7 @@
         toggleNode(d);
       });
     }
+    tip.scrollTop = 0;
     tip.classList.add('show');
     moveTip(event);
   }
@@ -914,16 +1062,33 @@
       tip.style.top  = '';
       return;
     }
+    // Position once per hover (the tip no longer chases the cursor, so the
+    // pointer can travel into it and scroll long entries), clamped to the
+    // viewport using its real rendered size.
     var cx = event.clientX || (event.touches && event.touches[0] ? event.touches[0].clientX : 0);
     var cy = event.clientY || (event.touches && event.touches[0] ? event.touches[0].clientY : 0);
+    var w = tip.offsetWidth  || 300;
+    var h = tip.offsetHeight || 180;
     var x = cx + 16, y = cy + 16;
-    if (x + 270 > window.innerWidth)  { x = cx - 270 - 16; }
-    if (y + 160 > window.innerHeight) { y = cy - 160 - 16; }
+    if (x + w > window.innerWidth - 10)  { x = Math.max(10, cx - w - 16); }
+    if (y + h > window.innerHeight - 10) { y = Math.max(10, window.innerHeight - h - 10); }
     tip.style.left = x + 'px';
     tip.style.top  = y + 'px';
   }
 
-  function hideTip() { tip.classList.remove('show'); }
+  var tipHideTimer = null;
+  function hideTip() {
+    clearTimeout(tipHideTimer);
+    tip.classList.remove('show');
+  }
+  // Hide on a short delay so the pointer can cross the gap from the node
+  // into the tip; arriving there cancels the hide.
+  function scheduleHideTip() {
+    clearTimeout(tipHideTimer);
+    tipHideTimer = setTimeout(function() { tip.classList.remove('show'); }, 260);
+  }
+  tip.addEventListener('mouseenter', function() { clearTimeout(tipHideTimer); });
+  tip.addEventListener('mouseleave', function() { if (!sheetMode()) { scheduleHideTip(); } });
   svg.on('click', hideTip);
   zoomBeh.on('start.tip', hideTip);
 
@@ -947,6 +1112,12 @@
   document.getElementById('btn-m').addEventListener('click', function() {
     showM = !showM;
     this.classList.toggle('active', showM);
+    update(root);
+  });
+
+  document.getElementById('btn-w').addEventListener('click', function() {
+    showW = !showW;
+    this.classList.toggle('active', showW);
     update(root);
   });
 
@@ -1010,12 +1181,22 @@
       if (d._kids)    { d._kids.forEach(seek); }
     }
     seek(root);
+    WNODES.forEach(function(wn) {
+      if (nodeMatchesQuery(wn, ql)) { matches.push(wn); }
+    });
     if (!matches.length) { return; }
 
-    // Expand ancestors of all matches
+    // A match on a hidden woman turns the Women filter back on.
+    if (!showW && matches.some(function(m) { return m.data.w; })) {
+      showW = true;
+      document.getElementById('btn-w').classList.add('active');
+    }
+
+    // Expand ancestors of all matches (for a companion woman, her
+    // husband's ancestors — she appears whenever he does).
     matches.forEach(function(found) {
       var ancestors = [];
-      var cur = found;
+      var cur = found.isW ? byIdAll[found.data.husb] : found;
       while (cur.parent) { ancestors.push(cur.parent); cur = cur.parent; }
       ancestors.reverse().forEach(function(a) {
         if (!a.children || !a.children.length) {
