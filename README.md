@@ -20,6 +20,10 @@ Gains LLC.
 - **Personal prayers** — private prayer lists, encrypted at rest.
 - **Print mode** — devotion pages print as clean handouts for praying in a
   group; personal prayers stay off the printout unless explicitly included.
+- **Bible family tree** — interactive D3 tree from Adam to Jesus with the
+  Messianic line highlighted, the women of the family shown beside their
+  husbands, and Mary's own descent from David traced through Nathan to her
+  father Heli (Luke 3).
 - **Memory work** — memory verses, catechism memorization, creed studies.
 - **Reminders** — push (FCM), email, and SMS (Twilio) notifications.
 - **PWA** — installable, offline-capable (service worker), with home-screen
