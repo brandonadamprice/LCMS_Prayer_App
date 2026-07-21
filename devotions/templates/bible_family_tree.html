@@ -792,6 +792,20 @@
   mary.sp = 'Joseph';
   WOMEN.push(mary);
 
+  // Luke's maternal chain (Nathan → … → Heli) spans 39 generations where
+  // Matthew's royal line covers the same era in 25, so at uniform row
+  // spacing Heli would land far below Mary and her lineage link would run
+  // UP the tree. update() tightens this chain's rows so Heli stands one
+  // row above Joseph and the line descends into Mary like any other link.
+  var MT_CHAIN = (function() {
+    var byIdP = {};
+    PEOPLE.forEach(function(p) { byIdP[p.id] = p; });
+    var chain = [];
+    var cur = byIdP['heli'];
+    while (cur && cur.id !== 'nathan_d') { chain.unshift(cur.id); cur = byIdP[cur.par]; }
+    return chain;
+  }());
+
   // Persistent wrappers so positions survive between updates (search zooms
   // to them). Women are always leaves; `slot` spaces co-wives (Sarah/Hagar,
   // Leah/Rachel) side by side.
@@ -914,6 +928,20 @@
     // generation, offset to the right; co-wives take successive slots.
     var byId = {};
     nodes.forEach(function(d) { byId[d.data.id] = d; });
+
+    // Compress the maternal chain's rows (see MT_CHAIN above): spread its
+    // 39 generations evenly between Nathan's row and the row above Joseph,
+    // so Heli ends up beside Jacob (Joseph's father) and Mary's lineage
+    // flows downward into her.
+    var nathanN = byId['nathan_d'];
+    var josephN = byId['joseph'];
+    if (nathanN && josephN && MT_CHAIN.length) {
+      var mtStep = (josephN.y - 95 - nathanN.y) / MT_CHAIN.length;
+      MT_CHAIN.forEach(function(id, i) {
+        if (byId[id]) { byId[id].y = nathanN.y + mtStep * (i + 1); }
+      });
+    }
+
     var wives = [];
     if (showW) {
       WNODES.forEach(function(wn) {
