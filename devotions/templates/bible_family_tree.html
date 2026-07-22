@@ -805,6 +805,8 @@
     while (cur && cur.id !== 'nathan_d') { chain.unshift(cur.id); cur = byIdP[cur.par]; }
     return chain;
   }());
+  var MT_SET = {};
+  MT_CHAIN.forEach(function(id) { MT_SET[id] = true; });
 
   // Persistent wrappers so positions survive between updates (search zooms
   // to them). Women are always leaves; `slot` spaces co-wives (Sarah/Hagar,
@@ -916,10 +918,13 @@
     var nodes = root.descendants();
     var links = root.links();
     // Women are always leaves (a data invariant), so filtering them out
-    // when toggled off can never orphan part of the tree.
+    // when toggled off can never orphan part of the tree. The maternal
+    // chain exists only to carry Mary's ancestry, so it follows the same
+    // toggle — and it too is a self-contained tail (it ends at Heli), so
+    // dropping it whole orphans nothing either.
     if (!showW) {
-      nodes = nodes.filter(function(d) { return !d.data.w; });
-      links = links.filter(function(l) { return !l.target.data.w; });
+      nodes = nodes.filter(function(d) { return !d.data.w && !MT_SET[d.data.id]; });
+      links = links.filter(function(l) { return !l.target.data.w && !MT_SET[l.target.data.id]; });
     }
     var sx = (src.x0 !== undefined) ? src.x0 : 0;
     var sy = (src.y0 !== undefined) ? src.y0 : 0;
@@ -1298,8 +1303,9 @@
     });
     if (!matches.length) { return; }
 
-    // A match on a hidden woman turns the Women filter back on.
-    if (!showW && matches.some(function(m) { return m.data.w; })) {
+    // A match on a hidden woman — or on Mary's hidden ancestral chain,
+    // which follows the same toggle — turns the Women filter back on.
+    if (!showW && matches.some(function(m) { return m.data.w || MT_SET[m.data.id]; })) {
       showW = true;
       document.getElementById('btn-w').classList.add('active');
     }
