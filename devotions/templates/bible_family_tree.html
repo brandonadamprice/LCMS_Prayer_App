@@ -115,6 +115,13 @@
     margin-right: 5px;
     vertical-align: middle;
   }
+  .leg-line {
+    display: inline-block;
+    width: 16px;
+    border-top: 2px dashed #a05563;
+    margin-right: 5px;
+    vertical-align: middle;
+  }
 
   .tree-viewport {
     width: 100%;
@@ -164,6 +171,18 @@
     stroke-dasharray: 4 4;
     stroke-linecap: round;
     opacity: 0.9;
+    transition: opacity 0.3s;
+  }
+  /* Maternal lineage link: joins Heli, at the foot of Luke's line through
+     Nathan, to Mary beside Joseph — her descent from David made visible. */
+  .mt-link {
+    fill: none;
+    stroke: #b06a7d;
+    stroke-width: 2.25px;
+    stroke-dasharray: 8 5;
+    stroke-linecap: round;
+    opacity: 0.9;
+    filter: drop-shadow(0 0 3px rgba(201,138,154,0.45));
     transition: opacity 0.3s;
   }
   .tree-node text {
@@ -331,6 +350,7 @@
   body.dark-mode .tip-ref { color: #c4a878; }
   body.dark-mode .tree-link { stroke: rgba(185,175,155,0.25); }
   body.dark-mode .sp-link { stroke: rgba(224,150,168,0.5); }
+  body.dark-mode .mt-link { stroke: rgba(224,150,168,0.65); filter: drop-shadow(0 0 4px rgba(160,85,99,0.5)); }
   body.dark-mode .tree-link.m-link { filter: drop-shadow(0 0 4px rgba(196,168,120,0.6)); }
   body.dark-mode .tree-legend { color: #a89f8e; }
 
@@ -379,7 +399,7 @@
 {% block content %}
 <div class="page-header">
   <h1>Bible Family Tree</h1>
-  <p>Trace the lineage of Scripture from Adam to Jesus Christ. Tap any name to read about that person; the golden path is the Messianic line, and rose nodes are the women of the family.</p>
+  <p>Trace the lineage of Scripture from Adam to Jesus Christ. Tap any name to read about that person; the golden path is the Messianic line, and rose nodes are the women of the family. The dashed rose line joins Mary to her father Heli, tracing her own descent from David through Nathan (Luke 3).</p>
 </div>
 
 <div class="tree-controls">
@@ -403,6 +423,7 @@
   <div class="tree-legend">
     <span><span class="leg-dot" style="background:#af9164;"></span>Messianic</span>
     <span><span class="leg-dot" style="background:#a05563;"></span>Women</span>
+    <span><span class="leg-line"></span>Mary's line</span>
     <span><span class="leg-dot" style="background:#857c6f;"></span>Other</span>
     <span><span class="leg-dot" style="background:#f0e6d2; border:2px dashed #af9164;"></span>Has children</span>
   </div>
@@ -672,8 +693,47 @@
     {id:"hilkiah_j", n:"Hilkiah (priest)",     par:"ithamar",     col:1, ref:"Jer 1:1", role:"priest", desc:"Priest in Anathoth of Benjamin; father of the prophet Jeremiah."},
     {id:"jeremiah_p",n:"Jeremiah",             par:"hilkiah_j",   col:1, ref:"Jer 1-52", role:"prophet", desc:"The weeping prophet; prophesied the exile to Babylon and the New Covenant (Jer 31:31). Thrown into a cistern; survived the fall of Jerusalem."},
     {id:"daniel_p",  n:"Daniel",               par:"judah",       col:1, ref:"Dan 1-12", role:"prophet", desc:"Taken captive to Babylon as a youth; interpreted Nebuchadnezzar's dreams; survived the lions' den. Prophesied the 70 weeks and the coming Son of Man."},
-    // MARY - Luke's genealogy via Nathan (David's son), Luke 3:23-38
-    {id:"heli",      n:"Heli",                 par:"nathan_d",    col:1, ref:"Luke 3:23", desc:"Named in Luke's genealogy as father of 'Joseph the son of Heli' - traditionally understood as Joseph's father-in-law, Mary's father. Many generations lie between Nathan and Heli; Luke traces the line through Mary's ancestry back to David and ultimately to Adam, 'the son of God.'"},
+    // MARY'S LINE - Luke's genealogy via Nathan (David's son), Luke 3:23-31,
+    // read downward from Nathan to Heli, traditionally Mary's father.
+    {id:"mattatha",  n:"Mattatha",             par:"nathan_d",    col:1, ref:"Luke 3:31", desc:"Son of Nathan, grandson of David and Bathsheba. First step in the line Luke traces from David to Heli - the bloodline of the Messiah through Mary."},
+    {id:"menna",     n:"Menna",                par:"mattatha",    col:1, ref:"Luke 3:31"},
+    {id:"melea",     n:"Melea",                par:"menna",       col:1, ref:"Luke 3:31"},
+    {id:"eliakim_l", n:"Eliakim",              par:"melea",       col:1, ref:"Luke 3:30"},
+    {id:"jonam",     n:"Jonam",                par:"eliakim_l",   col:1, ref:"Luke 3:30"},
+    {id:"joseph_l1", n:"Joseph",               par:"jonam",       col:1, ref:"Luke 3:30"},
+    {id:"judah_l",   n:"Judah",                par:"joseph_l1",   col:1, ref:"Luke 3:30"},
+    {id:"simeon_l",  n:"Simeon",               par:"judah_l",     col:1, ref:"Luke 3:30"},
+    {id:"levi_l1",   n:"Levi",                 par:"simeon_l",    col:1, ref:"Luke 3:29"},
+    {id:"matthat_l1",n:"Matthat",              par:"levi_l1",     col:1, ref:"Luke 3:29"},
+    {id:"jorim",     n:"Jorim",                par:"matthat_l1",  col:1, ref:"Luke 3:29"},
+    {id:"eliezer_l", n:"Eliezer",              par:"jorim",       col:1, ref:"Luke 3:29"},
+    {id:"joshua_l",  n:"Joshua",               par:"eliezer_l",   col:1, ref:"Luke 3:29"},
+    {id:"er_l",      n:"Er",                   par:"joshua_l",    col:1, ref:"Luke 3:28"},
+    {id:"elmadam",   n:"Elmadam",              par:"er_l",        col:1, ref:"Luke 3:28"},
+    {id:"cosam",     n:"Cosam",                par:"elmadam",     col:1, ref:"Luke 3:28"},
+    {id:"addi",      n:"Addi",                 par:"cosam",       col:1, ref:"Luke 3:28"},
+    {id:"melchi_l1", n:"Melchi",               par:"addi",        col:1, ref:"Luke 3:28"},
+    {id:"neri",      n:"Neri",                 par:"melchi_l1",   col:1, ref:"Luke 3:27", desc:"Of David's line through Nathan. Luke names Shealtiel as his son, while Matthew and Chronicles name Shealtiel as son of Jeconiah - possibly a levirate or legal sonship joining the two branches of David's house after the exile."},
+    {id:"sheal_l",   n:"Shealtiel",            par:"neri",        col:1, ref:"Luke 3:27", desc:"Named in Luke's genealogy as son of Neri; in Matthew and Chronicles as son of King Jeconiah. The two genealogies of David's house meet here for a generation before parting again."},
+    {id:"zerub_l",   n:"Zerubbabel",           par:"sheal_l",     col:1, ref:"Luke 3:27", desc:"Son of Shealtiel; governor of Judah who rebuilt the Temple after the exile (Ezra 3-6; Hag 1-2). Luke continues his line through Rhesa toward Heli and Mary, while Matthew continues it through Abiud toward Joseph."},
+    {id:"rhesa",     n:"Rhesa",                par:"zerub_l",     col:1, ref:"Luke 3:27"},
+    {id:"joanan",    n:"Joanan",               par:"rhesa",       col:1, ref:"Luke 3:27"},
+    {id:"joda",      n:"Joda",                 par:"joanan",      col:1, ref:"Luke 3:26"},
+    {id:"josech",    n:"Josech",               par:"joda",        col:1, ref:"Luke 3:26"},
+    {id:"semein",    n:"Semein",               par:"josech",      col:1, ref:"Luke 3:26"},
+    {id:"mattathias_l1",n:"Mattathias",        par:"semein",      col:1, ref:"Luke 3:26"},
+    {id:"maath",     n:"Maath",                par:"mattathias_l1",col:1, ref:"Luke 3:26"},
+    {id:"naggai",    n:"Naggai",               par:"maath",       col:1, ref:"Luke 3:25"},
+    {id:"esli",      n:"Esli",                 par:"naggai",      col:1, ref:"Luke 3:25"},
+    {id:"nahum_l",   n:"Nahum",                par:"esli",        col:1, ref:"Luke 3:25"},
+    {id:"amos_l",    n:"Amos",                 par:"nahum_l",     col:1, ref:"Luke 3:25"},
+    {id:"mattathias_l2",n:"Mattathias",        par:"amos_l",      col:1, ref:"Luke 3:25"},
+    {id:"joseph_l2", n:"Joseph",               par:"mattathias_l2",col:1, ref:"Luke 3:24"},
+    {id:"jannai",    n:"Jannai",               par:"joseph_l2",   col:1, ref:"Luke 3:24"},
+    {id:"melchi_l2", n:"Melchi",               par:"jannai",      col:1, ref:"Luke 3:24"},
+    {id:"levi_l2",   n:"Levi",                 par:"melchi_l2",   col:1, ref:"Luke 3:24"},
+    {id:"matthat_l2",n:"Matthat",              par:"levi_l2",     col:1, ref:"Luke 3:24"},
+    {id:"heli",      n:"Heli",                 par:"matthat_l2",  col:1, ref:"Luke 3:23", desc:"Named in Luke's genealogy as father of 'Joseph the son of Heli' - traditionally understood as Joseph's father-in-law, Mary's father. Luke traces this line through Mary's ancestry back through Nathan to David, and ultimately to Adam, 'the son of God' - showing Jesus' blood descent from David apart from the throne-curse spoken over Jeconiah's offspring (Jer 22:30)."},
     {id:"mary_m",    n:"Mary",                 par:"heli",        col:1, w:1, m:1, ref:"Matt 1-2; Luke 1-2; John 2; 19; Acts 1", role:"mother", desc:"A virgin of Nazareth betrothed to Joseph of the house of David. The angel Gabriel came to her: 'Greetings, O favored one, the Lord is with you!' When she asked how it could be since she had no husband, he answered, 'The Holy Spirit will come upon you, and the power of the Most High will overshadow you; therefore the child to be born will be called holy - the Son of God.' She replied, 'Behold, I am the servant of the Lord; let it be to me according to your word.' Visited Elizabeth and sang the Magnificat: 'My soul magnifies the Lord, and my spirit rejoices in God my Savior.' Bore Jesus in Bethlehem and laid him in a manger. Treasured the shepherds' and Simeon's words in her heart; Simeon said, 'A sword will pierce through your own soul also.' At Cana she said to the servants, 'Do whatever he tells you.' Stood near the cross, where Jesus entrusted her to the beloved disciple: 'Woman, behold, your son.' With the disciples in the upper room after the Ascension, devoting themselves to prayer."}
   ];
 
@@ -722,14 +782,29 @@
 
   // Mary belongs beside Joseph, directly above Jesus — where every eye
   // looks for her — not as a leaf deep in Nathan's branch. Luke traces
-  // that lineage (Nathan → Heli → Mary) and Heli's entry explains it, so
-  // reanchor her record as Joseph's companion instead of a tree child.
+  // that lineage (Nathan → … → Heli → Mary), so reanchor her record as
+  // Joseph's companion instead of a tree child; the mt-link drawn in
+  // update() joins her back to Heli whenever both are on screen.
   var mary = PEOPLE.splice(PEOPLE.findIndex(function(p) { return p.id === 'mary_m'; }), 1)[0];
   delete mary.par;
   delete mary.col;
   mary.husb = 'joseph';
   mary.sp = 'Joseph';
   WOMEN.push(mary);
+
+  // Luke's maternal chain (Nathan → … → Heli) spans 39 generations where
+  // Matthew's royal line covers the same era in 25, so at uniform row
+  // spacing Heli would land far below Mary and her lineage link would run
+  // UP the tree. update() tightens this chain's rows so Heli stands one
+  // row above Joseph and the line descends into Mary like any other link.
+  var MT_CHAIN = (function() {
+    var byIdP = {};
+    PEOPLE.forEach(function(p) { byIdP[p.id] = p; });
+    var chain = [];
+    var cur = byIdP['heli'];
+    while (cur && cur.id !== 'nathan_d') { chain.unshift(cur.id); cur = byIdP[cur.par]; }
+    return chain;
+  }());
 
   // Persistent wrappers so positions survive between updates (search zooms
   // to them). Women are always leaves; `slot` spaces co-wives (Sarah/Hagar,
@@ -853,6 +928,20 @@
     // generation, offset to the right; co-wives take successive slots.
     var byId = {};
     nodes.forEach(function(d) { byId[d.data.id] = d; });
+
+    // Compress the maternal chain's rows (see MT_CHAIN above): spread its
+    // 39 generations evenly between Nathan's row and the row above Joseph,
+    // so Heli ends up beside Jacob (Joseph's father) and Mary's lineage
+    // flows downward into her.
+    var nathanN = byId['nathan_d'];
+    var josephN = byId['joseph'];
+    if (nathanN && josephN && MT_CHAIN.length) {
+      var mtStep = (josephN.y - 95 - nathanN.y) / MT_CHAIN.length;
+      MT_CHAIN.forEach(function(id, i) {
+        if (byId[id]) { byId[id].y = nathanN.y + mtStep * (i + 1); }
+      });
+    }
+
     var wives = [];
     if (showW) {
       WNODES.forEach(function(wn) {
@@ -866,6 +955,29 @@
       });
     }
     nodes = nodes.concat(wives);
+
+    // Maternal lineage: Luke runs Jesus' bloodline through Mary — David →
+    // Nathan → … → Heli, her father (Luke 3:23-31). Whenever Heli and Mary
+    // are both on screen, join them so her descent can be traced.
+    var mt = [];
+    if (showW) {
+      var heliN = byId['heli'];
+      var maryN = null;
+      wives.forEach(function(wn) { if (wn.data.id === 'mary_m') { maryN = wn; } });
+      if (heliN && maryN) {
+        mt.push({ sx: heliN.x, sy: heliN.y, tx: maryN.x, ty: maryN.y });
+      }
+    }
+    var mtSel = g.selectAll('path.mt-link').data(mt);
+    var mtEnter = mtSel.enter().insert('path', 'g')
+      .attr('class', 'mt-link')
+      .attr('d', 'M' + sx + ',' + sy + ' L' + sx + ',' + sy);
+    mtSel.merge(mtEnter).transition().duration(DUR).ease(EASE)
+      .attr('d', function(d) {
+        var my = (d.sy + d.ty) / 2;
+        return 'M' + d.sx + ',' + d.sy + ' C' + d.sx + ',' + my + ' ' + d.tx + ',' + my + ' ' + d.tx + ',' + d.ty;
+      });
+    mtSel.exit().transition().duration(DUR).ease(EASE).style('opacity', 0).remove();
 
     var sp = g.selectAll('path.sp-link').data(wives, function(d) { return d.id; });
     var spEnter = sp.enter().insert('path', 'g')
