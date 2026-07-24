@@ -1,4 +1,4 @@
-const CACHE_NAME = 'prayer-app-v29';
+const CACHE_NAME = 'prayer-app-v30';
 // Stable, version-independent cache for user-downloaded offline devotions
 // (Settings -> "Download Next 3 Days"). Kept across deploys by the activate
 // handler below, so a CACHE_NAME bump doesn't wipe what the user saved.
@@ -100,7 +100,28 @@ self.addEventListener('fetch', (event) => {
       return;
     }
 
-    // For same-origin assets (CSS, JS, images): cache-first. Serve the cached
+    // Same-origin dynamic GET endpoints (/get_reminders, /firebase_config,
+    // /api/..., etc.) must be network-first: cache-first froze them at their
+    // first-ever response, so e.g. the reminders list never showed reminders
+    // added after the list was first cached. The cached copy is only an
+    // offline fallback, same as the navigation strategy above.
+    if (!url.pathname.startsWith('/static/')) {
+      event.respondWith(
+          fetch(event.request)
+              .then((response) => {
+                if (response && response.ok && response.type === 'basic') {
+                  const copy = response.clone();
+                  event.waitUntil(
+                      caches.open(CACHE_NAME).then((cache) =>
+                          cache.put(event.request, copy)));
+                }
+                return response;
+              })
+              .catch(() => caches.match(event.request)));
+      return;
+    }
+
+    // For static assets (CSS, JS, images): cache-first. Serve the cached
     // copy instantly when present (no network at all); otherwise fetch once and
     // cache it for next time / offline. We deliberately do NOT revalidate in
     // the background: doing so fired a network request for every asset on every
