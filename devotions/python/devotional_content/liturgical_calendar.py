@@ -1,8 +1,9 @@
-"""Functions for generating the Liturgical Calendar page."""
+"""Functions for generating the Liturgical Calendar and Church Year Wheel pages."""
 
 import calendar
 import datetime
 import json
+import re
 from functools import lru_cache
 
 import flask
@@ -215,6 +216,149 @@ def _load_liturgical_year_data():
     return json.load(f)
 
 
+def _day_info(day):
+  """Computes the liturgical info for a single date.
+
+  Shared by the month-grid calendar and the church year wheel so feast
+  matching, priority rules, and color selection stay identical between the
+  two views.
+  """
+  day_cy = liturgy.get_church_year(day.year)
+  key = day_cy.get_liturgical_key(day)
+
+  # Refine key for display if it is a date string
+  display_name = key
+
+  # Suppress ferias and seasonal weekdays
+  if key in SUPPRESS_KEYWORDS or (
+      "Sunday" not in key
+      and (
+          key.startswith("Easter")
+          or key.startswith("Lent")
+          or key.startswith("Advent")
+      )
+  ):
+    display_name = ""
+
+  # Check against liturgical_year.json
+  liturgical_year_data = _load_liturgical_year_data()
+  matched_items = []
+  for item in liturgical_year_data:
+    match = False
+    if "absolute_date" in item:
+      try:
+        month_str, day_str = item["absolute_date"].split("-")
+        if day.month == int(month_str) and day.day == int(day_str):
+          match = True
+      except ValueError:
+        pass
+    elif "relative_date" in item:
+      # relative_date is relative to Easter of the current day's year
+      target_date = day_cy.easter_date + datetime.timedelta(
+          days=item["relative_date"]
+      )
+      if day == target_date:
+        match = True
+    elif "rule" in item:
+      if _matches_rule(item["rule"], day, day_cy):
+        match = True
+
+    if match:
+      matched_items.append(item)
+
+  json_color = None
+  if matched_items:
+    # Separate into movable and fixed
+    movable = [
+        item for item in matched_items if "absolute_date" not in item
+    ]
+    fixed = [item for item in matched_items if "absolute_date" in item]
+
+    # Priority Handling for Movable Feasts
+
+    # 1. Reformation Day (Observed) trumps other movable feasts on that Sunday (e.g. Trinity #)
+    has_reformation_observed = any(
+        item["Name"] == "Reformation Day (Observed)" for item in movable
+    )
+    if has_reformation_observed:
+      movable = [
+          item
+          for item in movable
+          if item["Name"] == "Reformation Day (Observed)"
+      ]
+
+    # 1b. All Saints' Day (Fixed) overrides movable feasts (like Trinity #) if it falls on Sunday
+    has_all_saints = any(
+        item["Name"] == "All Saints' Day" for item in fixed
+    )
+    if has_all_saints:
+      # Clear movable feasts (like Trinity 23) if All Saints is present
+      movable = []
+
+    # 1c. Advent trumps Trinity
+    has_advent = any("Advent" in item["Name"] for item in movable)
+    if has_advent:
+      movable = [item for item in movable if "Trinity" not in item["Name"]]
+
+    # 2. Remove Epiphany # if a higher priority movable feast exists (Septuagesima, Sexagesima, Quinquagesima, Transfiguration, Lent)
+    has_priority_feast = any(
+        "Septuagesima" in item["Name"]
+        or "Sexagesima" in item["Name"]
+        or "Quinquagesima" in item["Name"]
+        or "Transfiguration" in item["Name"]
+        or "Lent" in item["Name"]
+        or "Ash Wednesday" in item["Name"]
+        for item in movable
+    )
+
+    if has_priority_feast:
+      movable = [
+          item
+          for item in movable
+          if "Epiphany" not in item["Name"]
+          or "The Baptism of Our Lord" in item["Name"]
+          or "Epiphany of Our Lord" in item["Name"]
+      ]
+
+    # Display Name: Movable first, then Fixed
+    names = [item["Name"] for item in movable] + [
+        item["Name"] for item in fixed
+    ]
+    display_name = " / ".join(names)
+
+    # Color: Movable takes precedence
+    if movable:
+      # If multiple movable, use the one that survived filtering (e.g. Septuagesima over Epiphany)
+      # We just pick the first one's color for now, assuming conflict resolution leaves consistent colors or correct priority is first.
+      # Ideally, we should pick color of priority feast if multiple remain.
+      # Since we filtered out the lower priority ones, using movable[0] is generally safe.
+      if "color" in movable[0]:
+        json_color = movable[0]["color"]
+    elif fixed:
+      if "color" in fixed[0]:
+        json_color = fixed[0]["color"]
+
+  # Use display_name for color if available (e.g. "Reformation Day"),
+  # otherwise fallback to key (e.g. "Ash Thursday" which has
+  # display_name="")
+  color_key = display_name if display_name else key
+  if json_color:
+    color = json_color
+  else:
+    color = get_liturgical_color(color_key, day, day_cy)
+  season = get_season_name(key, day, day_cy)
+
+  return {
+      "day": day.day,
+      "date_obj": day,
+      "key": display_name,
+      "full_name": display_name if display_name else key,
+      "color": color.lower(),
+      "color_name": color,
+      "season": season,
+  }
+
+
 @lru_cache(maxsize=24)
 def _generate_calendar_grid(year, month):
   """Builds the month grid (cached; treat as read-only).
@@ -225,150 +369,13 @@ def _generate_calendar_grid(year, month):
   """
   cal = calendar.Calendar(firstweekday=6)  # Sunday first
   month_days = cal.monthdatescalendar(year, month)
-  liturgical_year_data = _load_liturgical_year_data()
 
   calendar_rows = []
-
   for week in month_days:
     week_data = []
     for day in week:
       # Note: day might be from prev/next month
-      day_cy = liturgy.get_church_year(day.year)
-      key = day_cy.get_liturgical_key(day)
-
-      # Refine key for display if it is a date string
-      display_name = key
-
-      # Suppress ferias and seasonal weekdays
-      if key in SUPPRESS_KEYWORDS or (
-          "Sunday" not in key
-          and (
-              key.startswith("Easter")
-              or key.startswith("Lent")
-              or key.startswith("Advent")
-          )
-      ):
-        display_name = ""
-
-      # Check against liturgical_year.json
-      matched_items = []
-      for item in liturgical_year_data:
-        match = False
-        if "absolute_date" in item:
-          try:
-            month_str, day_str = item["absolute_date"].split("-")
-            if day.month == int(month_str) and day.day == int(day_str):
-              match = True
-          except ValueError:
-            pass
-        elif "relative_date" in item:
-          # relative_date is relative to Easter of the current day's year
-          target_date = day_cy.easter_date + datetime.timedelta(
-              days=item["relative_date"]
-          )
-          if day == target_date:
-            match = True
-        elif "rule" in item:
-          if _matches_rule(item["rule"], day, day_cy):
-            match = True
-
-        if match:
-          matched_items.append(item)
-
-      json_color = None
-      if matched_items:
-        # Separate into movable and fixed
-        movable = [
-            item for item in matched_items if "absolute_date" not in item
-        ]
-        fixed = [item for item in matched_items if "absolute_date" in item]
-
-        # Priority Handling for Movable Feasts
-
-        # 1. Reformation Day (Observed) trumps other movable feasts on that Sunday (e.g. Trinity #)
-        has_reformation_observed = any(
-            item["Name"] == "Reformation Day (Observed)" for item in movable
-        )
-        if has_reformation_observed:
-          movable = [
-              item
-              for item in movable
-              if item["Name"] == "Reformation Day (Observed)"
-          ]
-
-        # 1b. All Saints' Day (Fixed) overrides movable feasts (like Trinity #) if it falls on Sunday
-        has_all_saints = any(
-            item["Name"] == "All Saints' Day" for item in fixed
-        )
-        if has_all_saints:
-          # Clear movable feasts (like Trinity 23) if All Saints is present
-          movable = []
-
-        # 1c. Advent trumps Trinity
-        has_advent = any("Advent" in item["Name"] for item in movable)
-        if has_advent:
-          movable = [item for item in movable if "Trinity" not in item["Name"]]
-
-        # 2. Remove Epiphany # if a higher priority movable feast exists (Septuagesima, Sexagesima, Quinquagesima, Transfiguration, Lent)
-        has_priority_feast = any(
-            "Septuagesima" in item["Name"]
-            or "Sexagesima" in item["Name"]
-            or "Quinquagesima" in item["Name"]
-            or "Transfiguration" in item["Name"]
-            or "Lent" in item["Name"]
-            or "Ash Wednesday" in item["Name"]
-            for item in movable
-        )
-
-        if has_priority_feast:
-          movable = [
-              item
-              for item in movable
-              if "Epiphany" not in item["Name"]
-              or "The Baptism of Our Lord" in item["Name"]
-              or "Epiphany of Our Lord" in item["Name"]
-          ]
-
-        # Display Name: Movable first, then Fixed
-        names = [item["Name"] for item in movable] + [
-            item["Name"] for item in fixed
-        ]
-        display_name = " / ".join(names)
-
-        # Color: Movable takes precedence
-        if movable:
-          # If multiple movable, use the one that survived filtering (e.g. Septuagesima over Epiphany)
-          # We just pick the first one's color for now, assuming conflict resolution leaves consistent colors or correct priority is first.
-          # Ideally, we should pick color of priority feast if multiple remain.
-          # Since we filtered out the lower priority ones, using movable[0] is generally safe.
-          if "color" in movable[0]:
-            json_color = movable[0]["color"]
-        elif fixed:
-          if "color" in fixed[0]:
-            json_color = fixed[0]["color"]
-
-      # Use display_name for color if available (e.g. "Reformation Day"),
-      # otherwise fallback to key (e.g. "Ash Thursday" which has
-      # display_name="")
-      color_key = display_name if display_name else key
-      if json_color:
-        color = json_color
-      else:
-        color = get_liturgical_color(color_key, day, day_cy)
-      season = get_season_name(key, day, day_cy)
-
-      is_current_month = day.month == month
-
-      week_data.append({
-          "day": day.day,
-          "date_obj": day,
-          "key": display_name,
-          "full_name": display_name if display_name else key,
-          "color": color.lower(),
-          "color_name": color,
-          "season": season,
-          "is_current_month": is_current_month,
-      })
+      week_data.append({**_day_info(day), "is_current_month": day.month == month})
     calendar_rows.append(week_data)
 
   return calendar_rows
@@ -421,3 +428,92 @@ def generate_liturgical_calendar_page():
   }
 
   return flask.render_template("liturgical_calendar.html", **template_data)
+
+
+# Numbered Sundays ("Trinity 12", "Epiphany 3", ...) get small ticks on the
+# wheel rather than feast markers and are left out of the festival list.
+_NUMBERED_SUNDAY_RE = re.compile(r"^(Advent|Epiphany|Lent|Easter|Trinity) \d+$")
+
+
+@lru_cache(maxsize=8)
+def _build_wheel_data(start_year):
+  """Builds per-day data for one church year (cached; treat as read-only).
+
+  The church year runs from Advent 1 of start_year to the eve of Advent 1 of
+  start_year + 1 (364 or 371 days; day 0 is always a Sunday). Each day gets
+  the same feast/color resolution as the month calendar plus the broad season
+  from liturgy.get_church_season, so the wheel's rings agree with the grid.
+  """
+  advent1 = liturgy.get_church_year(start_year).calculate_advent1(start_year)
+  end = liturgy.get_church_year(start_year + 1).calculate_advent1(
+      start_year + 1
+  )
+
+  days = []
+  majors = []
+  day = advent1
+  index = 0
+  while day < end:
+    info = _day_info(day)
+    # Outside the movable season an unnamed day's key is the fixed-date
+    # string ("17 Jun"); treat that as "no name" (the month grid does the
+    # same suppression in its template).
+    date_key = day.strftime("%d %b")
+    name = info["key"] if info["key"] != date_key else ""
+    detail = info["full_name"] if info["full_name"] != date_key else ""
+    days.append({
+        "d": day.isoformat(),
+        "n": name,
+        "k": detail if not name else "",
+        "c": info["color_name"],
+        "s": liturgy.get_church_season(day),
+    })
+    if name and not _NUMBERED_SUNDAY_RE.match(name):
+      majors.append({
+          "i": index,
+          "n": name,
+          "c": info["color_name"],
+          "date": f"{calendar.month_abbr[day.month]} {day.day}, {day.year}",
+      })
+    day += datetime.timedelta(days=1)
+    index += 1
+
+  return {"start_year": start_year, "days": days, "majors": majors}
+
+
+def generate_church_year_wheel_page():
+  """Generates HTML for the interactive Church Year Wheel page."""
+  today = datetime.datetime.now(utils.EASTERN_TZ).date()
+
+  # The church year containing today: it starts this calendar year if we are
+  # already past Advent 1, otherwise it started last year.
+  today_advent1 = liturgy.get_church_year(today.year).calculate_advent1(
+      today.year
+  )
+  current_start_year = today.year if today >= today_advent1 else today.year - 1
+
+  try:
+    start_year = int(flask.request.args.get("start_year", current_start_year))
+  except ValueError:
+    start_year = current_start_year
+  # Gregorian calendar range; also keeps the lru_cache from being churned by
+  # nonsense values.
+  start_year = max(1583, min(start_year, 9000))
+
+  wheel = _build_wheel_data(start_year)
+
+  advent1 = datetime.date.fromisoformat(wheel["days"][0]["d"])
+  today_index = (today - advent1).days
+  if not 0 <= today_index < len(wheel["days"]):
+    today_index = -1
+
+  return flask.render_template(
+      "church_year_wheel.html",
+      wheel=wheel,
+      majors=wheel["majors"],
+      today_index=today_index,
+      start_year=start_year,
+      prev_start_year=start_year - 1,
+      next_start_year=start_year + 1,
+      is_current_year=start_year == current_start_year,
+  )

@@ -1,0 +1,707 @@
+{% extends "base.html" %}
+{% block title %}Bible History Timeline{% endblock %}
+{% block meta_description %}An interactive timeline of Bible history from Abraham to the apostles: patriarchs, kings of Israel and Judah, the prophets who preached to them, and the great events of salvation history.{% endblock %}
+
+{% block head %}
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+  main.container { max-width: 100%; padding: 0; }
+  main.container > .footer { max-width: 800px; margin: 0 auto; padding: 20px; }
+  .page-header { margin: 20px 20px 0; }
+
+  .tl-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 22px;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border-bottom: 1px solid var(--color-border);
+    box-shadow: 0 4px 20px -6px rgba(101,52,47,0.1);
+    position: sticky;
+    top: 60px;
+    z-index: 50;
+  }
+  body.dark-mode .tl-controls { background: rgba(42,38,34,0.85); }
+  .tl-btn {
+    padding: 7px 14px;
+    border: 1px solid var(--color-border);
+    border-radius: 22px;
+    background: var(--color-card-bg);
+    color: var(--color-muted);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.76em;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    cursor: pointer;
+    white-space: nowrap;
+    margin: 0;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    transition: all 0.22s cubic-bezier(.34,1.56,.64,1);
+  }
+  @media (hover: hover) {
+    .tl-btn:hover {
+      border-color: var(--color-accent-dark);
+      color: var(--color-accent-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px -2px rgba(138,110,69,0.3);
+    }
+  }
+  .tl-btn:focus-visible { border-radius: 22px; }
+  .tl-btn-group { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tl-era-group { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tl-era-group .tl-btn { text-transform: none; letter-spacing: 0.2px; }
+
+  .tl-legend {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.76em;
+    color: var(--color-muted);
+    margin-left: auto;
+    flex-wrap: wrap;
+  }
+  .tl-leg-swatch {
+    display: inline-block;
+    width: 11px;
+    height: 11px;
+    border-radius: 3px;
+    margin-right: 5px;
+    vertical-align: middle;
+  }
+
+  .tl-viewport {
+    position: relative;
+    width: 100%;
+    height: clamp(430px, 72vh, 640px);
+    overflow: hidden;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(175,145,100,0.10), transparent 60%),
+      var(--color-bg);
+    cursor: grab;
+  }
+  .tl-viewport:active { cursor: grabbing; }
+  #tl-svg { width: 100%; height: 100%; display: block; }
+
+  /* ---- Bars & markers (fills via CSS so dark mode just works) ---- */
+  .tl-bar { stroke: rgba(0,0,0,0.25); stroke-width: 0.6; cursor: pointer; }
+  .tl-bar.cls-leader  { fill: #7d6f5e; }
+  .tl-bar.cls-good    { fill: #27ae60; }
+  .tl-bar.cls-mixed   { fill: #d4913a; }
+  .tl-bar.cls-bad     { fill: #c0392b; }
+  .tl-bar.cls-prophet { fill: #8e44ad; }
+  .tl-bar.cls-apostle { fill: #7a453e; }
+  .tl-bar.cls-christ  { fill: #af9164; stroke: #65342f; stroke-width: 1.2; }
+  body.dark-mode .tl-bar { stroke: rgba(0,0,0,0.5); }
+
+  .tl-bar-label {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    fill: #fff;
+    pointer-events: none;
+  }
+  .tl-bar-label.outside { fill: var(--color-text); font-weight: 600; }
+
+  .tl-event { fill: #2c3e50; stroke: var(--color-bg); stroke-width: 1; cursor: pointer; }
+  body.dark-mode .tl-event { fill: #d5dde5; }
+  .tl-event-label {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 10.5px;
+    fill: var(--color-muted);
+    pointer-events: none;
+  }
+  .tl-event-label.anchor { font-weight: 700; fill: var(--color-text); font-size: 11px; }
+
+  .tl-era { cursor: pointer; }
+  .tl-era.shade-a { fill: rgba(175,145,100,0.07); }
+  .tl-era.shade-b { fill: rgba(101,52,47,0.06); }
+  body.dark-mode .tl-era.shade-a { fill: rgba(175,145,100,0.10); }
+  body.dark-mode .tl-era.shade-b { fill: rgba(255,255,255,0.045); }
+  .tl-era-label {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    fill: var(--color-accent-dark);
+    pointer-events: none;
+  }
+  .tl-era-line { stroke: var(--color-border); stroke-width: 1; }
+
+  .tl-lane-label {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    fill: var(--text-faint);
+  }
+  .tl-axis text { font-family: 'Montserrat', sans-serif; font-size: 11px; fill: var(--color-muted); }
+  .tl-axis line, .tl-axis path { stroke: var(--color-border); }
+  .tl-grid { stroke: var(--color-border); stroke-opacity: 0.55; stroke-width: 0.7; }
+
+  .tl-highlight { filter: drop-shadow(0 0 7px #c0392b); }
+
+  /* ---- Search ---- */
+  .tl-search-wrap { position: relative; min-width: 150px; max-width: 240px; flex: 1; }
+  .tl-search-wrap svg {
+    position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+    pointer-events: none; color: var(--text-faint);
+  }
+  #tl-search {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 7px 12px 7px 32px;
+    border: 1px solid var(--color-border);
+    border-radius: 20px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.83em;
+    background: var(--color-bg);
+    color: var(--color-text);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  #tl-search:focus { border-color: var(--color-accent); box-shadow: 0 0 0 3px var(--focus-ring); }
+
+  /* ---- Detail tip ---- */
+  .tl-tip {
+    position: absolute;
+    z-index: 60;
+    max-width: 330px;
+    background: var(--color-card-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    box-shadow: var(--shadow-pop);
+    padding: 14px 16px;
+    font-size: 0.92em;
+    line-height: 1.5;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.18s, transform 0.18s;
+    transform: translateY(6px);
+  }
+  .tl-tip.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
+  .tl-tip h3 { margin: 0 0 2px; font-size: 1.08em; color: var(--color-text); }
+  .tl-tip .tip-dates {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.82em;
+    font-weight: 700;
+    color: var(--color-accent-dark);
+    letter-spacing: 0.3px;
+  }
+  .tl-tip .tip-badge {
+    display: inline-block;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.7em;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: #fff;
+    border-radius: 10px;
+    padding: 2px 9px;
+    margin: 4px 0 6px;
+  }
+  .tl-tip .tip-ref { font-style: italic; color: var(--color-muted); font-size: 0.88em; }
+  .tl-tip p { margin: 6px 0 0; color: var(--color-text); }
+  .tip-close {
+    display: none;
+    position: absolute;
+    top: 6px; right: 10px;
+    border: none; background: none;
+    font-size: 1.3em; color: var(--text-faint);
+    cursor: pointer; padding: 4px; margin: 0;
+  }
+  @media (max-width: 640px) {
+    .tl-tip {
+      left: 10px !important;
+      right: 10px;
+      top: auto !important;
+      bottom: 10px;
+      max-width: none;
+      max-height: 45vh;
+      max-height: 45dvh;
+      overflow-y: auto;
+      position: fixed;
+      padding-bottom: env(safe-area-inset-bottom, 15px);
+    }
+    .tip-close { display: block; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Bible History Timeline</h1>
+  <p>Salvation history from Abraham to the apostles. Drag to pan and scroll or pinch to
+  zoom; tap any bar or diamond to read about that person or event. After the kingdom
+  divides in 931&nbsp;BC the royal line splits into two tracks &mdash; Judah in the south
+  and Israel in the north &mdash; with the prophets beneath, lined up under the kings they
+  preached to. Overlapping royal bars are coregencies, where a son ruled alongside his
+  father. Dates before the monarchy follow the traditional reckoning from
+  1&nbsp;Kings 6:1 and are approximate.</p>
+</div>
+
+<div class="tl-controls no-print">
+  <div class="tl-search-wrap">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <input type="text" id="tl-search" placeholder="Search (e.g. Hezekiah, Isaiah)..." autocomplete="off">
+  </div>
+  <div class="tl-btn-group">
+    <button class="tl-btn" id="tl-zi" type="button" title="Zoom in">+ Zoom</button>
+    <button class="tl-btn" id="tl-zo" type="button" title="Zoom out">&minus; Zoom</button>
+    <button class="tl-btn" id="tl-rst" type="button" title="Fit the whole timeline">Fit All</button>
+  </div>
+  <div class="tl-era-group" id="tl-era-jumps"></div>
+  <div class="tl-legend">
+    <span><span class="tl-leg-swatch" style="background:#7d6f5e;"></span>Leaders</span>
+    <span><span class="tl-leg-swatch" style="background:#27ae60;"></span>Faithful king</span>
+    <span><span class="tl-leg-swatch" style="background:#d4913a;"></span>Mixed</span>
+    <span><span class="tl-leg-swatch" style="background:#c0392b;"></span>Evil king</span>
+    <span><span class="tl-leg-swatch" style="background:#8e44ad;"></span>Prophets</span>
+    <span><span class="tl-leg-swatch" style="background:#7a453e;"></span>Apostles</span>
+  </div>
+</div>
+
+<div class="tl-viewport" id="tl-viewport">
+  <svg id="tl-svg"></svg>
+  <div class="tl-tip" id="tl-tip"></div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+(function() {
+
+  /* Years: BC negative, AD positive (no year zero worries; display-only). */
+
+  var ERAS = [
+    {id:"patriarchs", n:"The Patriarchs",        from:-2100, to:-1876, ref:"Gen 12-50", desc:"God calls Abram out of Ur and makes a covenant with him: land, offspring, and blessing for all the families of the earth. The promise passes to Isaac, then Jacob, whose twelve sons become the tribes of Israel."},
+    {id:"egypt",      n:"Israel in Egypt",       from:-1876, to:-1446, ref:"Gen 46-Exod 12", desc:"Jacob's family goes down to Egypt seventy strong and grows into a nation. A pharaoh who did not know Joseph enslaves them, and Israel groans for four hundred years until God remembers His covenant."},
+    {id:"exodus",     n:"Exodus & Wilderness",   from:-1446, to:-1406, ref:"Exod-Deut", desc:"The LORD brings Israel out with a mighty hand: ten plagues, the Passover, the Red Sea. At Sinai He gives the Law and the tabernacle. A faithless generation wanders forty years while God sustains them."},
+    {id:"judges",     n:"Conquest & Judges",     from:-1406, to:-1050, ref:"Josh-1 Sam 8", desc:"Joshua leads Israel across the Jordan into Canaan. After his death the people repeatedly forsake the LORD; He gives them into their enemies' hands, they cry out, and He raises up judges to deliver them."},
+    {id:"united",     n:"United Kingdom",        from:-1050, to:-931,  ref:"1 Sam 9-1 Kgs 11", desc:"Israel demands a king. Saul is rejected for disobedience; David, a man after God's own heart, receives the promise of an everlasting throne; Solomon builds the temple but his heart is turned away."},
+    {id:"divided",    n:"Divided Kingdom",       from:-931,  to:-722,  ref:"1 Kgs 12-2 Kgs 17", desc:"Ten tribes break away under Jeroboam, who sets up golden calves. Every northern king does evil; Judah wavers between reform and idolatry. Elijah, Elisha, Amos, Hosea, and Isaiah call both kingdoms to repent."},
+    {id:"judah",      n:"Judah Alone",           from:-722,  to:-586,  ref:"2 Kgs 18-25", desc:"Assyria carries the northern tribes away in 722 BC. Judah survives — Hezekiah and Josiah bring reform, Manasseh fills Jerusalem with blood — but the nation will not turn, and Babylon rises in the east."},
+    {id:"exile",      n:"Babylonian Exile",      from:-586,  to:-538,  ref:"2 Kgs 25; Dan; Ezek", desc:"Jerusalem falls and the temple burns. By the waters of Babylon the exiles weep, yet God is with them: Daniel serves in the king's court and Ezekiel sees the glory of the LORD among the captives."},
+    {id:"return",     n:"Return & Restoration",  from:-538,  to:-430,  ref:"Ezra; Neh; Hag; Zech; Mal", desc:"Cyrus of Persia decrees that the exiles may go home. The temple is rebuilt by 516 BC, Ezra restores the Law, and Nehemiah rebuilds the walls. The prophets point ahead to a coming Messenger."},
+    {id:"between",    n:"Between the Testaments", from:-430, to:-5,    ref:"(Dan 8; 11)", desc:"Four silent centuries foreseen by Daniel: Persia falls to Alexander the Great, Greek rulers profane the temple, the Maccabees win a fragile independence, and Rome finally takes Jerusalem in 63 BC."},
+    {id:"christ",     n:"Life of Christ",        from:-5,    to:30,    ref:"Matt; Mark; Luke; John", desc:"In the fullness of time God sends His Son. Jesus of Nazareth — conceived by the Holy Spirit, born of the Virgin Mary — preaches the kingdom, dies for the sin of the world, and rises on the third day."},
+    {id:"apostolic",  n:"Apostolic Age",         from:30,    to:100,   ref:"Acts; Epistles; Rev", desc:"The risen Lord pours out His Spirit at Pentecost. The Word runs from Jerusalem to Judea, Samaria, and the ends of the earth; Paul plants churches across the empire; John closes the canon on Patmos."}
+  ];
+
+  /* Lanes: leaders (patriarchs -> united kings -> Judah -> governors -> Christ),
+     north (kings of Israel), prophets (+ apostles). */
+  var PEOPLE = [
+    /* -- Patriarchs & leaders (lifespans) -- */
+    {lane:"lead", cls:"leader", n:"Abraham",  from:-2166, to:-1991, ref:"Gen 12-25", desc:"Called at 75 to leave Ur for a land God would show him. Believed the LORD, and it was counted to him as righteousness. Father of Isaac in his old age; offered him on Moriah, where God provided the ram."},
+    {lane:"lead", cls:"leader", n:"Isaac",    from:-2066, to:-1886, ref:"Gen 21-35", desc:"The child of promise, born when Sarah was ninety. Carried the covenant line; blessed Jacob, through whom the promise passed on."},
+    {lane:"lead", cls:"leader", n:"Jacob",    from:-2006, to:-1859, ref:"Gen 25-50", desc:"Renamed Israel after wrestling with God at Peniel. His twelve sons became the twelve tribes; he went down to Egypt in the famine and blessed Judah with the scepter promise (Gen 49:10)."},
+    {lane:"lead", cls:"leader", n:"Joseph",   from:-1915, to:-1805, ref:"Gen 37-50", desc:"Sold by his brothers, raised to rule Egypt at thirty. 'You meant evil against me, but God meant it for good, to keep many people alive' (Gen 50:20)."},
+    {lane:"lead", cls:"leader", n:"Moses",    from:-1526, to:-1406, ref:"Exod-Deut", desc:"Drawn from the Nile, called at the burning bush at eighty. Led Israel out of Egypt, received the Law at Sinai, and interceded for the people forty years. Died on Nebo within sight of the land."},
+    {lane:"lead", cls:"leader", n:"Joshua",   from:-1406, to:-1380, ref:"Joshua", desc:"Moses' aide and one of the two faithful spies. Led Israel across the Jordan, took Jericho, and divided the land. 'As for me and my house, we will serve the LORD' (Josh 24:15). Dates shown are his leadership."},
+    {lane:"lead", cls:"leader", n:"Deborah",  from:-1215, to:-1175, approx:1, ref:"Judg 4-5", desc:"Prophetess and judge who held court under her palm between Ramah and Bethel. With Barak she delivered Israel from Sisera and the Canaanites; the land had rest forty years. Dates approximate."},
+    {lane:"lead", cls:"leader", n:"Gideon",   from:-1180, to:-1140, approx:1, ref:"Judg 6-8", desc:"Called 'mighty man of valor' while threshing wheat in hiding. With three hundred men, trumpets, and torches the LORD routed Midian, that Israel might not boast. Dates approximate."},
+    {lane:"lead", cls:"leader", n:"Samson",   from:-1075, to:-1055, approx:1, ref:"Judg 13-16", desc:"Nazirite judge of the tribe of Dan, strongest of men and weakest before Delilah. In his death at Dagon's temple he struck Philistia harder than in his life. Dates approximate."},
+    {lane:"lead", cls:"leader", n:"Eli",      from:-1100, to:-1060, approx:1, ref:"1 Sam 1-4", desc:"Priest and judge at Shiloh who raised Samuel. His worthless sons treated the LORD's offering with contempt; the ark was captured and the glory departed. Dates approximate."},
+
+    /* -- United kingdom -- */
+    {lane:"lead", cls:"mixed", n:"Saul",    from:-1050, to:-1010, ref:"1 Sam 9-31", desc:"Israel's first king, head and shoulders above the people. Began humbly but spared Agag and offered unlawful sacrifice; 'to obey is better than sacrifice' (1 Sam 15:22). Fell on Gilboa with his sons."},
+    {lane:"lead", cls:"good",  n:"David",   from:-1010, to:-970,  ref:"1 Sam 16-1 Kgs 2", desc:"Shepherd, psalmist, giant-slayer, king. God promised his house an everlasting throne (2 Sam 7). He sinned gravely with Bathsheba and repented deeply (Ps 51). Ancestor and type of Christ."},
+    {lane:"lead", cls:"mixed", n:"Solomon", from:-970,  to:-931,  ref:"1 Kgs 1-11", desc:"Asked for wisdom and received riches and honor besides. Built the temple in seven years and prayed its great dedication prayer — yet seven hundred wives turned his heart after other gods."},
+
+    /* -- Kings of Judah (south) -- */
+    {lane:"lead", cls:"bad",   n:"Rehoboam",   from:-931, to:-913, ref:"1 Kgs 12-14", desc:"Solomon's son. Answered Israel's plea for relief with threats, and ten tribes tore away. Judah filled with high places; Shishak of Egypt plundered the temple."},
+    {lane:"lead", cls:"bad",   n:"Abijah",     from:-913, to:-911, ref:"1 Kgs 15:1-8", desc:"Walked in his father's sins; yet for David's sake the LORD kept a lamp burning in Jerusalem."},
+    {lane:"lead", cls:"good",  n:"Asa",        from:-911, to:-870, ref:"1 Kgs 15:9-24", desc:"Removed the idols and deposed the queen mother for her Asherah image. His heart was wholly true all his days, though late in life he relied on Syria and imprisoned the seer who rebuked him."},
+    {lane:"lead", cls:"good",  n:"Jehoshaphat", from:-872, to:-848, ref:"1 Kgs 22; 2 Chr 17-20", desc:"Sent teachers of the Law through Judah's cities. Faced a vast horde with singers before the army: 'the battle is not yours but God's' (2 Chr 20:15). His flaw: alliance with Ahab's house."},
+    {lane:"lead", cls:"bad",   n:"Jehoram",    from:-848, to:-841, ref:"2 Kgs 8:16-24", desc:"Married Ahab's daughter Athaliah and slew his own brothers. Walked in the ways of the kings of Israel; departed with no one's regret (2 Chr 21:20)."},
+    {lane:"lead", cls:"bad",   n:"Ahaziah (S)", from:-841, to:-840, ref:"2 Kgs 8:25-29", desc:"Reigned one year, counseled by his mother Athaliah. Killed by Jehu while visiting the wounded king of Israel."},
+    {lane:"lead", cls:"bad",   n:"Athaliah",   from:-841, to:-835, ref:"2 Kgs 11", desc:"Ahab's daughter. Seized the throne by murdering the royal seed — but Joash was hidden in the temple six years. The only reigning queen of Judah, and nearly the end of David's line."},
+    {lane:"lead", cls:"mixed", n:"Joash",      from:-835, to:-796, ref:"2 Kgs 11-12", desc:"Rescued at one year old and crowned at seven. Repaired the temple while Jehoiada the priest lived — then listened to princes, served idols, and stoned Jehoiada's son Zechariah in the temple court."},
+    {lane:"lead", cls:"mixed", n:"Amaziah",    from:-796, to:-767, ref:"2 Kgs 14", desc:"Did right, yet not with a whole heart. Defeated Edom, then brought home Edom's gods and worshiped them; provoked Israel to war and lost."},
+    {lane:"lead", cls:"good",  n:"Uzziah",     from:-792, to:-740, ref:"2 Kgs 15:1-7; 2 Chr 26", desc:"Fifty-two prosperous years; 'as long as he sought the LORD, God made him prosper.' Grew proud, burned incense in the temple himself, and was struck with leprosy. Isaiah's call came the year he died (Isa 6:1)."},
+    {lane:"lead", cls:"good",  n:"Jotham",     from:-750, to:-735, ref:"2 Kgs 15:32-38", desc:"Ordered his ways before the LORD and built the upper gate of the temple; but the people still acted corruptly."},
+    {lane:"lead", cls:"bad",   n:"Ahaz",       from:-735, to:-715, ref:"2 Kgs 16; Isa 7", desc:"Burned his son as an offering and shut the temple doors. Refused to ask a sign, so the LORD gave one anyway: 'Behold, the virgin shall conceive and bear a son, Immanuel' (Isa 7:14)."},
+    {lane:"lead", cls:"good",  n:"Hezekiah",   from:-715, to:-686, ref:"2 Kgs 18-20; Isa 36-39", desc:"Removed the high places and trusted the LORD as none before him. When Sennacherib besieged Jerusalem he spread the letter before the LORD, and the angel struck the Assyrian camp. Granted fifteen more years."},
+    {lane:"lead", cls:"mixed", n:"Manasseh",   from:-697, to:-643, ref:"2 Kgs 21; 2 Chr 33", desc:"Judah's longest-reigning and most idolatrous king; filled Jerusalem with innocent blood. Taken with hooks to Babylon, he humbled himself greatly — and God heard him. A late, real repentance."},
+    {lane:"lead", cls:"bad",   n:"Amon",       from:-643, to:-641, ref:"2 Kgs 21:19-26", desc:"Repeated his father's sins without his father's repentance. Killed by his own servants after two years."},
+    {lane:"lead", cls:"good",  n:"Josiah",     from:-641, to:-609, ref:"2 Kgs 22-23", desc:"Crowned at eight. The Book of the Law was found in the temple in his day and he tore his robes, renewed the covenant, and purged the land. Died at Megiddo opposing Pharaoh Neco."},
+    {lane:"lead", cls:"bad",   n:"Jehoiakim",  from:-609, to:-598, ref:"2 Kgs 23:34-24:7; Jer 36", desc:"Installed by Egypt, taxed the land, and burned Jeremiah's scroll column by column in his winter brazier. Babylon came in his days."},
+    {lane:"lead", cls:"bad",   n:"Jehoiachin", from:-598, to:-597, ref:"2 Kgs 24:8-17", desc:"Reigned three months before surrendering to Nebuchadnezzar; carried to Babylon with the treasures and the craftsmen. Later lifted from prison to eat at the king's table — a flicker of hope for David's line."},
+    {lane:"lead", cls:"bad",   n:"Zedekiah",   from:-597, to:-586, ref:"2 Kgs 24:18-25:7; Jer 38", desc:"Babylon's puppet who rebelled anyway, against Jeremiah's pleading. Saw his sons slain, was blinded, and went to Babylon in chains as Jerusalem burned."},
+
+    /* -- Return, restoration, and after -- */
+    {lane:"lead", cls:"leader", n:"Zerubbabel", from:-538, to:-516, ref:"Ezra 1-6; Hag 2", desc:"Governor of Judah and grandson of King Jehoiachin, of David's line. Led the first return and laid the temple foundation; Haggai promised him: 'I will make you like a signet ring' (Hag 2:23)."},
+    {lane:"lead", cls:"leader", n:"Ezra",       from:-458, to:-440, ref:"Ezra 7-10; Neh 8", desc:"Priest and scribe 'skilled in the Law of Moses.' Set his heart to study, do, and teach it. Read the Law aloud at the Water Gate while the people wept and then rejoiced."},
+    {lane:"lead", cls:"leader", n:"Nehemiah",   from:-445, to:-433, ref:"Nehemiah", desc:"Cupbearer to Artaxerxes who wept over Jerusalem's ruins. Rebuilt the walls in fifty-two days with a trowel in one hand and a sword in the other, then reformed Sabbath, tithe, and marriage."},
+    {lane:"lead", cls:"leader", n:"The Maccabees", from:-167, to:-63, ref:"(Dan 11:32; John 10:22)", desc:"Priestly family who revolted when Antiochus IV desecrated the temple. Rededicated it in 164 BC — the origin of the Feast of Dedication Jesus attended (John 10:22) — and ruled until Rome came."},
+    {lane:"lead", cls:"bad",    n:"Herod the Great", from:-37, to:-4, ref:"Matt 2", desc:"Rome's client 'king of the Jews.' Rebuilt the temple in magnificence and murdered his own sons for the throne. Troubled by the Magi's question, he slaughtered the infants of Bethlehem."},
+    {lane:"lead", cls:"christ", n:"JESUS CHRIST", from:-4, to:30, ref:"Matt; Mark; Luke; John", desc:"The Word made flesh. Son of David, son of Abraham, Son of God — born in Bethlehem, baptized in the Jordan, crucified under Pontius Pilate, risen on the third day. Every era of this timeline leads here, and every promise finds its Yes in Him (2 Cor 1:20)."},
+
+    /* -- Kings of Israel (north) -- */
+    {lane:"north", cls:"bad", n:"Jeroboam I",  from:-931, to:-910, ref:"1 Kgs 12-14", desc:"Made king of the ten tribes, then made two golden calves — 'behold your gods, O Israel' — so the people need not go up to Jerusalem. Every northern king after him is measured by 'the sins of Jeroboam.'"},
+    {lane:"north", cls:"bad", n:"Nadab",       from:-910, to:-909, ref:"1 Kgs 15:25-31", desc:"Jeroboam's son; assassinated by Baasha, who wiped out the whole house as Ahijah had prophesied."},
+    {lane:"north", cls:"bad", n:"Baasha",      from:-909, to:-886, ref:"1 Kgs 15:33-16:7", desc:"Destroyed Jeroboam's house and then walked in Jeroboam's ways; his own house received the same sentence."},
+    {lane:"north", cls:"bad", n:"Elah",        from:-886, to:-885, ref:"1 Kgs 16:8-14", desc:"Drinking himself drunk in his steward's house when Zimri struck him down."},
+    {lane:"north", cls:"bad", n:"Zimri",       from:-885, to:-885, ref:"1 Kgs 16:15-20", desc:"Reigned seven days. Burned the palace over his own head when the army turned against him."},
+    {lane:"north", cls:"bad", n:"Omri",        from:-885, to:-874, ref:"1 Kgs 16:21-28", desc:"Bought the hill of Samaria and built his capital there. Mighty in the eyes of the nations, worse than all before him in the eyes of the LORD."},
+    {lane:"north", cls:"bad", n:"Ahab",        from:-874, to:-853, ref:"1 Kgs 16-22", desc:"Married Jezebel, built Baal's temple in Samaria, and seized Naboth's vineyard. Opposed at every turn by Elijah. Died at Ramoth-gilead from a bow drawn at random."},
+    {lane:"north", cls:"bad", n:"Ahaziah (N)", from:-853, to:-852, ref:"2 Kgs 1", desc:"Fell through his roof lattice and sent to Baal-zebub of Ekron — 'is it because there is no God in Israel?' Elijah announced his death."},
+    {lane:"north", cls:"bad", n:"Joram",       from:-852, to:-841, ref:"2 Kgs 3-9", desc:"Ahab's second son. Put away Baal's pillar yet clung to the golden calves. Shot through the heart by Jehu in Naboth's field."},
+    {lane:"north", cls:"mixed", n:"Jehu",      from:-841, to:-814, ref:"2 Kgs 9-10", desc:"Anointed to destroy Ahab's house; drove furiously and did it thoroughly, wiping Baal from Israel — yet kept the golden calves. Zealous for the LORD, but not with a whole heart."},
+    {lane:"north", cls:"bad", n:"Jehoahaz",    from:-814, to:-798, ref:"2 Kgs 13:1-9", desc:"Under his reign Syria ground Israel down to fifty horsemen. He sought the LORD's favor, and God gave a deliverer — yet the calves remained."},
+    {lane:"north", cls:"bad", n:"Jehoash",     from:-798, to:-782, ref:"2 Kgs 13:10-25", desc:"Wept over dying Elisha — 'my father, the chariots of Israel!' — and struck the ground three times when he should have struck five or six."},
+    {lane:"north", cls:"bad", n:"Jeroboam II", from:-793, to:-753, ref:"2 Kgs 14:23-29", desc:"Restored Israel's borders in a long golden age of wealth — and hollow worship. Amos and Hosea preached against the luxury and the calves; Jonah prophesied his victories."},
+    {lane:"north", cls:"bad", n:"Zechariah (N)", from:-753, to:-752, ref:"2 Kgs 15:8-12", desc:"Reigned six months; his murder ended Jehu's dynasty in the fourth generation, as the LORD had said."},
+    {lane:"north", cls:"bad", n:"Menahem",     from:-752, to:-742, ref:"2 Kgs 15:14-22", desc:"Seized the throne with shocking cruelty and bought off Assyria with a thousand talents of silver — the shadow of the empire falls across Israel."},
+    {lane:"north", cls:"bad", n:"Pekahiah",    from:-742, to:-740, ref:"2 Kgs 15:23-26", desc:"Assassinated in his own citadel by his captain Pekah."},
+    {lane:"north", cls:"bad", n:"Pekah",       from:-740, to:-732, ref:"2 Kgs 15:27-31; Isa 7", desc:"Allied with Syria against Judah, provoking Ahaz to call Assyria. Tiglath-pileser stripped Galilee and carried its people away — the first deportation."},
+    {lane:"north", cls:"bad", n:"Hoshea",      from:-732, to:-722, ref:"2 Kgs 17", desc:"Israel's last king. His intrigue with Egypt brought Shalmaneser's siege; Samaria fell after three years and Israel went into Assyrian exile 'because they did not obey the voice of the LORD.'"},
+
+    /* -- Prophets -- */
+    {lane:"proph", cls:"prophet", n:"Samuel",    from:-1075, to:-1017, ref:"1 Samuel", desc:"Asked of the LORD and lent to Him for life. Last judge and first of the prophets after Moses; anointed both Saul and David. 'Speak, LORD, for your servant hears' (1 Sam 3:9)."},
+    {lane:"proph", cls:"prophet", n:"Nathan",    from:-1010, to:-970,  ref:"2 Sam 7; 12", desc:"Court prophet to David. Delivered the everlasting-throne covenant, then the parable of the ewe lamb: 'You are the man!' David's repentance (Ps 51) followed his word."},
+    {lane:"proph", cls:"prophet", n:"Elijah",    from:-870, to:-845, ref:"1 Kgs 17-2 Kgs 2", desc:"The Tishbite who shut heaven for three and a half years, called down fire on Carmel, and heard the low whisper at Horeb. Taken to heaven in a whirlwind; appears with Moses at the Transfiguration."},
+    {lane:"proph", cls:"prophet", n:"Elisha",    from:-845, to:-795, ref:"2 Kgs 2-13", desc:"Received a double portion of Elijah's spirit. Healed Jericho's water and Naaman's leprosy, multiplied the widow's oil, raised the Shunammite's son — a ministry rich in mercy toward Israel."},
+    {lane:"proph", cls:"prophet", n:"Joel",      from:-835, to:-800, approx:1, ref:"Joel", desc:"Preached from a locust plague to the Day of the LORD: 'rend your hearts and not your garments.' Promised the Spirit poured on all flesh — fulfilled at Pentecost (Acts 2:16-21). Date debated."},
+    {lane:"proph", cls:"prophet", n:"Jonah",     from:-785, to:-760, ref:"Jonah; 2 Kgs 14:25", desc:"Prophet of Israel sent to Nineveh — and famously routed through a great fish. Nineveh repented, to his fury. Jesus gives 'the sign of Jonah': three days and nights, then up from the depths (Matt 12:40)."},
+    {lane:"proph", cls:"prophet", n:"Amos",      from:-760, to:-750, ref:"Amos", desc:"Shepherd and fig-dresser of Tekoa sent north to prosperous Israel. Thundered against luxury built on the crushed poor: 'let justice roll down like waters' (Amos 5:24)."},
+    {lane:"proph", cls:"prophet", n:"Hosea",     from:-755, to:-715, ref:"Hosea", desc:"Commanded to marry the unfaithful Gomer and to keep loving her — a living picture of the LORD's love for adulterous Israel. 'I desire steadfast love and not sacrifice' (Hos 6:6)."},
+    {lane:"proph", cls:"prophet", n:"Isaiah",    from:-740, to:-681, ref:"Isaiah", desc:"Saw the LORD high and lifted up in the year Uzziah died. Prophet of Immanuel (7:14), the child with four names (9:6), and the Suffering Servant wounded for our transgressions (53). The evangelist of the Old Testament."},
+    {lane:"proph", cls:"prophet", n:"Micah",     from:-735, to:-700, ref:"Micah", desc:"Contemporary of Isaiah from the countryside. Named Bethlehem as Messiah's birthplace (5:2) and distilled the life of faith: do justice, love kindness, walk humbly with your God (6:8)."},
+    {lane:"proph", cls:"prophet", n:"Nahum",     from:-660, to:-650, ref:"Nahum", desc:"A century after Jonah, announced that Nineveh's reprieve was over. The city that repented once now falls; 'the LORD is slow to anger and great in power.'"},
+    {lane:"proph", cls:"prophet", n:"Zephaniah", from:-640, to:-625, ref:"Zephaniah", desc:"Great-great-grandson of Hezekiah, preaching in Josiah's days. The Day of the LORD burns near — yet ends in singing: 'he will quiet you by his love' (Zeph 3:17)."},
+    {lane:"proph", cls:"prophet", n:"Jeremiah",  from:-627, to:-580, ref:"Jeremiah; Lamentations", desc:"Called as a youth to pluck up and to plant; wept forty years over a doomed city he could not save. Burned scroll, muddy cistern, iron yoke — and the promise of a new covenant written on hearts (Jer 31:31-34)."},
+    {lane:"proph", cls:"prophet", n:"Habakkuk",  from:-609, to:-598, ref:"Habakkuk", desc:"Dared to question God: why do the wicked prosper? Told to wait and watch: 'the righteous shall live by his faith' (Hab 2:4) — the seed of the Reformation's central text (Rom 1:17)."},
+    {lane:"proph", cls:"prophet", n:"Daniel",    from:-605, to:-536, ref:"Daniel", desc:"Taken in the first deportation; served four kings of two empires without compromise. Interpreted the statue dream, read the writing on the wall, prayed on through the lions' den, and saw the Son of Man receive an everlasting kingdom (Dan 7:13-14)."},
+    {lane:"proph", cls:"prophet", n:"Ezekiel",   from:-593, to:-571, ref:"Ezekiel", desc:"Priest among the exiles by the Chebar canal. Saw the glory of the LORD on wheels — departing the temple, and returning. Preached to a valley of dry bones: 'I will put my Spirit within you, and you shall live' (Ezek 37:14)."},
+    {lane:"proph", cls:"prophet", n:"Obadiah",   from:-586, to:-583, approx:1, ref:"Obadiah", desc:"The shortest Old Testament book: judgment on Edom for gloating over Jerusalem's fall. 'As you have done, it shall be done to you.' Date debated."},
+    {lane:"proph", cls:"prophet", n:"Haggai",    from:-520, to:-518, ref:"Haggai", desc:"Roused the returned exiles from their paneled houses to rebuild the LORD's. 'The latter glory of this house shall be greater than the former' — for the Desire of nations would enter it."},
+    {lane:"proph", cls:"prophet", n:"Zechariah", from:-520, to:-510, ref:"Zechariah", desc:"Night visions of lampstands, horsemen, and the Branch. Foretold the king coming humble on a donkey (9:9), the thirty pieces of silver (11:12), and the fountain opened for sin (13:1)."},
+    {lane:"proph", cls:"prophet", n:"Malachi",   from:-435, to:-415, ref:"Malachi", desc:"The Old Testament's last word: a dialogue of God with a weary people. Promises the messenger who prepares the way and the sun of righteousness with healing in its wings — then four centuries of waiting."},
+    {lane:"proph", cls:"prophet", n:"John the Baptist", from:26, to:29, ref:"Matt 3; John 1", desc:"The voice crying in the wilderness, Elijah who was to come. Baptized the Lord in the Jordan and pointed his own disciples away from himself: 'Behold, the Lamb of God, who takes away the sin of the world' (John 1:29)."},
+    {lane:"proph", cls:"apostle", n:"Peter",     from:30, to:67, ref:"Acts 1-12; 1-2 Peter", desc:"Fisherman, confessor, denier, restored shepherd. Preached at Pentecost, opened the door to the Gentiles at Cornelius's house, and according to early testimony was martyred in Rome under Nero."},
+    {lane:"proph", cls:"apostle", n:"Paul",      from:35, to:67, ref:"Acts 9-28; Epistles", desc:"Persecutor turned apostle on the Damascus road. Three missionary journeys, thirteen epistles, prisons and shipwrecks: 'I have fought the good fight, I have finished the race, I have kept the faith' (2 Tim 4:7)."},
+    {lane:"proph", cls:"apostle", n:"John",      from:30, to:100, ref:"John; 1-3 John; Rev", desc:"The disciple whom Jesus loved. Cared for Mary, shepherded the churches of Asia from Ephesus, and from exile on Patmos saw the Lamb standing as though it had been slain, and the new Jerusalem."}
+  ];
+
+  var EVENTS = [
+    {n:"Call of Abram",              yr:-2091, ref:"Gen 12:1-3", desc:"'Go from your country... and in you all the families of the earth shall be blessed.' The gospel preached beforehand to Abraham (Gal 3:8)."},
+    {n:"Jacob's family enters Egypt", yr:-1876, ref:"Gen 46", desc:"Seventy persons go down to Goshen in the famine, where Israel grows from a family into a nation."},
+    {n:"The Exodus",                 yr:-1446, anchor:1, ref:"Exod 12-14", desc:"Passover night: the blood of the lamb on the doorposts, the sea parted, Egypt's army drowned. Israel's founding act of redemption — and the great type of Christ our Passover (1 Cor 5:7)."},
+    {n:"Crossing the Jordan",        yr:-1406, ref:"Josh 3-4", desc:"The waters stand in a heap and Israel enters the land promised to Abraham 685 years before. Twelve stones from the riverbed testify: 'the hand of the LORD is mighty.'"},
+    {n:"Saul anointed king",         yr:-1050, ref:"1 Sam 10", desc:"Israel asks for a king 'like all the nations.' Samuel warns them what kings take, then anoints Saul at the LORD's word."},
+    {n:"Temple begun",               yr:-966,  ref:"1 Kgs 6:1", desc:"Solomon breaks ground 480 years after the Exodus — the verse from which the traditional early dates on this timeline are reckoned."},
+    {n:"The kingdom divides",        yr:-931,  anchor:1, ref:"1 Kgs 12", desc:"'What portion do we have in David?' Ten tribes follow Jeroboam north; Judah and Benjamin remain with Rehoboam. Two kingdoms, two royal tracks — one promise."},
+    {n:"Fall of Samaria",            yr:-722,  ref:"2 Kgs 17", desc:"Assyria takes the northern capital after a three-year siege and scatters the ten tribes among the nations. The calf-shrines of Jeroboam end in exile."},
+    {n:"Sennacherib besieges Jerusalem", yr:-701, ref:"2 Kgs 18-19", desc:"The Assyrian field commander taunts the living God. Hezekiah prays; that night the angel of the LORD strikes the camp, and the empire withdraws."},
+    {n:"The Book of the Law found",  yr:-622,  ref:"2 Kgs 22", desc:"Workmen repairing the temple find the lost Book. Young Josiah hears it, tears his robes, and leads Judah's last great reformation."},
+    {n:"First deportation; Daniel taken", yr:-605, ref:"Dan 1", desc:"Nebuchadnezzar carries off Jerusalem's finest youths — among them Daniel — and the temple vessels. The seventy years of Babylon begin."},
+    {n:"Jerusalem falls; temple burned", yr:-586, anchor:1, ref:"2 Kgs 25", desc:"After an eighteen-month siege the walls are breached, the temple burned, and Judah exiled. 'By the waters of Babylon, there we sat down and wept' (Ps 137:1)."},
+    {n:"Cyrus's decree; first return", yr:-538, ref:"Ezra 1", desc:"Persia swallows Babylon in a night, and Cyrus — named by Isaiah long before (Isa 44:28) — sends the exiles home to build the LORD a house."},
+    {n:"Second temple completed",    yr:-516,  ref:"Ezra 6", desc:"Finished seventy years after the first temple burned, with Haggai and Zechariah preaching the builders on. The old men weep, remembering the former glory."},
+    {n:"Nehemiah rebuilds the walls", yr:-445, ref:"Neh 6:15", desc:"Fifty-two days of building with sword in hand. 'This work had been accomplished with the help of our God' — even the enemies knew it."},
+    {n:"Alexander conquers Persia",  yr:-332,  ref:"(Dan 8:5-8)", desc:"The he-goat from the west that does not touch the ground: Greece sweeps away Persia, and Greek language and culture prepare the roads the gospel will one day travel."},
+    {n:"Temple desecrated & rededicated", yr:-167, ref:"(Dan 11:31; John 10:22)", desc:"Antiochus IV sacrifices swine on the altar; the Maccabees revolt and cleanse the temple in 164 BC. The Feast of Dedication — Hanukkah — remembers it."},
+    {n:"Rome takes Jerusalem",       yr:-63,   ref:"", desc:"Pompey marches into the temple's Most Holy Place. Judea becomes a Roman client state; Caesar's census decrees will one day move a family to Bethlehem."},
+    {n:"Birth of Jesus",             yr:-4,    anchor:1, ref:"Luke 2; Matt 1-2", desc:"Born in Bethlehem, the city of David, in the days of Herod and the census of Caesar Augustus. 'Unto you is born this day a Savior, who is Christ the Lord.'"},
+    {n:"Jesus' ministry begins",     yr:26,    ref:"Luke 3", desc:"Baptized by John, anointed by the Spirit, announced by the Father: 'You are my beloved Son.' About three years of preaching, healing, and gathering disciples follow."},
+    {n:"Crucifixion & Resurrection", yr:30,    anchor:1, ref:"Matt 27-28", desc:"'It is finished.' Crucified under Pontius Pilate, dead, and buried — and on the first day of the week, risen indeed. The hinge of history and of this whole timeline."},
+    {n:"Pentecost",                  yr:30,    ref:"Acts 2", desc:"Fifty days after the Resurrection the Spirit comes with wind and fire. Peter preaches Joel and the Psalms; three thousand are baptized; the church is born."},
+    {n:"Conversion of Paul",         yr:35,    ref:"Acts 9", desc:"The persecutor blinded by light on the Damascus road: 'Saul, Saul, why are you persecuting me?' The Lord's chosen instrument to carry His name to the Gentiles."},
+    {n:"Council of Jerusalem",       yr:49,    ref:"Acts 15", desc:"The apostles and elders confirm that Gentiles are saved by grace through faith, not by the works of the Law — 'we believe that we will be saved through the grace of the Lord Jesus.'"},
+    {n:"Jerusalem destroyed by Rome", yr:70,   ref:"(Luke 21:20-24)", desc:"Titus razes city and temple, as Jesus had wept and foretold. Sacrifice at the temple ends; the church, warned, had fled to Pella."},
+    {n:"John's Revelation",          yr:95,    ref:"Rev 1", desc:"Exiled on Patmos 'on account of the word of God,' John sees the risen Lord among the lampstands and writes to the seven churches: 'Behold, I am coming soon.'"}
+  ];
+
+  /* ---------- Layout ---------- */
+
+  var vp = document.getElementById('tl-viewport');
+  var W = vp.clientWidth, H = vp.clientHeight;
+  var svg = d3.select('#tl-svg').attr('width', W).attr('height', H);
+
+  var Y0 = -2150, Y1 = 130;           /* year domain, BC negative */
+  var AXIS_H = 30, ERA_H = 26, EVENT_H = 58;
+  var BAR_H = 17, BAR_GAP = 4, LANE_PAD = 14;
+
+  /* Greedy interval packing: assign each item a row within its lane. */
+  function pack(items) {
+    var rows = [];
+    items.slice().sort(function(a, b) { return a.from - b.from; }).forEach(function(it) {
+      for (var r = 0; ; r++) {
+        if (rows[r] === undefined || rows[r] <= it.from) {
+          it.row = r;
+          rows[r] = it.to;
+          break;
+        }
+      }
+    });
+    return rows.length;
+  }
+
+  var LANES = [
+    { id: 'lead',  label: 'PATRIARCHS · KINGS OF JUDAH' },
+    { id: 'north', label: 'KINGS OF ISRAEL (NORTH)' },
+    { id: 'proph', label: 'PROPHETS & APOSTLES' }
+  ];
+  LANES.forEach(function(l) {
+    l.items = PEOPLE.filter(function(p) { return p.lane === l.id; });
+    l.rows = pack(l.items);
+  });
+
+  var y = ERA_H + EVENT_H;
+  LANES.forEach(function(l) {
+    l.y0 = y;
+    y += l.rows * (BAR_H + BAR_GAP) + LANE_PAD;
+  });
+  var CONTENT_H = y + AXIS_H;
+  /* If the viewport is taller than needed, stretch lanes' padding a little. */
+  var yScaleFactor = Math.max(1, Math.min(1.35, (H - AXIS_H - ERA_H - EVENT_H) /
+      (CONTENT_H - AXIS_H - ERA_H - EVENT_H)));
+  LANES.forEach(function(l) {
+    l.y0 = ERA_H + EVENT_H + (l.y0 - ERA_H - EVENT_H) * yScaleFactor;
+  });
+
+  var x0 = d3.scaleLinear().domain([Y0, Y1]).range([0, W]);
+  var gMain = svg.append('g');
+
+  function fmtYear(yr) {
+    yr = Math.round(yr);
+    if (yr < 0) { return (-yr) + ' BC'; }
+    if (yr === 0) { return 'AD 1'; }
+    return 'AD ' + yr;
+  }
+  function fmtRange(a, b, approx) {
+    var s = fmtYear(a) + ' – ' + fmtYear(b);
+    return approx ? 'c. ' + s : s;
+  }
+
+  /* ---------- Detail tip ---------- */
+  var tip = document.getElementById('tl-tip');
+  var BADGE = {
+    leader: ['Leader', '#7d6f5e'], good: ['Faithful king', '#27ae60'],
+    mixed: ['Mixed reign', '#d4913a'], bad: ['Evil king', '#c0392b'],
+    prophet: ['Prophet', '#8e44ad'], apostle: ['Apostle', '#7a453e'],
+    christ: ['The Messiah', '#af9164'], event: ['Event', '#2c3e50'],
+    era: ['Era', '#65342f']
+  };
+  function showTip(d, kind, clientX, clientY) {
+    var badge = BADGE[kind === 'event' ? 'event' : (kind === 'era' ? 'era' : d.cls)] || BADGE.event;
+    var dates = kind === 'event' ? (d.approx ? 'c. ' : '') + fmtYear(d.yr)
+                                 : fmtRange(d.from, d.to, d.approx);
+    tip.innerHTML = '';
+    var close = document.createElement('button');
+    close.className = 'tip-close'; close.type = 'button';
+    close.innerHTML = '&times;';
+    close.addEventListener('click', hideTip);
+    var h = document.createElement('h3'); h.textContent = d.n;
+    var dl = document.createElement('div'); dl.className = 'tip-dates'; dl.textContent = dates;
+    var bd = document.createElement('div'); bd.className = 'tip-badge';
+    bd.textContent = badge[0]; bd.style.background = badge[1];
+    tip.appendChild(close); tip.appendChild(h); tip.appendChild(dl); tip.appendChild(bd);
+    if (d.ref) {
+      var rf = document.createElement('div'); rf.className = 'tip-ref'; rf.textContent = d.ref;
+      tip.appendChild(rf);
+    }
+    if (d.desc) {
+      var p = document.createElement('p'); p.textContent = d.desc;
+      tip.appendChild(p);
+    }
+    tip.classList.add('show');
+    if (window.matchMedia('(max-width: 640px)').matches) { return; }
+    var vpBox = vp.getBoundingClientRect();
+    var px = clientX - vpBox.left + 14, py = clientY - vpBox.top + 10;
+    tip.style.visibility = 'hidden';
+    tip.style.left = '0px'; tip.style.top = '0px';
+    var tw = tip.offsetWidth, th = tip.offsetHeight;
+    if (px + tw > vpBox.width - 8) { px = Math.max(8, clientX - vpBox.left - tw - 14); }
+    if (py + th > vpBox.height - 8) { py = Math.max(8, vpBox.height - th - 10); }
+    tip.style.left = px + 'px';
+    tip.style.top = py + 'px';
+    tip.style.visibility = '';
+  }
+  function hideTip() { tip.classList.remove('show'); }
+  vp.addEventListener('pointerdown', function(ev) {
+    if (!tip.contains(ev.target) && ev.target.tagName !== 'rect' &&
+        ev.target.tagName !== 'path' && ev.target.tagName !== 'circle') { hideTip(); }
+  });
+
+  /* ---------- Render (fully redrawn on zoom; a few hundred nodes) ---------- */
+  var curX = x0;
+
+  function estWidth(text, fs) { return text.length * fs * 0.62 + 8; }
+
+  function render() {
+    var x = curX;
+    gMain.selectAll('*').remove();
+
+    /* Century gridlines */
+    var ticks = x.ticks(Math.max(4, Math.floor(W / 110)));
+    ticks.forEach(function(t) {
+      gMain.append('line').attr('class', 'tl-grid')
+        .attr('x1', x(t)).attr('x2', x(t))
+        .attr('y1', ERA_H).attr('y2', H - AXIS_H);
+    });
+
+    /* Eras */
+    ERAS.forEach(function(e, i) {
+      var xa = x(e.from), xb = x(e.to);
+      if (xb < 0 || xa > W) { return; }
+      gMain.append('rect')
+        .attr('class', 'tl-era ' + (i % 2 ? 'shade-b' : 'shade-a'))
+        .attr('x', xa).attr('y', 0)
+        .attr('width', xb - xa).attr('height', H - AXIS_H)
+        .on('click', function(ev) { showTip(e, 'era', ev.clientX, ev.clientY); ev.stopPropagation(); });
+      gMain.append('line').attr('class', 'tl-era-line')
+        .attr('x1', xa).attr('x2', xa).attr('y1', 0).attr('y2', H - AXIS_H);
+      var label = e.n.toUpperCase();
+      if (xb - xa > estWidth(label, 11)) {
+        gMain.append('text').attr('class', 'tl-era-label')
+          .attr('x', (Math.max(0, xa) + Math.min(W, xb)) / 2)
+          .attr('y', 17).attr('text-anchor', 'middle')
+          .text(label);
+      }
+    });
+
+    /* Events */
+    var lastLabelEnd = [-1e9, -1e9];
+    EVENTS.forEach(function(e, i) {
+      var ex = x(e.yr);
+      if (ex < -80 || ex > W + 80) { return; }
+      var row = i % 2;
+      var ey = ERA_H + 16 + row * 22;
+      gMain.append('path')
+        .attr('class', 'tl-event')
+        .attr('d', 'M' + ex + ',' + (ey - 6) + ' L' + (ex + 5.5) + ',' + ey +
+                   ' L' + ex + ',' + (ey + 6) + ' L' + (ex - 5.5) + ',' + ey + ' Z')
+        .on('click', function(ev) { showTip(e, 'event', ev.clientX, ev.clientY); ev.stopPropagation(); })
+        .append('title').text(e.n + ' (' + fmtYear(e.yr) + ')');
+      var lw = estWidth(e.n, e.anchor ? 11 : 10.5);
+      if (ex - 4 > lastLabelEnd[row] || e.anchor) {
+        gMain.append('text')
+          .attr('class', 'tl-event-label' + (e.anchor ? ' anchor' : ''))
+          .attr('x', ex + 8).attr('y', ey + 3.5)
+          .text(e.n);
+        lastLabelEnd[row] = ex + 8 + lw;
+      }
+    });
+
+    /* Lanes */
+    LANES.forEach(function(l) {
+      gMain.append('text').attr('class', 'tl-lane-label')
+        .attr('x', 8).attr('y', l.y0 - 3)
+        .text(l.label);
+      l.items.forEach(function(p) {
+        var xa = x(p.from), xb = x(p.to);
+        if (xb < 0 || xa > W) { return; }
+        var by = l.y0 + p.row * (BAR_H + BAR_GAP) * yScaleFactor;
+        var bw = Math.max(2.5, xb - xa);
+        p._node = gMain.append('rect')
+          .attr('class', 'tl-bar cls-' + p.cls + (p._hl ? ' tl-highlight' : ''))
+          .attr('x', xa).attr('y', by)
+          .attr('width', bw).attr('height', BAR_H)
+          .attr('rx', 4)
+          .on('click', function(ev) { showTip(p, 'bar', ev.clientX, ev.clientY); ev.stopPropagation(); })
+          .node();
+        d3.select(p._node).append('title')
+          .text(p.n + ' (' + fmtRange(p.from, p.to, p.approx) + ')');
+        var lw = estWidth(p.n, 11);
+        if (bw > lw) {
+          gMain.append('text').attr('class', 'tl-bar-label')
+            .attr('x', xa + bw / 2).attr('y', by + BAR_H - 4.5)
+            .attr('text-anchor', 'middle')
+            .text(p.n);
+        } else if (bw > 26 && x((p.from + p.to) / 2) > 0 && x((p.from + p.to) / 2) < W) {
+          /* no room inside; skip the label, title + tap still work */
+        }
+      });
+    });
+
+    /* Axis */
+    var axis = d3.axisBottom(x)
+      .ticks(Math.max(4, Math.floor(W / 110)))
+      .tickFormat(fmtYear);
+    gMain.append('g')
+      .attr('class', 'tl-axis')
+      .attr('transform', 'translate(0,' + (H - AXIS_H) + ')')
+      .call(axis);
+  }
+
+  /* ---------- Zoom / pan (x only) ---------- */
+  var zoomBeh = d3.zoom()
+    .scaleExtent([1, 60])
+    .translateExtent([[0, 0], [W, H]])
+    .on('zoom', function(ev) {
+      curX = ev.transform.rescaleX(x0);
+      hideTip();
+      render();
+    });
+  svg.call(zoomBeh).on('dblclick.zoom', null);
+
+  function zoomToYears(a, b) {
+    var k = Math.min(60, W / (x0(b) - x0(a)));
+    var t = d3.zoomIdentity.scale(k).translate(-x0(a), 0);
+    svg.transition().duration(650).call(zoomBeh.transform, t);
+  }
+
+  document.getElementById('tl-zi').addEventListener('click', function() {
+    svg.transition().duration(300).call(zoomBeh.scaleBy, 1.6);
+  });
+  document.getElementById('tl-zo').addEventListener('click', function() {
+    svg.transition().duration(300).call(zoomBeh.scaleBy, 1 / 1.6);
+  });
+  document.getElementById('tl-rst').addEventListener('click', function() {
+    svg.transition().duration(500).call(zoomBeh.transform, d3.zoomIdentity);
+  });
+
+  /* Era quick-jump buttons */
+  var jumps = document.getElementById('tl-era-jumps');
+  [['Patriarchs', -2150, -1850], ['Exodus', -1500, -1380], ['Kingdom', -1070, -910],
+   ['Divided', -950, -700], ['Exile & Return', -620, -400], ['Christ', -20, 110]]
+    .forEach(function(j) {
+      var b = document.createElement('button');
+      b.className = 'tl-btn'; b.type = 'button'; b.textContent = j[0];
+      b.addEventListener('click', function() { zoomToYears(j[1], j[2]); });
+      jumps.appendChild(b);
+    });
+
+  /* ---------- Search ---------- */
+  var searchBox = document.getElementById('tl-search');
+  searchBox.addEventListener('input', function() {
+    var q = searchBox.value.trim().toLowerCase();
+    PEOPLE.forEach(function(p) { p._hl = false; });
+    var first = null;
+    if (q.length >= 2) {
+      PEOPLE.forEach(function(p) {
+        if (p.n.toLowerCase().indexOf(q) >= 0 ||
+            (p.ref && p.ref.toLowerCase().indexOf(q) >= 0)) {
+          p._hl = true;
+          if (!first) { first = p; }
+        }
+      });
+    }
+    render();
+    if (first) {
+      var mid = (first.from + first.to) / 2, half = Math.max(60, (first.to - first.from));
+      zoomToYears(mid - half * 2, mid + half * 2);
+    }
+  });
+
+  window.addEventListener('resize', function() {
+    W = vp.clientWidth;
+    H = vp.clientHeight;
+    svg.attr('width', W).attr('height', H);
+    x0.range([0, W]);
+    zoomBeh.translateExtent([[0, 0], [W, H]]);
+    render();
+  });
+
+  render();
+}());
+{% endblock %}

@@ -1,0 +1,546 @@
+{% extends "base.html" %}
+{% block title %}Church Year Wheel{% endblock %}
+{% block meta_description %}An interactive wheel of the liturgical year: every season, color, and feast day of the church year at a glance, from Advent to Advent.{% endblock %}
+
+{% block head %}
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+  .wheel-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin: 0 auto 6px;
+    max-width: 720px;
+  }
+  .wheel-year-label {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 1.02em;
+    color: var(--color-text);
+    letter-spacing: 0.4px;
+    padding: 0 6px;
+  }
+  .wheel-btn {
+    display: inline-block;
+    padding: 7px 14px;
+    border: 1px solid var(--color-border);
+    border-radius: 22px;
+    background: var(--color-card-bg);
+    color: var(--color-muted);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.76em;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    transition: all 0.22s cubic-bezier(.34,1.56,.64,1);
+  }
+  @media (hover: hover) {
+    .wheel-btn:hover {
+      border-color: var(--color-accent-dark);
+      color: var(--color-accent-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px -2px rgba(138,110,69,0.3);
+    }
+  }
+  .wheel-btn-today {
+    background: linear-gradient(135deg, #7a453e, var(--color-primary-dark));
+    border-color: var(--color-primary-dark);
+    color: white;
+  }
+  @media (hover: hover) {
+    .wheel-btn-today:hover { color: white; }
+  }
+  .wheel-btn:focus-visible { border-radius: 22px; }
+
+  .wheel-wrap {
+    position: relative;
+    max-width: 720px;
+    margin: 0 auto;
+    container-type: inline-size;
+    outline: none;
+  }
+  .wheel-wrap:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 4px;
+    border-radius: 50%;
+  }
+  #wheel-svg { width: 100%; height: auto; display: block; }
+
+  /* ---- Liturgical color fills (light + dark) ---- */
+  .lit-white  { fill: #fdfaf1; }
+  .lit-violet { fill: #8e44ad; }
+  .lit-rose   { fill: #ff99b5; }
+  .lit-red    { fill: #c0392b; }
+  .lit-green  { fill: #27ae60; }
+  .lit-black  { fill: #2c3e50; }
+  .lit-blue   { fill: #3498db; }
+  body.dark-mode .lit-white { fill: #e8e2d2; }
+  body.dark-mode .lit-black { fill: #1c2833; }
+
+  .day-arc { stroke: var(--color-bg); stroke-width: 0.7; }
+  .day-arc.lit-white { stroke: #cfc7b2; stroke-width: 0.8; }
+  body.dark-mode .day-arc.lit-white { stroke: #6a6252; }
+
+  /* ---- Season ring tints ---- */
+  .season-arc { stroke: none; }
+  .tint-violet { fill: #8e44ad; fill-opacity: 0.15; }
+  .tint-gold   { fill: #af9164; fill-opacity: 0.22; }
+  .tint-green  { fill: #27ae60; fill-opacity: 0.14; }
+  .tint-red    { fill: #c0392b; fill-opacity: 0.16; }
+  .season-arc.tint-alt { fill-opacity: 0.26; }
+  body.dark-mode .season-arc { fill-opacity: 0.30; }
+  body.dark-mode .season-arc.tint-alt { fill-opacity: 0.44; }
+
+  .season-boundary { stroke: var(--color-bg); stroke-width: 2.5; }
+  .lab-path { fill: none; stroke: none; }
+  .season-label {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    fill: var(--color-text);
+    opacity: 0.72;
+  }
+  .month-label {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    fill: var(--text-faint);
+  }
+  .month-tick { stroke: var(--text-faint); stroke-width: 1.2; opacity: 0.55; }
+  .sunday-tick { stroke: var(--text-faint); stroke-width: 1.6; opacity: 0.7; }
+
+  .feast-dot { stroke: var(--color-bg); stroke-width: 1.6; cursor: pointer; }
+  @media (hover: hover) {
+    .feast-dot:hover { stroke: var(--color-accent-dark); stroke-width: 2.4; }
+  }
+
+  .wheel-center-bg { fill: var(--color-card-bg); fill-opacity: 0.55; }
+  .today-line { stroke: var(--color-accent-dark); stroke-width: 3; stroke-linecap: round; }
+  .today-dot  { fill: var(--color-accent); stroke: var(--color-bg); stroke-width: 2; }
+  .sel-arc { fill: none; stroke: var(--color-accent-dark); stroke-width: 3.5; pointer-events: none; }
+  .hit-arc { fill: transparent; cursor: pointer; }
+
+  /* ---- Center readout (HTML overlay) ---- */
+  .wheel-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 46%;
+    text-align: center;
+    pointer-events: none;
+  }
+  .wc-season {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--color-accent-dark);
+    font-size: 12px;
+    font-size: max(10px, 2.6cqi);
+  }
+  .wc-date {
+    color: var(--color-muted);
+    font-size: 13px;
+    font-size: max(11px, 2.9cqi);
+    margin-top: 0.3em;
+  }
+  .wc-name {
+    font-weight: 700;
+    color: var(--color-text);
+    font-size: 17px;
+    font-size: max(14px, 3.9cqi);
+    line-height: 1.25;
+    margin-top: 0.35em;
+  }
+  .wc-color {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    color: var(--color-muted);
+    font-size: 12px;
+    font-size: max(10px, 2.7cqi);
+    margin-top: 0.5em;
+  }
+  .wc-color .liturgical-color-dot { position: static; display: inline-block; }
+  .wc-link {
+    display: inline-block;
+    margin-top: 0.6em;
+    pointer-events: auto;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px;
+    font-size: max(10px, 2.4cqi);
+    color: var(--color-accent-dark);
+  }
+
+  .wheel-legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px 14px;
+    margin: 14px auto 20px;
+    font-size: 0.9em;
+  }
+  .wheel-hint {
+    text-align: center;
+    color: var(--text-faint);
+    font-size: 0.85em;
+    margin: 0 auto 10px;
+    max-width: 720px;
+  }
+
+  .wheel-majors ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2px 18px;
+  }
+  .major-item {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    width: 100%;
+    padding: 6px 8px;
+    margin: 0;
+    border: none;
+    border-radius: 6px;
+    background: none;
+    font: inherit;
+    color: var(--color-text);
+    text-align: left;
+    cursor: pointer;
+  }
+  @media (hover: hover) {
+    .major-item:hover { background: var(--surface-hover); }
+  }
+  .major-item .liturgical-color-dot { position: static; flex: 0 0 auto; display: inline-block; }
+  .major-date {
+    margin-left: auto;
+    color: var(--color-muted);
+    font-size: 0.88em;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>The Church Year</h1>
+  <p>The Church keeps time by the life of Christ. One trip around this wheel is one
+  church year, beginning at the top with the First Sunday in Advent and moving
+  clockwise through Christmas, Epiphany, Lent, Easter, and the long green season
+  after Holy Trinity. The outer band shows the liturgical color of every single day
+  &mdash; tap or hover anywhere on the wheel to read about that day, and tap a dot
+  to jump to a feast.</p>
+</div>
+
+<div class="wheel-controls no-print">
+  <a class="wheel-btn" href="/church_year_wheel?start_year={{ prev_start_year }}" title="Previous church year">&laquo; {{ prev_start_year }}&ndash;{{ prev_start_year + 1 }}</a>
+  <span class="wheel-year-label">Advent {{ start_year }} &ndash; Advent {{ start_year + 1 }}</span>
+  <a class="wheel-btn" href="/church_year_wheel?start_year={{ next_start_year }}" title="Next church year">{{ next_start_year }}&ndash;{{ next_start_year + 1 }} &raquo;</a>
+  <a class="wheel-btn wheel-btn-today" id="btn-today" href="/church_year_wheel">Today</a>
+</div>
+
+<div class="wheel-wrap" id="wheel-wrap" tabindex="0" role="group"
+     aria-label="Church year wheel. Use the arrow keys to move day by day (left and right) or week by week (up and down); press Home for today.">
+  <svg id="wheel-svg" viewBox="0 0 1020 1020" aria-hidden="true"></svg>
+  <div class="wheel-center" id="wheel-center" aria-live="polite">
+    <div class="wc-season" id="wc-season"></div>
+    <div class="wc-date" id="wc-date"></div>
+    <div class="wc-name" id="wc-name"></div>
+    <div class="wc-color" id="wc-color-row"><span class="liturgical-color-dot" id="wc-dot"></span><span id="wc-color"></span></div>
+    <a class="wc-link no-print" id="wc-link" href="/liturgical_calendar">Open month view &rarr;</a>
+  </div>
+</div>
+
+<div class="wheel-legend">
+  <span class="legend-item white"><span class="liturgical-color-dot"></span> White</span>
+  <span class="legend-item violet"><span class="liturgical-color-dot"></span> Violet</span>
+  <span class="legend-item rose"><span class="liturgical-color-dot"></span> Rose</span>
+  <span class="legend-item red"><span class="liturgical-color-dot"></span> Red</span>
+  <span class="legend-item green"><span class="liturgical-color-dot"></span> Green</span>
+  <span class="legend-item black"><span class="liturgical-color-dot"></span> Black</span>
+</div>
+<p class="wheel-hint no-print">Small ticks mark Sundays; dots mark feasts and festivals. The gold pointer marks today.</p>
+
+<div class="card wheel-majors">
+  <h2>Feasts &amp; Festivals, Advent {{ start_year }} &ndash; Advent {{ start_year + 1 }}</h2>
+  <ul>
+    {% for m in majors %}
+    <li><button type="button" class="major-item no-print-button" data-i="{{ m.i }}">
+      <span class="liturgical-color-dot" title="{{ m.c }}"></span>
+      <span>{{ m.n }}</span>
+      <span class="major-date">{{ m.date }}</span>
+    </button></li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+(function() {
+  var WHEEL = {{ wheel | tojson }};
+  var TODAY_INDEX = {{ today_index }};
+  var IS_CURRENT_YEAR = {{ is_current_year | tojson }};
+
+  var DAYS = WHEEL.days;
+  var N = DAYS.length;
+  var TAU = Math.PI * 2;
+
+  var COLOR_CLASS = {
+    White: 'lit-white', Violet: 'lit-violet', Rose: 'lit-rose',
+    Red: 'lit-red', Green: 'lit-green', Black: 'lit-black', Blue: 'lit-blue'
+  };
+  var SEASON_TINT = {
+    'Advent': 'tint-violet', 'Christmas': 'tint-gold', 'Epiphany': 'tint-green',
+    'Pre-Lent': 'tint-green', 'Lent': 'tint-violet', 'Easter': 'tint-gold',
+    'Pentecost': 'tint-red', 'Trinity Season': 'tint-green'
+  };
+  var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  function a0(i) { return i / N * TAU; }          /* start angle of day i */
+  function mid(i) { return (i + 0.5) / N * TAU; } /* center angle of day i */
+  function pt(a, r) { return [Math.sin(a) * r, -Math.cos(a) * r]; }
+
+  var R = {
+    seasonIn: 310, seasonOut: 368, seasonLabel: 330,
+    colorIn: 374, colorOut: 430,
+    tickIn: 434, tickOut: 444,
+    feastA: 448, feastB: 463,
+    monthTickIn: 466, monthTickOut: 476, monthLabel: 483,
+    hitIn: 302, hitOut: 496, centerBg: 300
+  };
+
+  var svg = d3.select('#wheel-svg');
+  var g = svg.append('g').attr('transform', 'translate(510,510)');
+  var arcGen = d3.arc();
+
+  function arcPath(rIn, rOut, s, e) {
+    return arcGen({ innerRadius: rIn, outerRadius: rOut, startAngle: s, endAngle: e });
+  }
+
+  /* Path for curved textPath labels; flipped (reversed) on the bottom half so
+     the text reads upright. */
+  function labelArc(r, s, e, flip) {
+    var p0 = pt(flip ? e : s, r), p1 = pt(flip ? s : e, r);
+    var large = (e - s) > Math.PI ? 1 : 0;
+    var sweep = flip ? 0 : 1;
+    return 'M' + p0[0].toFixed(2) + ',' + p0[1].toFixed(2) +
+           ' A' + r + ',' + r + ' 0 ' + large + ',' + sweep + ' ' +
+           p1[0].toFixed(2) + ',' + p1[1].toFixed(2);
+  }
+
+  function runs(field) {
+    var out = [], s = 0;
+    for (var i = 1; i <= N; i++) {
+      if (i === N || DAYS[i][field] !== DAYS[s][field]) {
+        out.push({ start: s, end: i, val: DAYS[s][field] });
+        s = i;
+      }
+    }
+    return out;
+  }
+
+  g.append('circle').attr('r', R.centerBg).attr('class', 'wheel-center-bg');
+
+  /* ---- Season ring ---- */
+  var seasonRuns = runs('s');
+  seasonRuns.forEach(function(run, idx) {
+    g.append('path')
+      .attr('d', arcPath(R.seasonIn, R.seasonOut, a0(run.start), a0(run.end)))
+      .attr('class', 'season-arc ' + (SEASON_TINT[run.val] || 'tint-green') + (idx % 2 ? ' tint-alt' : ''));
+  });
+
+  /* ---- Color ring: one arc per run of same-colored days ---- */
+  runs('c').forEach(function(run) {
+    g.append('path')
+      .attr('d', arcPath(R.colorIn, R.colorOut, a0(run.start), a0(run.end)))
+      .attr('class', 'day-arc ' + (COLOR_CLASS[run.val] || 'lit-green'));
+  });
+
+  /* Season boundaries + labels (curved along the ring when there is room,
+     radial across the ring for short seasons like Christmas and Pentecost). */
+  seasonRuns.forEach(function(run, idx) {
+    var s = a0(run.start), e = a0(run.end), m = (s + e) / 2;
+    var p0 = pt(s, R.seasonIn), p1 = pt(s, R.colorOut);
+    g.append('line')
+      .attr('x1', p0[0]).attr('y1', p0[1]).attr('x2', p1[0]).attr('y2', p1[1])
+      .attr('class', 'season-boundary');
+
+    var name = run.val.toUpperCase();
+    var arcLen = (e - s) * R.seasonLabel;
+    var fitFont = arcLen / (0.72 * name.length);  /* rough Montserrat width incl. letterspacing */
+    if (fitFont >= 15) {
+      var flip = m > TAU / 4 && m < 3 * TAU / 4;
+      var baseR = flip ? R.seasonLabel + 9 : R.seasonLabel - 9;
+      var id = 'season-lab-' + idx;
+      g.append('path').attr('id', id).attr('class', 'lab-path')
+        .attr('d', labelArc(baseR, s, e, flip));
+      g.append('text').attr('class', 'season-label')
+        .attr('font-size', Math.min(24, fitFont))
+        .append('textPath')
+        .attr('href', '#' + id).attr('xlink:href', '#' + id)
+        .attr('startOffset', '50%').attr('text-anchor', 'middle')
+        .text(name);
+    } else {
+      /* Radial label running along the spoke, reaching into the center hole. */
+      var deg = m * 180 / Math.PI;
+      var rot = deg - 90;
+      var anchor = 'middle';
+      if (deg > 180) { rot += 180; }
+      var c = pt(m, 300);
+      g.append('text').attr('class', 'season-label')
+        .attr('font-size', 16)
+        .attr('transform', 'translate(' + c[0].toFixed(1) + ',' + c[1].toFixed(1) + ') rotate(' + rot.toFixed(1) + ')')
+        .attr('text-anchor', anchor)
+        .attr('dominant-baseline', 'middle')
+        .text(name);
+    }
+  });
+
+  /* ---- Month ring ---- */
+  var monthRuns = runs2Months();
+  function runs2Months() {
+    var out = [], s = 0;
+    function mo(i) { return +DAYS[i].d.substring(5, 7); }
+    for (var i = 1; i <= N; i++) {
+      if (i === N || mo(i) !== mo(s)) { out.push({ start: s, end: i, m: mo(s) }); s = i; }
+    }
+    return out;
+  }
+  monthRuns.forEach(function(run, idx) {
+    var s = a0(run.start), e = a0(run.end), m = (s + e) / 2;
+    var p0 = pt(s, R.monthTickIn), p1 = pt(s, R.monthTickOut);
+    g.append('line')
+      .attr('x1', p0[0]).attr('y1', p0[1]).attr('x2', p1[0]).attr('y2', p1[1])
+      .attr('class', 'month-tick');
+    /* The church year usually splits one month across its seam; a sliver of
+       a few days gets a tick but no room for a label. */
+    if (run.end - run.start < 7) { return; }
+    var flip = m > TAU / 4 && m < 3 * TAU / 4;
+    var baseR = flip ? R.monthLabel + 7 : R.monthLabel - 7;
+    var id = 'month-lab-' + idx;
+    g.append('path').attr('id', id).attr('class', 'lab-path')
+      .attr('d', labelArc(baseR, s, e, flip));
+    g.append('text').attr('class', 'month-label')
+      .append('textPath')
+      .attr('href', '#' + id).attr('xlink:href', '#' + id)
+      .attr('startOffset', '50%').attr('text-anchor', 'middle')
+      .text(MONTHS[run.m - 1]);
+  });
+
+  /* ---- Sunday ticks (day 0 is always Advent 1, a Sunday) ---- */
+  for (var i = 0; i < N; i += 7) {
+    var p0 = pt(mid(i), R.tickIn), p1 = pt(mid(i), R.tickOut);
+    g.append('line')
+      .attr('x1', p0[0]).attr('y1', p0[1]).attr('x2', p1[0]).attr('y2', p1[1])
+      .attr('class', 'sunday-tick');
+  }
+
+  /* ---- Today pointer (drawn under the feast dots and hit ring) ---- */
+  if (TODAY_INDEX >= 0) {
+    var ta = mid(TODAY_INDEX);
+    var t0 = pt(ta, R.hitIn + 2), t1 = pt(ta, 458);
+    g.append('line')
+      .attr('x1', t0[0]).attr('y1', t0[1]).attr('x2', t1[0]).attr('y2', t1[1])
+      .attr('class', 'today-line');
+    var td = pt(ta, 470);
+    g.append('circle').attr('cx', td[0]).attr('cy', td[1]).attr('r', 7)
+      .attr('class', 'today-dot');
+  }
+
+  /* ---- Feast dots (staggered when feasts fall on consecutive days) ---- */
+  var lastIdx = -10, lastR = R.feastB;
+  WHEEL.majors.forEach(function(mj) {
+    var r = (mj.i - lastIdx <= 1 && lastR === R.feastA) ? R.feastB : R.feastA;
+    lastIdx = mj.i; lastR = r;
+    var c = pt(mid(mj.i), r);
+    g.append('circle')
+      .attr('cx', c[0]).attr('cy', c[1]).attr('r', 6)
+      .attr('class', 'feast-dot ' + (COLOR_CLASS[mj.c] || 'lit-green'))
+      .on('click', function() { setSelected(mj.i); })
+      .append('title').text(mj.n);
+  });
+
+  /* ---- Selection + hover ---- */
+  var selArc = g.append('path').attr('class', 'sel-arc');
+  var selected = TODAY_INDEX >= 0 ? TODAY_INDEX : 0;
+
+  var wcSeason = document.getElementById('wc-season');
+  var wcDate = document.getElementById('wc-date');
+  var wcName = document.getElementById('wc-name');
+  var wcColor = document.getElementById('wc-color');
+  var wcDot = document.getElementById('wc-dot');
+  var wcLink = document.getElementById('wc-link');
+
+  function renderInfo(i) {
+    var day = DAYS[i];
+    var p = day.d.split('-');
+    var dt = new Date(+p[0], +p[1] - 1, +p[2]);
+    wcSeason.textContent = day.s;
+    wcDate.textContent = dt.toLocaleDateString(undefined,
+        { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+    wcName.textContent = day.n || day.k || day.s;
+    wcColor.textContent = day.c;
+    wcDot.setAttribute('title', day.c);
+    wcLink.href = '/liturgical_calendar?year=' + p[0] + '&month=' + (+p[1]);
+  }
+
+  function setSelected(i) {
+    selected = ((i % N) + N) % N;
+    selArc.attr('d', arcPath(R.colorIn - 3, R.colorOut + 3, a0(selected), a0(selected + 1)));
+    renderInfo(selected);
+  }
+
+  /* ---- Invisible per-day hit wedges (hover to preview, click to select) ---- */
+  var hitGroup = g.append('g');
+  DAYS.forEach(function(_, i) {
+    hitGroup.append('path')
+      .attr('d', arcPath(R.hitIn, R.hitOut, a0(i), a0(i + 1)))
+      .attr('class', 'hit-arc')
+      .on('mouseenter', function() { renderInfo(i); })
+      .on('click', function() { setSelected(i); });
+  });
+  hitGroup.on('mouseleave', function() { renderInfo(selected); });
+
+  /* ---- Keyboard ---- */
+  var wrap = document.getElementById('wheel-wrap');
+  wrap.addEventListener('keydown', function(ev) {
+    var step = { ArrowRight: 1, ArrowLeft: -1, ArrowUp: -7, ArrowDown: 7 }[ev.key];
+    if (step) { ev.preventDefault(); setSelected(selected + step); }
+    else if (ev.key === 'Home' && TODAY_INDEX >= 0) { ev.preventDefault(); setSelected(TODAY_INDEX); }
+  });
+
+  /* ---- Today button: just select today when already viewing this year ---- */
+  document.getElementById('btn-today').addEventListener('click', function(ev) {
+    if (IS_CURRENT_YEAR && TODAY_INDEX >= 0) { ev.preventDefault(); setSelected(TODAY_INDEX); }
+  });
+
+  /* ---- Festival list buttons ---- */
+  document.querySelectorAll('.major-item').forEach(function(btn) {
+    var i = +btn.getAttribute('data-i');
+    var day = DAYS[i];
+    var dot = btn.querySelector('.liturgical-color-dot');
+    if (dot) { dot.setAttribute('title', day.c); }
+    btn.addEventListener('click', function() {
+      setSelected(i);
+      wrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  });
+
+  setSelected(selected);
+}());
+{% endblock %}

@@ -36,6 +36,7 @@ _SITEMAP_PATHS = (
     ("/nicene_creed_study", "monthly"),
     ("/trinity_study", "monthly"),
     ("/bible_family_tree", "monthly"),
+    ("/church_year_wheel", "monthly"),
     ("/psalms_by_category", "monthly"),
     ("/gospels_by_category", "monthly"),
     ("/memory", "weekly"),

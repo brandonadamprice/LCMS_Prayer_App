@@ -213,6 +213,12 @@ def register(app):
     return liturgical_calendar.generate_liturgical_calendar_page()
 
 
+  @app.route("/church_year_wheel")
+  def church_year_wheel_route():
+    """Returns the interactive Church Year Wheel page."""
+    return liturgical_calendar.generate_church_year_wheel_page()
+
+
   @app.route("/bible_in_a_year")
   def bible_in_a_year_route():
     """Returns Bible in a Year page."""
