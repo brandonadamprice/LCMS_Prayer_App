@@ -101,7 +101,15 @@
     box-shadow: inset 0 14px 22px -16px rgba(101,52,47,0.28),
                 inset 0 -14px 22px -16px rgba(101,52,47,0.18);
   }
-  #tl-svg { width: 100%; height: 100%; display: block; animation: tl-fade 0.5s ease-out; }
+  /* pan-y hands horizontal swipes and pinches to d3 while still letting a
+     vertical swipe over the timeline scroll the page past it. */
+  #tl-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    animation: tl-fade 0.5s ease-out;
+    touch-action: pan-y;
+  }
   @keyframes tl-fade { from { opacity: 0; } to { opacity: 1; } }
 
   /* ---- Bars & markers (gradient fills from SVG defs; strokes via CSS) ---- */
@@ -193,12 +201,16 @@
     stroke-linejoin: round;
   }
   .tl-lane-rule { stroke: var(--color-accent); stroke-opacity: 0.35; stroke-width: 2; stroke-linecap: round; }
+  .tl-axis { pointer-events: none; }
   .tl-axis text { font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 600; fill: var(--color-muted); }
   .tl-axis line { stroke: var(--color-border); }
   .tl-axis path { display: none; }
   .tl-axis-bg { fill: var(--color-card-bg); fill-opacity: 0.5; }
-  .tl-grid { stroke: var(--color-border); stroke-opacity: 0.45; stroke-width: 0.7; }
-  .tl-adline { stroke: var(--color-accent-dark); stroke-opacity: 0.4; stroke-width: 1.2; stroke-dasharray: 5 4; }
+  /* Gridlines and the axis are rebuilt on zoom frames, so they must never be
+     a touch target (an active touch dies with the node it started on). */
+  .tl-grid { stroke: var(--color-border); stroke-opacity: 0.45; stroke-width: 0.7; pointer-events: none; }
+  .tl-adline { stroke: var(--color-accent-dark); stroke-opacity: 0.4; stroke-width: 1.2; stroke-dasharray: 5 4; pointer-events: none; }
+  .tl-era-line { pointer-events: none; }
 
   .tl-highlight { filter: drop-shadow(0 0 7px #c0392b); }
 
@@ -609,94 +621,58 @@
         ev.target.tagName !== 'path' && ev.target.tagName !== 'circle') { hideTip(); }
   });
 
-  /* ---------- Render (fully redrawn on zoom; a few hundred nodes) ---------- */
+  /* ---------- Scene (built once; zoom frames only update attributes) ----------
+     The DOM must NOT be rebuilt during a pan: Chrome pins an active touch to
+     the node it started on, so destroying that node after the first zoom
+     frame silently ends the gesture — panning "sticks" after a few pixels on
+     mobile. Persistent nodes also make each frame far cheaper (attribute
+     writes instead of DOM churn). */
   var curX = x0;
+  /* Hover <title> tooltips are dead weight on touch screens. */
+  var HAS_HOVER = window.matchMedia('(hover: hover)').matches;
 
   function estWidth(text, fs) { return text.length * fs * 0.62 + 8; }
 
-  function render() {
-    var x = curX;
+  var gGrid, adLine, axisBg, gAxis;
+
+  function buildScene() {
     gMain.selectAll('*').remove();
 
-    /* Century gridlines */
-    var ticks = x.ticks(Math.max(4, Math.floor(W / 110)));
-    ticks.forEach(function(t) {
-      gMain.append('line').attr('class', 'tl-grid')
-        .attr('x1', x(t)).attr('x2', x(t))
-        .attr('y1', ERA_H).attr('y2', H - AXIS_H);
-    });
+    gGrid = gMain.append('g');
+    adLine = gMain.append('line').attr('class', 'tl-adline');
 
-    /* BC/AD divider */
-    var adx = x(0);
-    if (adx > 0 && adx < W) {
-      gMain.append('line').attr('class', 'tl-adline')
-        .attr('x1', adx).attr('x2', adx)
-        .attr('y1', ERA_H).attr('y2', H - AXIS_H);
-    }
-
-    /* Eras */
     ERAS.forEach(function(e, i) {
-      var xa = x(e.from), xb = x(e.to);
-      if (xb < 0 || xa > W) { return; }
-      gMain.append('rect')
+      e._rect = gMain.append('rect')
         .attr('class', 'tl-era ' + (i % 2 ? 'shade-b' : 'shade-a'))
-        .attr('x', xa).attr('y', 0)
-        .attr('width', xb - xa).attr('height', H - AXIS_H)
+        .attr('y', 0).attr('height', H - AXIS_H)
         .on('click', function(ev) { showTip(e, 'era', ev.clientX, ev.clientY); ev.stopPropagation(); });
-      gMain.append('line').attr('class', 'tl-era-line')
-        .attr('x1', xa).attr('x2', xa).attr('y1', 0).attr('y2', H - AXIS_H);
+      e._line = gMain.append('line').attr('class', 'tl-era-line')
+        .attr('y1', 0).attr('y2', H - AXIS_H);
       var label = e.n.toUpperCase();
-      var lw = estWidth(label, 10.5) + 8;  /* letterspacing makes them run long */
-      if (xb - xa > lw + 16) {
-        var cx = (Math.max(0, xa) + Math.min(W, xb)) / 2;
-        gMain.append('rect').attr('class', 'tl-era-chip')
-          .attr('x', cx - lw / 2 - 9).attr('y', 4)
-          .attr('width', lw + 18).attr('height', 19)
-          .attr('rx', 9.5);
-        gMain.append('text').attr('class', 'tl-era-label')
-          .attr('x', cx).attr('y', 17.5).attr('text-anchor', 'middle')
-          .text(label);
-      }
+      e._lw = estWidth(label, 10.5) + 8;  /* letterspacing makes them run long */
+      e._chip = gMain.append('rect').attr('class', 'tl-era-chip')
+        .attr('y', 4).attr('width', e._lw + 18).attr('height', 19).attr('rx', 9.5);
+      e._label = gMain.append('text').attr('class', 'tl-era-label')
+        .attr('y', 17.5).attr('text-anchor', 'middle').text(label);
     });
 
-    /* Events. Labels are placed in two passes so anchors claim space first
-       and nothing overlaps: at low zoom only the anchors' labels survive,
-       and the rest appear as you zoom in (diamond + tooltip always work). */
-    var occupied = [[], []];
-    function labelFits(row, a, b) {
-      return occupied[row].every(function(iv) { return b < iv[0] || a > iv[1]; });
-    }
     EVENTS.forEach(function(e, i) {
-      var ex = x(e.yr);
-      if (ex < -80 || ex > W + 80) { return; }
-      var row = i % 2;
-      var ey = ERA_H + 16 + row * 22;
+      e._row = i % 2;
+      e._ey = ERA_H + 16 + e._row * 22;
+      e._lw = estWidth(e.n, e.anchor ? 11 : 10.5);
       var r = e.anchor ? 7 : 5.5, rh = e.anchor ? 7.5 : 6;
-      gMain.append('path')
+      e._node = gMain.append('path')
         .attr('class', 'tl-event' + (e.anchor ? ' anchor' : ''))
-        .attr('d', 'M' + ex + ',' + (ey - rh) + ' L' + (ex + r) + ',' + ey +
-                   ' L' + ex + ',' + (ey + rh) + ' L' + (ex - r) + ',' + ey + ' Z')
-        .on('click', function(ev) { showTip(e, 'event', ev.clientX, ev.clientY); ev.stopPropagation(); })
-        .append('title').text(e.n + ' (' + fmtYear(e.yr) + ')');
-    });
-    [true, false].forEach(function(anchorsPass) {
-      EVENTS.forEach(function(e, i) {
-        if (!e.anchor !== !anchorsPass) { return; }
-        var ex = x(e.yr);
-        if (ex < -80 || ex > W + 80) { return; }
-        var row = i % 2;
-        var ey = ERA_H + 16 + row * 22;
-        var la = ex + 8, lb = la + estWidth(e.n, e.anchor ? 11 : 10.5);
-        if (!labelFits(row, ex - 6, lb)) { return; }
-        gMain.append('text')
-          .attr('class', 'tl-event-label' + (e.anchor ? ' anchor' : ''))
-          .attr('x', la).attr('y', ey + 3.5)
-          .text(e.n);
-        occupied[row].push([ex - 6, lb]);
-      });
+        .attr('d', 'M0,' + (-rh) + ' L' + r + ',0 L0,' + rh + ' L' + (-r) + ',0 Z')
+        .on('click', function(ev) { showTip(e, 'event', ev.clientX, ev.clientY); ev.stopPropagation(); });
+      if (HAS_HOVER) {
+        e._node.append('title').text(e.n + ' (' + fmtYear(e.yr) + ')');
+      }
+      e._labelNode = gMain.append('text')
+        .attr('class', 'tl-event-label' + (e.anchor ? ' anchor' : ''))
+        .attr('y', e._ey + 3.5).text(e.n);
     });
 
-    /* Lanes */
     LANES.forEach(function(l) {
       gMain.append('line').attr('class', 'tl-lane-rule')
         .attr('x1', 8).attr('x2', 8)
@@ -705,56 +681,169 @@
         .attr('x', 15).attr('y', l.y0 - 3)
         .text(l.label);
       l.items.forEach(function(p) {
-        var xa = x(p.from), xb = x(p.to);
-        if (xb < 0 || xa > W) { return; }
-        var by = l.y0 + p.row * (BAR_H + BAR_GAP) * yScaleFactor;
-        var bw = Math.max(2.5, xb - xa);
+        p._by = l.y0 + p.row * (BAR_H + BAR_GAP) * yScaleFactor;
+        p._lw = estWidth(p.n, 11);
         p._node = gMain.append('rect')
-          .attr('class', 'tl-bar cls-' + p.cls + (p._hl ? ' tl-highlight' : ''))
-          .attr('x', xa).attr('y', by)
-          .attr('width', bw).attr('height', BAR_H)
-          .attr('rx', 4)
-          .on('click', function(ev) { showTip(p, 'bar', ev.clientX, ev.clientY); ev.stopPropagation(); })
-          .node();
-        d3.select(p._node).append('title')
-          .text(p.n + ' (' + fmtRange(p.from, p.to, p.approx) + ')');
-        var lw = estWidth(p.n, 11);
-        if (bw > lw) {
-          gMain.append('text').attr('class', 'tl-bar-label')
-            .attr('x', xa + bw / 2).attr('y', by + BAR_H - 4.5)
-            .attr('text-anchor', 'middle')
-            .text(p.n);
-        } else if (bw > 26 && x((p.from + p.to) / 2) > 0 && x((p.from + p.to) / 2) < W) {
-          /* no room inside; skip the label, title + tap still work */
+          .attr('class', 'tl-bar cls-' + p.cls)
+          .attr('y', p._by).attr('height', BAR_H).attr('rx', 4)
+          .on('click', function(ev) { showTip(p, 'bar', ev.clientX, ev.clientY); ev.stopPropagation(); });
+        if (HAS_HOVER) {
+          p._node.append('title')
+            .text(p.n + ' (' + fmtRange(p.from, p.to, p.approx) + ')');
+        }
+        p._labelNode = gMain.append('text').attr('class', 'tl-bar-label')
+          .attr('y', p._by + BAR_H - 4.5)
+          .attr('text-anchor', 'middle')
+          .text(p.n);
+      });
+    });
+
+    axisBg = gMain.append('rect').attr('class', 'tl-axis-bg')
+      .attr('x', 0).attr('y', H - AXIS_H)
+      .attr('width', W).attr('height', AXIS_H);
+    gAxis = gMain.append('g')
+      .attr('class', 'tl-axis')
+      .attr('transform', 'translate(0,' + (H - AXIS_H) + ')');
+  }
+
+  function render() {
+    var x = curX;
+
+    /* Century gridlines (joined per frame; pointer-events are off for them
+       so they can never be an active touch target). */
+    var tickCount = Math.max(4, Math.floor(W / 110));
+    var gl = gGrid.selectAll('line').data(x.ticks(tickCount));
+    gl.exit().remove();
+    gl.enter().append('line').attr('class', 'tl-grid')
+      .merge(gl)
+      .attr('x1', function(t) { return x(t); })
+      .attr('x2', function(t) { return x(t); })
+      .attr('y1', ERA_H).attr('y2', H - AXIS_H);
+
+    /* BC/AD divider */
+    var adx = x(0);
+    adLine.style('display', adx > 0 && adx < W ? null : 'none')
+      .attr('x1', adx).attr('x2', adx)
+      .attr('y1', ERA_H).attr('y2', H - AXIS_H);
+
+    /* Eras */
+    ERAS.forEach(function(e) {
+      var xa = x(e.from), xb = x(e.to);
+      var vis = xb >= 0 && xa <= W;
+      e._rect.style('display', vis ? null : 'none');
+      e._line.style('display', vis ? null : 'none');
+      var chip = vis && xb - xa > e._lw + 16;
+      e._chip.style('display', chip ? null : 'none');
+      e._label.style('display', chip ? null : 'none');
+      if (!vis) { return; }
+      e._rect.attr('x', xa).attr('width', xb - xa);
+      e._line.attr('x1', xa).attr('x2', xa);
+      if (chip) {
+        var cx = (Math.max(0, xa) + Math.min(W, xb)) / 2;
+        e._chip.attr('x', cx - e._lw / 2 - 9);
+        e._label.attr('x', cx);
+      }
+    });
+
+    /* Events. Labels are placed in two passes so anchors claim space first
+       and nothing overlaps: at low zoom only the anchors' labels survive,
+       and the rest appear as you zoom in (diamond + tap always work). */
+    EVENTS.forEach(function(e) {
+      e._ex = x(e.yr);
+      e._node.style('display', e._ex >= -80 && e._ex <= W + 80 ? null : 'none')
+        .attr('transform', 'translate(' + e._ex + ',' + e._ey + ')');
+    });
+    var occupied = [[], []];
+    function labelFits(row, a, b) {
+      return occupied[row].every(function(iv) { return b < iv[0] || a > iv[1]; });
+    }
+    [true, false].forEach(function(anchorsPass) {
+      EVENTS.forEach(function(e) {
+        if (!e.anchor !== !anchorsPass) { return; }
+        var la = e._ex + 8, lb = la + e._lw;
+        var show = e._ex >= -80 && e._ex <= W + 80 && labelFits(e._row, e._ex - 6, lb);
+        e._labelNode.style('display', show ? null : 'none');
+        if (show) {
+          e._labelNode.attr('x', la);
+          occupied[e._row].push([e._ex - 6, lb]);
         }
       });
     });
 
+    /* People bars */
+    PEOPLE.forEach(function(p) {
+      var xa = x(p.from), xb = x(p.to);
+      var vis = xb >= 0 && xa <= W;
+      p._node.style('display', vis ? null : 'none')
+        .classed('tl-highlight', !!p._hl);
+      var bw = Math.max(2.5, xb - xa);
+      p._labelNode.style('display', vis && bw > p._lw ? null : 'none');
+      if (!vis) { return; }
+      p._node.attr('x', xa).attr('width', bw);
+      p._labelNode.attr('x', xa + bw / 2);
+    });
+
     /* Axis */
-    gMain.append('rect').attr('class', 'tl-axis-bg')
-      .attr('x', 0).attr('y', H - AXIS_H)
-      .attr('width', W).attr('height', AXIS_H);
-    var axis = d3.axisBottom(x)
-      .ticks(Math.max(4, Math.floor(W / 110)))
+    gAxis.call(d3.axisBottom(x)
+      .ticks(tickCount)
       .tickFormat(fmtYear)
       .tickSize(5)
-      .tickPadding(6);
-    gMain.append('g')
-      .attr('class', 'tl-axis')
-      .attr('transform', 'translate(0,' + (H - AXIS_H) + ')')
-      .call(axis);
+      .tickPadding(6));
   }
 
+  buildScene();
+
   /* ---------- Zoom / pan (x only) ---------- */
+  /* Zoom events arrive faster than a phone can rebuild the SVG, so renders
+     are coalesced to one per animation frame; drops the gesture from janky
+     to smooth on mobile. */
+  var renderQueued = false;
+  function scheduleRender() {
+    if (renderQueued) { return; }
+    renderQueued = true;
+    window.requestAnimationFrame(function() {
+      renderQueued = false;
+      render();
+    });
+  }
   var zoomBeh = d3.zoom()
     .scaleExtent([1, 60])
     .translateExtent([[0, 0], [W, H]])
     .on('zoom', function(ev) {
       curX = ev.transform.rescaleX(x0);
       hideTip();
-      render();
+      scheduleRender();
     });
   svg.call(zoomBeh).on('dblclick.zoom', null);
+
+  /* Mobile: claim clearly-horizontal single-finger drags and all pinches
+     with an explicitly non-passive preventDefault (d3 v7 registers its
+     touchmove handler without {passive:false}, so its own preventDefault
+     is not guaranteed). Vertical swipes are left alone so the page still
+     scrolls past the timeline (touch-action: pan-y). */
+  var svgNode = svg.node();
+  var touchIntent = null, touchStartPt = null;
+  /* capture:true so these run ahead of d3's bubble-phase handlers (which
+     stopImmediatePropagation) when the touch lands on a child element. */
+  svgNode.addEventListener('touchstart', function(ev) {
+    if (ev.touches.length === 1) {
+      touchIntent = null;
+      touchStartPt = [ev.touches[0].clientX, ev.touches[0].clientY];
+    } else {
+      touchIntent = 'pan';  /* pinch */
+    }
+  }, {capture: true, passive: true});
+  svgNode.addEventListener('touchmove', function(ev) {
+    if (touchIntent === null && touchStartPt && ev.touches.length === 1) {
+      var dx = Math.abs(ev.touches[0].clientX - touchStartPt[0]);
+      var dy = Math.abs(ev.touches[0].clientY - touchStartPt[1]);
+      if (dx > 6 || dy > 6) { touchIntent = dx > dy ? 'pan' : 'scroll'; }
+    }
+    if (touchIntent !== 'scroll' && ev.cancelable) { ev.preventDefault(); }
+  }, {capture: true, passive: false});
+  svgNode.addEventListener('touchend', function(ev) {
+    if (ev.touches.length === 0) { touchIntent = null; touchStartPt = null; }
+  }, {capture: true, passive: true});
 
   function zoomToYears(a, b) {
     var k = Math.min(60, W / (x0(b) - x0(a)));
@@ -811,7 +900,8 @@
     svg.attr('width', W).attr('height', H);
     x0.range([0, W]);
     zoomBeh.translateExtent([[0, 0], [W, H]]);
-    render();
+    buildScene();  /* heights are baked in at build time */
+    scheduleRender();
   });
 
   render();
