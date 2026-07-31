@@ -631,7 +631,27 @@
   /* Hover <title> tooltips are dead weight on touch screens. */
   var HAS_HOVER = window.matchMedia('(hover: hover)').matches;
 
-  function estWidth(text, fs) { return text.length * fs * 0.62 + 8; }
+  /* Labels are persistent nodes, so real rendered widths can be measured
+     instead of estimated — estimates undershot badly for the uppercase,
+     letter-spaced era chips ("BETWEEN THE TESTAMENTS" bled out both ends).
+     Re-measured once the webfont finishes loading, since Montserrat is
+     wider than the fallback the first measurement may have used. */
+  function measureText(sel) {
+    var node = sel.node();
+    var prev = node.style.display;
+    node.style.display = '';
+    var w = node.getComputedTextLength();
+    node.style.display = prev;
+    return w;
+  }
+  function remeasure() {
+    ERAS.forEach(function(e) {
+      e._lw = measureText(e._label) + 6;
+      e._chip.attr('width', e._lw + 18);
+    });
+    EVENTS.forEach(function(e) { e._lw = measureText(e._labelNode) + 4; });
+    PEOPLE.forEach(function(p) { p._lw = measureText(p._labelNode) + 8; });
+  }
 
   var gGrid, adLine, axisBg, gAxis;
 
@@ -648,16 +668,13 @@
         .on('click', function(ev) { showTip(e, 'era', ev.clientX, ev.clientY); ev.stopPropagation(); });
       e._line = gMain.append('line').attr('class', 'tl-era-line')
         .attr('y1', 0).attr('y2', H - AXIS_H);
-      var label = e.n.toUpperCase();
-      e._lw = estWidth(label, 10.5) + 8;  /* letterspacing makes them run long */
       e._chip = gMain.append('rect').attr('class', 'tl-era-chip')
-        .attr('y', 4).attr('width', e._lw + 18).attr('height', 19).attr('rx', 9.5);
+        .attr('y', 4).attr('height', 19).attr('rx', 9.5);
       e._label = gMain.append('text').attr('class', 'tl-era-label')
-        .attr('y', 17.5).attr('text-anchor', 'middle').text(label);
+        .attr('y', 17.5).attr('text-anchor', 'middle').text(e.n.toUpperCase());
     });
 
     EVENTS.forEach(function(e) {
-      e._lw = estWidth(e.n, e.anchor ? 11 : 10.5);
       var r = e.anchor ? 7 : 5.5, rh = e.anchor ? 7.5 : 6;
       e._node = gMain.append('path')
         .attr('class', 'tl-event' + (e.anchor ? ' anchor' : ''))
@@ -680,7 +697,6 @@
         .text(l.label);
       l.items.forEach(function(p) {
         p._by = l.y0 + p.row * (BAR_H + BAR_GAP) * yScaleFactor;
-        p._lw = estWidth(p.n, 11);
         p._node = gMain.append('rect')
           .attr('class', 'tl-bar cls-' + p.cls)
           .attr('y', p._by).attr('height', BAR_H).attr('rx', 4)
@@ -702,6 +718,8 @@
     gAxis = gMain.append('g')
       .attr('class', 'tl-axis')
       .attr('transform', 'translate(0,' + (H - AXIS_H) + ')');
+
+    remeasure();
   }
 
   function render() {
@@ -730,7 +748,9 @@
       var vis = xb >= 0 && xa <= W;
       e._rect.style('display', vis ? null : 'none');
       e._line.style('display', vis ? null : 'none');
-      var chip = vis && xb - xa > e._lw + 16;
+      /* the chip needs to fit inside the era's on-screen portion, or it
+         hangs over the edge / a neighboring era */
+      var chip = vis && Math.min(W, xb) - Math.max(0, xa) > e._lw + 24;
       e._chip.style('display', chip ? null : 'none');
       e._label.style('display', chip ? null : 'none');
       if (!vis) { return; }
@@ -981,6 +1001,15 @@
     var k0 = (Y1 - Y0) / startSpan;
     var startYr = Math.max(Y0, Math.min(-1060, Y1 - startSpan));
     svg.call(zoomBeh.transform, d3.zoomIdentity.scale(k0).translate(-x0(startYr), 0));
+  }
+
+  /* Text was measured against whatever font was available at build time;
+     once Montserrat arrives, chip and collision widths need refreshing. */
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(function() {
+      remeasure();
+      scheduleRender();
+    });
   }
 }());
 {% endblock %}
