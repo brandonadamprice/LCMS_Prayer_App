@@ -8,11 +8,14 @@ menu entry in `menu.py`, and a sitemap entry in `routes/misc.py`. No changes
 to `static/app.js` / `styles.css` are needed (so no `?v=` bumps), and dark
 mode is handled with `body.dark-mode` CSS overrides — no JS redraw.
 
-## 1. Bible History Timeline — DRAFT EXISTS, NOT WIRED
+## 1. Bible History Timeline — SHIPPED (July 2026)
 
-`devotions/templates/bible_timeline.html` is a complete first draft that is
-**not yet reachable** (no route, menu, or sitemap entry) and **not yet
-verified in a browser**. It contains:
+`devotions/templates/bible_timeline.html` is live at `/bible_timeline`
+(route in `routes/devotions.py`, Education menu entry, sitemap entry) and
+has been verified in a browser: desktop light/dark, mobile bottom-sheet
+tip, search, era jumps, and zoom. Event labels are placed collision-free
+in two passes (anchors claim space first; the rest appear as you zoom)
+with a background-colored halo for legibility. It contains:
 
 - A pan/zoom horizontal timeline (d3.zoom, x-axis only) from the patriarchs
   (~2100 BC) to the apostolic age (AD 100), with 12 era bands, ~70 people
@@ -24,9 +27,6 @@ verified in a browser**. It contains:
   reckoning (early Exodus, 1446 BC) and are labeled approximate.
 - Search, era quick-jump buttons, zoom controls, label culling at low zoom.
 
-Remaining work: add the route (`/bible_timeline`), menu + sitemap entries,
-verify in the browser (label collisions, mobile bottom-sheet tip, dark mode),
-sanity-check dates/descriptions, then commit.
 
 ## 2. Bible Journeys Map
 

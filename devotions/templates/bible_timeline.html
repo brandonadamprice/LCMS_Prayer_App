@@ -73,30 +73,101 @@
     margin-right: 5px;
     vertical-align: middle;
   }
+  /* Narrow screens (phones, foldable cover displays): the controls bar is
+     sticky, and fully wrapped it eats a third of the screen. Era jumps and
+     the legend collapse to single swipeable lines instead. (Must sit after
+     the base .tl-era-group/.tl-legend rules to win the cascade.) */
+  @media (max-width: 720px) {
+    .tl-era-group, .tl-legend {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      max-width: 100%;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .tl-era-group::-webkit-scrollbar, .tl-legend::-webkit-scrollbar { display: none; }
+    .tl-era-group .tl-btn { flex: 0 0 auto; }
+    .tl-legend { margin-left: 0; width: 100%; }
+    .tl-legend > span { white-space: nowrap; flex: 0 0 auto; }
+  }
 
   .tl-viewport {
     position: relative;
     width: 100%;
     height: clamp(430px, 72vh, 640px);
     overflow: hidden;
+    -webkit-user-select: none;
+    user-select: none;
     background:
-      radial-gradient(ellipse at 50% 0%, rgba(175,145,100,0.10), transparent 60%),
+      radial-gradient(circle at 18% 12%, rgba(175,145,100,0.10) 0, transparent 45%),
+      radial-gradient(circle at 82% 88%, rgba(101,52,47,0.06) 0, transparent 45%),
+      radial-gradient(ellipse at 50% 0%, rgba(175,145,100,0.12), transparent 55%),
       var(--color-bg);
     cursor: grab;
   }
-  .tl-viewport:active { cursor: grabbing; }
-  #tl-svg { width: 100%; height: 100%; display: block; }
+  body.dark-mode .tl-viewport {
+    background:
+      radial-gradient(circle at 18% 12%, rgba(196,168,120,0.08) 0, transparent 45%),
+      radial-gradient(circle at 82% 88%, rgba(101,52,47,0.14) 0, transparent 45%),
+      radial-gradient(ellipse at 50% 0%, rgba(196,168,120,0.09), transparent 55%),
+      var(--color-bg);
+  }
+  .tl-viewport::after {  /* soft vignette so edges recede */
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    box-shadow: inset 0 14px 22px -16px rgba(101,52,47,0.28),
+                inset 0 -14px 22px -16px rgba(101,52,47,0.18);
+  }
+  /* pan-y hands horizontal swipes and pinches to d3 while still letting a
+     vertical swipe over the timeline scroll the page past it. */
+  #tl-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    animation: tl-fade 0.5s ease-out;
+    touch-action: pan-y;
+  }
+  @keyframes tl-fade { from { opacity: 0; } to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) {
+    #tl-svg { animation: none; }
+    .tl-btn, .tl-bar, .tl-event, .tl-tip { transition: none; }
+  }
+  /* Landscape phones: the default 430px minimum is taller than the whole
+     screen; size to the screen instead so the chart is usable. */
+  @media (max-height: 520px) {
+    .tl-viewport {
+      height: calc(100vh - 116px);
+      height: calc(100dvh - 116px);
+      min-height: 240px;
+    }
+  }
 
-  /* ---- Bars & markers (fills via CSS so dark mode just works) ---- */
-  .tl-bar { stroke: rgba(0,0,0,0.25); stroke-width: 0.6; cursor: pointer; }
-  .tl-bar.cls-leader  { fill: #7d6f5e; }
-  .tl-bar.cls-good    { fill: #27ae60; }
-  .tl-bar.cls-mixed   { fill: #d4913a; }
-  .tl-bar.cls-bad     { fill: #c0392b; }
-  .tl-bar.cls-prophet { fill: #8e44ad; }
-  .tl-bar.cls-apostle { fill: #7a453e; }
-  .tl-bar.cls-christ  { fill: #af9164; stroke: #65342f; stroke-width: 1.2; }
-  body.dark-mode .tl-bar { stroke: rgba(0,0,0,0.5); }
+  /* ---- Bars & markers (gradient fills from SVG defs; strokes via CSS) ---- */
+  .tl-bar {
+    stroke: rgba(0,0,0,0.22);
+    stroke-width: 0.6;
+    cursor: pointer;
+    transition: filter 0.15s;
+  }
+  @media (hover: hover) {
+    .tl-bar:hover { filter: brightness(1.12) saturate(1.08); }
+  }
+  .tl-bar.cls-leader  { fill: url(#tlg-leader); }
+  .tl-bar.cls-good    { fill: url(#tlg-good); }
+  .tl-bar.cls-mixed   { fill: url(#tlg-mixed); }
+  .tl-bar.cls-bad     { fill: url(#tlg-bad); }
+  .tl-bar.cls-prophet { fill: url(#tlg-prophet); }
+  .tl-bar.cls-apostle { fill: url(#tlg-apostle); }
+  .tl-bar.cls-christ  {
+    fill: url(#tlg-christ);
+    stroke: #65342f;
+    stroke-width: 1.2;
+    filter: drop-shadow(0 0 6px rgba(175,145,100,0.75));
+  }
+  body.dark-mode .tl-bar { stroke: rgba(0,0,0,0.45); }
+  body.dark-mode .tl-bar.cls-christ { filter: drop-shadow(0 0 7px rgba(196,168,120,0.8)); }
 
   .tl-bar-label {
     font-family: 'Montserrat', sans-serif;
@@ -107,31 +178,47 @@
   }
   .tl-bar-label.outside { fill: var(--color-text); font-weight: 600; }
 
-  .tl-event { fill: #2c3e50; stroke: var(--color-bg); stroke-width: 1; cursor: pointer; }
-  body.dark-mode .tl-event { fill: #d5dde5; }
+  .tl-event { fill: #4a5a68; stroke: var(--color-bg); stroke-width: 1; cursor: pointer; transition: filter 0.15s; }
+  .tl-event.anchor { fill: #af9164; stroke: #65342f; stroke-width: 1; }
+  body.dark-mode .tl-event { fill: #b9c4cf; }
+  body.dark-mode .tl-event.anchor { fill: #c4a878; stroke: #2a2622; }
+  @media (hover: hover) {
+    .tl-event:hover { filter: brightness(1.2); }
+  }
   .tl-event-label {
     font-family: 'Montserrat', sans-serif;
     font-size: 10.5px;
     fill: var(--color-muted);
     pointer-events: none;
+    paint-order: stroke;
+    stroke: var(--color-bg);
+    stroke-width: 3px;
+    stroke-linejoin: round;
   }
-  .tl-event-label.anchor { font-weight: 700; fill: var(--color-text); font-size: 11px; }
+  .tl-event-label.anchor { font-weight: 700; fill: var(--color-accent-dark); font-size: 11px; }
+  body.dark-mode .tl-event-label.anchor { fill: #c4a878; }
 
   .tl-era { cursor: pointer; }
-  .tl-era.shade-a { fill: rgba(175,145,100,0.07); }
-  .tl-era.shade-b { fill: rgba(101,52,47,0.06); }
-  body.dark-mode .tl-era.shade-a { fill: rgba(175,145,100,0.10); }
-  body.dark-mode .tl-era.shade-b { fill: rgba(255,255,255,0.045); }
+  .tl-era.shade-a { fill: url(#tlg-era-a); }
+  .tl-era.shade-b { fill: url(#tlg-era-b); }
+  .tl-era-chip {
+    fill: var(--color-card-bg);
+    fill-opacity: 0.72;
+    stroke: var(--color-border);
+    stroke-width: 1;
+    pointer-events: none;
+  }
   .tl-era-label {
     font-family: 'Montserrat', sans-serif;
-    font-size: 11px;
+    font-size: 10.5px;
     font-weight: 700;
-    letter-spacing: 1.2px;
+    letter-spacing: 1.6px;
     text-transform: uppercase;
     fill: var(--color-accent-dark);
     pointer-events: none;
   }
-  .tl-era-line { stroke: var(--color-border); stroke-width: 1; }
+  body.dark-mode .tl-era-label { fill: #c4a878; }
+  .tl-era-line { stroke: var(--color-accent); stroke-opacity: 0.28; stroke-width: 1; stroke-dasharray: 1 5; stroke-linecap: round; }
 
   .tl-lane-label {
     font-family: 'Montserrat', sans-serif;
@@ -140,10 +227,22 @@
     letter-spacing: 1.4px;
     text-transform: uppercase;
     fill: var(--text-faint);
+    paint-order: stroke;
+    stroke: var(--color-bg);
+    stroke-width: 3px;
+    stroke-linejoin: round;
   }
-  .tl-axis text { font-family: 'Montserrat', sans-serif; font-size: 11px; fill: var(--color-muted); }
-  .tl-axis line, .tl-axis path { stroke: var(--color-border); }
-  .tl-grid { stroke: var(--color-border); stroke-opacity: 0.55; stroke-width: 0.7; }
+  .tl-lane-rule { stroke: var(--color-accent); stroke-opacity: 0.35; stroke-width: 2; stroke-linecap: round; }
+  .tl-axis { pointer-events: none; }
+  .tl-axis text { font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 600; fill: var(--color-muted); }
+  .tl-axis line { stroke: var(--color-border); }
+  .tl-axis path { display: none; }
+  .tl-axis-bg { fill: var(--color-card-bg); fill-opacity: 0.5; }
+  /* Gridlines and the axis are rebuilt on zoom frames, so they must never be
+     a touch target (an active touch dies with the node it started on). */
+  .tl-grid { stroke: var(--color-border); stroke-opacity: 0.45; stroke-width: 0.7; pointer-events: none; }
+  .tl-adline { stroke: var(--color-accent-dark); stroke-opacity: 0.4; stroke-width: 1.2; stroke-dasharray: 5 4; pointer-events: none; }
+  .tl-era-line { pointer-events: none; }
 
   .tl-highlight { filter: drop-shadow(0 0 7px #c0392b); }
 
@@ -167,6 +266,10 @@
     transition: border-color 0.2s, box-shadow 0.2s;
   }
   #tl-search:focus { border-color: var(--color-accent); box-shadow: 0 0 0 3px var(--focus-ring); }
+  /* iOS zooms the whole page into any focused input below 16px */
+  @media (pointer: coarse) {
+    #tl-search { font-size: 16px; }
+  }
 
   /* ---- Detail tip ---- */
   .tl-tip {
@@ -251,7 +354,7 @@
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
     </svg>
-    <input type="text" id="tl-search" placeholder="Search (e.g. Hezekiah, Isaiah)..." autocomplete="off">
+    <input type="text" id="tl-search" placeholder="Search (e.g. Hezekiah, Isaiah)..." autocomplete="off" aria-label="Search people on the timeline">
   </div>
   <div class="tl-btn-group">
     <button class="tl-btn" id="tl-zi" type="button" title="Zoom in">+ Zoom</button>
@@ -270,7 +373,7 @@
 </div>
 
 <div class="tl-viewport" id="tl-viewport">
-  <svg id="tl-svg"></svg>
+  <svg id="tl-svg" role="img" aria-label="Interactive timeline of Bible history from the patriarchs to the apostles. Drag to pan, pinch or use the zoom buttons, and tap a bar or diamond for details."></svg>
   <div class="tl-tip" id="tl-tip"></div>
 </div>
 {% endblock %}
@@ -426,6 +529,28 @@
   var W = vp.clientWidth, H = vp.clientHeight;
   var svg = d3.select('#tl-svg').attr('width', W).attr('height', H);
 
+  /* Gradient defs: a lighter top edge gives the bars a gentle rounded sheen;
+     era bands fade toward the bottom so they frame without dominating. */
+  var defs = svg.append('defs');
+  [['leader', '#95866f', '#71634f'], ['good', '#33b96d', '#1e9450'],
+   ['mixed', '#e0a44a', '#c07d2b'], ['bad', '#d0503c', '#a83224'],
+   ['prophet', '#9d59be', '#7d3a9b'], ['apostle', '#8d554a', '#6a3c33'],
+   ['christ', '#c9ad76', '#a5854f']].forEach(function(g) {
+    var gr = defs.append('linearGradient')
+      .attr('id', 'tlg-' + g[0])
+      .attr('x1', 0).attr('y1', 0).attr('x2', 0).attr('y2', 1);
+    gr.append('stop').attr('offset', '0%').attr('stop-color', g[1]);
+    gr.append('stop').attr('offset', '100%').attr('stop-color', g[2]);
+  });
+  [['era-a', 'rgba(175,145,100,0.16)', 'rgba(175,145,100,0.03)'],
+   ['era-b', 'rgba(101,52,47,0.13)', 'rgba(101,52,47,0.02)']].forEach(function(g) {
+    var gr = defs.append('linearGradient')
+      .attr('id', 'tlg-' + g[0])
+      .attr('x1', 0).attr('y1', 0).attr('x2', 0).attr('y2', 1);
+    gr.append('stop').attr('offset', '0%').attr('stop-color', g[1]);
+    gr.append('stop').attr('offset', '100%').attr('stop-color', g[2]);
+  });
+
   var Y0 = -2150, Y1 = 130;           /* year domain, BC negative */
   var AXIS_H = 30, ERA_H = 26, EVENT_H = 58;
   var BAR_H = 17, BAR_GAP = 4, LANE_PAD = 14;
@@ -461,6 +586,14 @@
     y += l.rows * (BAR_H + BAR_GAP) + LANE_PAD;
   });
   var CONTENT_H = y + AXIS_H;
+  /* Never squeeze below the natural content height: on very short screens
+     (landscape phones) a capped viewport would push the bottom lane under
+     the axis strip. A little page scroll beats overlapping rows. */
+  if (H < CONTENT_H) {
+    vp.style.height = CONTENT_H + 'px';
+    H = CONTENT_H;
+    svg.attr('height', H);
+  }
   /* If the viewport is taller than needed, stretch lanes' padding a little. */
   var yScaleFactor = Math.max(1, Math.min(1.35, (H - AXIS_H - ERA_H - EVENT_H) /
       (CONTENT_H - AXIS_H - ERA_H - EVENT_H)));
@@ -532,132 +665,343 @@
         ev.target.tagName !== 'path' && ev.target.tagName !== 'circle') { hideTip(); }
   });
 
-  /* ---------- Render (fully redrawn on zoom; a few hundred nodes) ---------- */
+  /* ---------- Scene (built once; zoom frames only update attributes) ----------
+     The DOM must NOT be rebuilt during a pan: Chrome pins an active touch to
+     the node it started on, so destroying that node after the first zoom
+     frame silently ends the gesture — panning "sticks" after a few pixels on
+     mobile. Persistent nodes also make each frame far cheaper (attribute
+     writes instead of DOM churn). */
   var curX = x0;
+  /* Hover <title> tooltips are dead weight on touch screens. */
+  var HAS_HOVER = window.matchMedia('(hover: hover)').matches;
 
-  function estWidth(text, fs) { return text.length * fs * 0.62 + 8; }
+  /* Labels are persistent nodes, so real rendered widths can be measured
+     instead of estimated — estimates undershot badly for the uppercase,
+     letter-spaced era chips ("BETWEEN THE TESTAMENTS" bled out both ends).
+     Re-measured once the webfont finishes loading, since Montserrat is
+     wider than the fallback the first measurement may have used. */
+  function measureText(sel) {
+    var node = sel.node();
+    var prev = node.style.display;
+    node.style.display = '';
+    var w = node.getComputedTextLength();
+    node.style.display = prev;
+    return w;
+  }
+  function remeasure() {
+    ERAS.forEach(function(e) {
+      e._lw = measureText(e._label) + 6;
+      e._chip.attr('width', e._lw + 18);
+    });
+    EVENTS.forEach(function(e) { e._lw = measureText(e._labelNode) + 4; });
+    PEOPLE.forEach(function(p) { p._lw = measureText(p._labelNode) + 8; });
+  }
 
-  function render() {
-    var x = curX;
+  var gGrid, adLine, axisBg, gAxis;
+
+  function buildScene() {
     gMain.selectAll('*').remove();
 
-    /* Century gridlines */
-    var ticks = x.ticks(Math.max(4, Math.floor(W / 110)));
-    ticks.forEach(function(t) {
-      gMain.append('line').attr('class', 'tl-grid')
-        .attr('x1', x(t)).attr('x2', x(t))
-        .attr('y1', ERA_H).attr('y2', H - AXIS_H);
-    });
+    gGrid = gMain.append('g');
+    adLine = gMain.append('line').attr('class', 'tl-adline');
 
-    /* Eras */
     ERAS.forEach(function(e, i) {
-      var xa = x(e.from), xb = x(e.to);
-      if (xb < 0 || xa > W) { return; }
-      gMain.append('rect')
+      e._rect = gMain.append('rect')
         .attr('class', 'tl-era ' + (i % 2 ? 'shade-b' : 'shade-a'))
-        .attr('x', xa).attr('y', 0)
-        .attr('width', xb - xa).attr('height', H - AXIS_H)
+        .attr('y', 0).attr('height', H - AXIS_H)
         .on('click', function(ev) { showTip(e, 'era', ev.clientX, ev.clientY); ev.stopPropagation(); });
-      gMain.append('line').attr('class', 'tl-era-line')
-        .attr('x1', xa).attr('x2', xa).attr('y1', 0).attr('y2', H - AXIS_H);
-      var label = e.n.toUpperCase();
-      if (xb - xa > estWidth(label, 11)) {
-        gMain.append('text').attr('class', 'tl-era-label')
-          .attr('x', (Math.max(0, xa) + Math.min(W, xb)) / 2)
-          .attr('y', 17).attr('text-anchor', 'middle')
-          .text(label);
-      }
+      e._line = gMain.append('line').attr('class', 'tl-era-line')
+        .attr('y1', 0).attr('y2', H - AXIS_H);
+      e._chip = gMain.append('rect').attr('class', 'tl-era-chip')
+        .attr('y', 4).attr('height', 19).attr('rx', 9.5);
+      e._label = gMain.append('text').attr('class', 'tl-era-label')
+        .attr('y', 17.5).attr('text-anchor', 'middle').text(e.n.toUpperCase());
     });
 
-    /* Events */
-    var lastLabelEnd = [-1e9, -1e9];
-    EVENTS.forEach(function(e, i) {
-      var ex = x(e.yr);
-      if (ex < -80 || ex > W + 80) { return; }
-      var row = i % 2;
-      var ey = ERA_H + 16 + row * 22;
-      gMain.append('path')
-        .attr('class', 'tl-event')
-        .attr('d', 'M' + ex + ',' + (ey - 6) + ' L' + (ex + 5.5) + ',' + ey +
-                   ' L' + ex + ',' + (ey + 6) + ' L' + (ex - 5.5) + ',' + ey + ' Z')
-        .on('click', function(ev) { showTip(e, 'event', ev.clientX, ev.clientY); ev.stopPropagation(); })
-        .append('title').text(e.n + ' (' + fmtYear(e.yr) + ')');
-      var lw = estWidth(e.n, e.anchor ? 11 : 10.5);
-      if (ex - 4 > lastLabelEnd[row] || e.anchor) {
-        gMain.append('text')
-          .attr('class', 'tl-event-label' + (e.anchor ? ' anchor' : ''))
-          .attr('x', ex + 8).attr('y', ey + 3.5)
-          .text(e.n);
-        lastLabelEnd[row] = ex + 8 + lw;
+    EVENTS.forEach(function(e) {
+      var r = e.anchor ? 7 : 5.5, rh = e.anchor ? 7.5 : 6;
+      e._node = gMain.append('path')
+        .attr('class', 'tl-event' + (e.anchor ? ' anchor' : ''))
+        .attr('d', 'M0,' + (-rh) + ' L' + r + ',0 L0,' + rh + ' L' + (-r) + ',0 Z')
+        .on('click', function(ev) { showTip(e, 'event', ev.clientX, ev.clientY); ev.stopPropagation(); });
+      if (HAS_HOVER) {
+        e._node.append('title').text(e.n + ' (' + fmtYear(e.yr) + ')');
       }
+      e._labelNode = gMain.append('text')
+        .attr('class', 'tl-event-label' + (e.anchor ? ' anchor' : ''))
+        .text(e.n);
     });
 
-    /* Lanes */
     LANES.forEach(function(l) {
+      gMain.append('line').attr('class', 'tl-lane-rule')
+        .attr('x1', 8).attr('x2', 8)
+        .attr('y1', l.y0 - 12).attr('y2', l.y0 - 1);
       gMain.append('text').attr('class', 'tl-lane-label')
-        .attr('x', 8).attr('y', l.y0 - 3)
+        .attr('x', 15).attr('y', l.y0 - 3)
         .text(l.label);
       l.items.forEach(function(p) {
-        var xa = x(p.from), xb = x(p.to);
-        if (xb < 0 || xa > W) { return; }
-        var by = l.y0 + p.row * (BAR_H + BAR_GAP) * yScaleFactor;
-        var bw = Math.max(2.5, xb - xa);
+        p._by = l.y0 + p.row * (BAR_H + BAR_GAP) * yScaleFactor;
         p._node = gMain.append('rect')
-          .attr('class', 'tl-bar cls-' + p.cls + (p._hl ? ' tl-highlight' : ''))
-          .attr('x', xa).attr('y', by)
-          .attr('width', bw).attr('height', BAR_H)
-          .attr('rx', 4)
-          .on('click', function(ev) { showTip(p, 'bar', ev.clientX, ev.clientY); ev.stopPropagation(); })
-          .node();
-        d3.select(p._node).append('title')
-          .text(p.n + ' (' + fmtRange(p.from, p.to, p.approx) + ')');
-        var lw = estWidth(p.n, 11);
-        if (bw > lw) {
-          gMain.append('text').attr('class', 'tl-bar-label')
-            .attr('x', xa + bw / 2).attr('y', by + BAR_H - 4.5)
-            .attr('text-anchor', 'middle')
-            .text(p.n);
-        } else if (bw > 26 && x((p.from + p.to) / 2) > 0 && x((p.from + p.to) / 2) < W) {
-          /* no room inside; skip the label, title + tap still work */
+          .attr('class', 'tl-bar cls-' + p.cls)
+          .attr('y', p._by).attr('height', BAR_H).attr('rx', 4)
+          .on('click', function(ev) { showTip(p, 'bar', ev.clientX, ev.clientY); ev.stopPropagation(); });
+        if (HAS_HOVER) {
+          p._node.append('title')
+            .text(p.n + ' (' + fmtRange(p.from, p.to, p.approx) + ')');
         }
+        p._labelNode = gMain.append('text').attr('class', 'tl-bar-label')
+          .attr('y', p._by + BAR_H - 4.5)
+          .attr('text-anchor', 'middle')
+          .text(p.n);
       });
     });
 
-    /* Axis */
-    var axis = d3.axisBottom(x)
-      .ticks(Math.max(4, Math.floor(W / 110)))
-      .tickFormat(fmtYear);
-    gMain.append('g')
+    axisBg = gMain.append('rect').attr('class', 'tl-axis-bg')
+      .attr('x', 0).attr('y', H - AXIS_H)
+      .attr('width', W).attr('height', AXIS_H);
+    gAxis = gMain.append('g')
       .attr('class', 'tl-axis')
-      .attr('transform', 'translate(0,' + (H - AXIS_H) + ')')
-      .call(axis);
+      .attr('transform', 'translate(0,' + (H - AXIS_H) + ')');
+
+    remeasure();
   }
 
+  function render() {
+    var x = curX;
+
+    /* Century gridlines (joined per frame; pointer-events are off for them
+       so they can never be an active touch target). */
+    var tickCount = Math.max(4, Math.floor(W / 110));
+    var gl = gGrid.selectAll('line').data(x.ticks(tickCount));
+    gl.exit().remove();
+    gl.enter().append('line').attr('class', 'tl-grid')
+      .merge(gl)
+      .attr('x1', function(t) { return x(t); })
+      .attr('x2', function(t) { return x(t); })
+      .attr('y1', ERA_H).attr('y2', H - AXIS_H);
+
+    /* BC/AD divider */
+    var adx = x(0);
+    adLine.style('display', adx > 0 && adx < W ? null : 'none')
+      .attr('x1', adx).attr('x2', adx)
+      .attr('y1', ERA_H).attr('y2', H - AXIS_H);
+
+    /* Eras */
+    ERAS.forEach(function(e) {
+      var xa = x(e.from), xb = x(e.to);
+      var vis = xb >= 0 && xa <= W;
+      e._rect.style('display', vis ? null : 'none');
+      e._line.style('display', vis ? null : 'none');
+      /* the chip needs to fit inside the era's on-screen portion, or it
+         hangs over the edge / a neighboring era */
+      var chip = vis && Math.min(W, xb) - Math.max(0, xa) > e._lw + 24;
+      e._chip.style('display', chip ? null : 'none');
+      e._label.style('display', chip ? null : 'none');
+      if (!vis) { return; }
+      e._rect.attr('x', xa).attr('width', xb - xa);
+      e._line.attr('x1', xa).attr('x2', xa);
+      if (chip) {
+        var cx = (Math.max(0, xa) + Math.min(W, xb)) / 2;
+        e._chip.attr('x', cx - e._lw / 2 - 9);
+        e._label.attr('x', cx);
+      }
+    });
+
+    /* Events: rows are assigned per frame, not fixed. Anchors go first and
+       claim their diamond plus right-hand label as one block, so nothing
+       ever pierces an anchor's text; the remaining diamonds then first-fit
+       into whichever of the three rows is actually free at their spot,
+       stacking into empty space instead of colliding. Labels never overlap
+       anything; a label that cannot sit right of its diamond tries the
+       left side before giving up. Touching intervals do not collide. */
+    var EV_ROWS = 3;
+    function rowYc(r) { return ERA_H + 14 + r * 17; }
+    function fitsIvs(ivs, a, b) {
+      return ivs.every(function(iv) { return b <= iv[0] || a >= iv[1]; });
+    }
+    var rowOcc = [[], [], []];  /* diamonds + placed labels */
+    EVENTS.forEach(function(e) {
+      e._ex = x(e.yr);
+      e._vis = e._ex >= -80 && e._ex <= W + 80;
+      e._placed = null;
+    });
+
+    /* anchors: diamond + label as one claim; an anchor label always shows.
+       Preferred: a row where the whole block fits, label to the right, then
+       label to the left. Fallback: a row where at least the diamond fits
+       (the label tail may then overlap, but the halo keeps it legible). */
+    EVENTS.forEach(function(e) {
+      if (!e.anchor || !e._vis) { return; }
+      var la = e._ex + 10, lb = la + e._lw;
+      var lc = e._ex - 10 - e._lw, ld = e._ex - 10;
+      var row = -1, r;
+      for (r = 0; r < EV_ROWS; r++) {
+        if (fitsIvs(rowOcc[r], e._ex - 10, lb)) {
+          row = r; e._placed = ['start', la, lb]; break;
+        }
+        if (lc >= 2 && fitsIvs(rowOcc[r], lc, e._ex + 10)) {
+          row = r; e._placed = ['end', lc, ld]; break;
+        }
+      }
+      if (row < 0) {
+        for (r = 0; r < EV_ROWS; r++) {
+          if (fitsIvs(rowOcc[r], e._ex - 10, e._ex + 10)) { row = r; break; }
+        }
+        if (row < 0) { row = 0; }
+        e._placed = ['start', la, lb];  /* may overlap; halo carries it */
+      }
+      e._row = row;
+      rowOcc[row].push([e._placed[0] === 'end' ? lc : e._ex - 10,
+                        e._placed[0] === 'end' ? e._ex + 10 : lb]);
+    });
+
+    /* other diamonds: first-fit into free space */
+    EVENTS.forEach(function(e, i) {
+      if (e.anchor || !e._vis) { return; }
+      var da = e._ex - 10, db = e._ex + 10;
+      var row = -1;
+      for (var r = 0; r < EV_ROWS; r++) {
+        if (fitsIvs(rowOcc[r], da, db)) { row = r; break; }
+      }
+      if (row < 0) { row = i % EV_ROWS; }  /* extreme overview crowding */
+      e._row = row;
+      rowOcc[row].push([da, db]);
+    });
+
+    /* position diamonds; place remaining labels */
+    EVENTS.forEach(function(e) {
+      e._node.style('display', e._vis ? null : 'none');
+      if (e._vis) {
+        e._node.attr('transform', 'translate(' + e._ex + ',' + rowYc(e._row) + ')');
+      }
+      if (!e.anchor && e._vis) {
+        /* label offsets match the diamond's ±10 stub — touching is fine,
+           overlapping its own stub would block every label */
+        var la = e._ex + 10, lb = la + e._lw;
+        if (fitsIvs(rowOcc[e._row], la, lb)) {
+          e._placed = ['start', la, lb];
+        } else {
+          var lc = e._ex - 10 - e._lw, ld = e._ex - 10;
+          if (lc >= 2 && fitsIvs(rowOcc[e._row], lc, ld)) {
+            e._placed = ['end', lc, ld];
+          }
+        }
+        if (e._placed) { rowOcc[e._row].push([e._placed[1], e._placed[2]]); }
+      }
+      e._labelNode.style('display', e._placed ? null : 'none');
+      if (e._placed) {
+        e._labelNode
+          .attr('text-anchor', e._placed[0] === 'end' ? 'end' : null)
+          .attr('x', e._placed[0] === 'end' ? e._placed[2] : e._placed[1])
+          .attr('y', rowYc(e._row) + 3.5);
+      }
+    });
+
+    /* People bars. The name rides the on-screen part of the bar: a long
+       reign can span past the viewport edge, and pinning the label to the
+       bar's true center would carry it off-screen. */
+    PEOPLE.forEach(function(p) {
+      var xa = x(p.from), xb = x(p.to);
+      var vis = xb >= 0 && xa <= W;
+      p._node.style('display', vis ? null : 'none')
+        .classed('tl-highlight', !!p._hl);
+      var bw = Math.max(2.5, xb - xa);
+      var visL = Math.max(xa, 0), visR = Math.min(xb, W);
+      var show = vis && bw > p._lw && visR - visL > p._lw;
+      p._labelNode.style('display', show ? null : 'none');
+      if (!vis) { return; }
+      p._node.attr('x', xa).attr('width', bw);
+      if (show) {
+        var cx = Math.max(visL + p._lw / 2, Math.min(visR - p._lw / 2, xa + bw / 2));
+        p._labelNode.attr('x', cx);
+      }
+    });
+
+    /* Axis */
+    gAxis.call(d3.axisBottom(x)
+      .ticks(tickCount)
+      .tickFormat(fmtYear)
+      .tickSize(5)
+      .tickPadding(6));
+  }
+
+  buildScene();
+
   /* ---------- Zoom / pan (x only) ---------- */
+  /* Zoom events arrive faster than a phone can rebuild the SVG, so renders
+     are coalesced to one per animation frame; drops the gesture from janky
+     to smooth on mobile. */
+  var renderQueued = false;
+  function scheduleRender() {
+    if (renderQueued) { return; }
+    renderQueued = true;
+    window.requestAnimationFrame(function() {
+      renderQueued = false;
+      render();
+    });
+  }
+  /* Max zoom targets ~60 px/yr of detail regardless of screen width — a
+     phone needs a much larger scale factor than a desktop to reach the
+     same legibility, and a fixed cap left narrow screens unable to ever
+     separate close-packed event labels. */
+  var MAX_PX_PER_YEAR_ZOOM = 60;
+  function maxK() { return MAX_PX_PER_YEAR_ZOOM / (W / (Y1 - Y0)); }
   var zoomBeh = d3.zoom()
-    .scaleExtent([1, 60])
+    .scaleExtent([1, maxK()])
     .translateExtent([[0, 0], [W, H]])
     .on('zoom', function(ev) {
       curX = ev.transform.rescaleX(x0);
       hideTip();
-      render();
+      scheduleRender();
     });
   svg.call(zoomBeh).on('dblclick.zoom', null);
 
+  /* Mobile: claim clearly-horizontal single-finger drags and all pinches
+     with an explicitly non-passive preventDefault (d3 v7 registers its
+     touchmove handler without {passive:false}, so its own preventDefault
+     is not guaranteed). Vertical swipes are left alone so the page still
+     scrolls past the timeline (touch-action: pan-y). */
+  var svgNode = svg.node();
+  var touchIntent = null, touchStartPt = null;
+  /* capture:true so these run ahead of d3's bubble-phase handlers (which
+     stopImmediatePropagation) when the touch lands on a child element. */
+  svgNode.addEventListener('touchstart', function(ev) {
+    if (ev.touches.length === 1) {
+      touchIntent = null;
+      touchStartPt = [ev.touches[0].clientX, ev.touches[0].clientY];
+    } else {
+      touchIntent = 'pan';  /* pinch */
+    }
+  }, {capture: true, passive: true});
+  svgNode.addEventListener('touchmove', function(ev) {
+    if (touchIntent === null && touchStartPt && ev.touches.length === 1) {
+      var dx = Math.abs(ev.touches[0].clientX - touchStartPt[0]);
+      var dy = Math.abs(ev.touches[0].clientY - touchStartPt[1]);
+      if (dx > 6 || dy > 6) { touchIntent = dx > dy ? 'pan' : 'scroll'; }
+    }
+    if (touchIntent !== 'scroll' && ev.cancelable) { ev.preventDefault(); }
+  }, {capture: true, passive: false});
+  svgNode.addEventListener('touchend', function(ev) {
+    if (ev.touches.length === 0) { touchIntent = null; touchStartPt = null; }
+  }, {capture: true, passive: true});
+
+  var REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function dur(ms) { return REDUCED_MOTION ? 0 : ms; }
+
   function zoomToYears(a, b) {
-    var k = Math.min(60, W / (x0(b) - x0(a)));
+    var k = Math.min(maxK(), W / (x0(b) - x0(a)));
     var t = d3.zoomIdentity.scale(k).translate(-x0(a), 0);
-    svg.transition().duration(650).call(zoomBeh.transform, t);
+    svg.transition().duration(dur(650)).call(zoomBeh.transform, t);
   }
 
   document.getElementById('tl-zi').addEventListener('click', function() {
-    svg.transition().duration(300).call(zoomBeh.scaleBy, 1.6);
+    svg.transition().duration(dur(300)).call(zoomBeh.scaleBy, 1.6);
   });
   document.getElementById('tl-zo').addEventListener('click', function() {
-    svg.transition().duration(300).call(zoomBeh.scaleBy, 1 / 1.6);
+    svg.transition().duration(dur(300)).call(zoomBeh.scaleBy, 1 / 1.6);
   });
   document.getElementById('tl-rst').addEventListener('click', function() {
-    svg.transition().duration(500).call(zoomBeh.transform, d3.zoomIdentity);
+    svg.transition().duration(dur(500)).call(zoomBeh.transform, d3.zoomIdentity);
   });
 
   /* Era quick-jump buttons */
@@ -694,14 +1038,46 @@
   });
 
   window.addEventListener('resize', function() {
+    vp.style.height = '';  /* drop any short-screen override before measuring */
     W = vp.clientWidth;
     H = vp.clientHeight;
+    if (H < CONTENT_H) {
+      vp.style.height = CONTENT_H + 'px';
+      H = CONTENT_H;
+    }
     svg.attr('width', W).attr('height', H);
     x0.range([0, W]);
-    zoomBeh.translateExtent([[0, 0], [W, H]]);
-    render();
+    zoomBeh.translateExtent([[0, 0], [W, H]]).scaleExtent([1, maxK()]);
+    buildScene();  /* heights are baked in at build time */
+    scheduleRender();
   });
 
   render();
+
+  /* On a phone, fitting all ~2,300 years into the viewport leaves nothing
+     readable, so start zoomed to ~1.1 px/yr — the density where the longer
+     reigns start carrying their names inline — landing on the kingdom era,
+     the richest stretch, where all three lanes have content. Panning and
+     the era jumps reach the rest, and Fit All still shows the whole sweep
+     on request. */
+  /* Trigger only when fit-all is genuinely unreadable (desktop fit-all is
+     ~0.56 px/yr and stays the default); land at 1.1 px/yr, where longer
+     reigns carry their names inline. */
+  var TRIGGER_PX_PER_YEAR = 0.55, START_PX_PER_YEAR = 1.1;
+  if (W / (Y1 - Y0) < TRIGGER_PX_PER_YEAR) {
+    var startSpan = W / START_PX_PER_YEAR;
+    var k0 = (Y1 - Y0) / startSpan;
+    var startYr = Math.max(Y0, Math.min(-1060, Y1 - startSpan));
+    svg.call(zoomBeh.transform, d3.zoomIdentity.scale(k0).translate(-x0(startYr), 0));
+  }
+
+  /* Text was measured against whatever font was available at build time;
+     once Montserrat arrives, chip and collision widths need refreshing. */
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(function() {
+      remeasure();
+      scheduleRender();
+    });
+  }
 }());
 {% endblock %}
