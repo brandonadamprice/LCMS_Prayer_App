@@ -201,6 +201,12 @@ def register(app):
     return flask.render_template("bible_family_tree.html")
 
 
+  @app.route("/bible_timeline")
+  def bible_timeline_route():
+    """Returns the interactive Bible History Timeline page."""
+    return flask.render_template("bible_timeline.html")
+
+
   @app.route("/litany")
   def litany_route():
     """Returns the Litany page HTML."""

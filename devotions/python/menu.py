@@ -103,6 +103,11 @@ def get_menu_items(is_advent, is_new_year, is_lent):
                   "url": "/bible_family_tree",
                   "enabled": True,
               },
+              {
+                  "label": "Bible Timeline",
+                  "url": "/bible_timeline",
+                  "enabled": True,
+              },
           ],
       },
       {

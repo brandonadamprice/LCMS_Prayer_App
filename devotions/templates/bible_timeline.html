@@ -114,6 +114,10 @@
     font-size: 10.5px;
     fill: var(--color-muted);
     pointer-events: none;
+    paint-order: stroke;
+    stroke: var(--color-bg);
+    stroke-width: 3px;
+    stroke-linejoin: round;
   }
   .tl-event-label.anchor { font-weight: 700; fill: var(--color-text); font-size: 11px; }
 
@@ -569,8 +573,13 @@
       }
     });
 
-    /* Events */
-    var lastLabelEnd = [-1e9, -1e9];
+    /* Events. Labels are placed in two passes so anchors claim space first
+       and nothing overlaps: at low zoom only the anchors' labels survive,
+       and the rest appear as you zoom in (diamond + tooltip always work). */
+    var occupied = [[], []];
+    function labelFits(row, a, b) {
+      return occupied[row].every(function(iv) { return b < iv[0] || a > iv[1]; });
+    }
     EVENTS.forEach(function(e, i) {
       var ex = x(e.yr);
       if (ex < -80 || ex > W + 80) { return; }
@@ -582,14 +591,22 @@
                    ' L' + ex + ',' + (ey + 6) + ' L' + (ex - 5.5) + ',' + ey + ' Z')
         .on('click', function(ev) { showTip(e, 'event', ev.clientX, ev.clientY); ev.stopPropagation(); })
         .append('title').text(e.n + ' (' + fmtYear(e.yr) + ')');
-      var lw = estWidth(e.n, e.anchor ? 11 : 10.5);
-      if (ex - 4 > lastLabelEnd[row] || e.anchor) {
+    });
+    [true, false].forEach(function(anchorsPass) {
+      EVENTS.forEach(function(e, i) {
+        if (!e.anchor !== !anchorsPass) { return; }
+        var ex = x(e.yr);
+        if (ex < -80 || ex > W + 80) { return; }
+        var row = i % 2;
+        var ey = ERA_H + 16 + row * 22;
+        var la = ex + 8, lb = la + estWidth(e.n, e.anchor ? 11 : 10.5);
+        if (!labelFits(row, ex - 6, lb)) { return; }
         gMain.append('text')
           .attr('class', 'tl-event-label' + (e.anchor ? ' anchor' : ''))
-          .attr('x', ex + 8).attr('y', ey + 3.5)
+          .attr('x', la).attr('y', ey + 3.5)
           .text(e.n);
-        lastLabelEnd[row] = ex + 8 + lw;
-      }
+        occupied[row].push([ex - 6, lb]);
+      });
     });
 
     /* Lanes */
