@@ -783,25 +783,32 @@
     });
 
     /* anchors: diamond + label as one claim; an anchor label always shows.
-       Preferred: a row where the whole block fits. Fallback: a row where at
-       least the diamond fits (the label tail may then overlap, but the halo
-       keeps it legible — same as the old behavior, now rare). */
+       Preferred: a row where the whole block fits, label to the right, then
+       label to the left. Fallback: a row where at least the diamond fits
+       (the label tail may then overlap, but the halo keeps it legible). */
     EVENTS.forEach(function(e) {
       if (!e.anchor || !e._vis) { return; }
-      var da = e._ex - 10, la = e._ex + 8, lb = la + e._lw;
+      var la = e._ex + 10, lb = la + e._lw;
+      var lc = e._ex - 10 - e._lw, ld = e._ex - 10;
       var row = -1, r;
       for (r = 0; r < EV_ROWS; r++) {
-        if (fitsIvs(rowOcc[r], da, lb)) { row = r; break; }
+        if (fitsIvs(rowOcc[r], e._ex - 10, lb)) {
+          row = r; e._placed = ['start', la, lb]; break;
+        }
+        if (lc >= 2 && fitsIvs(rowOcc[r], lc, e._ex + 10)) {
+          row = r; e._placed = ['end', lc, ld]; break;
+        }
       }
       if (row < 0) {
         for (r = 0; r < EV_ROWS; r++) {
-          if (fitsIvs(rowOcc[r], da, e._ex + 10)) { row = r; break; }
+          if (fitsIvs(rowOcc[r], e._ex - 10, e._ex + 10)) { row = r; break; }
         }
+        if (row < 0) { row = 0; }
+        e._placed = ['start', la, lb];  /* may overlap; halo carries it */
       }
-      if (row < 0) { row = 0; }
       e._row = row;
-      rowOcc[row].push([da, lb]);
-      e._placed = ['start', la, lb];
+      rowOcc[row].push([e._placed[0] === 'end' ? lc : e._ex - 10,
+                        e._placed[0] === 'end' ? e._ex + 10 : lb]);
     });
 
     /* other diamonds: first-fit into free space */
@@ -824,11 +831,13 @@
         e._node.attr('transform', 'translate(' + e._ex + ',' + rowYc(e._row) + ')');
       }
       if (!e.anchor && e._vis) {
-        var la = e._ex + 8, lb = la + e._lw;
+        /* label offsets match the diamond's ±10 stub — touching is fine,
+           overlapping its own stub would block every label */
+        var la = e._ex + 10, lb = la + e._lw;
         if (fitsIvs(rowOcc[e._row], la, lb)) {
           e._placed = ['start', la, lb];
         } else {
-          var lc = e._ex - 8 - e._lw, ld = e._ex - 8;
+          var lc = e._ex - 10 - e._lw, ld = e._ex - 10;
           if (lc >= 2 && fitsIvs(rowOcc[e._row], lc, ld)) {
             e._placed = ['end', lc, ld];
           }
@@ -844,17 +853,24 @@
       }
     });
 
-    /* People bars */
+    /* People bars. The name rides the on-screen part of the bar: a long
+       reign can span past the viewport edge, and pinning the label to the
+       bar's true center would carry it off-screen. */
     PEOPLE.forEach(function(p) {
       var xa = x(p.from), xb = x(p.to);
       var vis = xb >= 0 && xa <= W;
       p._node.style('display', vis ? null : 'none')
         .classed('tl-highlight', !!p._hl);
       var bw = Math.max(2.5, xb - xa);
-      p._labelNode.style('display', vis && bw > p._lw ? null : 'none');
+      var visL = Math.max(xa, 0), visR = Math.min(xb, W);
+      var show = vis && bw > p._lw && visR - visL > p._lw;
+      p._labelNode.style('display', show ? null : 'none');
       if (!vis) { return; }
       p._node.attr('x', xa).attr('width', bw);
-      p._labelNode.attr('x', xa + bw / 2);
+      if (show) {
+        var cx = Math.max(visL + p._lw / 2, Math.min(visR - p._lw / 2, xa + bw / 2));
+        p._labelNode.attr('x', cx);
+      }
     });
 
     /* Axis */
