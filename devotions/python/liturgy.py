@@ -20,6 +20,51 @@ _WEEKDAY_NAMES = (
     "Saturday",
 )
 
+# Broad seasons of the church year, in order from Advent 1. These follow the
+# historic one-year lectionary this app uses: Pre-Lent (the "gesima" Sundays)
+# is its own season, Pentecost covers Whitsun week, and the long green season
+# is named for Trinity rather than counted from Pentecost.
+CHURCH_SEASONS = (
+    "Advent",
+    "Christmas",
+    "Epiphany",
+    "Pre-Lent",
+    "Lent",
+    "Easter",
+    "Pentecost",
+    "Trinity Season",
+)
+
+
+def get_church_season(day: datetime.date) -> str:
+  """Returns the broad church-year season (one of CHURCH_SEASONS) for a date.
+
+  Boundaries: Advent 1 through Dec 24 is Advent; Dec 25 through Jan 5 is
+  Christmas; Jan 6 to Septuagesima eve is Epiphany; Septuagesima through
+  Shrove Tuesday is Pre-Lent; Ash Wednesday through Holy Saturday is Lent;
+  Easter Day to Pentecost eve is Easter; Whitsun week is Pentecost; and Holy
+  Trinity to the eve of Advent 1 is Trinity Season.
+  """
+  cy = get_church_year(day.year)
+  advent1 = cy.calculate_advent1(day.year)
+  if day >= advent1:
+    return "Advent" if day <= datetime.date(day.year, 12, 24) else "Christmas"
+  if day <= datetime.date(day.year, 1, 5):
+    return "Christmas"
+  if day < cy.septuagesima:
+    return "Epiphany"
+  if day < cy.ash_wednesday:
+    return "Pre-Lent"
+  if day < cy.easter_date:
+    return "Lent"
+  if day < cy.pentecost:
+    return "Easter"
+  if day < cy.holy_trinity:
+    return "Pentecost"
+  # Late November days before Advent 1 also land here: the tail of the
+  # Trinity season.
+  return "Trinity Season"
+
 
 class ChurchYear:
   """Calculates and provides key dates for the Western Christian liturgical year."""
