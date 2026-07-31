@@ -79,6 +79,8 @@
     width: 100%;
     height: clamp(430px, 72vh, 640px);
     overflow: hidden;
+    -webkit-user-select: none;
+    user-select: none;
     background:
       radial-gradient(circle at 18% 12%, rgba(175,145,100,0.10) 0, transparent 45%),
       radial-gradient(circle at 82% 88%, rgba(101,52,47,0.06) 0, transparent 45%),
@@ -111,6 +113,19 @@
     touch-action: pan-y;
   }
   @keyframes tl-fade { from { opacity: 0; } to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) {
+    #tl-svg { animation: none; }
+    .tl-btn, .tl-bar, .tl-event, .tl-tip { transition: none; }
+  }
+  /* Landscape phones: the default 430px minimum is taller than the whole
+     screen; size to the screen instead so the chart is usable. */
+  @media (max-height: 520px) {
+    .tl-viewport {
+      height: calc(100vh - 116px);
+      height: calc(100dvh - 116px);
+      min-height: 240px;
+    }
+  }
 
   /* ---- Bars & markers (gradient fills from SVG defs; strokes via CSS) ---- */
   .tl-bar {
@@ -234,6 +249,10 @@
     transition: border-color 0.2s, box-shadow 0.2s;
   }
   #tl-search:focus { border-color: var(--color-accent); box-shadow: 0 0 0 3px var(--focus-ring); }
+  /* iOS zooms the whole page into any focused input below 16px */
+  @media (pointer: coarse) {
+    #tl-search { font-size: 16px; }
+  }
 
   /* ---- Detail tip ---- */
   .tl-tip {
@@ -318,7 +337,7 @@
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
     </svg>
-    <input type="text" id="tl-search" placeholder="Search (e.g. Hezekiah, Isaiah)..." autocomplete="off">
+    <input type="text" id="tl-search" placeholder="Search (e.g. Hezekiah, Isaiah)..." autocomplete="off" aria-label="Search people on the timeline">
   </div>
   <div class="tl-btn-group">
     <button class="tl-btn" id="tl-zi" type="button" title="Zoom in">+ Zoom</button>
@@ -337,7 +356,7 @@
 </div>
 
 <div class="tl-viewport" id="tl-viewport">
-  <svg id="tl-svg"></svg>
+  <svg id="tl-svg" role="img" aria-label="Interactive timeline of Bible history from the patriarchs to the apostles. Drag to pan, pinch or use the zoom buttons, and tap a bar or diamond for details."></svg>
   <div class="tl-tip" id="tl-tip"></div>
 </div>
 {% endblock %}
@@ -550,6 +569,14 @@
     y += l.rows * (BAR_H + BAR_GAP) + LANE_PAD;
   });
   var CONTENT_H = y + AXIS_H;
+  /* Never squeeze below the natural content height: on very short screens
+     (landscape phones) a capped viewport would push the bottom lane under
+     the axis strip. A little page scroll beats overlapping rows. */
+  if (H < CONTENT_H) {
+    vp.style.height = CONTENT_H + 'px';
+    H = CONTENT_H;
+    svg.attr('height', H);
+  }
   /* If the viewport is taller than needed, stretch lanes' padding a little. */
   var yScaleFactor = Math.max(1, Math.min(1.35, (H - AXIS_H - ERA_H - EVENT_H) /
       (CONTENT_H - AXIS_H - ERA_H - EVENT_H)));
@@ -941,20 +968,23 @@
     if (ev.touches.length === 0) { touchIntent = null; touchStartPt = null; }
   }, {capture: true, passive: true});
 
+  var REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function dur(ms) { return REDUCED_MOTION ? 0 : ms; }
+
   function zoomToYears(a, b) {
     var k = Math.min(maxK(), W / (x0(b) - x0(a)));
     var t = d3.zoomIdentity.scale(k).translate(-x0(a), 0);
-    svg.transition().duration(650).call(zoomBeh.transform, t);
+    svg.transition().duration(dur(650)).call(zoomBeh.transform, t);
   }
 
   document.getElementById('tl-zi').addEventListener('click', function() {
-    svg.transition().duration(300).call(zoomBeh.scaleBy, 1.6);
+    svg.transition().duration(dur(300)).call(zoomBeh.scaleBy, 1.6);
   });
   document.getElementById('tl-zo').addEventListener('click', function() {
-    svg.transition().duration(300).call(zoomBeh.scaleBy, 1 / 1.6);
+    svg.transition().duration(dur(300)).call(zoomBeh.scaleBy, 1 / 1.6);
   });
   document.getElementById('tl-rst').addEventListener('click', function() {
-    svg.transition().duration(500).call(zoomBeh.transform, d3.zoomIdentity);
+    svg.transition().duration(dur(500)).call(zoomBeh.transform, d3.zoomIdentity);
   });
 
   /* Era quick-jump buttons */
@@ -991,8 +1021,13 @@
   });
 
   window.addEventListener('resize', function() {
+    vp.style.height = '';  /* drop any short-screen override before measuring */
     W = vp.clientWidth;
     H = vp.clientHeight;
+    if (H < CONTENT_H) {
+      vp.style.height = CONTENT_H + 'px';
+      H = CONTENT_H;
+    }
     svg.attr('width', W).attr('height', H);
     x0.range([0, W]);
     zoomBeh.translateExtent([[0, 0], [W, H]]).scaleExtent([1, maxK()]);
