@@ -905,5 +905,18 @@
   });
 
   render();
+
+  /* On a phone, fitting all ~2,300 years into the viewport leaves nothing
+     readable, so start zoomed to the same years-per-pixel density a desktop
+     fit-all gives (~0.55 px/yr), landing on the kingdom era — the richest
+     stretch, where all three lanes have content. Panning reaches the rest,
+     and Fit All still shows the whole sweep on request. */
+  var MIN_PX_PER_YEAR = 0.55;
+  if (W / (Y1 - Y0) < MIN_PX_PER_YEAR) {
+    var startSpan = W / MIN_PX_PER_YEAR;
+    var k0 = (Y1 - Y0) / startSpan;
+    var startYr = Math.max(Y0, Math.min(-1100, Y1 - startSpan));
+    svg.call(zoomBeh.transform, d3.zoomIdentity.scale(k0).translate(-x0(startYr), 0));
+  }
 }());
 {% endblock %}
