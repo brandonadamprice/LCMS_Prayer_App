@@ -656,9 +656,7 @@
         .attr('y', 17.5).attr('text-anchor', 'middle').text(label);
     });
 
-    EVENTS.forEach(function(e, i) {
-      e._row = i % 2;
-      e._ey = ERA_H + 16 + e._row * 22;
+    EVENTS.forEach(function(e) {
       e._lw = estWidth(e.n, e.anchor ? 11 : 10.5);
       var r = e.anchor ? 7 : 5.5, rh = e.anchor ? 7.5 : 6;
       e._node = gMain.append('path')
@@ -670,7 +668,7 @@
       }
       e._labelNode = gMain.append('text')
         .attr('class', 'tl-event-label' + (e.anchor ? ' anchor' : ''))
-        .attr('y', e._ey + 3.5).text(e.n);
+        .text(e.n);
     });
 
     LANES.forEach(function(l) {
@@ -745,57 +743,85 @@
       }
     });
 
-    /* Events. Labels are placed in two passes so anchors claim space first
-       and nothing overlaps: at low zoom only the anchors' labels survive,
-       and the rest appear as you zoom in (diamond + tap always work). */
+    /* Events: rows are assigned per frame, not fixed. Anchors go first and
+       claim their diamond plus right-hand label as one block, so nothing
+       ever pierces an anchor's text; the remaining diamonds then first-fit
+       into whichever of the three rows is actually free at their spot,
+       stacking into empty space instead of colliding. Labels never overlap
+       anything; a label that cannot sit right of its diamond tries the
+       left side before giving up. Touching intervals do not collide. */
+    var EV_ROWS = 3;
+    function rowYc(r) { return ERA_H + 14 + r * 17; }
+    function fitsIvs(ivs, a, b) {
+      return ivs.every(function(iv) { return b <= iv[0] || a >= iv[1]; });
+    }
+    var rowOcc = [[], [], []];  /* diamonds + placed labels */
     EVENTS.forEach(function(e) {
       e._ex = x(e.yr);
-      e._node.style('display', e._ex >= -80 && e._ex <= W + 80 ? null : 'none')
-        .attr('transform', 'translate(' + e._ex + ',' + e._ey + ')');
+      e._vis = e._ex >= -80 && e._ex <= W + 80;
+      e._placed = null;
     });
-    /* Labels must never overlap other labels (labelsOcc); non-anchor
-       labels must also dodge diamond markers (allOcc) so a marker never
-       pierces their text — anchors skip that test because their halo
-       keeps them legible and they must survive at overview zoom. A label
-       that cannot sit right of its diamond tries the left side before
-       giving up. */
-    var labelsOcc = [[], []], allOcc = [[], []];
-    /* touching intervals do not collide: a label's own left edge sits
-       exactly on its diamond's reserved stub */
-    function fitsIn(list, row, a, b) {
-      return list[row].every(function(iv) { return b <= iv[0] || a >= iv[1]; });
-    }
+
+    /* anchors: diamond + label as one claim; an anchor label always shows.
+       Preferred: a row where the whole block fits. Fallback: a row where at
+       least the diamond fits (the label tail may then overlap, but the halo
+       keeps it legible — same as the old behavior, now rare). */
     EVENTS.forEach(function(e) {
-      if (e._ex >= -80 && e._ex <= W + 80) {
-        allOcc[e._row].push([e._ex - 8, e._ex + 8]);
+      if (!e.anchor || !e._vis) { return; }
+      var da = e._ex - 10, la = e._ex + 8, lb = la + e._lw;
+      var row = -1, r;
+      for (r = 0; r < EV_ROWS; r++) {
+        if (fitsIvs(rowOcc[r], da, lb)) { row = r; break; }
       }
+      if (row < 0) {
+        for (r = 0; r < EV_ROWS; r++) {
+          if (fitsIvs(rowOcc[r], da, e._ex + 10)) { row = r; break; }
+        }
+      }
+      if (row < 0) { row = 0; }
+      e._row = row;
+      rowOcc[row].push([da, lb]);
+      e._placed = ['start', la, lb];
     });
-    [true, false].forEach(function(anchorsPass) {
-      EVENTS.forEach(function(e) {
-        if (!e.anchor !== !anchorsPass) { return; }
-        var placed = null;
-        if (e._ex >= -80 && e._ex <= W + 80) {
-          var la = e._ex + 8, lb = la + e._lw;
-          if (fitsIn(labelsOcc, e._row, la, lb) &&
-              (e.anchor || fitsIn(allOcc, e._row, la, lb))) {
-            placed = ['start', la, lb];
-          } else {
-            var lc = e._ex - 8 - e._lw, ld = e._ex - 8;
-            if (lc >= 2 && fitsIn(labelsOcc, e._row, lc, ld) &&
-                (e.anchor || fitsIn(allOcc, e._row, lc, ld))) {
-              placed = ['end', lc, ld];
-            }
+
+    /* other diamonds: first-fit into free space */
+    EVENTS.forEach(function(e, i) {
+      if (e.anchor || !e._vis) { return; }
+      var da = e._ex - 10, db = e._ex + 10;
+      var row = -1;
+      for (var r = 0; r < EV_ROWS; r++) {
+        if (fitsIvs(rowOcc[r], da, db)) { row = r; break; }
+      }
+      if (row < 0) { row = i % EV_ROWS; }  /* extreme overview crowding */
+      e._row = row;
+      rowOcc[row].push([da, db]);
+    });
+
+    /* position diamonds; place remaining labels */
+    EVENTS.forEach(function(e) {
+      e._node.style('display', e._vis ? null : 'none');
+      if (e._vis) {
+        e._node.attr('transform', 'translate(' + e._ex + ',' + rowYc(e._row) + ')');
+      }
+      if (!e.anchor && e._vis) {
+        var la = e._ex + 8, lb = la + e._lw;
+        if (fitsIvs(rowOcc[e._row], la, lb)) {
+          e._placed = ['start', la, lb];
+        } else {
+          var lc = e._ex - 8 - e._lw, ld = e._ex - 8;
+          if (lc >= 2 && fitsIvs(rowOcc[e._row], lc, ld)) {
+            e._placed = ['end', lc, ld];
           }
         }
-        e._labelNode.style('display', placed ? null : 'none');
-        if (placed) {
-          e._labelNode
-            .attr('text-anchor', placed[0] === 'end' ? 'end' : null)
-            .attr('x', placed[0] === 'end' ? placed[2] : placed[1]);
-          labelsOcc[e._row].push([placed[1], placed[2]]);
-          allOcc[e._row].push([placed[1], placed[2]]);
-        }
-      });
+        if (e._placed) { rowOcc[e._row].push([e._placed[1], e._placed[2]]); }
+      }
+      e._labelNode.style('display', e._placed ? null : 'none');
+      if (e._placed) {
+        e._labelNode
+          .attr('text-anchor', e._placed[0] === 'end' ? 'end' : null)
+          .attr('x', e._placed[0] === 'end' ? e._placed[2] : e._placed[1])
+          .attr('y', rowYc(e._row) + 3.5);
+      }
     });
 
     /* People bars */
