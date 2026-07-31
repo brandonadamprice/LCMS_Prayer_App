@@ -80,23 +80,54 @@
     height: clamp(430px, 72vh, 640px);
     overflow: hidden;
     background:
-      radial-gradient(ellipse at 50% 0%, rgba(175,145,100,0.10), transparent 60%),
+      radial-gradient(circle at 18% 12%, rgba(175,145,100,0.10) 0, transparent 45%),
+      radial-gradient(circle at 82% 88%, rgba(101,52,47,0.06) 0, transparent 45%),
+      radial-gradient(ellipse at 50% 0%, rgba(175,145,100,0.12), transparent 55%),
       var(--color-bg);
     cursor: grab;
   }
-  .tl-viewport:active { cursor: grabbing; }
-  #tl-svg { width: 100%; height: 100%; display: block; }
+  body.dark-mode .tl-viewport {
+    background:
+      radial-gradient(circle at 18% 12%, rgba(196,168,120,0.08) 0, transparent 45%),
+      radial-gradient(circle at 82% 88%, rgba(101,52,47,0.14) 0, transparent 45%),
+      radial-gradient(ellipse at 50% 0%, rgba(196,168,120,0.09), transparent 55%),
+      var(--color-bg);
+  }
+  .tl-viewport::after {  /* soft vignette so edges recede */
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    box-shadow: inset 0 14px 22px -16px rgba(101,52,47,0.28),
+                inset 0 -14px 22px -16px rgba(101,52,47,0.18);
+  }
+  #tl-svg { width: 100%; height: 100%; display: block; animation: tl-fade 0.5s ease-out; }
+  @keyframes tl-fade { from { opacity: 0; } to { opacity: 1; } }
 
-  /* ---- Bars & markers (fills via CSS so dark mode just works) ---- */
-  .tl-bar { stroke: rgba(0,0,0,0.25); stroke-width: 0.6; cursor: pointer; }
-  .tl-bar.cls-leader  { fill: #7d6f5e; }
-  .tl-bar.cls-good    { fill: #27ae60; }
-  .tl-bar.cls-mixed   { fill: #d4913a; }
-  .tl-bar.cls-bad     { fill: #c0392b; }
-  .tl-bar.cls-prophet { fill: #8e44ad; }
-  .tl-bar.cls-apostle { fill: #7a453e; }
-  .tl-bar.cls-christ  { fill: #af9164; stroke: #65342f; stroke-width: 1.2; }
-  body.dark-mode .tl-bar { stroke: rgba(0,0,0,0.5); }
+  /* ---- Bars & markers (gradient fills from SVG defs; strokes via CSS) ---- */
+  .tl-bar {
+    stroke: rgba(0,0,0,0.22);
+    stroke-width: 0.6;
+    cursor: pointer;
+    transition: filter 0.15s;
+  }
+  @media (hover: hover) {
+    .tl-bar:hover { filter: brightness(1.12) saturate(1.08); }
+  }
+  .tl-bar.cls-leader  { fill: url(#tlg-leader); }
+  .tl-bar.cls-good    { fill: url(#tlg-good); }
+  .tl-bar.cls-mixed   { fill: url(#tlg-mixed); }
+  .tl-bar.cls-bad     { fill: url(#tlg-bad); }
+  .tl-bar.cls-prophet { fill: url(#tlg-prophet); }
+  .tl-bar.cls-apostle { fill: url(#tlg-apostle); }
+  .tl-bar.cls-christ  {
+    fill: url(#tlg-christ);
+    stroke: #65342f;
+    stroke-width: 1.2;
+    filter: drop-shadow(0 0 6px rgba(175,145,100,0.75));
+  }
+  body.dark-mode .tl-bar { stroke: rgba(0,0,0,0.45); }
+  body.dark-mode .tl-bar.cls-christ { filter: drop-shadow(0 0 7px rgba(196,168,120,0.8)); }
 
   .tl-bar-label {
     font-family: 'Montserrat', sans-serif;
@@ -107,8 +138,13 @@
   }
   .tl-bar-label.outside { fill: var(--color-text); font-weight: 600; }
 
-  .tl-event { fill: #2c3e50; stroke: var(--color-bg); stroke-width: 1; cursor: pointer; }
-  body.dark-mode .tl-event { fill: #d5dde5; }
+  .tl-event { fill: #4a5a68; stroke: var(--color-bg); stroke-width: 1; cursor: pointer; transition: filter 0.15s; }
+  .tl-event.anchor { fill: #af9164; stroke: #65342f; stroke-width: 1; }
+  body.dark-mode .tl-event { fill: #b9c4cf; }
+  body.dark-mode .tl-event.anchor { fill: #c4a878; stroke: #2a2622; }
+  @media (hover: hover) {
+    .tl-event:hover { filter: brightness(1.2); }
+  }
   .tl-event-label {
     font-family: 'Montserrat', sans-serif;
     font-size: 10.5px;
@@ -119,23 +155,30 @@
     stroke-width: 3px;
     stroke-linejoin: round;
   }
-  .tl-event-label.anchor { font-weight: 700; fill: var(--color-text); font-size: 11px; }
+  .tl-event-label.anchor { font-weight: 700; fill: var(--color-accent-dark); font-size: 11px; }
+  body.dark-mode .tl-event-label.anchor { fill: #c4a878; }
 
   .tl-era { cursor: pointer; }
-  .tl-era.shade-a { fill: rgba(175,145,100,0.07); }
-  .tl-era.shade-b { fill: rgba(101,52,47,0.06); }
-  body.dark-mode .tl-era.shade-a { fill: rgba(175,145,100,0.10); }
-  body.dark-mode .tl-era.shade-b { fill: rgba(255,255,255,0.045); }
+  .tl-era.shade-a { fill: url(#tlg-era-a); }
+  .tl-era.shade-b { fill: url(#tlg-era-b); }
+  .tl-era-chip {
+    fill: var(--color-card-bg);
+    fill-opacity: 0.72;
+    stroke: var(--color-border);
+    stroke-width: 1;
+    pointer-events: none;
+  }
   .tl-era-label {
     font-family: 'Montserrat', sans-serif;
-    font-size: 11px;
+    font-size: 10.5px;
     font-weight: 700;
-    letter-spacing: 1.2px;
+    letter-spacing: 1.6px;
     text-transform: uppercase;
     fill: var(--color-accent-dark);
     pointer-events: none;
   }
-  .tl-era-line { stroke: var(--color-border); stroke-width: 1; }
+  body.dark-mode .tl-era-label { fill: #c4a878; }
+  .tl-era-line { stroke: var(--color-accent); stroke-opacity: 0.28; stroke-width: 1; stroke-dasharray: 1 5; stroke-linecap: round; }
 
   .tl-lane-label {
     font-family: 'Montserrat', sans-serif;
@@ -144,10 +187,18 @@
     letter-spacing: 1.4px;
     text-transform: uppercase;
     fill: var(--text-faint);
+    paint-order: stroke;
+    stroke: var(--color-bg);
+    stroke-width: 3px;
+    stroke-linejoin: round;
   }
-  .tl-axis text { font-family: 'Montserrat', sans-serif; font-size: 11px; fill: var(--color-muted); }
-  .tl-axis line, .tl-axis path { stroke: var(--color-border); }
-  .tl-grid { stroke: var(--color-border); stroke-opacity: 0.55; stroke-width: 0.7; }
+  .tl-lane-rule { stroke: var(--color-accent); stroke-opacity: 0.35; stroke-width: 2; stroke-linecap: round; }
+  .tl-axis text { font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 600; fill: var(--color-muted); }
+  .tl-axis line { stroke: var(--color-border); }
+  .tl-axis path { display: none; }
+  .tl-axis-bg { fill: var(--color-card-bg); fill-opacity: 0.5; }
+  .tl-grid { stroke: var(--color-border); stroke-opacity: 0.45; stroke-width: 0.7; }
+  .tl-adline { stroke: var(--color-accent-dark); stroke-opacity: 0.4; stroke-width: 1.2; stroke-dasharray: 5 4; }
 
   .tl-highlight { filter: drop-shadow(0 0 7px #c0392b); }
 
@@ -430,6 +481,28 @@
   var W = vp.clientWidth, H = vp.clientHeight;
   var svg = d3.select('#tl-svg').attr('width', W).attr('height', H);
 
+  /* Gradient defs: a lighter top edge gives the bars a gentle rounded sheen;
+     era bands fade toward the bottom so they frame without dominating. */
+  var defs = svg.append('defs');
+  [['leader', '#95866f', '#71634f'], ['good', '#33b96d', '#1e9450'],
+   ['mixed', '#e0a44a', '#c07d2b'], ['bad', '#d0503c', '#a83224'],
+   ['prophet', '#9d59be', '#7d3a9b'], ['apostle', '#8d554a', '#6a3c33'],
+   ['christ', '#c9ad76', '#a5854f']].forEach(function(g) {
+    var gr = defs.append('linearGradient')
+      .attr('id', 'tlg-' + g[0])
+      .attr('x1', 0).attr('y1', 0).attr('x2', 0).attr('y2', 1);
+    gr.append('stop').attr('offset', '0%').attr('stop-color', g[1]);
+    gr.append('stop').attr('offset', '100%').attr('stop-color', g[2]);
+  });
+  [['era-a', 'rgba(175,145,100,0.16)', 'rgba(175,145,100,0.03)'],
+   ['era-b', 'rgba(101,52,47,0.13)', 'rgba(101,52,47,0.02)']].forEach(function(g) {
+    var gr = defs.append('linearGradient')
+      .attr('id', 'tlg-' + g[0])
+      .attr('x1', 0).attr('y1', 0).attr('x2', 0).attr('y2', 1);
+    gr.append('stop').attr('offset', '0%').attr('stop-color', g[1]);
+    gr.append('stop').attr('offset', '100%').attr('stop-color', g[2]);
+  });
+
   var Y0 = -2150, Y1 = 130;           /* year domain, BC negative */
   var AXIS_H = 30, ERA_H = 26, EVENT_H = 58;
   var BAR_H = 17, BAR_GAP = 4, LANE_PAD = 14;
@@ -553,6 +626,14 @@
         .attr('y1', ERA_H).attr('y2', H - AXIS_H);
     });
 
+    /* BC/AD divider */
+    var adx = x(0);
+    if (adx > 0 && adx < W) {
+      gMain.append('line').attr('class', 'tl-adline')
+        .attr('x1', adx).attr('x2', adx)
+        .attr('y1', ERA_H).attr('y2', H - AXIS_H);
+    }
+
     /* Eras */
     ERAS.forEach(function(e, i) {
       var xa = x(e.from), xb = x(e.to);
@@ -565,10 +646,15 @@
       gMain.append('line').attr('class', 'tl-era-line')
         .attr('x1', xa).attr('x2', xa).attr('y1', 0).attr('y2', H - AXIS_H);
       var label = e.n.toUpperCase();
-      if (xb - xa > estWidth(label, 11)) {
+      var lw = estWidth(label, 10.5) + 8;  /* letterspacing makes them run long */
+      if (xb - xa > lw + 16) {
+        var cx = (Math.max(0, xa) + Math.min(W, xb)) / 2;
+        gMain.append('rect').attr('class', 'tl-era-chip')
+          .attr('x', cx - lw / 2 - 9).attr('y', 4)
+          .attr('width', lw + 18).attr('height', 19)
+          .attr('rx', 9.5);
         gMain.append('text').attr('class', 'tl-era-label')
-          .attr('x', (Math.max(0, xa) + Math.min(W, xb)) / 2)
-          .attr('y', 17).attr('text-anchor', 'middle')
+          .attr('x', cx).attr('y', 17.5).attr('text-anchor', 'middle')
           .text(label);
       }
     });
@@ -585,10 +671,11 @@
       if (ex < -80 || ex > W + 80) { return; }
       var row = i % 2;
       var ey = ERA_H + 16 + row * 22;
+      var r = e.anchor ? 7 : 5.5, rh = e.anchor ? 7.5 : 6;
       gMain.append('path')
-        .attr('class', 'tl-event')
-        .attr('d', 'M' + ex + ',' + (ey - 6) + ' L' + (ex + 5.5) + ',' + ey +
-                   ' L' + ex + ',' + (ey + 6) + ' L' + (ex - 5.5) + ',' + ey + ' Z')
+        .attr('class', 'tl-event' + (e.anchor ? ' anchor' : ''))
+        .attr('d', 'M' + ex + ',' + (ey - rh) + ' L' + (ex + r) + ',' + ey +
+                   ' L' + ex + ',' + (ey + rh) + ' L' + (ex - r) + ',' + ey + ' Z')
         .on('click', function(ev) { showTip(e, 'event', ev.clientX, ev.clientY); ev.stopPropagation(); })
         .append('title').text(e.n + ' (' + fmtYear(e.yr) + ')');
     });
@@ -611,8 +698,11 @@
 
     /* Lanes */
     LANES.forEach(function(l) {
+      gMain.append('line').attr('class', 'tl-lane-rule')
+        .attr('x1', 8).attr('x2', 8)
+        .attr('y1', l.y0 - 12).attr('y2', l.y0 - 1);
       gMain.append('text').attr('class', 'tl-lane-label')
-        .attr('x', 8).attr('y', l.y0 - 3)
+        .attr('x', 15).attr('y', l.y0 - 3)
         .text(l.label);
       l.items.forEach(function(p) {
         var xa = x(p.from), xb = x(p.to);
@@ -641,9 +731,14 @@
     });
 
     /* Axis */
+    gMain.append('rect').attr('class', 'tl-axis-bg')
+      .attr('x', 0).attr('y', H - AXIS_H)
+      .attr('width', W).attr('height', AXIS_H);
     var axis = d3.axisBottom(x)
       .ticks(Math.max(4, Math.floor(W / 110)))
-      .tickFormat(fmtYear);
+      .tickFormat(fmtYear)
+      .tickSize(5)
+      .tickPadding(6);
     gMain.append('g')
       .attr('class', 'tl-axis')
       .attr('transform', 'translate(0,' + (H - AXIS_H) + ')')
