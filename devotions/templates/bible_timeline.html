@@ -73,6 +73,23 @@
     margin-right: 5px;
     vertical-align: middle;
   }
+  /* Narrow screens (phones, foldable cover displays): the controls bar is
+     sticky, and fully wrapped it eats a third of the screen. Era jumps and
+     the legend collapse to single swipeable lines instead. (Must sit after
+     the base .tl-era-group/.tl-legend rules to win the cascade.) */
+  @media (max-width: 720px) {
+    .tl-era-group, .tl-legend {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      max-width: 100%;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .tl-era-group::-webkit-scrollbar, .tl-legend::-webkit-scrollbar { display: none; }
+    .tl-era-group .tl-btn { flex: 0 0 auto; }
+    .tl-legend { margin-left: 0; width: 100%; }
+    .tl-legend > span { white-space: nowrap; flex: 0 0 auto; }
+  }
 
   .tl-viewport {
     position: relative;
