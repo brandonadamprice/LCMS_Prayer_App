@@ -753,19 +753,47 @@
       e._node.style('display', e._ex >= -80 && e._ex <= W + 80 ? null : 'none')
         .attr('transform', 'translate(' + e._ex + ',' + e._ey + ')');
     });
-    var occupied = [[], []];
-    function labelFits(row, a, b) {
-      return occupied[row].every(function(iv) { return b < iv[0] || a > iv[1]; });
+    /* Labels must never overlap other labels (labelsOcc); non-anchor
+       labels must also dodge diamond markers (allOcc) so a marker never
+       pierces their text — anchors skip that test because their halo
+       keeps them legible and they must survive at overview zoom. A label
+       that cannot sit right of its diamond tries the left side before
+       giving up. */
+    var labelsOcc = [[], []], allOcc = [[], []];
+    /* touching intervals do not collide: a label's own left edge sits
+       exactly on its diamond's reserved stub */
+    function fitsIn(list, row, a, b) {
+      return list[row].every(function(iv) { return b <= iv[0] || a >= iv[1]; });
     }
+    EVENTS.forEach(function(e) {
+      if (e._ex >= -80 && e._ex <= W + 80) {
+        allOcc[e._row].push([e._ex - 8, e._ex + 8]);
+      }
+    });
     [true, false].forEach(function(anchorsPass) {
       EVENTS.forEach(function(e) {
         if (!e.anchor !== !anchorsPass) { return; }
-        var la = e._ex + 8, lb = la + e._lw;
-        var show = e._ex >= -80 && e._ex <= W + 80 && labelFits(e._row, e._ex - 6, lb);
-        e._labelNode.style('display', show ? null : 'none');
-        if (show) {
-          e._labelNode.attr('x', la);
-          occupied[e._row].push([e._ex - 6, lb]);
+        var placed = null;
+        if (e._ex >= -80 && e._ex <= W + 80) {
+          var la = e._ex + 8, lb = la + e._lw;
+          if (fitsIn(labelsOcc, e._row, la, lb) &&
+              (e.anchor || fitsIn(allOcc, e._row, la, lb))) {
+            placed = ['start', la, lb];
+          } else {
+            var lc = e._ex - 8 - e._lw, ld = e._ex - 8;
+            if (lc >= 2 && fitsIn(labelsOcc, e._row, lc, ld) &&
+                (e.anchor || fitsIn(allOcc, e._row, lc, ld))) {
+              placed = ['end', lc, ld];
+            }
+          }
+        }
+        e._labelNode.style('display', placed ? null : 'none');
+        if (placed) {
+          e._labelNode
+            .attr('text-anchor', placed[0] === 'end' ? 'end' : null)
+            .attr('x', placed[0] === 'end' ? placed[2] : placed[1]);
+          labelsOcc[e._row].push([placed[1], placed[2]]);
+          allOcc[e._row].push([placed[1], placed[2]]);
         }
       });
     });
@@ -806,8 +834,14 @@
       render();
     });
   }
+  /* Max zoom targets ~60 px/yr of detail regardless of screen width — a
+     phone needs a much larger scale factor than a desktop to reach the
+     same legibility, and a fixed cap left narrow screens unable to ever
+     separate close-packed event labels. */
+  var MAX_PX_PER_YEAR_ZOOM = 60;
+  function maxK() { return MAX_PX_PER_YEAR_ZOOM / (W / (Y1 - Y0)); }
   var zoomBeh = d3.zoom()
-    .scaleExtent([1, 60])
+    .scaleExtent([1, maxK()])
     .translateExtent([[0, 0], [W, H]])
     .on('zoom', function(ev) {
       curX = ev.transform.rescaleX(x0);
@@ -846,7 +880,7 @@
   }, {capture: true, passive: true});
 
   function zoomToYears(a, b) {
-    var k = Math.min(60, W / (x0(b) - x0(a)));
+    var k = Math.min(maxK(), W / (x0(b) - x0(a)));
     var t = d3.zoomIdentity.scale(k).translate(-x0(a), 0);
     svg.transition().duration(650).call(zoomBeh.transform, t);
   }
@@ -899,7 +933,7 @@
     H = vp.clientHeight;
     svg.attr('width', W).attr('height', H);
     x0.range([0, W]);
-    zoomBeh.translateExtent([[0, 0], [W, H]]);
+    zoomBeh.translateExtent([[0, 0], [W, H]]).scaleExtent([1, maxK()]);
     buildScene();  /* heights are baked in at build time */
     scheduleRender();
   });
@@ -912,9 +946,12 @@
      the richest stretch, where all three lanes have content. Panning and
      the era jumps reach the rest, and Fit All still shows the whole sweep
      on request. */
-  var MIN_PX_PER_YEAR = 1.1;
-  if (W / (Y1 - Y0) < MIN_PX_PER_YEAR) {
-    var startSpan = W / MIN_PX_PER_YEAR;
+  /* Trigger only when fit-all is genuinely unreadable (desktop fit-all is
+     ~0.56 px/yr and stays the default); land at 1.1 px/yr, where longer
+     reigns carry their names inline. */
+  var TRIGGER_PX_PER_YEAR = 0.55, START_PX_PER_YEAR = 1.1;
+  if (W / (Y1 - Y0) < TRIGGER_PX_PER_YEAR) {
+    var startSpan = W / START_PX_PER_YEAR;
     var k0 = (Y1 - Y0) / startSpan;
     var startYr = Math.max(Y0, Math.min(-1060, Y1 - startSpan));
     svg.call(zoomBeh.transform, d3.zoomIdentity.scale(k0).translate(-x0(startYr), 0));
