@@ -58,6 +58,13 @@ class StaticMenuTests(unittest.TestCase):
       self.assertIsNotNone(morning)
       self.assertTrue(morning["enabled"])
 
+  def test_calendar_dropdown_groups_calendar_pages(self):
+    items = menu.get_menu_items(False, False, False)
+    calendar = next(t for t in items if t.get("label") == "Calendar")
+    self.assertEqual(calendar["type"], "dropdown")
+    labels = [sub["label"] for sub in calendar["submenu"]]
+    self.assertEqual(labels, ["Liturgical Calendar", "Church Year Wheel"])
+
   def test_structure_shape(self):
     items = menu.get_menu_items(False, False, False)
     self.assertIsInstance(items, list)

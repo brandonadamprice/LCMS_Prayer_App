@@ -103,11 +103,6 @@ def get_menu_items(is_advent, is_new_year, is_lent):
                   "url": "/bible_family_tree",
                   "enabled": True,
               },
-              {
-                  "label": "Church Year Wheel",
-                  "url": "/church_year_wheel",
-                  "enabled": True,
-              },
           ],
       },
       {
@@ -180,9 +175,19 @@ def get_menu_items(is_advent, is_new_year, is_lent):
       },
       {
           "label": "Calendar",
-          "type": "link",
-          "url": "/liturgical_calendar",
-          "enabled": True,
+          "type": "dropdown",
+          "submenu": [
+              {
+                  "label": "Liturgical Calendar",
+                  "url": "/liturgical_calendar",
+                  "enabled": True,
+              },
+              {
+                  "label": "Church Year Wheel",
+                  "url": "/church_year_wheel",
+                  "enabled": True,
+              },
+          ],
       },
       {
           "label": "Feedback",
