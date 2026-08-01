@@ -146,6 +146,54 @@ key* SHA-1 and SHA-256 → add both as fingerprints in Firebase (step 2) →
 re-download and commit `google-services.json`. Without this, Google sign-in
 fails on Play-installed builds even though your local build works.
 
+## 7. CI release via GitHub Actions
+
+Once steps 5–6 are done by hand at least once, subsequent releases can run
+from GitHub: **Actions → Android Release → Run workflow**. The workflow
+(`.github/workflows/android-release.yml`) runs `npm ci` + `npx cap sync
+android`, builds a signed AAB with the upload key, keeps the AAB as a run
+artifact, and releases it to the **internal testing** track with
+`r0adkll/upload-google-play`. By default it then **promotes** that release
+to **production** (`kevin-david/promote-play-release`) — untick "Also
+promote the internal release to production" to stop at internal (e.g. to
+device-test first; a later run of just the promote step isn't wired up, so
+in that case finish the rollout by promoting in the Play Console UI).
+Promotion, not re-upload, is deliberate: Play rejects the same
+`versionCode` uploaded twice, so production reuses the internal release.
+
+One-time setup — add these **repository secrets** (Settings → Secrets and
+variables → Actions):
+
+| Secret | Value |
+| --- | --- |
+| `ANDROID_KEYSTORE_BASE64` | The upload keystore from step 5, base64-encoded. Windows PowerShell: `[Convert]::ToBase64String([IO.File]::ReadAllBytes("C:\aswtp-keystore.jks")) \| Set-Clipboard`. Linux: `base64 -w0 upload-keystore.jks`; macOS: `base64 -i upload-keystore.jks`. |
+| `ANDROID_KEYSTORE_PASSWORD` | The keystore password. |
+| `ANDROID_KEY_ALIAS` | The key alias (e.g. `upload`). |
+| `ANDROID_KEY_PASSWORD` | The key password (often same as the keystore password). |
+| `PLAY_SERVICE_ACCOUNT_JSON` | Full JSON key of a Google Cloud service account that Play Console trusts (below). |
+
+Creating the Play service account:
+
+1. Google Cloud console (any project you own, e.g. **lcms-prayer-app**) →
+   IAM & Admin → **Service Accounts** → Create (no project roles needed) →
+   Keys → Add key → **JSON**. Paste the whole file into the
+   `PLAY_SERVICE_ACCOUNT_JSON` secret.
+2. Play Console → **Users and permissions** → Invite new users → the
+   service account's email → App permissions: this app → permissions:
+   **Release to testing tracks** AND **Release to production** (the
+   default workflow run promotes to production, so both are required).
+
+Gotchas:
+
+- **Bump `versionCode` before every run** — the workflow builds whatever is
+  committed, and Play rejects a reused code (this is the same rule as the
+  Versioning section in `CLAUDE.md`). A re-run after a successful upload
+  fails for this reason; that's expected.
+- The signing config in `mobile/android/app/build.gradle` only activates
+  when the `ANDROID_KEYSTORE_*` env vars are set (i.e. in CI). Local
+  Android Studio builds are untouched and keep using Build → Generate
+  Signed App Bundle.
+
 ## Troubleshooting
 
 - **Build fails with `JdkImageTransform` / `jlink.exe` /
@@ -214,6 +262,7 @@ into the app, and launcher shortcuts become possible later.
 - Web deploys update the app content immediately; no store release needed.
 - A new APK/AAB is only needed when `mobile/` changes: Capacitor/plugin
   upgrades or config changes. After any `mobile/package.json` change run
-  `npx cap sync android` and commit the result.
+  `npx cap sync android` and commit the result. Ship it via the **Android
+  Release** GitHub Action (step 7) — bump `versionCode` first.
 - iOS later reuses this exact project: `npx cap add ios`, plus the items in
   `docs/native-apps.md` step 5 (Sign in with Apple, APNs, Guideline 4.2).

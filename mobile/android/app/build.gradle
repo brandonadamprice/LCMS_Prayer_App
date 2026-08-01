@@ -7,8 +7,8 @@ android {
         applicationId "com.hallowedgains.aswtp"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 4
-        versionName "1.0.3"
+        versionCode 5
+        versionName "1.0.4"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -16,10 +16,27 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    // CI signing (see .github/workflows/android-release.yml): only wired up
+    // when the env vars are present, so local/Android Studio builds are
+    // unaffected and keep using the Generate Signed Bundle flow.
+    def ciKeystorePath = System.getenv("ANDROID_KEYSTORE_PATH")
+    if (ciKeystorePath) {
+        signingConfigs {
+            release {
+                storeFile file(ciKeystorePath)
+                storePassword System.getenv("ANDROID_KEYSTORE_PASSWORD")
+                keyAlias System.getenv("ANDROID_KEY_ALIAS")
+                keyPassword System.getenv("ANDROID_KEY_PASSWORD")
+            }
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            if (ciKeystorePath) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 }
