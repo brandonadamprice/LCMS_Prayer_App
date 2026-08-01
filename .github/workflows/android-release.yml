@@ -103,7 +103,7 @@ jobs:
 
       - name: Promote internal release to production
         if: ${{ inputs.promote_to_production }}
-        uses: kevin-david/promote-play-release@v1
+        uses: kevin-david/promote-play-release@v1.2.0
         with:
           service-account-json-raw: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
           package-name: com.hallowedgains.aswtp
