@@ -1,0 +1,34 @@
+# Promotes the current internal-testing release to production WITHOUT
+# rebuilding or re-uploading. Use this when the Android Release workflow's
+# promote step failed transiently (the Play API 503s now and then) — a full
+# re-run would fail anyway, since the internal upload already consumed the
+# versionCode and Play rejects duplicates.
+
+name: Android Promote to Production
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify release secret is configured
+        env:
+          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        run: |
+          if [ -z "$PLAY_SERVICE_ACCOUNT_JSON" ]; then
+            echo "::error::Missing repository secret PLAY_SERVICE_ACCOUNT_JSON — see docs/capacitor-android.md, 'CI release via GitHub Actions'"
+            exit 1
+          fi
+
+      - name: Promote internal release to production
+        uses: kevin-david/promote-play-release@v1.2.0
+        with:
+          service-account-json-raw: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          package-name: com.hallowedgains.aswtp
+          from-track: internal
+          to-track: production

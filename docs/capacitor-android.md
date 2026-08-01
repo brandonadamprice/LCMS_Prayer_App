@@ -156,10 +156,18 @@ artifact, and releases it to the **internal testing** track with
 `r0adkll/upload-google-play`. By default it then **promotes** that release
 to **production** (`kevin-david/promote-play-release`) — untick "Also
 promote the internal release to production" to stop at internal (e.g. to
-device-test first; a later run of just the promote step isn't wired up, so
-in that case finish the rollout by promoting in the Play Console UI).
-Promotion, not re-upload, is deliberate: Play rejects the same
-`versionCode` uploaded twice, so production reuses the internal release.
+device-test first). Promotion, not re-upload, is deliberate: Play rejects
+the same `versionCode` uploaded twice, so production reuses the internal
+release.
+
+A second workflow, **Android Promote to Production**
+(`.github/workflows/android-promote.yml`), promotes the current internal
+release without rebuilding. Use it to go live after an internal-only run,
+or when the release workflow's promote step failed transiently (the Play
+API 503s occasionally; the release workflow retries once automatically).
+Never re-run the full release workflow for a failed promotion — the
+internal upload already consumed the `versionCode`, so the re-run's upload
+step would be rejected as a duplicate.
 
 One-time setup — add these **repository secrets** (Settings → Secrets and
 variables → Actions):
