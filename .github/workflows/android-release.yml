@@ -101,8 +101,27 @@ jobs:
           track: internal
           status: completed
 
+      # The Play API 503s transiently now and then, so the promotion gets one
+      # automatic retry after a minute. If both attempts fail, run the
+      # "Android Promote to Production" workflow — do NOT re-run this one,
+      # the internal upload already consumed the versionCode.
       - name: Promote internal release to production
+        id: promote
         if: ${{ inputs.promote_to_production }}
+        continue-on-error: true
+        uses: kevin-david/promote-play-release@v1.2.0
+        with:
+          service-account-json-raw: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          package-name: com.hallowedgains.aswtp
+          from-track: internal
+          to-track: production
+
+      - name: Wait before retrying promotion
+        if: ${{ inputs.promote_to_production && steps.promote.outcome == 'failure' }}
+        run: sleep 60
+
+      - name: Retry promotion
+        if: ${{ inputs.promote_to_production && steps.promote.outcome == 'failure' }}
         uses: kevin-david/promote-play-release@v1.2.0
         with:
           service-account-json-raw: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
