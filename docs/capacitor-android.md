@@ -160,7 +160,7 @@ variables → Actions):
 
 | Secret | Value |
 | --- | --- |
-| `ANDROID_KEYSTORE_BASE64` | The upload keystore from step 5, base64-encoded: `base64 -w0 upload-keystore.jks` (macOS: `base64 -i upload-keystore.jks`). |
+| `ANDROID_KEYSTORE_BASE64` | The upload keystore from step 5, base64-encoded. Windows PowerShell: `[Convert]::ToBase64String([IO.File]::ReadAllBytes("C:\aswtp-keystore.jks")) \| Set-Clipboard`. Linux: `base64 -w0 upload-keystore.jks`; macOS: `base64 -i upload-keystore.jks`. |
 | `ANDROID_KEYSTORE_PASSWORD` | The keystore password. |
 | `ANDROID_KEY_ALIAS` | The key alias (e.g. `upload`). |
 | `ANDROID_KEY_PASSWORD` | The key password (often same as the keystore password). |
