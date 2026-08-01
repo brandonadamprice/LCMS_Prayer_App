@@ -5,28 +5,21 @@
 # Manual-trigger only: a store release is only needed when mobile/ changes,
 # and every upload consumes the committed versionCode (Play rejects reuse),
 # so releases are deliberate, not per-push.
+#
+# Every run releases to the internal testing track. By default it then
+# promotes that same release to production (Play rejects uploading the same
+# versionCode twice, so production is a track *promotion* of the internal
+# release, not a second upload). Untick the box to stop at internal.
 
 name: Android Release
 
 on:
   workflow_dispatch:
     inputs:
-      track:
-        description: "Play track to upload to"
-        type: choice
-        default: internal
-        options:
-          - internal
-          - alpha
-          - beta
-          - production
-      status:
-        description: "Release status (use 'draft' until the app's first Play release is published)"
-        type: choice
-        default: completed
-        options:
-          - completed
-          - draft
+      promote_to_production:
+        description: "Also promote the internal release to production"
+        type: boolean
+        default: true
 
 permissions:
   contents: read
@@ -99,11 +92,20 @@ jobs:
           path: mobile/android/app/build/outputs/bundle/release/app-release.aab
           if-no-files-found: error
 
-      - name: Upload to Google Play
+      - name: Release to internal testing
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
           packageName: com.hallowedgains.aswtp
           releaseFiles: mobile/android/app/build/outputs/bundle/release/app-release.aab
-          track: ${{ inputs.track }}
-          status: ${{ inputs.status }}
+          track: internal
+          status: completed
+
+      - name: Promote internal release to production
+        if: ${{ inputs.promote_to_production }}
+        uses: kevin-david/promote-play-release@v1
+        with:
+          service-account-json-raw: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          package-name: com.hallowedgains.aswtp
+          from-track: internal
+          to-track: production

@@ -149,11 +149,17 @@ fails on Play-installed builds even though your local build works.
 ## 7. CI release via GitHub Actions
 
 Once steps 5–6 are done by hand at least once, subsequent releases can run
-from GitHub: **Actions → Android Release → Run workflow** (pick the Play
-track; keep `internal` for testing). The workflow
+from GitHub: **Actions → Android Release → Run workflow**. The workflow
 (`.github/workflows/android-release.yml`) runs `npm ci` + `npx cap sync
 android`, builds a signed AAB with the upload key, keeps the AAB as a run
-artifact, and uploads it to Play with `r0adkll/upload-google-play`.
+artifact, and releases it to the **internal testing** track with
+`r0adkll/upload-google-play`. By default it then **promotes** that release
+to **production** (`kevin-david/promote-play-release`) — untick "Also
+promote the internal release to production" to stop at internal (e.g. to
+device-test first; a later run of just the promote step isn't wired up, so
+in that case finish the rollout by promoting in the Play Console UI).
+Promotion, not re-upload, is deliberate: Play rejects the same
+`versionCode` uploaded twice, so production reuses the internal release.
 
 One-time setup — add these **repository secrets** (Settings → Secrets and
 variables → Actions):
@@ -173,9 +179,9 @@ Creating the Play service account:
    Keys → Add key → **JSON**. Paste the whole file into the
    `PLAY_SERVICE_ACCOUNT_JSON` secret.
 2. Play Console → **Users and permissions** → Invite new users → the
-   service account's email → App permissions: this app → Account
-   permissions: **Release to testing tracks** (add *Release to production*
-   only if you want CI production rollouts).
+   service account's email → App permissions: this app → permissions:
+   **Release to testing tracks** AND **Release to production** (the
+   default workflow run promotes to production, so both are required).
 
 Gotchas:
 
@@ -183,9 +189,6 @@ Gotchas:
   committed, and Play rejects a reused code (this is the same rule as the
   Versioning section in `CLAUDE.md`). A re-run after a successful upload
   fails for this reason; that's expected.
-- Until the app's **first production release is published by hand**, the
-  Play API can't set a release live — run the workflow with
-  `status: draft`, or just upload the very first build manually.
 - The signing config in `mobile/android/app/build.gradle` only activates
   when the `ANDROID_KEYSTORE_*` env vars are set (i.e. in CI). Local
   Android Studio builds are untouched and keep using Build → Generate
