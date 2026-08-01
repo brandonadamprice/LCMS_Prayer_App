@@ -229,6 +229,24 @@ async function printPage() {
         );
         if (include) document.body.classList.add('print-include-personal');
     }
+    // Inside the Capacitor shell window.print() is a silent no-op (Android
+    // WebViews ship no print handler), so hand the page to the native
+    // Printer plugin instead. 'afterprint' never fires on that path; the
+    // shell's App 'resume' listener clears the opt-in class.
+    if (window.isNativeShell) {
+        const Printer = window.Capacitor.Plugins.Printer;
+        if (!Printer) {
+            // Shell build predates the plugin — nothing to hand off to.
+            showToast('Printing needs the latest app update.', 'info');
+            return;
+        }
+        try {
+            await Printer.print({ name: document.title });
+        } catch (e) {
+            showToast('Printing is unavailable on this device.', 'error');
+        }
+        return;
+    }
     window.print();
 }
 
@@ -697,6 +715,13 @@ if (window.isNativeShell) {
             } catch (e) { /* not a navigable URL */ }
         };
         App.addListener('appUrlOpen', (event) => openDeepLink(event.url));
+
+        // The native print path (Printer plugin) never fires 'afterprint';
+        // coming back from the system print UI resumes the activity, so
+        // clear the personal-prayer opt-in here instead.
+        App.addListener('resume', () => {
+            document.body.classList.remove('print-include-personal');
+        });
         if (!sessionStorage.getItem('launchUrlHandled')) {
             sessionStorage.setItem('launchUrlHandled', 'true');
             App.getLaunchUrl()

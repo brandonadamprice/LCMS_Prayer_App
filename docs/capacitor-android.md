@@ -9,7 +9,10 @@ The code side is done and lives in this repo:
   hand-written code; `MainActivity.java` is 5 generated lines).
 - Plugins installed: `@capacitor-firebase/authentication` (OS-level Google
   sign-in → `/auth/firebase` bridge) and `@capacitor/push-notifications`
-  (native FCM token → `/save_fcm_token`, tap deep-links).
+  (native FCM token → `/save_fcm_token`, tap deep-links). Plus one custom
+  in-repo plugin: `PrinterPlugin.java` (registered in `MainActivity`), which
+  routes the web Print button through Android's `PrintManager` because
+  `window.print()` is a no-op inside a WebView.
 - Web-side wiring (ships with the Flask app; inert in normal browsers):
   `static/app.js` (shell detection, token registration/rotation, tap
   deep-link, foreground toast), `settings.html` (notification toggle native
@@ -99,6 +102,9 @@ Firebase Authentication (the web sign-in uses it).
 - [ ] Foreground push shows the toast.
 - [ ] External links (e.g. ESV copyright link) open in the browser, not the
       WebView.
+- [ ] **Print button** on a devotion page opens the Android print preview
+      (save as PDF is fine); personal prayers appear only after choosing
+      "Include" in the prompt.
 
 ## 5. Release build & Google Play
 
