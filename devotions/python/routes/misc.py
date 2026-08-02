@@ -7,6 +7,7 @@ import flask_login
 import models
 import secrets_fetcher
 from services import analytics_ga4
+import signup_analytics_logic
 import utils
 
 
@@ -179,6 +180,9 @@ def register(app, *, admin_required):
     registered_users = []
     streak_users = []
     registered_user_count = 0
+    signup_times = []
+    recent_signups = []
+    now_utc = datetime.datetime.now(datetime.timezone.utc)
     try:
       db = utils.get_db_client()
       users_ref = db.collection("users")
@@ -189,6 +193,23 @@ def register(app, *, admin_required):
 
       for doc in docs:
         data = doc.to_dict()
+
+        # Signup analytics. Legacy users created before created_at tracking
+        # began return None here and are simply left out of the signup stats
+        # (they still appear in the registered-users list below).
+        created_at = signup_analytics_logic.as_aware_utc(data.get("created_at"))
+        if created_at:
+          signup_times.append(created_at)
+          if created_at > now_utc - datetime.timedelta(days=30):
+            recent_signups.append({
+                "name": data.get("name", "Unknown"),
+                "email": data.get("email", "Unknown"),
+                "firebase_linked": bool(data.get("firebase_uid")),
+                "signed_up": created_at.astimezone(eastern_timezone).strftime(
+                    "%Y-%m-%d %I:%M %p"
+                ),
+                "_sort_key": created_at,
+            })
 
         # Prefer activity-based "last seen"; fall back to last_login for users
         # who haven't been active since last_seen tracking began.
@@ -249,6 +270,19 @@ def register(app, *, admin_required):
         1 for u in registered_users if u["firebase_linked"]
     )
 
+    # Signup analytics: window counts plus a weekly series for the chart.
+    # Pure math, computed even if the Firestore stream failed part-way.
+    recent_signups.sort(key=lambda x: x["_sort_key"], reverse=True)
+    signup_summary = signup_analytics_logic.summarize_signups(
+        signup_times, now_utc
+    )
+    signup_chart = {
+        "labels": [
+            w["start"].strftime("%b %d") for w in signup_summary["weekly"]
+        ],
+        "counts": [w["count"] for w in signup_summary["weekly"]],
+    }
+
     try:
       property_id = secrets_fetcher.get_ga4_property_id()
       data = analytics_ga4.fetch_traffic_stats(property_id)
@@ -256,6 +290,9 @@ def register(app, *, admin_required):
       data["registered_users"] = registered_users
       data["streak_users"] = streak_users
       data["firebase_linked_count"] = firebase_linked_count
+      data["signup_summary"] = signup_summary
+      data["signup_chart"] = signup_chart
+      data["recent_signups"] = recent_signups
       return flask.render_template("admin_traffic.html", **data)
     except Exception as e:
       # If fetch fails (e.g. secret not set), return error info
@@ -267,4 +304,7 @@ def register(app, *, admin_required):
           registered_users=registered_users,
           streak_users=streak_users,
           firebase_linked_count=firebase_linked_count,
+          signup_summary=signup_summary,
+          signup_chart=signup_chart,
+          recent_signups=recent_signups,
       )

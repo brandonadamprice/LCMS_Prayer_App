@@ -2,6 +2,25 @@
 {% block title %}Traffic Analytics (GA4){% endblock %}
 {% block body_scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+  new Chart(document.getElementById("signup-chart"), {
+    type: "bar",
+    data: {
+      labels: {{ signup_chart.labels | tojson }},
+      datasets: [{
+        label: "Signups",
+        data: {{ signup_chart.counts | tojson }},
+        backgroundColor: "#65342f",
+      }],
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, ticks: { precision: 0 } },
+      },
+    },
+  });
+</script>
 {% endblock %}
 
 {% block content %}
@@ -24,6 +43,66 @@
         {{ realtime_users }}
     </p>
     <p style="color: #7f8c8d; font-size: 0.9em;">Real-time active users on the site.</p>
+</div>
+
+<div class="card">
+    <h2>Recent Signups</h2>
+    <div style="display: flex; gap: 30px; flex-wrap: wrap;">
+        <div>
+            <p style="font-size: 2em; font-weight: bold; color: #65342f; margin: 10px 0;">
+                {{ signup_summary.last_7_days }}
+            </p>
+            <p style="color: #7f8c8d; font-size: 0.9em;">Last 7 days</p>
+        </div>
+        <div>
+            <p style="font-size: 2em; font-weight: bold; color: #65342f; margin: 10px 0;">
+                {{ signup_summary.last_30_days }}
+            </p>
+            <p style="color: #7f8c8d; font-size: 0.9em;">Last 30 days</p>
+        </div>
+    </div>
+    <div style="max-height: 220px; margin: 10px 0;">
+        <canvas id="signup-chart" height="80"></canvas>
+    </div>
+    <p style="color: #7f8c8d; font-size: 0.9em;">
+        Signups per week over the last {{ signup_chart.labels | length }} weeks.
+        {% if signup_summary.total_tracked < registered_user_count %}
+        ({{ registered_user_count - signup_summary.total_tracked }} older
+        account{{ 's' if registered_user_count - signup_summary.total_tracked != 1 }}
+        predate{{ 's' if registered_user_count - signup_summary.total_tracked == 1 }}
+        signup-date tracking and {{ 'is' if registered_user_count - signup_summary.total_tracked == 1 else 'are' }} not shown.)
+        {% endif %}
+    </p>
+    {% if recent_signups %}
+    <div style="max-height: 300px; overflow-y: auto; border: 1px solid #eee; border-radius: 4px;">
+        <table class="analytics-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th style="text-align: center;">Firebase</th>
+                    <th style="text-align: right;">Signed Up (EST)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in recent_signups %}
+                <tr>
+                    <td>{{ user.name }}</td>
+                    <td>{{ user.email }}</td>
+                    <td style="text-align: center;" title="{{ 'Signed in via Firebase Auth' if user.firebase_linked else 'Not yet signed in via Firebase Auth' }}">
+                        {% if user.firebase_linked %}<span style="color: #27ae60;">&#10003;</span>{% else %}<span style="color: #bdc3c7;">&mdash;</span>{% endif %}
+                    </td>
+                    <td style="text-align: right;">{{ user.signed_up }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p style="text-align: center; color: #7f8c8d; font-style: italic; margin: 20px 0;">
+        No signups in the last 30 days.
+    </p>
+    {% endif %}
 </div>
 
 <div class="card">
