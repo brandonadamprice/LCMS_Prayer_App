@@ -14,6 +14,7 @@ JS hit JSON endpoints on the same app.
 | `liturgy.py` | Church-year math: seasons, movable feasts (pure; unit-tested) |
 | `streak_logic.py` | Streak/grace-day date math (pure; unit-tested) |
 | `firebase_auth_logic.py` | Maps Firebase sign-ins onto user docs (pure; unit-tested) — see [firebase-auth-migration.md](firebase-auth-migration.md) |
+| `signup_analytics_logic.py` | Signup recency windows / weekly buckets for the admin traffic page (pure; unit-tested) |
 | `utils.py` | Firestore client, Fernet encryption helpers, scripture fetching, timezone helpers |
 | `menu.py` | Seasonal navigation menus (Advent/Lent/New Year variants) |
 | `communication.py` | Email (SMTP), SMS (Twilio), push (FCM via `firebase_admin`, initialized at import) |
@@ -97,5 +98,6 @@ put orchestration (lookups/writes) in thin service-layer functions around it.
   user id and provider; unverified-email rejections log warnings. A surprise
   `create` for a known email is the mis-linking canary.
 - `/admin/traffic` (admin-only): GA4 stats, registered users (with Firebase
-  migration status), active streaks.
+  migration status), recent signups (7/30-day counts, weekly chart), active
+  streaks.
 - In production, Flask/root loggers are wired to gunicorn's handlers.
