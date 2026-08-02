@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Reel 01 — A Day of Prayer</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+    /* 14s timeline. Every animation runs 0–14s; keyframe percentages are
+       absolute times (p = t / 14 * 100) so the renderer can seek frames. */
+    body.reel { background: #2b1a15; position: relative; }
+
+    .scene {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        animation: none 14s linear both;
+    }
+
+    .scene .content { padding-top: 400px; animation: none 14s linear both; }
+
+    .scene .eyebrow { font-size: 34px; }
+
+    .scene h2 {
+        margin-top: 34px;
+        font-size: 92px;
+        font-weight: 500;
+        line-height: 1.15;
+        color: var(--brand-ivory);
+        padding: 0 70px;
+    }
+
+    .strip {
+        position: absolute;
+        top: 900px;
+        left: 0;
+        width: 1080px;
+        height: 400px;
+        overflow: hidden;
+    }
+
+    .strip img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        animation: none 14s linear both;
+    }
+
+    .strip::before,
+    .strip::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        width: 100%;
+        height: 90px;
+        z-index: 1;
+    }
+
+    .strip::before { top: 0; background: linear-gradient(180deg, #2b1a15, transparent); }
+    .strip::after { bottom: 0; background: linear-gradient(0deg, #2b1a15, transparent); }
+
+    .caption {
+        position: absolute;
+        top: 1370px;
+        width: 100%;
+        font-family: var(--sans);
+        font-size: 30px;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+        color: rgba(247, 243, 227, 0.65);
+    }
+
+    /* Scene fades */
+    @keyframes s1 { 0% {opacity:0} 3.571% {opacity:1} 21.429% {opacity:1} 25% {opacity:0} 100% {opacity:0} }
+    @keyframes s2 { 0% {opacity:0} 21.429% {opacity:0} 25% {opacity:1} 42.857% {opacity:1} 46.429% {opacity:0} 100% {opacity:0} }
+    @keyframes s3 { 0% {opacity:0} 42.857% {opacity:0} 46.429% {opacity:1} 64.286% {opacity:1} 67.857% {opacity:0} 100% {opacity:0} }
+    @keyframes s4 { 0% {opacity:0} 64.286% {opacity:0} 67.857% {opacity:1} 80% {opacity:1} 85% {opacity:0} 100% {opacity:0} }
+    @keyframes s5 { 0% {opacity:0} 80% {opacity:0} 85% {opacity:1} 100% {opacity:1} }
+
+    #scene1 { animation-name: s1; }
+    #scene2 { animation-name: s2; }
+    #scene3 { animation-name: s3; }
+    #scene4 { animation-name: s4; }
+    #scene5 { animation-name: s5; }
+
+    /* Text drift-up per scene */
+    @keyframes t1 { 0% {transform:translateY(46px)} 6% {transform:translateY(0)} 100% {transform:translateY(0)} }
+    @keyframes t2 { 0% {transform:translateY(46px)} 21.429% {transform:translateY(46px)} 28% {transform:translateY(0)} 100% {transform:translateY(0)} }
+    @keyframes t3 { 0% {transform:translateY(46px)} 42.857% {transform:translateY(46px)} 49.5% {transform:translateY(0)} 100% {transform:translateY(0)} }
+    @keyframes t4 { 0% {transform:translateY(46px)} 64.286% {transform:translateY(46px)} 71% {transform:translateY(0)} 100% {transform:translateY(0)} }
+
+    #scene1 .content { animation-name: t1; }
+    #scene2 .content { animation-name: t2; }
+    #scene3 .content { animation-name: t3; }
+    #scene4 .content { animation-name: t4; }
+
+    /* Slow Ken Burns per strip across its visible window */
+    @keyframes kb1 { 0% {transform:scale(1.06)} 25% {transform:scale(1.16)} 100% {transform:scale(1.16)} }
+    @keyframes kb2 { 0% {transform:scale(1.06)} 21.429% {transform:scale(1.06)} 46.429% {transform:scale(1.16)} 100% {transform:scale(1.16)} }
+    @keyframes kb3 { 0% {transform:scale(1.06)} 42.857% {transform:scale(1.06)} 67.857% {transform:scale(1.16)} 100% {transform:scale(1.16)} }
+    @keyframes kb4 { 0% {transform:scale(1.06)} 64.286% {transform:scale(1.06)} 85% {transform:scale(1.16)} 100% {transform:scale(1.16)} }
+
+    #scene1 .strip img { animation-name: kb1; }
+    #scene2 .strip img { animation-name: kb2; }
+    #scene3 .strip img { animation-name: kb3; }
+    #scene4 .strip img { animation-name: kb4; }
+
+    /* End card */
+    #scene5 {
+        background:
+            radial-gradient(1100px 900px at 50% 12%, #7a423c 0%, var(--brand-red) 55%, var(--brand-red-dark) 100%);
+        justify-content: center;
+    }
+
+    #scene5 .icon-card {
+        width: 240px;
+        height: 240px;
+        border-radius: 52px;
+        background: var(--brand-ivory);
+        box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: pop 14s linear both;
+    }
+
+    @keyframes pop { 0% {transform:scale(.82)} 80% {transform:scale(.82)} 87% {transform:scale(1)} 100% {transform:scale(1)} }
+
+    #scene5 .icon-card img { width: 190px; height: 190px; }
+
+    #scene5 h2 { margin-top: 60px; font-size: 100px; }
+
+    #scene5 .divider { width: 480px; margin-top: 48px; font-size: 40px; }
+
+    #scene5 .tagline {
+        margin-top: 44px;
+        font-family: var(--sans);
+        font-size: 36px;
+        color: rgba(247, 243, 227, 0.85);
+    }
+
+    #scene5 .cta-pill { margin-top: 72px; padding: 30px 76px; font-size: 42px; }
+
+    #scene5 .cta-sub {
+        margin-top: 28px;
+        font-family: var(--sans);
+        font-size: 28px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: rgba(247, 243, 227, 0.7);
+    }
+
+    .progress-bar {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 10px;
+        width: 100%;
+        transform-origin: left;
+        background: var(--brand-gold);
+        animation: bar 14s linear both;
+        z-index: 5;
+    }
+
+    @keyframes bar { 0% {transform:scaleX(0)} 100% {transform:scaleX(1)} }
+</style>
+</head>
+<body class="reel">
+
+    <div class="scene" id="scene1">
+        <div class="content">
+            <div class="eyebrow">Morning</div>
+            <h2>Begin the day<br>in the Word.</h2>
+        </div>
+        <div class="strip"><img src="../../../devotions/static/banner_morning.jpg" alt=""></div>
+        <div class="caption">Psalms &middot; Scripture &middot; Prayer</div>
+    </div>
+
+    <div class="scene" id="scene2">
+        <div class="content">
+            <div class="eyebrow">Midday</div>
+            <h2>Pause. Pray.<br>Return refreshed.</h2>
+        </div>
+        <div class="strip"><img src="../../../devotions/static/banner_midday.jpg" alt=""></div>
+        <div class="caption">A short office for busy days</div>
+    </div>
+
+    <div class="scene" id="scene3">
+        <div class="content">
+            <div class="eyebrow">Evening</div>
+            <h2>Give thanks<br>as the light fades.</h2>
+        </div>
+        <div class="strip"><img src="../../../devotions/static/banner_evening.jpg" alt=""></div>
+        <div class="caption">Vespers &middot; Magnificat &middot; Prayer</div>
+    </div>
+
+    <div class="scene" id="scene4">
+        <div class="content">
+            <div class="eyebrow">Close of Day</div>
+            <h2>End the day<br>in peace.</h2>
+        </div>
+        <div class="strip"><img src="../../../devotions/static/banner_close_of_day.jpg" alt=""></div>
+        <div class="caption">Compline &middot; Rest in His care</div>
+    </div>
+
+    <div class="scene" id="scene5">
+        <div class="icon-card">
+            <img src="../../../devotions/static/icons/android-chrome-512x512.png" alt="">
+        </div>
+        <h2>A Simple Way<br>to Pray</h2>
+        <div class="divider">&#10016;</div>
+        <div class="tagline">Lutheran daily prayer, wherever you are.</div>
+        <div class="cta-pill">asimplewaytopray.com</div>
+        <div class="cta-sub">Free on web &amp; Android</div>
+    </div>
+
+    <div class="progress-bar"></div>
+</body>
+</html>

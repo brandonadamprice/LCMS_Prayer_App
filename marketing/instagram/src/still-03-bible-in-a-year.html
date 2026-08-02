@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Still 03 — Bible in a Year</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+    body.still {
+        background: linear-gradient(170deg, var(--brand-red) 0%, var(--brand-red-dark) 70%, #3c1e1a 100%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 100px 90px 0;
+    }
+
+    .eyebrow { font-size: 28px; }
+
+    h1 {
+        margin-top: 24px;
+        font-size: 96px;
+        font-weight: 500;
+        line-height: 1.12;
+        color: var(--brand-ivory);
+    }
+
+    .streak-card {
+        margin-top: 64px;
+        width: 100%;
+        background: var(--brand-ivory);
+        border-radius: 28px;
+        padding: 52px 60px 56px;
+        box-shadow: 0 20px 55px rgba(0, 0, 0, 0.4);
+        text-align: left;
+    }
+
+    .streak-top {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+    }
+
+    .streak-day {
+        font-size: 64px;
+        font-weight: 600;
+        color: var(--brand-red);
+    }
+
+    .streak-flame {
+        font-family: var(--sans);
+        font-weight: 700;
+        font-size: 34px;
+        color: var(--brand-gold-dark);
+    }
+
+    .progress {
+        margin-top: 36px;
+        height: 26px;
+        border-radius: 999px;
+        background: #e7e1d2;
+        overflow: hidden;
+    }
+
+    .progress .fill {
+        width: 59%;
+        height: 100%;
+        border-radius: 999px;
+        background: linear-gradient(90deg, var(--brand-gold-dark), var(--brand-gold));
+    }
+
+    .streak-caption {
+        margin-top: 26px;
+        display: flex;
+        justify-content: space-between;
+        font-family: var(--sans);
+        font-size: 26px;
+        color: #6b6560;
+    }
+
+    .points {
+        margin-top: 64px;
+        display: flex;
+        flex-direction: column;
+        gap: 34px;
+        text-align: left;
+    }
+
+    .point {
+        display: flex;
+        align-items: center;
+        gap: 26px;
+        font-family: var(--sans);
+        font-size: 33px;
+        color: rgba(247, 243, 227, 0.92);
+    }
+
+    .point .mark {
+        flex: none;
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        border: 2px solid var(--brand-gold);
+        color: var(--brand-gold);
+        font-size: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .cta-pill { margin-top: 68px; padding: 28px 64px; font-size: 36px; }
+</style>
+</head>
+<body class="still">
+    <div class="eyebrow">Bible in a Year</div>
+    <h1>The whole Bible,<br>one day at a time.</h1>
+
+    <div class="streak-card">
+        <div class="streak-top">
+            <div class="streak-day">Day 213 of 365</div>
+            <div class="streak-flame">&#128293; 21-day streak</div>
+        </div>
+        <div class="progress"><div class="fill"></div></div>
+        <div class="streak-caption">
+            <span>Genesis &rarr; Revelation</span>
+            <span>58% complete</span>
+        </div>
+    </div>
+
+    <div class="points">
+        <div class="point"><span class="mark">&#10003;</span> A guided reading for every day</div>
+        <div class="point"><span class="mark">&#10003;</span> Streaks with grace days &mdash; life happens</div>
+        <div class="point"><span class="mark">&#10003;</span> Pick up right where you left off</div>
+    </div>
+
+    <div class="cta-pill">Start today &mdash; asimplewaytopray.com</div>
+</body>
+</html>

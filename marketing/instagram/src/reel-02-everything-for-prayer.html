@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Reel 02 — Everything for Daily Prayer</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+    /* 14s timeline; keyframe percentages are absolute times (p = t / 14 * 100). */
+    body.reel { background: var(--brand-ivory); position: relative; }
+
+    .scene {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        animation: none 14s linear both;
+    }
+
+    /* Title card */
+    #title {
+        background:
+            radial-gradient(1100px 900px at 50% 10%, #7a423c 0%, var(--brand-red) 55%, var(--brand-red-dark) 100%);
+        justify-content: center;
+        animation-name: titleFade;
+    }
+
+    @keyframes titleFade { 0% {opacity:0} 3.571% {opacity:1} 17.143% {opacity:1} 21.429% {opacity:0} 100% {opacity:0} }
+
+    #title .icon-card {
+        width: 230px;
+        height: 230px;
+        border-radius: 50px;
+        background: var(--brand-ivory);
+        box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: iconPop 14s linear both;
+    }
+
+    @keyframes iconPop { 0% {transform:scale(.8)} 4.5% {transform:scale(1)} 100% {transform:scale(1)} }
+
+    #title .icon-card img { width: 184px; height: 184px; }
+
+    #title h1 {
+        margin-top: 58px;
+        font-size: 100px;
+        font-weight: 500;
+        line-height: 1.1;
+        color: var(--brand-ivory);
+    }
+
+    #title .sub {
+        margin-top: 42px;
+        font-family: var(--sans);
+        font-size: 36px;
+        color: rgba(247, 243, 227, 0.85);
+    }
+
+    /* Feature list */
+    #features { animation-name: featFade; padding: 250px 90px 0; align-items: flex-start; text-align: left; }
+
+    @keyframes featFade { 0% {opacity:0} 17.143% {opacity:0} 21.429% {opacity:1} 74.286% {opacity:1} 78.571% {opacity:0} 100% {opacity:0} }
+
+    #features .eyebrow { font-size: 30px; }
+
+    #features h2 {
+        margin-top: 22px;
+        font-size: 82px;
+        font-weight: 500;
+        line-height: 1.15;
+        color: var(--brand-red);
+    }
+
+    .items { margin-top: 70px; display: flex; flex-direction: column; gap: 44px; }
+
+    .item {
+        display: flex;
+        align-items: center;
+        gap: 30px;
+        opacity: 0;
+        animation: none 14s linear both;
+    }
+
+    .item .mark {
+        flex: none;
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        background: #fff;
+        border: 2px solid var(--brand-gold);
+        color: var(--brand-gold-dark);
+        font-size: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 14px rgba(50, 46, 44, 0.12);
+    }
+
+    .item .text {
+        font-family: var(--sans);
+        font-size: 38px;
+        color: var(--brand-ink);
+    }
+
+    @keyframes i0 { 0% {opacity:0; transform:translateX(60px)} 21.429% {opacity:0; transform:translateX(60px)} 25% {opacity:1; transform:translateX(0)} 100% {opacity:1; transform:translateX(0)} }
+    @keyframes i1 { 0% {opacity:0; transform:translateX(60px)} 30% {opacity:0; transform:translateX(60px)} 33.571% {opacity:1; transform:translateX(0)} 100% {opacity:1; transform:translateX(0)} }
+    @keyframes i2 { 0% {opacity:0; transform:translateX(60px)} 38.571% {opacity:0; transform:translateX(60px)} 42.143% {opacity:1; transform:translateX(0)} 100% {opacity:1; transform:translateX(0)} }
+    @keyframes i3 { 0% {opacity:0; transform:translateX(60px)} 47.143% {opacity:0; transform:translateX(60px)} 50.714% {opacity:1; transform:translateX(0)} 100% {opacity:1; transform:translateX(0)} }
+    @keyframes i4 { 0% {opacity:0; transform:translateX(60px)} 55.714% {opacity:0; transform:translateX(60px)} 59.286% {opacity:1; transform:translateX(0)} 100% {opacity:1; transform:translateX(0)} }
+    @keyframes i5 { 0% {opacity:0; transform:translateX(60px)} 64.286% {opacity:0; transform:translateX(60px)} 67.857% {opacity:1; transform:translateX(0)} 100% {opacity:1; transform:translateX(0)} }
+
+    .item:nth-child(1) { animation-name: i0; }
+    .item:nth-child(2) { animation-name: i1; }
+    .item:nth-child(3) { animation-name: i2; }
+    .item:nth-child(4) { animation-name: i3; }
+    .item:nth-child(5) { animation-name: i4; }
+    .item:nth-child(6) { animation-name: i5; }
+
+    /* End card */
+    #end {
+        background:
+            radial-gradient(1100px 900px at 50% 12%, #7a423c 0%, var(--brand-red) 55%, var(--brand-red-dark) 100%);
+        justify-content: center;
+        animation-name: endFade;
+    }
+
+    @keyframes endFade { 0% {opacity:0} 74.286% {opacity:0} 79.286% {opacity:1} 100% {opacity:1} }
+
+    #end .eyebrow { font-size: 32px; }
+
+    #end h2 {
+        margin-top: 40px;
+        font-size: 120px;
+        font-weight: 500;
+        color: var(--brand-ivory);
+        animation: endRise 14s linear both;
+    }
+
+    @keyframes endRise { 0% {transform:translateY(40px)} 74.286% {transform:translateY(40px)} 81% {transform:translateY(0)} 100% {transform:translateY(0)} }
+
+    #end .divider { width: 460px; margin-top: 52px; font-size: 40px; }
+
+    #end .cta-pill { margin-top: 80px; padding: 32px 80px; font-size: 44px; }
+
+    #end .cta-sub {
+        margin-top: 30px;
+        font-family: var(--sans);
+        font-size: 29px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: rgba(247, 243, 227, 0.7);
+    }
+
+    .progress-bar {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 10px;
+        width: 100%;
+        transform-origin: left;
+        background: var(--brand-gold);
+        animation: bar 14s linear both;
+        z-index: 5;
+    }
+
+    @keyframes bar { 0% {transform:scaleX(0)} 100% {transform:scaleX(1)} }
+</style>
+</head>
+<body class="reel">
+
+    <div class="scene" id="title">
+        <div class="icon-card">
+            <img src="../../../devotions/static/icons/android-chrome-512x512.png" alt="">
+        </div>
+        <h1>A Simple Way<br>to Pray</h1>
+        <div class="sub">Lutheran daily prayer, in your pocket.</div>
+    </div>
+
+    <div class="scene" id="features">
+        <div class="eyebrow">In the App</div>
+        <h2>Everything for<br>daily prayer.</h2>
+        <div class="items">
+            <div class="item"><span class="mark">&#10016;</span><span class="text">Morning, midday, evening &amp; night offices</span></div>
+            <div class="item"><span class="mark">&#128214;</span><span class="text">Lectionary readings &amp; Psalms</span></div>
+            <div class="item"><span class="mark">&#128218;</span><span class="text">Luther&rsquo;s Small Catechism, day by day</span></div>
+            <div class="item"><span class="mark">&#128293;</span><span class="text">Bible in a Year with streaks &amp; grace days</span></div>
+            <div class="item"><span class="mark">&#128274;</span><span class="text">Private, encrypted personal prayers</span></div>
+            <div class="item"><span class="mark">&#128276;</span><span class="text">Gentle reminders that fit your schedule</span></div>
+        </div>
+    </div>
+
+    <div class="scene" id="end">
+        <div class="eyebrow">A Simple Way to Pray</div>
+        <h2>Start today.</h2>
+        <div class="divider">&#10016;</div>
+        <div class="cta-pill">asimplewaytopray.com</div>
+        <div class="cta-sub">Free on web &amp; Android</div>
+    </div>
+
+    <div class="progress-bar"></div>
+</body>
+</html>
