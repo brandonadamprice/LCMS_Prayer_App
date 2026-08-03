@@ -4,12 +4,21 @@ Ready-to-post Instagram ad creative for [asimplewaytopray.com](https://asimplewa
 generated from the app's own brand assets (palette, Lora/Montserrat type, and the
 season banners in `devotions/static/`).
 
+**The rendered creative lives in Google Drive, not in git:**
+[Social Media / Instagram](https://drive.google.com/drive/folders/1G8dcPDklGEX9el93Xdc77nzGM0xGX9W-)
+([stills](https://drive.google.com/drive/folders/1OTlMGCXFeXOCLAMV3TZNQc4Mfn3xmEZj) ·
+[reels](https://drive.google.com/drive/folders/1ixRlrfAgIDwsCYT41NPwTGeEzB9iRG25)).
+The repo keeps the sources so anything can be re-rendered; the PNGs and MP4s are
+build output and are gitignored.
+
 ## What's here
 
 ```
-stills/   1080x1350 PNG (4:5) — Instagram feed posts / ads
-reels/    1080x1920 MP4 (9:16, 30fps, H.264) — Reels & Stories
-src/      HTML/CSS sources + render script (regenerate any time)
+src/         HTML/CSS sources + render.js (regenerate any time)
+src/fonts/   locally-cached Lora & Montserrat webfonts (OFL) — offline rendering
+ad_copy.md   campaign copy: captions, headlines, hashtags, creative angles
+stills/      render output, gitignored — 1080x1350 PNG (4:5), feed posts / ads
+reels/       render output, gitignored — 1080x1920 MP4 (9:16, 30fps, H.264)
 ```
 
 ### Stills (feed, 4:5)
@@ -32,27 +41,13 @@ The reels are rendered without audio — add a music track from Instagram's
 licensed library when publishing (audio bundled into the file would need its
 own license).
 
-## Suggested captions
+Captions, headlines, and hashtags for each of these live in
+[`ad_copy.md`](ad_copy.md), which is itself synced to the Drive folder (and
+mirrored there as a Google Doc for editing).
 
-**Hero / general:**
-> Begin the day in the Word. Daily offices, Scripture, and the Small Catechism —
-> in the rhythm of the Church Year. Free on web & Android. 🔗 asimplewaytopray.com
+## Rendering and publishing
 
-**Daily office:**
-> Morning. Midday. Evening. Close of Day. Four short services to shape your day
-> around prayer — each one ready when you are. #dailyprayer #lutheran
-
-**Bible in a Year:**
-> The whole Bible, one day at a time — with streaks that come with grace days,
-> because life happens. Start today at asimplewaytopray.com
-
-**Suggested hashtags:**
-`#lutheran #lcms #dailyprayer #dailyoffice #devotions #bibleinayear
-#smallcatechism #liturgy #christianapp #prayerlife`
-
-## Regenerating
-
-Requires Node with Playwright (+ Chromium) and any ffmpeg with libx264
+Rendering requires Node with Playwright (+ Chromium) and any ffmpeg with libx264
 (`pip install imageio-ffmpeg` is enough — the script finds it automatically).
 
 ```sh
@@ -60,12 +55,35 @@ cd marketing/instagram/src
 NODE_PATH=$(npm root -g) node render.js            # everything
 NODE_PATH=$(npm root -g) node render.js --stills-only
 NODE_PATH=$(npm root -g) node render.js --reels-only
+
+python3 sync_drive.py --dry-run                    # what would go up
+python3 sync_drive.py                              # publish to Drive
+```
+
+`sync_drive.py` uploads `stills/`, `reels/`, and `ad_copy.md` into the Drive
+folders above, matching by filename — an existing asset is updated in place, so
+Drive links stay stable and anything already shared keeps working.
+
+To publish the assets that used to be committed here without re-rendering them,
+read them straight out of git history instead of the working tree:
+
+```sh
+python3 sync_drive.py --from-git e533d2d   # last commit that tracked them
+```
+
+Either way it needs application-default credentials carrying the Drive scope:
+
+```sh
+gcloud auth application-default login \
+    --scopes=openid,https://www.googleapis.com/auth/drive,https://www.googleapis.com/auth/cloud-platform
+pip install google-api-python-client google-auth
 ```
 
 Stills are plain 1080x1350 pages screenshotted by Chromium. Reels are pure-CSS
 animations on a fixed 14-second timeline; the script pauses every animation,
 seeks frame-by-frame at 30fps, and encodes the frames with ffmpeg. Everything is
-deterministic, so re-renders are pixel-stable.
+deterministic, so re-renders are pixel-stable — a re-render of an unchanged
+composition produces the same bytes that are already in Drive.
 
-`src/fonts/` holds locally-cached Lora and Montserrat webfonts (SIL Open Font
-License) so rendering works offline.
+The four earlier ASWTP video ads (Clouds, Chaos, Reel Ad 2, Insta Reel Ad) were
+made outside this pipeline and sit one level up in Drive, in `Social Media/`.

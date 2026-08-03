@@ -33,3 +33,8 @@ htmlcov/
 # OS cruft
 .DS_Store
 Thumbs.db
+
+# Rendered marketing creative — lives in Google Drive, regenerate with
+# marketing/instagram/src/render.js (see marketing/instagram/README.md)
+marketing/instagram/stills/
+marketing/instagram/reels/
