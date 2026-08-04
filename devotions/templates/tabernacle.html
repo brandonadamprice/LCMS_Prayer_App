@@ -1,0 +1,1348 @@
+{% extends "base.html" %}
+{% block title %}Tabernacle Explorer{% endblock %}
+{% block meta_description %}An interactive, zoomable diagram of the Old Testament tabernacle: explore the camp of Israel, the gate, altar, laver, high priest, lampstand, table, veil, ark, and the pillar of cloud to learn each one's purpose in Israel's worship — and its fulfillment in Christ.{% endblock %}
+
+{% block head %}
+<style>
+  /* ---- Diagram palette (light) ---- */
+  .tb-diagram-wrap {
+    --tb-ground: #efe6cf;
+    --tb-linen: #f6f1e2;
+    --tb-wall: #b09f7e;
+    --tb-tent: #e8d9b0;
+    --tb-mhp: #decb96;
+    --tb-gold: #c9a227;
+    --tb-gold-dark: #8a6e45;
+    --tb-bronze: #a9713d;
+    --tb-bronze-dark: #7a4f28;
+    --tb-flame: #d4913a;
+    --tb-hide: #7d6248;
+    --tb-cloud: #ffffff;
+    --tb-cloud-edge: #b7a888;
+  }
+  body.dark-mode .tb-diagram-wrap {
+    --tb-ground: #35302a;
+    --tb-linen: #c9c2ae;
+    --tb-wall: #6e6350;
+    --tb-tent: #4a4132;
+    --tb-mhp: #544938;
+    --tb-gold: #c9a227;
+    --tb-gold-dark: #d9bc7a;
+    --tb-bronze: #b07c48;
+    --tb-bronze-dark: #cf9c66;
+    --tb-flame: #e0a552;
+    --tb-hide: #5c4a37;
+    --tb-cloud: #d9d3c2;
+    --tb-cloud-edge: #8b8270;
+  }
+
+  /* ---- Layout: diagram + sticky detail card on wide screens ---- */
+  /* Widen the page so the diagram gets real room (the base .container is
+     800px); prose sections stay at a readable 800px, centered. */
+  main.container { max-width: 1160px; }
+  .page-header, .tb-study { max-width: 760px; margin-left: auto; margin-right: auto; }
+  .tb-layout { margin: 10px 0 6px; }
+  @media (min-width: 1150px) {
+    .tb-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 22px;
+      align-items: start;
+    }
+    .tb-detail-card { position: sticky; top: 80px; }
+  }
+
+  .tb-diagram-wrap {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: 14px;
+    background:
+      radial-gradient(circle at 20% 15%, rgba(175,145,100,0.10) 0, transparent 50%),
+      radial-gradient(circle at 80% 85%, rgba(101,52,47,0.05) 0, transparent 50%),
+      var(--color-card-bg);
+    box-shadow: 0 4px 18px -8px rgba(101,52,47,0.14);
+  }
+  /* The whole diagram always fits the width; pan/zoom (drag, pinch, wheel,
+     buttons, or selecting an item) moves the camera instead of scrollbars. */
+  .tb-diagram-wrap svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    touch-action: none;
+    cursor: grab;
+  }
+  .tb-diagram-wrap svg.tb-panning { cursor: grabbing; }
+
+  .tb-zoom-ctrls {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    z-index: 5;
+  }
+  .tb-zbtn {
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--color-border);
+    border-radius: 50%;
+    background: var(--color-card-bg);
+    color: var(--color-muted);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1em;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    margin: 0;
+    padding: 0;
+    box-shadow: 0 2px 6px -2px rgba(0,0,0,0.25);
+    transition: all 0.18s ease;
+  }
+  @media (hover: hover) {
+    .tb-zbtn:hover { border-color: var(--color-accent-dark); color: var(--color-accent-dark); }
+  }
+
+  .tb-diagram-wrap text {
+    font-family: 'Montserrat', sans-serif;
+    fill: var(--color-muted);
+    pointer-events: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .tb-room-label {
+    font-size: 19px;
+    font-weight: 600;
+    letter-spacing: 3.5px;
+    opacity: 0.75;
+  }
+  .tb-compass { font-size: 17px; font-weight: 700; letter-spacing: 1px; }
+  .tb-caption {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-style: italic;
+    font-size: 23px;
+    opacity: 0.85;
+  }
+  .tb-scale-label { font-size: 14px; font-weight: 600; letter-spacing: 2px; opacity: 0.7; }
+  .tb-camp-label {
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    opacity: 0.65;
+  }
+
+  /* ---- Interactive items ---- */
+  .tb-item { cursor: pointer; }
+  .tb-item .tb-hit { fill: transparent; stroke: transparent; }
+  .tb-item:focus { outline: none; }
+  .tb-item:focus-visible .tb-badge-dot,
+  .tb-item:hover .tb-badge-dot {
+    stroke: var(--color-accent);
+    stroke-width: 5;
+  }
+  .tb-item.tb-selected .tb-art {
+    filter: drop-shadow(0 0 9px rgba(201,162,39,0.95));
+  }
+  .tb-item.tb-selected .tb-badge-dot {
+    fill: var(--color-accent-dark);
+    stroke: var(--color-accent);
+    stroke-width: 5;
+  }
+  .tb-badge-dot {
+    fill: var(--color-primary);
+    stroke: rgba(255,255,255,0.85);
+    stroke-width: 3;
+    transition: all 0.18s ease;
+  }
+  .tb-badge-num {
+    font-size: 23px;
+    font-weight: 700;
+    fill: #fff !important;
+    text-anchor: middle;
+    dominant-baseline: central;
+  }
+
+  /* ---- Numbered legend chips ---- */
+  .tb-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin: 14px 0 4px;
+  }
+  .tb-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 13px 6px 7px;
+    border: 1px solid var(--color-border);
+    border-radius: 22px;
+    background: var(--color-card-bg);
+    color: var(--color-muted);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.76em;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    cursor: pointer;
+    margin: 0;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    transition: all 0.22s cubic-bezier(.34,1.56,.64,1);
+  }
+  @media (hover: hover) {
+    .tb-chip:hover {
+      border-color: var(--color-accent-dark);
+      color: var(--color-accent-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px -2px rgba(138,110,69,0.3);
+    }
+  }
+  .tb-chip .tb-chip-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 21px;
+    height: 21px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: #fff;
+    font-size: 0.9em;
+    flex: 0 0 auto;
+  }
+  .tb-chip.tb-selected {
+    border-color: var(--color-accent-dark);
+    color: var(--color-accent-dark);
+  }
+  .tb-chip.tb-selected .tb-chip-num { background: var(--color-accent-dark); }
+
+  /* ---- Detail card ---- */
+  .tb-detail-card {
+    background: var(--color-card-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 14px;
+    padding: 20px 22px;
+    margin-top: 16px;
+    box-shadow: 0 4px 18px -8px rgba(101,52,47,0.14);
+  }
+  @media (min-width: 1150px) { .tb-detail-card { margin-top: 0; } }
+  .tb-kicker {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.72em;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--color-accent-dark);
+    margin: 0 0 6px;
+  }
+  .tb-detail-card h2, .tb-study-card h3 {
+    margin: 0 0 4px;
+    font-size: 1.25em;
+  }
+  .tb-refs {
+    font-size: 0.85em;
+    font-style: italic;
+    color: var(--color-muted);
+    margin: 0 0 10px;
+  }
+  .tb-desc { margin: 0 0 12px; font-size: 0.95em; }
+  .tb-christ-head {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.78em;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--color-prayer);
+    margin: 0 0 5px;
+    padding-top: 10px;
+    border-top: 1px solid var(--color-border);
+  }
+  .tb-christ { margin: 0; font-size: 0.95em; }
+  .tb-empty {
+    color: var(--color-muted);
+    font-style: italic;
+    margin: 0;
+  }
+  .tb-nav {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 14px;
+  }
+  .tb-nav .tb-chip { padding: 6px 13px; }
+
+  /* ---- Full study list ---- */
+  .tb-study { margin-top: 34px; }
+  .tb-study-card {
+    background: var(--color-card-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 14px;
+    padding: 18px 22px;
+    margin: 14px 0;
+    box-shadow: 0 2px 10px -6px rgba(101,52,47,0.12);
+    scroll-margin-top: 80px;
+  }
+  .tb-study-card .tb-kicker { margin-bottom: 4px; }
+
+  @media print {
+    .tb-detail-card { display: none; }
+    .tb-diagram-wrap { box-shadow: none; }
+    .tb-study-card { box-shadow: none; break-inside: avoid; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Tabernacle Explorer</h1>
+  <p>When God brought Israel out of Egypt, He commanded Moses: <em>&ldquo;Let them make
+  me a sanctuary, that I may dwell in their midst&rdquo;</em> (Exodus 25:8). Every board,
+  basin, and curtain was built <em>&ldquo;after the pattern&rdquo;</em> shown on the
+  mountain (Exodus 25:40), and the letter to the Hebrews calls it all
+  <em>&ldquo;a copy and shadow of the heavenly things&rdquo;</em> (Hebrews 8:5) &mdash;
+  every part preaching Christ. Tap or click any of the fourteen numbered parts &mdash;
+  from the camp of Israel all the way in to the ark &mdash; to see what it was for, and
+  how it is fulfilled in Him. Drag to pan and pinch, scroll, or use the buttons to zoom;
+  selecting a part brings the camera to it. The entrance faced east, so a worshiper
+  walked the path from right to left: through the one gate, past the altar and the basin,
+  toward the Most Holy Place.</p>
+</div>
+
+<div class="tb-layout">
+  <div>
+    <div class="tb-diagram-wrap">
+      <svg id="tb-svg" viewBox="0 150 2000 1200" role="img"
+           aria-label="Plan diagram of the tabernacle, surrounded by the camp of Israel: a fenced courtyard entered by a gate on the east, containing the altar of burnt offering, the bronze basin, the high priest, and the tent with its Holy Place (lampstand, table of showbread, altar of incense) and, behind the veil, the Most Holy Place with the ark of the covenant, under the pillar of cloud. Drag to pan and pinch, scroll, or use the buttons to zoom.">
+        <defs>
+          <linearGradient id="tb-screen-grad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#3b5b92"/><stop offset="0.17" stop-color="#3b5b92"/>
+            <stop offset="0.17" stop-color="#7b4a8f"/><stop offset="0.33" stop-color="#7b4a8f"/>
+            <stop offset="0.33" stop-color="#a83232"/><stop offset="0.5" stop-color="#a83232"/>
+            <stop offset="0.5" stop-color="#3b5b92"/><stop offset="0.67" stop-color="#3b5b92"/>
+            <stop offset="0.67" stop-color="#7b4a8f"/><stop offset="0.83" stop-color="#7b4a8f"/>
+            <stop offset="0.83" stop-color="#a83232"/><stop offset="1" stop-color="#a83232"/>
+          </linearGradient>
+          <linearGradient id="tb-gold-grad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#ecc95d"/>
+            <stop offset="0.55" stop-color="#c9a227"/>
+            <stop offset="1" stop-color="#9d7b1d"/>
+          </linearGradient>
+          <radialGradient id="tb-bronze-grad" cx="0.4" cy="0.35" r="0.85">
+            <stop offset="0" stop-color="#c98f57"/>
+            <stop offset="0.6" stop-color="#a9713d"/>
+            <stop offset="1" stop-color="#7d5128"/>
+          </radialGradient>
+          <radialGradient id="tb-water-grad" cx="0.42" cy="0.4" r="0.8">
+            <stop offset="0" stop-color="#bcdae8"/>
+            <stop offset="0.6" stop-color="#6fa1bd"/>
+            <stop offset="1" stop-color="#4d7f9f"/>
+          </radialGradient>
+          <radialGradient id="tb-fire-grad" cx="0.5" cy="0.75" r="0.9">
+            <stop offset="0" stop-color="#ffe9a8"/>
+            <stop offset="0.55" stop-color="#f0a83c"/>
+            <stop offset="1" stop-color="#d4691e"/>
+          </radialGradient>
+          <radialGradient id="tb-fire-glow">
+            <stop offset="0" stop-color="rgba(255,190,80,0.55)"/>
+            <stop offset="1" stop-color="rgba(255,190,80,0)"/>
+          </radialGradient>
+          <radialGradient id="tb-shekinah">
+            <stop offset="0" stop-color="rgba(242,217,139,0.55)"/>
+            <stop offset="0.55" stop-color="rgba(242,217,139,0.22)"/>
+            <stop offset="1" stop-color="rgba(242,217,139,0)"/>
+          </radialGradient>
+          <radialGradient id="tb-ground-glow" cx="0.5" cy="0.45" r="0.75">
+            <stop offset="0" stop-color="rgba(199,161,101,0.16)"/>
+            <stop offset="1" stop-color="rgba(120,90,45,0)"/>
+          </radialGradient>
+          <pattern id="tb-sand" width="46" height="46" patternUnits="userSpaceOnUse">
+            <circle cx="8" cy="12" r="1.3" fill="#8a6a40" opacity="0.13"/>
+            <circle cx="30" cy="6" r="1" fill="#8a6a40" opacity="0.1"/>
+            <circle cx="20" cy="30" r="1.3" fill="#8a6a40" opacity="0.12"/>
+            <circle cx="39" cy="38" r="1" fill="#8a6a40" opacity="0.1"/>
+          </pattern>
+          <filter id="tb-shadow" x="-30%" y="-30%" width="160%" height="160%">
+            <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#3a2a18" flood-opacity="0.3"/>
+          </filter>
+          <filter id="tb-blur" x="-60%" y="-60%" width="220%" height="220%">
+            <feGaussianBlur stdDeviation="2.2"/>
+          </filter>
+          <path id="tb-flame" d="M 0 0 C -3.2 -4.5 -2.2 -9.5 0 -13.5 C 2.2 -9.5 3.2 -4.5 0 0 Z"
+                fill="url(#tb-fire-grad)"/>
+          <path id="tb-wing" d="M 0 0 Q -15 -3 -18 -20 Q -3 -18 3 -5 Z"/>
+          <g id="tb-tenticon">
+            <path d="M -9 0 L 9 0 L 0 -14 Z" fill="var(--tb-wall)"/>
+            <path d="M -2.6 0 L 2.6 0 L 0 -5.5 Z" fill="var(--tb-hide)"/>
+          </g>
+        </defs>
+
+        <!-- Courtyard ground: sand, warm center light, speckle texture -->
+        <rect x="160" y="320" width="1680" height="840" rx="8" fill="var(--tb-ground)"/>
+        <rect x="160" y="320" width="1680" height="840" rx="8" fill="url(#tb-ground-glow)"/>
+        <rect x="160" y="320" width="1680" height="840" rx="8" fill="url(#tb-sand)"/>
+
+        <!-- Room labels -->
+        <text class="tb-room-label" x="1250" y="435" text-anchor="middle">COURTYARD</text>
+        <text class="tb-room-label" x="444" y="622" text-anchor="middle" style="font-size:15px;">MOST HOLY PLACE</text>
+        <text class="tb-room-label" x="700" y="622" text-anchor="middle" style="font-size:15px;">HOLY PLACE</text>
+
+        <!-- Compass rose (entrance faces east) -->
+        <g transform="translate(1922,242)" opacity="0.9">
+          <circle r="28" fill="none" stroke="var(--tb-wall)" stroke-width="1.5" opacity="0.7"/>
+          <path d="M 0 -24 L 5 -5 L 24 0 L 5 5 L 0 24 L -5 5 L -24 0 L -5 -5 Z"
+                fill="var(--tb-wall)" opacity="0.75"/>
+          <path d="M 24 0 L 5 5 L 5 -5 Z" fill="var(--color-accent-dark)"/>
+          <text class="tb-compass" y="-36" text-anchor="middle">N</text>
+          <text class="tb-compass" x="42" y="6" text-anchor="middle" fill="var(--color-accent-dark)">E</text>
+        </g>
+
+        <!-- Scale bar & caption -->
+        <g stroke="var(--color-muted)" stroke-width="2" opacity="0.6">
+          <line x1="160" y1="1315" x2="328" y2="1315"/>
+          <line x1="160" y1="1308" x2="160" y2="1322"/>
+          <line x1="328" y1="1308" x2="328" y2="1322"/>
+        </g>
+        <text class="tb-scale-label" x="244" y="1300" text-anchor="middle">10 CUBITS &#8776; 15 FT (4.5 M)</text>
+        <text class="tb-caption" x="1080" y="1326" text-anchor="middle">&ldquo;Let them make me a
+          sanctuary, that I may dwell in their midst.&rdquo; &mdash; Exodus 25:8</text>
+
+        <!-- 1. The camp of Israel: three tribes on each side (Numbers 2) -->
+        <g class="tb-item" id="tb-el-camp" data-id="camp" role="button" tabindex="0"
+           aria-label="The camp of Israel around the tabernacle, item 1">
+          <rect class="tb-hit" x="160" y="185" width="1680" height="112"/>
+          <rect class="tb-hit" x="160" y="1183" width="1680" height="112"/>
+          <rect class="tb-hit" x="8" y="320" width="130" height="840"/>
+          <rect class="tb-hit" x="1862" y="320" width="130" height="840"/>
+          <g class="tb-art">
+            <text class="tb-camp-label" x="1000" y="215" text-anchor="middle">DAN &#183; ASHER &#183; NAPHTALI</text>
+            <text class="tb-camp-label" x="1000" y="1276" text-anchor="middle">REUBEN &#183; SIMEON &#183; GAD</text>
+            <text class="tb-camp-label" x="1956" y="740" text-anchor="middle"
+                  transform="rotate(90 1956 740)">JUDAH &#183; ISSACHAR &#183; ZEBULUN</text>
+            <text class="tb-camp-label" x="44" y="740" text-anchor="middle"
+                  transform="rotate(-90 44 740)">EPHRAIM &#183; MANASSEH &#183; BENJAMIN</text>
+            <g id="tb-camp-tents"></g>
+          </g>
+          <g class="tb-badge"><circle class="tb-badge-dot" cx="286" cy="252" r="22"/>
+            <text class="tb-badge-num" x="286" y="252">1</text></g>
+        </g>
+
+        <!-- 1. Courtyard fence: linen hangings on bronze-footed pillars -->
+        <g class="tb-item" id="tb-el-fence" data-id="fence" role="button" tabindex="0"
+           aria-label="Courtyard fence, item 2">
+          <rect class="tb-hit" x="160" y="320" width="1680" height="840" fill="none"
+                stroke="transparent" stroke-width="44" pointer-events="stroke"/>
+          <g class="tb-art">
+            <path d="M 1840 908 L 1840 1160 L 160 1160 L 160 320 L 1840 320 L 1840 572"
+                  fill="none" stroke="var(--tb-linen)" stroke-width="11" opacity="0.95"/>
+            <path d="M 1840 908 L 1840 1160 L 160 1160 L 160 320 L 1840 320 L 1840 572"
+                  fill="none" stroke="var(--tb-wall)" stroke-width="2" opacity="0.8"/>
+            <g id="tb-pillars"></g>
+          </g>
+          <g class="tb-badge"><circle class="tb-badge-dot" cx="600" cy="1160" r="22"/>
+            <text class="tb-badge-num" x="600" y="1160">2</text></g>
+        </g>
+
+        <!-- 2. The gate: woven screen of blue, purple, and scarlet -->
+        <g class="tb-item" id="tb-el-gate" data-id="gate" role="button" tabindex="0"
+           aria-label="The gate of the courtyard, item 3">
+          <rect class="tb-hit" x="1800" y="556" width="88" height="368"/>
+          <g class="tb-art">
+            <rect x="1830" y="572" width="18" height="336" rx="4" filter="url(#tb-shadow)"
+                  fill="url(#tb-screen-grad)" stroke="var(--tb-wall)" stroke-width="1.5"/>
+            <circle cx="1839" cy="614" r="5.5" fill="var(--tb-bronze-dark)"/>
+            <circle cx="1839" cy="698" r="5.5" fill="var(--tb-bronze-dark)"/>
+            <circle cx="1839" cy="782" r="5.5" fill="var(--tb-bronze-dark)"/>
+            <circle cx="1839" cy="866" r="5.5" fill="var(--tb-bronze-dark)"/>
+          </g>
+          <g class="tb-badge"><circle class="tb-badge-dot" cx="1840" cy="528" r="22"/>
+            <text class="tb-badge-num" x="1840" y="528">3</text></g>
+        </g>
+
+        <!-- 3. Altar of burnt offering: bronze, horned, fire always burning -->
+        <g class="tb-item" id="tb-el-altar" data-id="altar" role="button" tabindex="0"
+           aria-label="Altar of burnt offering, item 4">
+          <rect class="tb-hit" x="1430" y="670" width="140" height="140"/>
+          <g class="tb-art">
+            <!-- horns at the four corners -->
+            <path d="M 1462 702 Q 1444 696 1446 676 Q 1464 682 1470 698 Z" fill="var(--tb-bronze-dark)"/>
+            <path d="M 1538 702 Q 1556 696 1554 676 Q 1536 682 1530 698 Z" fill="var(--tb-bronze-dark)"/>
+            <path d="M 1462 778 Q 1444 784 1446 804 Q 1464 798 1470 782 Z" fill="var(--tb-bronze-dark)"/>
+            <path d="M 1538 778 Q 1556 784 1554 804 Q 1536 798 1530 782 Z" fill="var(--tb-bronze-dark)"/>
+            <rect x="1458" y="698" width="84" height="84" rx="3" filter="url(#tb-shadow)"
+                  fill="url(#tb-bronze-grad)" stroke="var(--tb-bronze-dark)" stroke-width="4"/>
+            <!-- bronze grating -->
+            <g stroke="#5f3d1e" stroke-width="1.8" opacity="0.55">
+              <line x1="1466" y1="734" x2="1494" y2="706"/>
+              <line x1="1466" y1="762" x2="1522" y2="706"/>
+              <line x1="1474" y1="782" x2="1534" y2="722"/>
+              <line x1="1502" y1="782" x2="1534" y2="750"/>
+              <line x1="1506" y1="706" x2="1534" y2="734"/>
+              <line x1="1478" y1="706" x2="1534" y2="762"/>
+              <line x1="1466" y1="722" x2="1526" y2="782"/>
+              <line x1="1466" y1="750" x2="1498" y2="782"/>
+            </g>
+            <!-- the fire that never goes out -->
+            <circle cx="1500" cy="738" r="30" fill="url(#tb-fire-glow)">
+              <animate attributeName="opacity" values="1;0.65;1" dur="3.2s" repeatCount="indefinite"/>
+            </circle>
+            <use href="#tb-flame" transform="translate(1488 748) scale(0.85)"/>
+            <use href="#tb-flame" transform="translate(1512 748) scale(0.85)"/>
+            <use href="#tb-flame" transform="translate(1500 752) scale(1.4)"/>
+            <path d="M 1500 706 C 1493 694 1506 685 1499 672 C 1493 662 1503 654 1498 644"
+                  fill="none" stroke="#8b877e" stroke-width="4" stroke-linecap="round"
+                  opacity="0.4" filter="url(#tb-blur)">
+              <animate attributeName="opacity" values="0.4;0.2;0.4" dur="5s" repeatCount="indefinite"/>
+            </path>
+          </g>
+          <g class="tb-badge"><circle class="tb-badge-dot" cx="1500" cy="652" r="22"/>
+            <text class="tb-badge-num" x="1500" y="652">4</text></g>
+        </g>
+
+        <!-- 4. Bronze basin: water for washing -->
+        <g class="tb-item" id="tb-el-laver" data-id="laver" role="button" tabindex="0"
+           aria-label="Bronze basin, item 5">
+          <circle class="tb-hit" cx="1120" cy="740" r="64"/>
+          <g class="tb-art">
+            <ellipse cx="1120" cy="752" rx="44" ry="12" fill="#000" opacity="0.16" filter="url(#tb-blur)"/>
+            <circle cx="1120" cy="740" r="36" fill="url(#tb-bronze-grad)"
+                    stroke="var(--tb-bronze-dark)" stroke-width="4"/>
+            <circle cx="1120" cy="740" r="27" fill="none" stroke="#5f3d1e" stroke-width="2" opacity="0.6"/>
+            <circle cx="1120" cy="740" r="24" fill="url(#tb-water-grad)"/>
+            <path d="M 1104 736 A 19 19 0 0 1 1136 736" fill="none" stroke="#ffffff"
+                  stroke-width="2" opacity="0.45" stroke-linecap="round"/>
+            <path d="M 1108 746 A 14 14 0 0 0 1132 746" fill="none" stroke="#ffffff"
+                  stroke-width="1.6" opacity="0.3" stroke-linecap="round"/>
+            <circle cx="1111" cy="731" r="2.6" fill="#ffffff" opacity="0.7"/>
+          </g>
+          <g class="tb-badge"><circle class="tb-badge-dot" cx="1120" cy="668" r="22"/>
+            <text class="tb-badge-num" x="1120" y="668">5</text></g>
+        </g>
+
+        <!-- 6. The high priest, robed and bearing the twelve stones -->
+        <g class="tb-item" id="tb-el-priest" data-id="priest" role="button" tabindex="0"
+           aria-label="The high priest, item 6">
+          <rect class="tb-hit" x="940" y="682" width="70" height="100"/>
+          <g class="tb-art">
+            <ellipse cx="975" cy="764" rx="17" ry="5" fill="#000" opacity="0.15" filter="url(#tb-blur)"/>
+            <path d="M 961 762 Q 975 766 989 762 L 984 727 Q 975 724 966 727 Z"
+                  fill="#3b5b92" stroke="#2c4570" stroke-width="1.5"/>
+            <rect x="967" y="726" width="16" height="7" rx="1.5" fill="url(#tb-gold-grad)"
+                  stroke="var(--tb-gold-dark)" stroke-width="1"/>
+            <rect x="969" y="735" width="12" height="15" rx="1.5" fill="url(#tb-gold-grad)"
+                  stroke="var(--tb-gold-dark)" stroke-width="1.2"/>
+            <g>
+              <circle cx="972" cy="738.5" r="1.2" fill="#a83232"/>
+              <circle cx="975" cy="738.5" r="1.2" fill="#3b5b92"/>
+              <circle cx="978" cy="738.5" r="1.2" fill="#2e7d4f"/>
+              <circle cx="972" cy="742" r="1.2" fill="#7b4a8f"/>
+              <circle cx="975" cy="742" r="1.2" fill="#a83232"/>
+              <circle cx="978" cy="742" r="1.2" fill="#3b5b92"/>
+              <circle cx="972" cy="745.5" r="1.2" fill="#2e7d4f"/>
+              <circle cx="975" cy="745.5" r="1.2" fill="#7b4a8f"/>
+              <circle cx="978" cy="745.5" r="1.2" fill="#a83232"/>
+              <circle cx="972" cy="749" r="1.2" fill="#3b5b92"/>
+              <circle cx="975" cy="749" r="1.2" fill="#2e7d4f"/>
+              <circle cx="978" cy="749" r="1.2" fill="#7b4a8f"/>
+            </g>
+            <circle cx="975" cy="716" r="7" fill="#d9a97c" stroke="#b3855c" stroke-width="1"/>
+            <path d="M 967 715 A 8 8 0 1 1 983 715 Z" fill="var(--tb-linen)"
+                  stroke="#b8ac92" stroke-width="1"/>
+            <line x1="969" y1="714" x2="981" y2="714" stroke="#c9a227" stroke-width="2"/>
+          </g>
+          <g class="tb-badge"><circle class="tb-badge-dot" cx="975" cy="662" r="22"/>
+            <text class="tb-badge-num" x="975" y="662">6</text></g>
+        </g>
+
+        <!-- 5. The tent: gold-framed boards under its coverings -->
+        <g class="tb-item" id="tb-el-tent" data-id="tent" role="button" tabindex="0"
+           aria-label="The tabernacle tent, item 7">
+          <rect class="tb-hit" x="344" y="640" width="536" height="200"/>
+          <g class="tb-art">
+            <rect x="352" y="648" width="520" height="184" rx="7" filter="url(#tb-shadow)"
+                  fill="none" stroke="var(--tb-hide)" stroke-width="10" opacity="0.9"/>
+            <rect x="360" y="656" width="504" height="168" fill="var(--tb-tent)"
+                  stroke="var(--tb-gold-dark)" stroke-width="3"/>
+            <rect x="360" y="656" width="168" height="168" fill="var(--tb-mhp)"/>
+            <g id="tb-boards"></g>
+            <!-- entrance screen with its five pillars (Exodus 26:36-37) -->
+            <rect x="850" y="660" width="12" height="160" fill="url(#tb-screen-grad)" opacity="0.95"/>
+            <circle cx="856" cy="676" r="4" fill="var(--tb-gold-dark)"/>
+            <circle cx="856" cy="708" r="4" fill="var(--tb-gold-dark)"/>
+            <circle cx="856" cy="740" r="4" fill="var(--tb-gold-dark)"/>
+            <circle cx="856" cy="772" r="4" fill="var(--tb-gold-dark)"/>
+            <circle cx="856" cy="804" r="4" fill="var(--tb-gold-dark)"/>
+          </g>
+          <g class="tb-badge"><circle class="tb-badge-dot" cx="884" cy="640" r="22"/>
+            <text class="tb-badge-num" x="884" y="640">7</text></g>
+        </g>
+
+        <!-- 8. The four coverings, peeled back at the corner of the tent -->
+        <g class="tb-item" id="tb-el-coverings" data-id="coverings" role="button" tabindex="0"
+           aria-label="The four coverings of the tent, item 8">
+          <rect class="tb-hit" x="300" y="795" width="105" height="95"/>
+          <g class="tb-art" transform="translate(367,821)">
+            <path d="M -52 0 A 52 52 0 0 0 0 52 L 0 0 Z" fill="#8d7a5f"
+                  stroke="#6e5e47" stroke-width="2"/>
+            <path d="M -40 0 A 40 40 0 0 0 0 40 L 0 0 Z" fill="#9e3f33"
+                  stroke="#7c2f26" stroke-width="2"/>
+            <path d="M -28 0 A 28 28 0 0 0 0 28 L 0 0 Z" fill="#645b4f"
+                  stroke="#4c453c" stroke-width="2"/>
+            <path d="M -16 0 A 16 16 0 0 0 0 16 L 0 0 Z" fill="#f3ead2"
+                  stroke="#c4b389" stroke-width="1.5"/>
+            <circle cx="-8" cy="6" r="1.6" fill="#3b5b92"/>
+            <circle cx="-4" cy="11" r="1.6" fill="#7b4a8f"/>
+            <circle cx="-10" cy="11.5" r="1.6" fill="#a83232"/>
+          </g>
+          <g class="tb-badge"><circle class="tb-badge-dot" cx="316" cy="878" r="22"/>
+            <text class="tb-badge-num" x="316" y="878">8</text></g>
+        </g>
+
+        <!-- 6. Table of showbread: two piles of six loaves (Leviticus 24:6) -->
+        <g class="tb-item" id="tb-el-table" data-id="table" role="button" tabindex="0"
+           aria-label="Table of showbread, item 9">
+          <rect class="tb-hit" x="646" y="658" width="118" height="66"/>
+          <g class="tb-art">
+            <rect x="676" y="676" width="56" height="30" rx="4" filter="url(#tb-shadow)"
+                  fill="url(#tb-gold-grad)" stroke="var(--tb-gold-dark)" stroke-width="2.5"/>
+            <rect x="681" y="681" width="46" height="20" rx="2" fill="none"
+                  stroke="var(--tb-gold-dark)" stroke-width="1.2" opacity="0.55"/>
+            <circle cx="693" cy="691" r="8.5" fill="#dfae63" stroke="#a97b3c" stroke-width="1.8"/>
+            <path d="M 686 688 Q 693 685 700 688 M 686 694 Q 693 697 700 694"
+                  fill="none" stroke="#a97b3c" stroke-width="1.2" opacity="0.8"/>
+            <circle cx="715" cy="691" r="8.5" fill="#dfae63" stroke="#a97b3c" stroke-width="1.8"/>
+            <path d="M 708 688 Q 715 685 722 688 M 708 694 Q 715 697 722 694"
+                  fill="none" stroke="#a97b3c" stroke-width="1.2" opacity="0.8"/>
+            <circle cx="704" cy="683" r="2.2" fill="var(--tb-gold-dark)"/>
+            <circle cx="704" cy="699" r="2.2" fill="var(--tb-gold-dark)"/>
+          </g>
+          <g class="tb-badge"><circle class="tb-badge-dot" cx="776" cy="691" r="22"/>
+            <text class="tb-badge-num" x="776" y="691">9</text></g>
+        </g>
+
+        <!-- 7. Golden lampstand: seven lamps on a flowering stem -->
+        <g class="tb-item" id="tb-el-lampstand" data-id="lampstand" role="button" tabindex="0"
+           aria-label="Golden lampstand, item 10">
+          <rect class="tb-hit" x="646" y="752" width="118" height="70"/>
+          <g class="tb-art">
+            <ellipse cx="704" cy="764" rx="32" ry="9" fill="url(#tb-fire-glow)" opacity="0.8">
+              <animate attributeName="opacity" values="0.8;0.5;0.8" dur="2.7s" repeatCount="indefinite"/>
+            </ellipse>
+            <ellipse cx="704" cy="810" rx="8" ry="3.5" fill="var(--tb-gold-dark)"/>
+            <line x1="704" y1="808" x2="704" y2="772" stroke="#c9a227" stroke-width="4.5"
+                  stroke-linecap="round"/>
+            <path d="M 680 772 Q 680 806 704 806 Q 728 806 728 772" fill="none"
+                  stroke="#c9a227" stroke-width="3.6"/>
+            <path d="M 688 772 Q 688 799 704 799 Q 720 799 720 772" fill="none"
+                  stroke="#c9a227" stroke-width="3.3"/>
+            <path d="M 696 772 Q 696 792 704 792 Q 712 792 712 772" fill="none"
+                  stroke="#c9a227" stroke-width="3"/>
+            <circle cx="680" cy="771" r="2.6" fill="var(--tb-gold-dark)"/>
+            <circle cx="688" cy="771" r="2.6" fill="var(--tb-gold-dark)"/>
+            <circle cx="696" cy="771" r="2.6" fill="var(--tb-gold-dark)"/>
+            <circle cx="704" cy="771" r="2.6" fill="var(--tb-gold-dark)"/>
+            <circle cx="712" cy="771" r="2.6" fill="var(--tb-gold-dark)"/>
+            <circle cx="720" cy="771" r="2.6" fill="var(--tb-gold-dark)"/>
+            <circle cx="728" cy="771" r="2.6" fill="var(--tb-gold-dark)"/>
+            <use href="#tb-flame" transform="translate(680 768) scale(0.62)"/>
+            <use href="#tb-flame" transform="translate(688 768) scale(0.62)"/>
+            <use href="#tb-flame" transform="translate(696 768) scale(0.62)"/>
+            <use href="#tb-flame" transform="translate(704 768) scale(0.72)"/>
+            <use href="#tb-flame" transform="translate(712 768) scale(0.62)"/>
+            <use href="#tb-flame" transform="translate(720 768) scale(0.62)"/>
+            <use href="#tb-flame" transform="translate(728 768) scale(0.62)"/>
+          </g>
+          <g class="tb-badge"><circle class="tb-badge-dot" cx="776" cy="790" r="22"/>
+            <text class="tb-badge-num" x="776" y="790">10</text></g>
+        </g>
+
+        <!-- 8. Altar of incense: golden, smoke rising before the veil -->
+        <g class="tb-item" id="tb-el-incense" data-id="incense" role="button" tabindex="0"
+           aria-label="Altar of incense, item 11">
+          <rect class="tb-hit" x="552" y="700" width="80" height="80"/>
+          <g class="tb-art">
+            <path d="M 580 728 L 573 721 L 580 718 Z" fill="var(--tb-gold-dark)"/>
+            <path d="M 604 728 L 611 721 L 604 718 Z" fill="var(--tb-gold-dark)"/>
+            <path d="M 580 752 L 573 759 L 580 762 Z" fill="var(--tb-gold-dark)"/>
+            <path d="M 604 752 L 611 759 L 604 762 Z" fill="var(--tb-gold-dark)"/>
+            <rect x="578" y="726" width="28" height="28" rx="3" filter="url(#tb-shadow)"
+                  fill="url(#tb-gold-grad)" stroke="var(--tb-gold-dark)" stroke-width="2.5"/>
+            <circle cx="592" cy="740" r="4.5" fill="url(#tb-fire-grad)"/>
+            <path d="M 592 722 C 586 710 598 700 592 688 C 586 678 596 668 591 658"
+                  fill="none" stroke="#98938a" stroke-width="3.5" stroke-linecap="round"
+                  opacity="0.5" filter="url(#tb-blur)">
+              <animate attributeName="opacity" values="0.5;0.28;0.5" dur="4.5s" repeatCount="indefinite"/>
+            </path>
+            <path d="M 599 724 C 595 715 603 708 599 698" fill="none" stroke="#98938a"
+                  stroke-width="2.6" stroke-linecap="round" opacity="0.35" filter="url(#tb-blur)">
+              <animate attributeName="opacity" values="0.35;0.18;0.35" dur="3.8s" repeatCount="indefinite"/>
+            </path>
+          </g>
+          <g class="tb-badge"><circle class="tb-badge-dot" cx="592" cy="686" r="22"/>
+            <text class="tb-badge-num" x="592" y="686">11</text></g>
+        </g>
+
+        <!-- 9. The veil, with woven cherubim marks -->
+        <g class="tb-item" id="tb-el-veil" data-id="veil" role="button" tabindex="0"
+           aria-label="The veil, item 12">
+          <rect class="tb-hit" x="500" y="648" width="56" height="224"/>
+          <g class="tb-art">
+            <rect x="521" y="656" width="14" height="168" rx="3" filter="url(#tb-shadow)"
+                  fill="url(#tb-screen-grad)" stroke="var(--tb-gold-dark)" stroke-width="1.2"/>
+            <path d="M 528 694 l 5.5 7 l -5.5 7 l -5.5 -7 Z" fill="#e8cf7a" opacity="0.85"/>
+            <path d="M 528 772 l 5.5 7 l -5.5 7 l -5.5 -7 Z" fill="#e8cf7a" opacity="0.85"/>
+          </g>
+          <g class="tb-badge"><circle class="tb-badge-dot" cx="528" cy="856" r="22"/>
+            <text class="tb-badge-num" x="528" y="856">12</text></g>
+        </g>
+
+        <!-- 10. Ark of the covenant: mercy seat, cherubim, carrying poles -->
+        <g class="tb-item" id="tb-el-ark" data-id="ark" role="button" tabindex="0"
+           aria-label="Ark of the covenant and mercy seat, item 13">
+          <rect class="tb-hit" x="386" y="694" width="116" height="92"/>
+          <g class="tb-art">
+            <circle cx="444" cy="740" r="76" fill="url(#tb-shekinah)">
+              <animate attributeName="opacity" values="1;0.7;1" dur="6s" repeatCount="indefinite"/>
+            </circle>
+            <line x1="398" y1="714" x2="490" y2="714" stroke="var(--tb-gold-dark)"
+                  stroke-width="5" stroke-linecap="round"/>
+            <line x1="398" y1="766" x2="490" y2="766" stroke="var(--tb-gold-dark)"
+                  stroke-width="5" stroke-linecap="round"/>
+            <rect x="414" y="718" width="60" height="44" rx="4" filter="url(#tb-shadow)"
+                  fill="url(#tb-gold-grad)" stroke="var(--tb-gold-dark)" stroke-width="3"/>
+            <rect x="419" y="723" width="50" height="34" rx="2" fill="none"
+                  stroke="#f2df9a" stroke-width="1.6" opacity="0.8"/>
+            <circle cx="416" cy="719" r="3.5" fill="none" stroke="var(--tb-gold-dark)" stroke-width="2"/>
+            <circle cx="472" cy="719" r="3.5" fill="none" stroke="var(--tb-gold-dark)" stroke-width="2"/>
+            <circle cx="416" cy="761" r="3.5" fill="none" stroke="var(--tb-gold-dark)" stroke-width="2"/>
+            <circle cx="472" cy="761" r="3.5" fill="none" stroke="var(--tb-gold-dark)" stroke-width="2"/>
+            <!-- cherubim facing one another over the mercy seat -->
+            <use href="#tb-wing" transform="translate(436 746)" fill="var(--tb-gold-dark)"/>
+            <use href="#tb-wing" transform="translate(452 746) scale(-1,1)" fill="var(--tb-gold-dark)"/>
+            <circle cx="431" cy="729" r="3.2" fill="var(--tb-gold-dark)"/>
+            <circle cx="457" cy="729" r="3.2" fill="var(--tb-gold-dark)"/>
+          </g>
+          <g class="tb-badge"><circle class="tb-badge-dot" cx="444" cy="686" r="22"/>
+            <text class="tb-badge-num" x="444" y="686">13</text></g>
+        </g>
+
+        <!-- 13. The pillar of cloud and fire over the tabernacle -->
+        <g class="tb-item" id="tb-el-cloud" data-id="cloud" role="button" tabindex="0"
+           aria-label="The pillar of cloud and fire, item 14">
+          <rect class="tb-hit" x="230" y="530" width="150" height="115"/>
+          <g class="tb-art">
+            <g>
+              <animateTransform attributeName="transform" type="translate"
+                                values="0 0; 0 -6; 0 0" dur="7s" repeatCount="indefinite"/>
+              <ellipse cx="300" cy="600" rx="18" ry="12" fill="url(#tb-fire-glow)" opacity="0.9"/>
+              <use href="#tb-flame" transform="translate(300 608) scale(1.1)"/>
+              <g fill="var(--tb-cloud)" opacity="0.95" stroke="var(--tb-cloud-edge)"
+                 stroke-width="1.5" filter="url(#tb-blur)">
+                <ellipse cx="280" cy="594" rx="27" ry="16"/>
+                <ellipse cx="312" cy="587" rx="25" ry="15"/>
+                <ellipse cx="298" cy="602" rx="31" ry="14"/>
+                <ellipse cx="326" cy="600" rx="18" ry="11"/>
+                <ellipse cx="268" cy="605" rx="16" ry="10"/>
+              </g>
+              <ellipse cx="306" cy="585" rx="14" ry="7" fill="#ffffff" opacity="0.5"
+                       filter="url(#tb-blur)"/>
+            </g>
+          </g>
+          <g class="tb-badge"><circle class="tb-badge-dot" cx="238" cy="552" r="22"/>
+            <text class="tb-badge-num" x="238" y="552">14</text></g>
+        </g>
+      </svg>
+
+      <div class="tb-zoom-ctrls no-print">
+        <button type="button" class="tb-zbtn" id="tb-zoom-in" title="Zoom in" aria-label="Zoom in">+</button>
+        <button type="button" class="tb-zbtn" id="tb-zoom-out" title="Zoom out" aria-label="Zoom out">&minus;</button>
+        <button type="button" class="tb-zbtn" id="tb-zoom-fit" title="Fit the whole diagram" aria-label="Fit the whole diagram">&#8853;</button>
+      </div>
+    </div>
+
+    <div class="tb-legend no-print" id="tb-legend" role="group"
+         aria-label="Tabernacle furnishings"></div>
+  </div>
+
+  <div class="tb-detail-card" id="tb-detail" aria-live="polite">
+    <p class="tb-empty">Tap or click any numbered part of the diagram &mdash; or a button
+    beneath it &mdash; to read about that part of the tabernacle and how it points to
+    Christ.</p>
+    <div class="tb-nav no-print" style="justify-content:flex-start;">
+      <button type="button" class="tb-chip" id="tb-start">Begin the walk-through &rarr;</button>
+    </div>
+  </div>
+</div>
+
+<section class="tb-study">
+  <h2>From the Camp to the Mercy Seat</h2>
+  <p>The order below follows the worshiper&rsquo;s path: out of the camp, in through the
+  one gate, to the altar of sacrifice, to the basin, and then &mdash; where only the
+  priests could go &mdash; into the Holy Place and at last, once a year, behind the veil;
+  it ends beneath the cloud of the LORD&rsquo;s own presence. It is the same
+  path the Epistle to the Hebrews walks (Hebrews 9:1&ndash;12) to show that
+  <em>&ldquo;Christ has entered, not into holy places made with hands, which are copies
+  of the true things, but into heaven itself, now to appear in the presence of God on
+  our behalf&rdquo;</em> (Hebrews 9:24).</p>
+  <div id="tb-cards"></div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+(function() {
+
+  var ITEMS = [
+    {
+      id: "camp", num: 1, name: "The Camp of Israel", where: "Around the tabernacle",
+      refs: "Numbers 2; 1:52–53",
+      desc: "Israel did not camp at random. Three tribes lay on each side, each under " +
+        "its own standard: Judah with Issachar and Zebulun on the east, Reuben with " +
+        "Simeon and Gad on the south, Ephraim with Manasseh and Benjamin on the west, " +
+        "and Dan with Asher and Naphtali on the north — with the Levites camped " +
+        "closest, immediately around the tabernacle. God's dwelling stood at the exact " +
+        "center of His people's life, and every tent door looked toward His.",
+      christ: "The ordered camp is a picture of the church gathered around her Lord — " +
+        "and it ends in the city “having the glory of God,” with twelve gates " +
+        "bearing “the names of the twelve tribes of the sons of Israel” " +
+        "(Revelation 21:11–12). But note where Jesus died: the sin offerings were " +
+        "burned outside the camp, and so He “suffered outside the gate in order to " +
+        "sanctify the people through his own blood” (Hebrews 13:11–12). He was put " +
+        "out so that we could be brought in.",
+      christRefs: "Hebrews 13:11–13; Revelation 21:2–3, 12"
+    },
+    {
+      id: "fence", num: 2, name: "The Courtyard Fence", where: "The Courtyard",
+      refs: "Exodus 27:9–19",
+      desc: "A wall of fine-twined white linen, about 150 feet long, 75 feet wide, and " +
+        "seven and a half feet high, hung on bronze-footed pillars with silver hooks. It " +
+        "marked the boundary between the holy and the common: no sinner could simply " +
+        "wander into the presence of the holy God. The gleaming linen preached purity to " +
+        "everyone who camped around it — and shut everyone out.",
+      christ: "The fence preaches both Law and Gospel: it bars the way, yet it has a " +
+        "gate. In Christ the barrier is gone — He “has broken down in his flesh " +
+        "the dividing wall of hostility” (Ephesians 2:14). And the white linen now " +
+        "clothes His people: “as many of you as were baptized into Christ have put " +
+        "on Christ” (Galatians 3:27); the Bride is granted “to clothe herself " +
+        "with fine linen, bright and pure” (Revelation 19:8).",
+      christRefs: "Ephesians 2:13–14; Galatians 3:27; Revelation 19:8"
+    },
+    {
+      id: "gate", num: 3, name: "The Gate", where: "East side of the courtyard",
+      refs: "Exodus 27:16",
+      desc: "One entrance only, on the east side: a thirty-foot screen woven of blue, " +
+        "purple, and scarlet on white linen — the colors of heaven, royalty, and " +
+        "blood. It was wide enough that no one needed to squeeze in, but there was no " +
+        "other way in, and everyone who entered came first to the altar of sacrifice.",
+      christ: "“I am the door. If anyone enters by me, he will be saved” " +
+        "(John 10:9). There is one gate because there is one Mediator: “no one " +
+        "comes to the Father except through me” (John 14:6). The gate is wide with " +
+        "welcome — and it is the only one there is.",
+      christRefs: "John 10:9; John 14:6; 1 Timothy 2:5"
+    },
+    {
+      id: "altar", num: 4, name: "The Altar of Burnt Offering", where: "The Courtyard",
+      refs: "Exodus 27:1–8; Leviticus 1:3–9; 6:12–13",
+      desc: "A bronze-covered altar, seven and a half feet square, with a horn at each " +
+        "corner, standing just inside the gate. Here the morning and evening lambs and " +
+        "all the sacrifices were offered, and its fire was never to go out. Nothing and " +
+        "no one went further into the tabernacle except by way of this altar, “for " +
+        "it is the blood that makes atonement by the life” (Leviticus 17:11).",
+      christ: "The altar is the shadow of the cross. Every lamb pointed to “the " +
+        "Lamb of God, who takes away the sin of the world” (John 1:29). The daily " +
+        "repetition is over, because “we have been sanctified through the offering " +
+        "of the body of Jesus Christ once for all” (Hebrews 10:10). At the cross " +
+        "the true sacrifice was finished — His own word: “It is finished” " +
+        "(John 19:30).",
+      christRefs: "John 1:29; Hebrews 10:1–14; John 19:30"
+    },
+    {
+      id: "laver", num: 5, name: "The Bronze Basin", where: "Between the altar and the tent",
+      refs: "Exodus 30:17–21; 38:8",
+      desc: "A basin of bronze — cast from the mirrors of the women who served at " +
+        "the entrance — where Aaron and his sons washed their hands and feet before " +
+        "serving at the altar or entering the tent, “so that they may not die.” " +
+        "Sacrifice dealt with guilt; the basin dealt with daily defilement on the way to " +
+        "holy service.",
+      christ: "The washing that stands between the sacrifice and God’s house is a " +
+        "picture of Holy Baptism: “the washing of regeneration and renewal of the " +
+        "Holy Spirit” (Titus 3:5), by which Christ cleanses His church “by the " +
+        "washing of water with the word” (Ephesians 5:26). And as the priests " +
+        "returned to the basin daily, the baptized return daily to their Baptism in " +
+        "contrition and repentance, drowning the old Adam so the new man arises.",
+      christRefs: "Titus 3:5; Ephesians 5:25–27; Romans 6:3–4"
+    },
+    {
+      id: "priest", num: 6, name: "The High Priest", where: "Serving in the courtyard",
+      refs: "Exodus 28; Leviticus 16",
+      desc: "Aaron ministered in garments made “for glory and for beauty”: the " +
+        "blue robe, the ephod, and over his heart the breastpiece set with twelve " +
+        "gemstones engraved with the names of the tribes — so that whenever he went " +
+        "in before the LORD, he carried all Israel on his heart. On his turban a plate " +
+        "of pure gold read “Holy to the LORD.” He alone entered the Most Holy " +
+        "Place, one day a year, and never without blood.",
+      christ: "“We have a great high priest who has passed through the heavens, " +
+        "Jesus, the Son of God” (Hebrews 4:14) — one “holy, innocent, " +
+        "unstained,” who does not need to offer sacrifices for His own sins " +
+        "(Hebrews 7:26–27). He bears His people's names on His heart, sympathizes " +
+        "with our weaknesses, entered the true sanctuary by His own blood, and " +
+        "“always lives to make intercession” for us. In Him every baptized " +
+        "believer now has confidence to draw near to the throne of grace.",
+      christRefs: "Hebrews 4:14–16; 7:23–27; 9:11–12"
+    },
+    {
+      id: "tent", num: 7, name: "The Tent Itself", where: "West end of the courtyard",
+      refs: "Exodus 26:15–30; 38:24–27; 40:34–38",
+      desc: "Gold-covered acacia frames, forty-five feet by fifteen, in two rooms. Each " +
+        "board stood in two sockets of silver — and that silver was the ransom " +
+        "money, the half-shekel every Israelite paid “to make atonement” " +
+        "(Exodus 30:11–16; 38:25–27), so that God’s house rested, board by board, " +
+        "on redemption. When it was finished, “the glory of the LORD filled the " +
+        "tabernacle” (Exodus 40:34). God did not stay on the mountain: He tented " +
+        "among His pilgrim people and moved when they moved.",
+      christ: "“The Word became flesh and dwelt among us” — literally, " +
+        "“tabernacled among us” — “and we have seen his glory” " +
+        "(John 1:14). Like the tent, the Lord’s appearance was plain — “no " +
+        "beauty that we should desire him” (Isaiah 53:2) — yet in Him “the " +
+        "whole fullness of deity dwells bodily” (Colossians 2:9). And the end of " +
+        "the story is the tent made permanent: “Behold, the dwelling place of God " +
+        "is with man” (Revelation 21:3).",
+      christRefs: "John 1:14; Colossians 2:9; Revelation 21:3"
+    },
+    {
+      id: "coverings", num: 8, name: "The Four Coverings", where: "Over the tent",
+      refs: "Exodus 26:1–14; 36:8–19",
+      desc: "The tent was roofed with four layers. Innermost, curtains of fine twined " +
+        "linen worked with cherubim in blue, purple, and scarlet — a woven heaven " +
+        "over the priests’ heads. Over that lay a tent of goats’ hair, then " +
+        "ram skins dyed red, and outermost a covering of plain, weatherproof leather " +
+        "that gave no hint of what was beneath. From outside, God’s dwelling " +
+        "looked like a drab tent in the desert; every bit of its glory was within.",
+      christ: "So it was when the Word tabernacled among us: “he had no form or " +
+        "majesty that we should look at him” (Isaiah 53:2). The church has long " +
+        "loved the picture in the layers — sacrifice in the blood-red ram skins, " +
+        "spotless righteousness in the linen — glory hidden under humility and " +
+        "revealed only to those brought inside. His church looks the same way: " +
+        "“we have this treasure in jars of clay” (2 Corinthians 4:7), until " +
+        "the day the tent is opened and “we shall see him as he is” " +
+        "(1 John 3:2).",
+      christRefs: "Isaiah 53:2–3; 2 Corinthians 4:7; 1 John 3:2"
+    },
+    {
+      id: "table", num: 9, name: "The Table of Showbread", where: "Holy Place, north side",
+      refs: "Exodus 25:23–30; Leviticus 24:5–9",
+      desc: "A gold-covered table on the north side of the Holy Place bearing twelve " +
+        "loaves of the “bread of the Presence” — one for each tribe of " +
+        "Israel — set fresh every Sabbath and then eaten by the priests in the holy " +
+        "place. Week after week, all Israel was represented as fed at a table before " +
+        "God’s face.",
+      christ: "“I am the bread of life; whoever comes to me shall not hunger” " +
+        "(John 6:35). Christ is Himself the bread of the Presence, and He still sets a " +
+        "table in His holy place: in the Supper His people share “a participation " +
+        "in the body of Christ,” and “we who are many are one body, for we all " +
+        "partake of the one bread” (1 Corinthians 10:16–17).",
+      christRefs: "John 6:32–35; 1 Corinthians 10:16–17; Luke 22:19"
+    },
+    {
+      id: "lampstand", num: 10, name: "The Golden Lampstand", where: "Holy Place, south side",
+      refs: "Exodus 25:31–40; 27:20–21",
+      desc: "Hammered from a single talent of pure gold, with six branches from a " +
+        "central stem and cups shaped like almond blossoms — a stylized flowering " +
+        "tree bearing seven lamps. It was the only light in the Holy Place, tended " +
+        "morning and evening with pure olive oil so that it never went out.",
+      christ: "“I am the light of the world. Whoever follows me will not walk in " +
+        "darkness” (John 8:12). In John’s vision the risen Christ walks among " +
+        "seven golden lampstands, which are His churches (Revelation 1:12–20): the " +
+        "light of the gospel is kept burning in the church, morning and evening, by the " +
+        "oil of the Spirit through the Word.",
+      christRefs: "John 8:12; Revelation 1:12–20; Matthew 5:14–16"
+    },
+    {
+      id: "incense", num: 11, name: "The Altar of Incense", where: "Holy Place, before the veil",
+      refs: "Exodus 30:1–10; Psalm 141:2; Luke 1:8–11",
+      desc: "A small golden altar standing directly before the veil. Every morning and " +
+        "every evening — the hours of the daily sacrifice and of daily prayer — " +
+        "fragrant incense was burned on it, its smoke rising toward the presence of God " +
+        "just beyond the curtain: “Let my prayer be counted as incense before " +
+        "you” (Psalm 141:2). It was here that Zechariah heard the promise of the " +
+        "forerunner of Christ (Luke 1:11–13).",
+      christ: "Prayer rises and is heard not because it is fervent but because of the " +
+        "One at the Father’s side: Christ “always lives to make intercession " +
+        "for them” (Hebrews 7:25). In Revelation an angel at the golden altar " +
+        "offers incense “with the prayers of all the saints,” and they rise " +
+        "before God (Revelation 8:3–4). Every prayer of the church ascends through " +
+        "Him.",
+      christRefs: "Hebrews 7:25; Revelation 8:3–4; John 16:23"
+    },
+    {
+      id: "veil", num: 12, name: "The Veil", where: "Between the Holy Place and the Most Holy Place",
+      refs: "Exodus 26:31–33; Leviticus 16:2",
+      desc: "A thick curtain of blue, purple, and scarlet with cherubim woven into it, " +
+        "hung on four gold-covered pillars. The cherubim recall the guards posted at " +
+        "the gate of Eden (Genesis 3:24): the way back into God’s presence was " +
+        "barred. Only the high priest passed it, one day a year, and never without " +
+        "blood.",
+      christ: "At the moment Jesus died, “the curtain of the temple was torn in " +
+        "two, from top to bottom” (Matthew 27:51) — torn from God’s side, " +
+        "not ours. So “we have confidence to enter the holy places by the blood of " +
+        "Jesus, by the new and living way that he opened for us through the curtain, " +
+        "that is, through his flesh” (Hebrews 10:19–20). The way to the Father " +
+        "stands open.",
+      christRefs: "Matthew 27:51; Hebrews 10:19–22; Hebrews 6:19–20"
+    },
+    {
+      id: "ark", num: 13, name: "The Ark & the Mercy Seat", where: "The Most Holy Place",
+      refs: "Exodus 25:10–22; Leviticus 16:14–16; Hebrews 9:4–5",
+      desc: "A gold-covered chest holding the tablets of the Law, a jar of the manna, " +
+        "and Aaron’s staff that budded. Its solid-gold lid was the mercy seat, " +
+        "overshadowed by two cherubim, where God promised to meet His people: “There " +
+        "I will meet with you” (Exodus 25:22). On the Day of Atonement the high " +
+        "priest sprinkled sacrificial blood on it — so that between the accusing " +
+        "Law inside and the enthroned God above stood a cover marked with blood.",
+      christ: "Paul reaches for this exact picture: God put Christ forward “as a " +
+        "propitiation by his blood” (Romans 3:25) — the Greek word is the " +
+        "Septuagint’s name for the mercy seat. The cross is the true mercy seat, " +
+        "where the blood of Jesus answers the Law’s accusation and God meets " +
+        "sinners in peace: “he entered once for all into the holy places … by " +
+        "means of his own blood, thus securing an eternal redemption” " +
+        "(Hebrews 9:12).",
+      christRefs: "Romans 3:23–25; Hebrews 9:11–12; 1 John 2:2"
+    },
+    {
+      id: "cloud", num: 14, name: "The Pillar of Cloud & Fire", where: "Over the tabernacle",
+      refs: "Exodus 40:34–38; 13:21–22; Numbers 9:15–23",
+      desc: "When the work was finished, “the cloud covered the tent of meeting, " +
+        "and the glory of the LORD filled the tabernacle” (Exodus 40:34). By day " +
+        "the cloud rested over it; by night there was fire in it, in the sight of all " +
+        "Israel. When it lifted, they broke camp and followed; where it settled, they " +
+        "stayed. God did not only dwell at the center of His people — He went ahead " +
+        "of them, all their journeys long.",
+      christ: "Paul says the fathers “all were baptized into Moses in the cloud " +
+        "and in the sea” and drank from “the spiritual Rock … and the Rock " +
+        "was Christ” (1 Corinthians 10:1–4). At the Transfiguration the bright " +
+        "cloud returned and the Father's voice spoke of His Son: “listen to " +
+        "him” (Matthew 17:5). And the risen Lord still leads His pilgrim church: " +
+        "“I am with you always, to the end of the age” (Matthew 28:20).",
+      christRefs: "1 Corinthians 10:1–4; Matthew 17:5; Matthew 28:20"
+    }
+  ];
+
+  var svg = document.getElementById("tb-svg");
+  var detail = document.getElementById("tb-detail");
+  var legend = document.getElementById("tb-legend");
+  var cardsWrap = document.getElementById("tb-cards");
+  var byId = {};
+  ITEMS.forEach(function(it) { byId[it.id] = it; });
+
+  var SVG_NS = "http://www.w3.org/2000/svg";
+
+  /* Fence pillars: a bronze-footed post with a silver hook every five cubits
+     (84 units), skipping the gate opening on the east wall (y 572-908 at
+     x=1840). */
+  (function drawPillars() {
+    var g = document.getElementById("tb-pillars");
+    var pts = [];
+    var x, y;
+    for (x = 160; x <= 1840; x += 84) { pts.push([x, 320]); pts.push([x, 1160]); }
+    for (y = 404; y < 1160; y += 84) {
+      pts.push([160, y]);
+      if (y < 572 || y > 908) { pts.push([1840, y]); }
+    }
+    pts.forEach(function(p) {
+      var base = document.createElementNS(SVG_NS, "circle");
+      base.setAttribute("cx", p[0]);
+      base.setAttribute("cy", p[1]);
+      base.setAttribute("r", 6);
+      base.setAttribute("fill", "var(--tb-bronze-dark)");
+      g.appendChild(base);
+      var cap = document.createElementNS(SVG_NS, "circle");
+      cap.setAttribute("cx", p[0]);
+      cap.setAttribute("cy", p[1]);
+      cap.setAttribute("r", 2.2);
+      cap.setAttribute("fill", "#d8d5cb");
+      cap.setAttribute("opacity", "0.9");
+      g.appendChild(cap);
+    });
+  })();
+
+  /* Tent wall framing: the gold-covered acacia boards, a line every
+     1.5 cubits (25 units), skipping the veil and the entrance screen. */
+  (function drawBoards() {
+    var g = document.getElementById("tb-boards");
+    for (var x = 385; x < 848; x += 25) {
+      if (x > 508 && x < 548) { continue; }
+      var l = document.createElementNS(SVG_NS, "line");
+      l.setAttribute("x1", x);
+      l.setAttribute("y1", 660);
+      l.setAttribute("x2", x);
+      l.setAttribute("y2", 820);
+      l.setAttribute("stroke", "var(--tb-gold-dark)");
+      l.setAttribute("stroke-width", 1.5);
+      l.setAttribute("opacity", "0.16");
+      g.appendChild(l);
+    }
+  })();
+
+  /* The camp of Israel: rows of tents outside the fence on all four sides
+     (three tribes per side, Numbers 2). */
+  (function drawCampTents() {
+    var g = document.getElementById("tb-camp-tents");
+    function tent(x, y) {
+      var u = document.createElementNS(SVG_NS, "use");
+      u.setAttribute("href", "#tb-tenticon");
+      u.setAttribute("transform", "translate(" + x + " " + y + ")");
+      g.appendChild(u);
+    }
+    var x, y;
+    for (x = 420; x <= 1580; x += 88) { tent(x, 262); tent(x, 1240); }
+    for (y = 470; y <= 1010; y += 90) { tent(100, y); tent(1900, y); }
+  })();
+
+  /* ---- Pan/zoom camera -------------------------------------------------
+     The camera is the viewBox. Drag pans, wheel and pinch zoom, the round
+     buttons zoom/fit, and selecting an item flies the camera to it. */
+  var FULL = {x: 0, y: 150, w: 2000, h: 1200};
+  var vb = {x: FULL.x, y: FULL.y, w: FULL.w, h: FULL.h};
+  var animFrame = null;
+
+  function applyVB(b) {
+    vb = b;
+    svg.setAttribute("viewBox", b.x + " " + b.y + " " + b.w + " " + b.h);
+  }
+
+  function clampVB(b) {
+    var w = Math.min(Math.max(b.w, 240), FULL.w);
+    var h = w * FULL.h / FULL.w;
+    var cx = b.x + b.w / 2;
+    var cy = b.y + b.h / 2;
+    var x = Math.min(Math.max(cx - w / 2, FULL.x), FULL.x + FULL.w - w);
+    var y = Math.min(Math.max(cy - h / 2, FULL.y), FULL.y + FULL.h - h);
+    return {x: x, y: y, w: w, h: h};
+  }
+
+  function animateTo(target) {
+    if (animFrame) { cancelAnimationFrame(animFrame); }
+    var from = {x: vb.x, y: vb.y, w: vb.w, h: vb.h};
+    var start = null;
+    var DUR = 450;
+    function step(ts) {
+      if (start === null) { start = ts; }
+      var t = Math.min((ts - start) / DUR, 1);
+      var e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+      applyVB({
+        x: from.x + (target.x - from.x) * e,
+        y: from.y + (target.y - from.y) * e,
+        w: from.w + (target.w - from.w) * e,
+        h: from.h + (target.h - from.h) * e
+      });
+      if (t < 1) { animFrame = requestAnimationFrame(step); }
+      else { animFrame = null; }
+    }
+    animFrame = requestAnimationFrame(step);
+  }
+
+  function svgPoint(clientX, clientY) {
+    var ctm = svg.getScreenCTM();
+    if (!ctm) { return {x: 0, y: 0}; }
+    var p = new DOMPoint(clientX, clientY).matrixTransform(ctm.inverse());
+    return {x: p.x, y: p.y};
+  }
+
+  function zoomAt(factor, px, py) {
+    if (animFrame) { cancelAnimationFrame(animFrame); animFrame = null; }
+    var w = vb.w / factor;
+    applyVB(clampVB({
+      x: px - (px - vb.x) / factor,
+      y: py - (py - vb.y) / factor,
+      w: w,
+      h: w * FULL.h / FULL.w
+    }));
+  }
+
+  /* Fly the camera to an item: the union of its hit areas, padded, at the
+     diagram's aspect ratio, never closer than 560 units wide. */
+  function flyToItem(el) {
+    var hits = el.querySelectorAll(".tb-hit");
+    var x1 = Infinity, y1 = Infinity, x2 = -Infinity, y2 = -Infinity;
+    for (var i = 0; i < hits.length; i++) {
+      var b = hits[i].getBBox();
+      x1 = Math.min(x1, b.x); y1 = Math.min(y1, b.y);
+      x2 = Math.max(x2, b.x + b.width); y2 = Math.max(y2, b.y + b.height);
+    }
+    if (x1 === Infinity) { return; }
+    var pad = 90;
+    x1 -= pad; y1 -= pad; x2 += pad; y2 += pad;
+    var w = Math.max(x2 - x1, (y2 - y1) * FULL.w / FULL.h, 560);
+    var h = w * FULL.h / FULL.w;
+    animateTo(clampVB({
+      x: (x1 + x2) / 2 - w / 2,
+      y: (y1 + y2) / 2 - h / 2,
+      w: w,
+      h: h
+    }));
+  }
+
+  (function wirePanZoom() {
+    var pointers = {};
+    var pointerCount = 0;
+    var dragDist = 0;
+    var lastPinchDist = null;
+
+    svg.addEventListener("pointerdown", function(e) {
+      svg.setPointerCapture(e.pointerId);
+      pointers[e.pointerId] = {x: e.clientX, y: e.clientY, sx: null, sy: null};
+      var p = svgPoint(e.clientX, e.clientY);
+      pointers[e.pointerId].sx = p.x;
+      pointers[e.pointerId].sy = p.y;
+      pointerCount++;
+      dragDist = 0;
+      lastPinchDist = null;
+      if (pointerCount === 1) { svg.classList.add("tb-panning"); }
+    });
+
+    svg.addEventListener("pointermove", function(e) {
+      var pt = pointers[e.pointerId];
+      if (!pt) { return; }
+      dragDist += Math.abs(e.clientX - pt.x) + Math.abs(e.clientY - pt.y);
+      pt.x = e.clientX; pt.y = e.clientY;
+      var ids = Object.keys(pointers);
+      if (pointerCount === 2 && ids.length === 2) {
+        var a = pointers[ids[0]], b = pointers[ids[1]];
+        var d = Math.hypot(a.x - b.x, a.y - b.y);
+        if (lastPinchDist) {
+          var mid = svgPoint((a.x + b.x) / 2, (a.y + b.y) / 2);
+          zoomAt(d / lastPinchDist, mid.x, mid.y);
+        }
+        lastPinchDist = d;
+      } else if (pointerCount === 1) {
+        if (animFrame) { cancelAnimationFrame(animFrame); animFrame = null; }
+        var p = svgPoint(e.clientX, e.clientY);
+        applyVB(clampVB({
+          x: vb.x - (p.x - pt.sx), y: vb.y - (p.y - pt.sy), w: vb.w, h: vb.h
+        }));
+      }
+    });
+
+    function release(e) {
+      if (pointers[e.pointerId]) {
+        delete pointers[e.pointerId];
+        pointerCount = Math.max(0, pointerCount - 1);
+        lastPinchDist = null;
+        if (pointerCount === 0) { svg.classList.remove("tb-panning"); }
+      }
+    }
+    svg.addEventListener("pointerup", release);
+    svg.addEventListener("pointercancel", release);
+
+    /* A real drag should not count as a tap on whatever it ends over. */
+    svg.addEventListener("click", function(e) {
+      if (dragDist > 10) { e.stopPropagation(); e.preventDefault(); }
+    }, true);
+
+    svg.addEventListener("wheel", function(e) {
+      e.preventDefault();
+      var p = svgPoint(e.clientX, e.clientY);
+      zoomAt(Math.exp(-e.deltaY * 0.0016), p.x, p.y);
+    }, {passive: false});
+
+    svg.addEventListener("dblclick", function(e) {
+      var p = svgPoint(e.clientX, e.clientY);
+      zoomAt(1.8, p.x, p.y);
+    });
+
+    document.getElementById("tb-zoom-in").addEventListener("click", function() {
+      zoomAt(1.45, vb.x + vb.w / 2, vb.y + vb.h / 2);
+    });
+    document.getElementById("tb-zoom-out").addEventListener("click", function() {
+      zoomAt(1 / 1.45, vb.x + vb.w / 2, vb.y + vb.h / 2);
+    });
+    document.getElementById("tb-zoom-fit").addEventListener("click", function() {
+      animateTo(FULL);
+    });
+  })();
+
+  function itemHtml(it, isCard) {
+    var h = isCard ? "h3" : "h2";
+    return (
+      '<p class="tb-kicker">№ ' + it.num + " · " + it.where + "</p>" +
+      "<" + h + ">" + it.name + "</" + h + ">" +
+      '<p class="tb-refs">' + it.refs + "</p>" +
+      '<p class="tb-desc">' + it.desc + "</p>" +
+      '<p class="tb-christ-head">✠ Fulfilled in Christ</p>' +
+      '<p class="tb-christ">' + it.christ + "</p>" +
+      '<p class="tb-refs" style="margin:8px 0 0;">' + it.christRefs + "</p>"
+    );
+  }
+
+  function select(id, opts) {
+    var it = byId[id];
+    if (!it) { return; }
+    var els = svg.querySelectorAll(".tb-item");
+    for (var i = 0; i < els.length; i++) {
+      els[i].classList.toggle("tb-selected", els[i].getAttribute("data-id") === id);
+    }
+    var chips = legend.querySelectorAll(".tb-chip");
+    for (var j = 0; j < chips.length; j++) {
+      chips[j].classList.toggle("tb-selected", chips[j].getAttribute("data-id") === id);
+    }
+    var selEl = document.getElementById("tb-el-" + id);
+    if (selEl) { flyToItem(selEl); }
+    var idx = ITEMS.indexOf(it);
+    var prev = ITEMS[idx - 1];
+    var next = ITEMS[idx + 1];
+    detail.innerHTML = itemHtml(it, false) +
+      '<div class="tb-nav no-print">' +
+      (prev
+        ? '<button type="button" class="tb-chip" data-id="' + prev.id + '">← ' +
+          prev.num + ". " + prev.name + "</button>"
+        : "<span></span>") +
+      (next
+        ? '<button type="button" class="tb-chip" data-id="' + next.id + '">' +
+          next.num + ". " + next.name + " →</button>"
+        : "<span></span>") +
+      "</div>";
+    var navBtns = detail.querySelectorAll(".tb-nav .tb-chip");
+    for (var k = 0; k < navBtns.length; k++) {
+      navBtns[k].addEventListener("click", function() {
+        select(this.getAttribute("data-id"), {scroll: true});
+      });
+    }
+    /* On stacked (mobile) layout the card sits below the diagram; bring it
+       into view when a selection is made from the diagram or legend. */
+    if (opts && opts.scroll && window.innerWidth < 1150) {
+      detail.scrollIntoView({behavior: "smooth", block: "nearest"});
+    }
+  }
+
+  ITEMS.forEach(function(it) {
+    var chip = document.createElement("button");
+    chip.type = "button";
+    chip.className = "tb-chip";
+    chip.setAttribute("data-id", it.id);
+    chip.innerHTML = '<span class="tb-chip-num">' + it.num + "</span>" + it.name;
+    chip.addEventListener("click", function() { select(it.id, {scroll: true}); });
+    legend.appendChild(chip);
+
+    var card = document.createElement("article");
+    card.className = "tb-study-card";
+    card.id = "tb-study-" + it.id;
+    card.innerHTML = itemHtml(it, true);
+    cardsWrap.appendChild(card);
+  });
+
+  var els = svg.querySelectorAll(".tb-item");
+  for (var i = 0; i < els.length; i++) {
+    (function(el) {
+      var id = el.getAttribute("data-id");
+      el.addEventListener("click", function() { select(id, {scroll: true}); });
+      el.addEventListener("keydown", function(e) {
+        if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
+          e.preventDefault();
+          select(id, {scroll: true});
+        }
+      });
+    })(els[i]);
+  }
+
+  document.getElementById("tb-start").addEventListener("click", function() {
+    select(ITEMS[0].id, {scroll: true});
+  });
+
+})();
+{% endblock %}

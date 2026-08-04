@@ -108,6 +108,11 @@ def get_menu_items(is_advent, is_new_year, is_lent):
                   "url": "/bible_timeline",
                   "enabled": True,
               },
+              {
+                  "label": "Tabernacle Explorer",
+                  "url": "/tabernacle",
+                  "enabled": True,
+              },
           ],
       },
       {
