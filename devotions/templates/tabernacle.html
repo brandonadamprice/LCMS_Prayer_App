@@ -7,6 +7,7 @@
   /* ---- Diagram palette (light) ---- */
   .tb-diagram-wrap {
     --tb-ground: #efe6cf;
+    --tb-linen: #f6f1e2;
     --tb-wall: #b09f7e;
     --tb-tent: #e8d9b0;
     --tb-mhp: #decb96;
@@ -15,9 +16,11 @@
     --tb-bronze: #a9713d;
     --tb-bronze-dark: #7a4f28;
     --tb-flame: #d4913a;
+    --tb-hide: #7d6248;
   }
   body.dark-mode .tb-diagram-wrap {
     --tb-ground: #35302a;
+    --tb-linen: #c9c2ae;
     --tb-wall: #6e6350;
     --tb-tent: #4a4132;
     --tb-mhp: #544938;
@@ -26,6 +29,7 @@
     --tb-bronze: #b07c48;
     --tb-bronze-dark: #cf9c66;
     --tb-flame: #e0a552;
+    --tb-hide: #5c4a37;
   }
 
   /* ---- Layout: diagram + sticky detail card on wide screens ---- */
@@ -69,8 +73,20 @@
     -webkit-user-select: none;
     user-select: none;
   }
-  .tb-room-label { font-size: 11px; font-style: italic; letter-spacing: 0.4px; }
-  .tb-compass { font-size: 11px; font-weight: 700; letter-spacing: 1px; }
+  .tb-room-label {
+    font-size: 19px;
+    font-weight: 600;
+    letter-spacing: 3.5px;
+    opacity: 0.75;
+  }
+  .tb-compass { font-size: 17px; font-weight: 700; letter-spacing: 1px; }
+  .tb-caption {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-style: italic;
+    font-size: 23px;
+    opacity: 0.85;
+  }
+  .tb-scale-label { font-size: 14px; font-weight: 600; letter-spacing: 2px; opacity: 0.7; }
 
   /* ---- Interactive items ---- */
   .tb-item { cursor: pointer; }
@@ -79,24 +95,24 @@
   .tb-item:focus-visible .tb-badge-dot,
   .tb-item:hover .tb-badge-dot {
     stroke: var(--color-accent);
-    stroke-width: 2.5;
+    stroke-width: 5;
   }
   .tb-item.tb-selected .tb-art {
-    filter: drop-shadow(0 0 4px rgba(201,162,39,0.9));
+    filter: drop-shadow(0 0 9px rgba(201,162,39,0.95));
   }
   .tb-item.tb-selected .tb-badge-dot {
     fill: var(--color-accent-dark);
     stroke: var(--color-accent);
-    stroke-width: 2.5;
+    stroke-width: 5;
   }
   .tb-badge-dot {
     fill: var(--color-primary);
     stroke: rgba(255,255,255,0.85);
-    stroke-width: 1.5;
+    stroke-width: 3;
     transition: all 0.18s ease;
   }
   .tb-badge-num {
-    font-size: 11.5px;
+    font-size: 23px;
     font-weight: 700;
     fill: #fff !important;
     text-anchor: middle;
@@ -247,174 +263,338 @@
 <div class="tb-layout">
   <div>
     <div class="tb-diagram-wrap">
-      <svg id="tb-svg" viewBox="0 0 1000 620" role="img"
+      <svg id="tb-svg" viewBox="0 250 2000 1000" role="img"
            aria-label="Plan diagram of the tabernacle: a fenced courtyard entered by a gate on the east, containing the altar of burnt offering, the bronze basin, and the tent with its Holy Place (lampstand, table of showbread, altar of incense) and, behind the veil, the Most Holy Place with the ark of the covenant.">
         <defs>
           <linearGradient id="tb-screen-grad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#3b5b92"/><stop offset="0.34" stop-color="#3b5b92"/>
-            <stop offset="0.34" stop-color="#7b4a8f"/><stop offset="0.67" stop-color="#7b4a8f"/>
-            <stop offset="0.67" stop-color="#a83232"/><stop offset="1" stop-color="#a83232"/>
+            <stop offset="0" stop-color="#3b5b92"/><stop offset="0.17" stop-color="#3b5b92"/>
+            <stop offset="0.17" stop-color="#7b4a8f"/><stop offset="0.33" stop-color="#7b4a8f"/>
+            <stop offset="0.33" stop-color="#a83232"/><stop offset="0.5" stop-color="#a83232"/>
+            <stop offset="0.5" stop-color="#3b5b92"/><stop offset="0.67" stop-color="#3b5b92"/>
+            <stop offset="0.67" stop-color="#7b4a8f"/><stop offset="0.83" stop-color="#7b4a8f"/>
+            <stop offset="0.83" stop-color="#a83232"/><stop offset="1" stop-color="#a83232"/>
           </linearGradient>
+          <linearGradient id="tb-gold-grad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#ecc95d"/>
+            <stop offset="0.55" stop-color="#c9a227"/>
+            <stop offset="1" stop-color="#9d7b1d"/>
+          </linearGradient>
+          <radialGradient id="tb-bronze-grad" cx="0.4" cy="0.35" r="0.85">
+            <stop offset="0" stop-color="#c98f57"/>
+            <stop offset="0.6" stop-color="#a9713d"/>
+            <stop offset="1" stop-color="#7d5128"/>
+          </radialGradient>
+          <radialGradient id="tb-water-grad" cx="0.42" cy="0.4" r="0.8">
+            <stop offset="0" stop-color="#bcdae8"/>
+            <stop offset="0.6" stop-color="#6fa1bd"/>
+            <stop offset="1" stop-color="#4d7f9f"/>
+          </radialGradient>
+          <radialGradient id="tb-fire-grad" cx="0.5" cy="0.75" r="0.9">
+            <stop offset="0" stop-color="#ffe9a8"/>
+            <stop offset="0.55" stop-color="#f0a83c"/>
+            <stop offset="1" stop-color="#d4691e"/>
+          </radialGradient>
+          <radialGradient id="tb-fire-glow">
+            <stop offset="0" stop-color="rgba(255,190,80,0.55)"/>
+            <stop offset="1" stop-color="rgba(255,190,80,0)"/>
+          </radialGradient>
+          <radialGradient id="tb-shekinah">
+            <stop offset="0" stop-color="rgba(242,217,139,0.55)"/>
+            <stop offset="0.55" stop-color="rgba(242,217,139,0.22)"/>
+            <stop offset="1" stop-color="rgba(242,217,139,0)"/>
+          </radialGradient>
+          <radialGradient id="tb-ground-glow" cx="0.5" cy="0.45" r="0.75">
+            <stop offset="0" stop-color="rgba(199,161,101,0.16)"/>
+            <stop offset="1" stop-color="rgba(120,90,45,0)"/>
+          </radialGradient>
+          <pattern id="tb-sand" width="46" height="46" patternUnits="userSpaceOnUse">
+            <circle cx="8" cy="12" r="1.3" fill="#8a6a40" opacity="0.13"/>
+            <circle cx="30" cy="6" r="1" fill="#8a6a40" opacity="0.1"/>
+            <circle cx="20" cy="30" r="1.3" fill="#8a6a40" opacity="0.12"/>
+            <circle cx="39" cy="38" r="1" fill="#8a6a40" opacity="0.1"/>
+          </pattern>
+          <filter id="tb-shadow" x="-30%" y="-30%" width="160%" height="160%">
+            <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#3a2a18" flood-opacity="0.3"/>
+          </filter>
+          <filter id="tb-blur" x="-60%" y="-60%" width="220%" height="220%">
+            <feGaussianBlur stdDeviation="2.2"/>
+          </filter>
+          <path id="tb-flame" d="M 0 0 C -3.2 -4.5 -2.2 -9.5 0 -13.5 C 2.2 -9.5 3.2 -4.5 0 0 Z"
+                fill="url(#tb-fire-grad)"/>
+          <path id="tb-wing" d="M 0 0 Q -15 -3 -18 -20 Q -3 -18 3 -5 Z"/>
         </defs>
 
-        <!-- Courtyard ground -->
-        <rect x="80" y="160" width="840" height="420" rx="4" fill="var(--tb-ground)"/>
+        <!-- Courtyard ground: sand, warm center light, speckle texture -->
+        <rect x="160" y="320" width="1680" height="840" rx="8" fill="var(--tb-ground)"/>
+        <rect x="160" y="320" width="1680" height="840" rx="8" fill="url(#tb-ground-glow)"/>
+        <rect x="160" y="320" width="1680" height="840" rx="8" fill="url(#tb-sand)"/>
 
-        <!-- Room labels & compass -->
-        <text class="tb-room-label" x="560" y="215" text-anchor="middle">Courtyard</text>
-        <text class="tb-room-label" x="222" y="310" text-anchor="middle">Most Holy Place</text>
-        <text class="tb-room-label" x="352" y="310" text-anchor="middle">Holy Place</text>
-        <text class="tb-compass" x="957" y="374">E</text>
-        <text class="tb-compass" x="80" y="148">W</text>
+        <!-- Room labels -->
+        <text class="tb-room-label" x="1250" y="435" text-anchor="middle">COURTYARD</text>
+        <text class="tb-room-label" x="444" y="622" text-anchor="middle" style="font-size:15px;">MOST HOLY PLACE</text>
+        <text class="tb-room-label" x="700" y="622" text-anchor="middle" style="font-size:15px;">HOLY PLACE</text>
 
-        <!-- 1. Courtyard fence (east wall broken by the gate) -->
+        <!-- Compass rose (entrance faces east) -->
+        <g transform="translate(1925,415)" opacity="0.9">
+          <circle r="30" fill="none" stroke="var(--tb-wall)" stroke-width="1.5" opacity="0.7"/>
+          <path d="M 0 -26 L 5 -5 L 26 0 L 5 5 L 0 26 L -5 5 L -26 0 L -5 -5 Z"
+                fill="var(--tb-wall)" opacity="0.75"/>
+          <path d="M 26 0 L 5 5 L 5 -5 Z" fill="var(--color-accent-dark)"/>
+          <text class="tb-compass" y="-40" text-anchor="middle">N</text>
+          <text class="tb-compass" x="44" y="6" text-anchor="middle" fill="var(--color-accent-dark)">E</text>
+        </g>
+
+        <!-- Scale bar & caption -->
+        <g stroke="var(--color-muted)" stroke-width="2" opacity="0.6">
+          <line x1="160" y1="1198" x2="328" y2="1198"/>
+          <line x1="160" y1="1191" x2="160" y2="1205"/>
+          <line x1="328" y1="1191" x2="328" y2="1205"/>
+        </g>
+        <text class="tb-scale-label" x="244" y="1186" text-anchor="middle">10 CUBITS</text>
+        <text class="tb-caption" x="1000" y="1212" text-anchor="middle">&ldquo;Let them make me a
+          sanctuary, that I may dwell in their midst.&rdquo; &mdash; Exodus 25:8</text>
+
+        <!-- 1. Courtyard fence: linen hangings on bronze-footed pillars -->
         <g class="tb-item" id="tb-el-fence" data-id="fence" role="button" tabindex="0"
            aria-label="Courtyard fence, item 1">
-          <rect class="tb-hit" x="80" y="160" width="840" height="420" fill="none"
-                stroke="transparent" stroke-width="22" pointer-events="stroke"/>
-          <path class="tb-art" d="M 920 454 L 920 580 L 80 580 L 80 160 L 920 160 L 920 286"
-                fill="none" stroke="var(--tb-wall)" stroke-width="3"/>
-          <g id="tb-pillars" class="tb-art"></g>
-          <g class="tb-badge"><circle class="tb-badge-dot" cx="300" cy="580" r="11"/>
-            <text class="tb-badge-num" x="300" y="580">1</text></g>
+          <rect class="tb-hit" x="160" y="320" width="1680" height="840" fill="none"
+                stroke="transparent" stroke-width="44" pointer-events="stroke"/>
+          <g class="tb-art">
+            <path d="M 1840 908 L 1840 1160 L 160 1160 L 160 320 L 1840 320 L 1840 572"
+                  fill="none" stroke="var(--tb-linen)" stroke-width="11" opacity="0.95"/>
+            <path d="M 1840 908 L 1840 1160 L 160 1160 L 160 320 L 1840 320 L 1840 572"
+                  fill="none" stroke="var(--tb-wall)" stroke-width="2" opacity="0.8"/>
+            <g id="tb-pillars"></g>
+          </g>
+          <g class="tb-badge"><circle class="tb-badge-dot" cx="600" cy="1160" r="22"/>
+            <text class="tb-badge-num" x="600" y="1160">1</text></g>
         </g>
 
-        <!-- 2. The gate (east screen) -->
+        <!-- 2. The gate: woven screen of blue, purple, and scarlet -->
         <g class="tb-item" id="tb-el-gate" data-id="gate" role="button" tabindex="0"
            aria-label="The gate of the courtyard, item 2">
-          <rect class="tb-hit" x="900" y="278" width="44" height="184"/>
-          <rect class="tb-art" x="915" y="286" width="9" height="168" rx="2"
-                fill="url(#tb-screen-grad)" stroke="var(--tb-wall)" stroke-width="1"/>
-          <g class="tb-badge"><circle class="tb-badge-dot" cx="920" cy="268" r="11"/>
-            <text class="tb-badge-num" x="920" y="268">2</text></g>
+          <rect class="tb-hit" x="1800" y="556" width="88" height="368"/>
+          <g class="tb-art">
+            <rect x="1830" y="572" width="18" height="336" rx="4" filter="url(#tb-shadow)"
+                  fill="url(#tb-screen-grad)" stroke="var(--tb-wall)" stroke-width="1.5"/>
+            <circle cx="1839" cy="614" r="5.5" fill="var(--tb-bronze-dark)"/>
+            <circle cx="1839" cy="698" r="5.5" fill="var(--tb-bronze-dark)"/>
+            <circle cx="1839" cy="782" r="5.5" fill="var(--tb-bronze-dark)"/>
+            <circle cx="1839" cy="866" r="5.5" fill="var(--tb-bronze-dark)"/>
+          </g>
+          <g class="tb-badge"><circle class="tb-badge-dot" cx="1840" cy="528" r="22"/>
+            <text class="tb-badge-num" x="1840" y="528">2</text></g>
         </g>
 
-        <!-- 3. Altar of burnt offering -->
+        <!-- 3. Altar of burnt offering: bronze, horned, fire always burning -->
         <g class="tb-item" id="tb-el-altar" data-id="altar" role="button" tabindex="0"
            aria-label="Altar of burnt offering, item 3">
-          <rect class="tb-hit" x="715" y="335" width="70" height="70"/>
+          <rect class="tb-hit" x="1430" y="670" width="140" height="140"/>
           <g class="tb-art">
-            <rect x="729" y="349" width="42" height="42" fill="var(--tb-bronze)"
-                  stroke="var(--tb-bronze-dark)" stroke-width="2.5"/>
-            <line x1="729" y1="349" x2="771" y2="391" stroke="var(--tb-bronze-dark)" stroke-width="1.4"/>
-            <line x1="771" y1="349" x2="729" y2="391" stroke="var(--tb-bronze-dark)" stroke-width="1.4"/>
-            <circle cx="729" cy="349" r="3.4" fill="var(--tb-bronze-dark)"/>
-            <circle cx="771" cy="349" r="3.4" fill="var(--tb-bronze-dark)"/>
-            <circle cx="729" cy="391" r="3.4" fill="var(--tb-bronze-dark)"/>
-            <circle cx="771" cy="391" r="3.4" fill="var(--tb-bronze-dark)"/>
-            <circle cx="750" cy="370" r="5" fill="var(--tb-flame)"/>
+            <!-- horns at the four corners -->
+            <path d="M 1462 702 Q 1444 696 1446 676 Q 1464 682 1470 698 Z" fill="var(--tb-bronze-dark)"/>
+            <path d="M 1538 702 Q 1556 696 1554 676 Q 1536 682 1530 698 Z" fill="var(--tb-bronze-dark)"/>
+            <path d="M 1462 778 Q 1444 784 1446 804 Q 1464 798 1470 782 Z" fill="var(--tb-bronze-dark)"/>
+            <path d="M 1538 778 Q 1556 784 1554 804 Q 1536 798 1530 782 Z" fill="var(--tb-bronze-dark)"/>
+            <rect x="1458" y="698" width="84" height="84" rx="3" filter="url(#tb-shadow)"
+                  fill="url(#tb-bronze-grad)" stroke="var(--tb-bronze-dark)" stroke-width="4"/>
+            <!-- bronze grating -->
+            <g stroke="#5f3d1e" stroke-width="1.8" opacity="0.55">
+              <line x1="1466" y1="734" x2="1494" y2="706"/>
+              <line x1="1466" y1="762" x2="1522" y2="706"/>
+              <line x1="1474" y1="782" x2="1534" y2="722"/>
+              <line x1="1502" y1="782" x2="1534" y2="750"/>
+              <line x1="1506" y1="706" x2="1534" y2="734"/>
+              <line x1="1478" y1="706" x2="1534" y2="762"/>
+              <line x1="1466" y1="722" x2="1526" y2="782"/>
+              <line x1="1466" y1="750" x2="1498" y2="782"/>
+            </g>
+            <!-- the fire that never goes out -->
+            <circle cx="1500" cy="738" r="30" fill="url(#tb-fire-glow)">
+              <animate attributeName="opacity" values="1;0.65;1" dur="3.2s" repeatCount="indefinite"/>
+            </circle>
+            <use href="#tb-flame" transform="translate(1488 748) scale(0.85)"/>
+            <use href="#tb-flame" transform="translate(1512 748) scale(0.85)"/>
+            <use href="#tb-flame" transform="translate(1500 752) scale(1.4)"/>
+            <path d="M 1500 706 C 1493 694 1506 685 1499 672 C 1493 662 1503 654 1498 644"
+                  fill="none" stroke="#8b877e" stroke-width="4" stroke-linecap="round"
+                  opacity="0.4" filter="url(#tb-blur)">
+              <animate attributeName="opacity" values="0.4;0.2;0.4" dur="5s" repeatCount="indefinite"/>
+            </path>
           </g>
-          <g class="tb-badge"><circle class="tb-badge-dot" cx="750" cy="330" r="11"/>
-            <text class="tb-badge-num" x="750" y="330">3</text></g>
+          <g class="tb-badge"><circle class="tb-badge-dot" cx="1500" cy="652" r="22"/>
+            <text class="tb-badge-num" x="1500" y="652">3</text></g>
         </g>
 
-        <!-- 4. Bronze basin (laver) -->
+        <!-- 4. Bronze basin: water for washing -->
         <g class="tb-item" id="tb-el-laver" data-id="laver" role="button" tabindex="0"
            aria-label="Bronze basin, item 4">
-          <circle class="tb-hit" cx="560" cy="370" r="32"/>
+          <circle class="tb-hit" cx="1120" cy="740" r="64"/>
           <g class="tb-art">
-            <circle cx="560" cy="370" r="16" fill="var(--tb-bronze)"
-                    stroke="var(--tb-bronze-dark)" stroke-width="2.5"/>
-            <circle cx="560" cy="370" r="8.5" fill="none"
-                    stroke="var(--tb-bronze-dark)" stroke-width="1.4"/>
+            <ellipse cx="1120" cy="752" rx="44" ry="12" fill="#000" opacity="0.16" filter="url(#tb-blur)"/>
+            <circle cx="1120" cy="740" r="36" fill="url(#tb-bronze-grad)"
+                    stroke="var(--tb-bronze-dark)" stroke-width="4"/>
+            <circle cx="1120" cy="740" r="27" fill="none" stroke="#5f3d1e" stroke-width="2" opacity="0.6"/>
+            <circle cx="1120" cy="740" r="24" fill="url(#tb-water-grad)"/>
+            <path d="M 1104 736 A 19 19 0 0 1 1136 736" fill="none" stroke="#ffffff"
+                  stroke-width="2" opacity="0.45" stroke-linecap="round"/>
+            <path d="M 1108 746 A 14 14 0 0 0 1132 746" fill="none" stroke="#ffffff"
+                  stroke-width="1.6" opacity="0.3" stroke-linecap="round"/>
+            <circle cx="1111" cy="731" r="2.6" fill="#ffffff" opacity="0.7"/>
           </g>
-          <g class="tb-badge"><circle class="tb-badge-dot" cx="560" cy="338" r="11"/>
-            <text class="tb-badge-num" x="560" y="338">4</text></g>
+          <g class="tb-badge"><circle class="tb-badge-dot" cx="1120" cy="668" r="22"/>
+            <text class="tb-badge-num" x="1120" y="668">4</text></g>
         </g>
 
-        <!-- 5. The tent (drawn before its furnishings so they sit on top) -->
+        <!-- 5. The tent: gold-framed boards under its coverings -->
         <g class="tb-item" id="tb-el-tent" data-id="tent" role="button" tabindex="0"
            aria-label="The tabernacle tent, item 5">
-          <rect class="tb-hit" x="172" y="320" width="268" height="100"/>
+          <rect class="tb-hit" x="344" y="640" width="536" height="200"/>
           <g class="tb-art">
-            <rect x="180" y="328" width="252" height="84" fill="var(--tb-tent)"
-                  stroke="var(--tb-gold-dark)" stroke-width="2.5"/>
-            <rect x="180" y="328" width="84" height="84" fill="var(--tb-mhp)"/>
-            <rect x="427" y="330" width="6" height="80" fill="url(#tb-screen-grad)"/>
+            <rect x="352" y="648" width="520" height="184" rx="7" filter="url(#tb-shadow)"
+                  fill="none" stroke="var(--tb-hide)" stroke-width="10" opacity="0.9"/>
+            <rect x="360" y="656" width="504" height="168" fill="var(--tb-tent)"
+                  stroke="var(--tb-gold-dark)" stroke-width="3"/>
+            <rect x="360" y="656" width="168" height="168" fill="var(--tb-mhp)"/>
+            <g id="tb-boards"></g>
+            <!-- entrance screen with its five pillars (Exodus 26:36-37) -->
+            <rect x="850" y="660" width="12" height="160" fill="url(#tb-screen-grad)" opacity="0.95"/>
+            <circle cx="856" cy="676" r="4" fill="var(--tb-gold-dark)"/>
+            <circle cx="856" cy="708" r="4" fill="var(--tb-gold-dark)"/>
+            <circle cx="856" cy="740" r="4" fill="var(--tb-gold-dark)"/>
+            <circle cx="856" cy="772" r="4" fill="var(--tb-gold-dark)"/>
+            <circle cx="856" cy="804" r="4" fill="var(--tb-gold-dark)"/>
           </g>
-          <g class="tb-badge"><circle class="tb-badge-dot" cx="438" cy="322" r="11"/>
-            <text class="tb-badge-num" x="438" y="322">5</text></g>
+          <g class="tb-badge"><circle class="tb-badge-dot" cx="884" cy="640" r="22"/>
+            <text class="tb-badge-num" x="884" y="640">5</text></g>
         </g>
 
-        <!-- 6. Table of showbread (north side) -->
+        <!-- 6. Table of showbread: two piles of six loaves (Leviticus 24:6) -->
         <g class="tb-item" id="tb-el-table" data-id="table" role="button" tabindex="0"
            aria-label="Table of showbread, item 6">
-          <rect class="tb-hit" x="325" y="330" width="55" height="32"/>
+          <rect class="tb-hit" x="646" y="658" width="118" height="66"/>
           <g class="tb-art">
-            <rect x="337" y="338" width="30" height="16" rx="2" fill="var(--tb-gold)"
-                  stroke="var(--tb-gold-dark)" stroke-width="1.8"/>
-            <circle cx="343" cy="343" r="1.8" fill="var(--tb-gold-dark)"/>
-            <circle cx="349" cy="343" r="1.8" fill="var(--tb-gold-dark)"/>
-            <circle cx="355" cy="343" r="1.8" fill="var(--tb-gold-dark)"/>
-            <circle cx="361" cy="343" r="1.8" fill="var(--tb-gold-dark)"/>
-            <circle cx="343" cy="349" r="1.8" fill="var(--tb-gold-dark)"/>
-            <circle cx="349" cy="349" r="1.8" fill="var(--tb-gold-dark)"/>
-            <circle cx="355" cy="349" r="1.8" fill="var(--tb-gold-dark)"/>
-            <circle cx="361" cy="349" r="1.8" fill="var(--tb-gold-dark)"/>
+            <rect x="676" y="676" width="56" height="30" rx="4" filter="url(#tb-shadow)"
+                  fill="url(#tb-gold-grad)" stroke="var(--tb-gold-dark)" stroke-width="2.5"/>
+            <rect x="681" y="681" width="46" height="20" rx="2" fill="none"
+                  stroke="var(--tb-gold-dark)" stroke-width="1.2" opacity="0.55"/>
+            <circle cx="693" cy="691" r="8.5" fill="#dfae63" stroke="#a97b3c" stroke-width="1.8"/>
+            <path d="M 686 688 Q 693 685 700 688 M 686 694 Q 693 697 700 694"
+                  fill="none" stroke="#a97b3c" stroke-width="1.2" opacity="0.8"/>
+            <circle cx="715" cy="691" r="8.5" fill="#dfae63" stroke="#a97b3c" stroke-width="1.8"/>
+            <path d="M 708 688 Q 715 685 722 688 M 708 694 Q 715 697 722 694"
+                  fill="none" stroke="#a97b3c" stroke-width="1.2" opacity="0.8"/>
+            <circle cx="704" cy="683" r="2.2" fill="var(--tb-gold-dark)"/>
+            <circle cx="704" cy="699" r="2.2" fill="var(--tb-gold-dark)"/>
           </g>
-          <g class="tb-badge"><circle class="tb-badge-dot" cx="388" cy="346" r="11"/>
-            <text class="tb-badge-num" x="388" y="346">6</text></g>
+          <g class="tb-badge"><circle class="tb-badge-dot" cx="776" cy="691" r="22"/>
+            <text class="tb-badge-num" x="776" y="691">6</text></g>
         </g>
 
-        <!-- 7. Golden lampstand (south side) -->
+        <!-- 7. Golden lampstand: seven lamps on a flowering stem -->
         <g class="tb-item" id="tb-el-lampstand" data-id="lampstand" role="button" tabindex="0"
            aria-label="Golden lampstand, item 7">
-          <rect class="tb-hit" x="325" y="376" width="55" height="34"/>
+          <rect class="tb-hit" x="646" y="752" width="118" height="70"/>
           <g class="tb-art">
-            <line x1="352" y1="404" x2="352" y2="384" stroke="var(--tb-gold)" stroke-width="2.4"/>
-            <path d="M 340 392 Q 340 402 352 402 Q 364 402 364 392" fill="none"
-                  stroke="var(--tb-gold)" stroke-width="2"/>
-            <path d="M 344 388 Q 344 399 352 399 Q 360 399 360 388" fill="none"
-                  stroke="var(--tb-gold)" stroke-width="2"/>
-            <circle cx="340" cy="390" r="2.4" fill="var(--tb-flame)"/>
-            <circle cx="344" cy="386" r="2.4" fill="var(--tb-flame)"/>
-            <circle cx="348" cy="383" r="2.4" fill="var(--tb-flame)"/>
-            <circle cx="352" cy="382" r="2.4" fill="var(--tb-flame)"/>
-            <circle cx="356" cy="383" r="2.4" fill="var(--tb-flame)"/>
-            <circle cx="360" cy="386" r="2.4" fill="var(--tb-flame)"/>
-            <circle cx="364" cy="390" r="2.4" fill="var(--tb-flame)"/>
+            <ellipse cx="704" cy="764" rx="32" ry="9" fill="url(#tb-fire-glow)" opacity="0.8">
+              <animate attributeName="opacity" values="0.8;0.5;0.8" dur="2.7s" repeatCount="indefinite"/>
+            </ellipse>
+            <ellipse cx="704" cy="810" rx="8" ry="3.5" fill="var(--tb-gold-dark)"/>
+            <line x1="704" y1="808" x2="704" y2="772" stroke="#c9a227" stroke-width="4.5"
+                  stroke-linecap="round"/>
+            <path d="M 680 772 Q 680 806 704 806 Q 728 806 728 772" fill="none"
+                  stroke="#c9a227" stroke-width="3.6"/>
+            <path d="M 688 772 Q 688 799 704 799 Q 720 799 720 772" fill="none"
+                  stroke="#c9a227" stroke-width="3.3"/>
+            <path d="M 696 772 Q 696 792 704 792 Q 712 792 712 772" fill="none"
+                  stroke="#c9a227" stroke-width="3"/>
+            <circle cx="680" cy="771" r="2.6" fill="var(--tb-gold-dark)"/>
+            <circle cx="688" cy="771" r="2.6" fill="var(--tb-gold-dark)"/>
+            <circle cx="696" cy="771" r="2.6" fill="var(--tb-gold-dark)"/>
+            <circle cx="704" cy="771" r="2.6" fill="var(--tb-gold-dark)"/>
+            <circle cx="712" cy="771" r="2.6" fill="var(--tb-gold-dark)"/>
+            <circle cx="720" cy="771" r="2.6" fill="var(--tb-gold-dark)"/>
+            <circle cx="728" cy="771" r="2.6" fill="var(--tb-gold-dark)"/>
+            <use href="#tb-flame" transform="translate(680 768) scale(0.62)"/>
+            <use href="#tb-flame" transform="translate(688 768) scale(0.62)"/>
+            <use href="#tb-flame" transform="translate(696 768) scale(0.62)"/>
+            <use href="#tb-flame" transform="translate(704 768) scale(0.72)"/>
+            <use href="#tb-flame" transform="translate(712 768) scale(0.62)"/>
+            <use href="#tb-flame" transform="translate(720 768) scale(0.62)"/>
+            <use href="#tb-flame" transform="translate(728 768) scale(0.62)"/>
           </g>
-          <g class="tb-badge"><circle class="tb-badge-dot" cx="388" cy="394" r="11"/>
-            <text class="tb-badge-num" x="388" y="394">7</text></g>
+          <g class="tb-badge"><circle class="tb-badge-dot" cx="776" cy="790" r="22"/>
+            <text class="tb-badge-num" x="776" y="790">7</text></g>
         </g>
 
-        <!-- 8. Altar of incense (before the veil) -->
+        <!-- 8. Altar of incense: golden, smoke rising before the veil -->
         <g class="tb-item" id="tb-el-incense" data-id="incense" role="button" tabindex="0"
            aria-label="Altar of incense, item 8">
-          <rect class="tb-hit" x="278" y="352" width="36" height="36"/>
+          <rect class="tb-hit" x="552" y="700" width="80" height="80"/>
           <g class="tb-art">
-            <rect x="288" y="362" width="16" height="16" fill="var(--tb-gold)"
-                  stroke="var(--tb-gold-dark)" stroke-width="1.8"/>
-            <circle cx="296" cy="370" r="3" fill="var(--tb-flame)"/>
+            <path d="M 580 728 L 573 721 L 580 718 Z" fill="var(--tb-gold-dark)"/>
+            <path d="M 604 728 L 611 721 L 604 718 Z" fill="var(--tb-gold-dark)"/>
+            <path d="M 580 752 L 573 759 L 580 762 Z" fill="var(--tb-gold-dark)"/>
+            <path d="M 604 752 L 611 759 L 604 762 Z" fill="var(--tb-gold-dark)"/>
+            <rect x="578" y="726" width="28" height="28" rx="3" filter="url(#tb-shadow)"
+                  fill="url(#tb-gold-grad)" stroke="var(--tb-gold-dark)" stroke-width="2.5"/>
+            <circle cx="592" cy="740" r="4.5" fill="url(#tb-fire-grad)"/>
+            <path d="M 592 722 C 586 710 598 700 592 688 C 586 678 596 668 591 658"
+                  fill="none" stroke="#98938a" stroke-width="3.5" stroke-linecap="round"
+                  opacity="0.5" filter="url(#tb-blur)">
+              <animate attributeName="opacity" values="0.5;0.28;0.5" dur="4.5s" repeatCount="indefinite"/>
+            </path>
+            <path d="M 599 724 C 595 715 603 708 599 698" fill="none" stroke="#98938a"
+                  stroke-width="2.6" stroke-linecap="round" opacity="0.35" filter="url(#tb-blur)">
+              <animate attributeName="opacity" values="0.35;0.18;0.35" dur="3.8s" repeatCount="indefinite"/>
+            </path>
           </g>
-          <g class="tb-badge"><circle class="tb-badge-dot" cx="296" cy="342" r="11"/>
-            <text class="tb-badge-num" x="296" y="342">8</text></g>
+          <g class="tb-badge"><circle class="tb-badge-dot" cx="592" cy="686" r="22"/>
+            <text class="tb-badge-num" x="592" y="686">8</text></g>
         </g>
 
-        <!-- 9. The veil -->
+        <!-- 9. The veil, with woven cherubim marks -->
         <g class="tb-item" id="tb-el-veil" data-id="veil" role="button" tabindex="0"
            aria-label="The veil, item 9">
-          <rect class="tb-hit" x="250" y="324" width="28" height="112"/>
-          <rect class="tb-art" x="260" y="330" width="7" height="80" rx="2"
-                fill="url(#tb-screen-grad)" stroke="var(--tb-gold-dark)" stroke-width="0.8"/>
-          <g class="tb-badge"><circle class="tb-badge-dot" cx="264" cy="428" r="11"/>
-            <text class="tb-badge-num" x="264" y="428">9</text></g>
+          <rect class="tb-hit" x="500" y="648" width="56" height="224"/>
+          <g class="tb-art">
+            <rect x="521" y="656" width="14" height="168" rx="3" filter="url(#tb-shadow)"
+                  fill="url(#tb-screen-grad)" stroke="var(--tb-gold-dark)" stroke-width="1.2"/>
+            <path d="M 528 694 l 5.5 7 l -5.5 7 l -5.5 -7 Z" fill="#e8cf7a" opacity="0.85"/>
+            <path d="M 528 772 l 5.5 7 l -5.5 7 l -5.5 -7 Z" fill="#e8cf7a" opacity="0.85"/>
+          </g>
+          <g class="tb-badge"><circle class="tb-badge-dot" cx="528" cy="856" r="22"/>
+            <text class="tb-badge-num" x="528" y="856">9</text></g>
         </g>
 
-        <!-- 10. Ark of the covenant & mercy seat -->
+        <!-- 10. Ark of the covenant: mercy seat, cherubim, carrying poles -->
         <g class="tb-item" id="tb-el-ark" data-id="ark" role="button" tabindex="0"
            aria-label="Ark of the covenant and mercy seat, item 10">
-          <rect class="tb-hit" x="195" y="348" width="54" height="44"/>
+          <rect class="tb-hit" x="386" y="694" width="116" height="92"/>
           <g class="tb-art">
-            <rect x="207" y="360" width="30" height="20" rx="2" fill="var(--tb-gold)"
-                  stroke="var(--tb-gold-dark)" stroke-width="2"/>
-            <path d="M 214 370 L 219 364 L 219 376 Z" fill="var(--tb-gold-dark)"/>
-            <path d="M 230 370 L 225 364 L 225 376 Z" fill="var(--tb-gold-dark)"/>
-            <line x1="203" y1="357" x2="241" y2="357" stroke="var(--tb-gold-dark)" stroke-width="1.6"/>
-            <line x1="203" y1="383" x2="241" y2="383" stroke="var(--tb-gold-dark)" stroke-width="1.6"/>
+            <circle cx="444" cy="740" r="76" fill="url(#tb-shekinah)">
+              <animate attributeName="opacity" values="1;0.7;1" dur="6s" repeatCount="indefinite"/>
+            </circle>
+            <line x1="398" y1="714" x2="490" y2="714" stroke="var(--tb-gold-dark)"
+                  stroke-width="5" stroke-linecap="round"/>
+            <line x1="398" y1="766" x2="490" y2="766" stroke="var(--tb-gold-dark)"
+                  stroke-width="5" stroke-linecap="round"/>
+            <rect x="414" y="718" width="60" height="44" rx="4" filter="url(#tb-shadow)"
+                  fill="url(#tb-gold-grad)" stroke="var(--tb-gold-dark)" stroke-width="3"/>
+            <rect x="419" y="723" width="50" height="34" rx="2" fill="none"
+                  stroke="#f2df9a" stroke-width="1.6" opacity="0.8"/>
+            <circle cx="416" cy="719" r="3.5" fill="none" stroke="var(--tb-gold-dark)" stroke-width="2"/>
+            <circle cx="472" cy="719" r="3.5" fill="none" stroke="var(--tb-gold-dark)" stroke-width="2"/>
+            <circle cx="416" cy="761" r="3.5" fill="none" stroke="var(--tb-gold-dark)" stroke-width="2"/>
+            <circle cx="472" cy="761" r="3.5" fill="none" stroke="var(--tb-gold-dark)" stroke-width="2"/>
+            <!-- cherubim facing one another over the mercy seat -->
+            <use href="#tb-wing" transform="translate(436 746)" fill="var(--tb-gold-dark)"/>
+            <use href="#tb-wing" transform="translate(452 746) scale(-1,1)" fill="var(--tb-gold-dark)"/>
+            <circle cx="431" cy="729" r="3.2" fill="var(--tb-gold-dark)"/>
+            <circle cx="457" cy="729" r="3.2" fill="var(--tb-gold-dark)"/>
           </g>
-          <g class="tb-badge"><circle class="tb-badge-dot" cx="222" cy="344" r="11"/>
-            <text class="tb-badge-num" x="222" y="344">10</text></g>
+          <g class="tb-badge"><circle class="tb-badge-dot" cx="444" cy="686" r="22"/>
+            <text class="tb-badge-num" x="444" y="686">10</text></g>
         </g>
       </svg>
     </div>
@@ -615,25 +795,53 @@
   var byId = {};
   ITEMS.forEach(function(it) { byId[it.id] = it; });
 
-  /* Fence pillars: a bronze-footed post every five cubits (42px), skipping
-     the gate opening on the east wall (y 286-454 at x=920). */
+  var SVG_NS = "http://www.w3.org/2000/svg";
+
+  /* Fence pillars: a bronze-footed post with a silver hook every five cubits
+     (84 units), skipping the gate opening on the east wall (y 572-908 at
+     x=1840). */
   (function drawPillars() {
     var g = document.getElementById("tb-pillars");
     var pts = [];
     var x, y;
-    for (x = 80; x <= 920; x += 42) { pts.push([x, 160]); pts.push([x, 580]); }
-    for (y = 202; y < 580; y += 42) {
-      pts.push([80, y]);
-      if (y < 286 || y > 454) { pts.push([920, y]); }
+    for (x = 160; x <= 1840; x += 84) { pts.push([x, 320]); pts.push([x, 1160]); }
+    for (y = 404; y < 1160; y += 84) {
+      pts.push([160, y]);
+      if (y < 572 || y > 908) { pts.push([1840, y]); }
     }
     pts.forEach(function(p) {
-      var c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-      c.setAttribute("cx", p[0]);
-      c.setAttribute("cy", p[1]);
-      c.setAttribute("r", 3);
-      c.setAttribute("fill", "var(--tb-bronze-dark)");
-      g.appendChild(c);
+      var base = document.createElementNS(SVG_NS, "circle");
+      base.setAttribute("cx", p[0]);
+      base.setAttribute("cy", p[1]);
+      base.setAttribute("r", 6);
+      base.setAttribute("fill", "var(--tb-bronze-dark)");
+      g.appendChild(base);
+      var cap = document.createElementNS(SVG_NS, "circle");
+      cap.setAttribute("cx", p[0]);
+      cap.setAttribute("cy", p[1]);
+      cap.setAttribute("r", 2.2);
+      cap.setAttribute("fill", "#d8d5cb");
+      cap.setAttribute("opacity", "0.9");
+      g.appendChild(cap);
     });
+  })();
+
+  /* Tent wall framing: the gold-covered acacia boards, a line every
+     1.5 cubits (25 units), skipping the veil and the entrance screen. */
+  (function drawBoards() {
+    var g = document.getElementById("tb-boards");
+    for (var x = 385; x < 848; x += 25) {
+      if (x > 508 && x < 548) { continue; }
+      var l = document.createElementNS(SVG_NS, "line");
+      l.setAttribute("x1", x);
+      l.setAttribute("y1", 660);
+      l.setAttribute("x2", x);
+      l.setAttribute("y2", 820);
+      l.setAttribute("stroke", "var(--tb-gold-dark)");
+      l.setAttribute("stroke-width", 1.5);
+      l.setAttribute("opacity", "0.16");
+      g.appendChild(l);
+    }
   })();
 
   function itemHtml(it, isCard) {
