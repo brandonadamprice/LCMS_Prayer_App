@@ -38,6 +38,7 @@ _SITEMAP_PATHS = (
     ("/trinity_study", "monthly"),
     ("/bible_family_tree", "monthly"),
     ("/bible_timeline", "monthly"),
+    ("/tabernacle", "monthly"),
     ("/church_year_wheel", "monthly"),
     ("/psalms_by_category", "monthly"),
     ("/gospels_by_category", "monthly"),
