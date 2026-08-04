@@ -207,6 +207,12 @@ def register(app):
     return flask.render_template("bible_timeline.html")
 
 
+  @app.route("/tabernacle")
+  def tabernacle_route():
+    """Returns the interactive Tabernacle Explorer page."""
+    return flask.render_template("tabernacle.html")
+
+
   @app.route("/litany")
   def litany_route():
     """Returns the Litany page HTML."""

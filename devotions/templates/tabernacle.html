@@ -1,0 +1,721 @@
+{% extends "base.html" %}
+{% block title %}Tabernacle Explorer{% endblock %}
+{% block meta_description %}An interactive diagram of the Old Testament tabernacle: tap the gate, altar, laver, lampstand, table, veil, and ark to learn each furnishing's purpose in Israel's worship — and its fulfillment in Christ.{% endblock %}
+
+{% block head %}
+<style>
+  /* ---- Diagram palette (light) ---- */
+  .tb-diagram-wrap {
+    --tb-ground: #efe6cf;
+    --tb-wall: #b09f7e;
+    --tb-tent: #e8d9b0;
+    --tb-mhp: #decb96;
+    --tb-gold: #c9a227;
+    --tb-gold-dark: #8a6e45;
+    --tb-bronze: #a9713d;
+    --tb-bronze-dark: #7a4f28;
+    --tb-flame: #d4913a;
+  }
+  body.dark-mode .tb-diagram-wrap {
+    --tb-ground: #35302a;
+    --tb-wall: #6e6350;
+    --tb-tent: #4a4132;
+    --tb-mhp: #544938;
+    --tb-gold: #c9a227;
+    --tb-gold-dark: #d9bc7a;
+    --tb-bronze: #b07c48;
+    --tb-bronze-dark: #cf9c66;
+    --tb-flame: #e0a552;
+  }
+
+  /* ---- Layout: diagram + sticky detail card on wide screens ---- */
+  /* Widen the page so the diagram gets real room (the base .container is
+     800px); prose sections stay at a readable 800px, centered. */
+  main.container { max-width: 1160px; }
+  .page-header, .tb-study { max-width: 760px; margin-left: auto; margin-right: auto; }
+  .tb-layout { margin: 10px 0 6px; }
+  @media (min-width: 1150px) {
+    .tb-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 22px;
+      align-items: start;
+    }
+    .tb-detail-card { position: sticky; top: 80px; }
+  }
+
+  .tb-diagram-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--color-border);
+    border-radius: 14px;
+    background:
+      radial-gradient(circle at 20% 15%, rgba(175,145,100,0.10) 0, transparent 50%),
+      radial-gradient(circle at 80% 85%, rgba(101,52,47,0.05) 0, transparent 50%),
+      var(--color-card-bg);
+    box-shadow: 0 4px 18px -8px rgba(101,52,47,0.14);
+  }
+  .tb-diagram-wrap svg {
+    display: block;
+    width: 100%;
+    min-width: 700px;
+    height: auto;
+  }
+
+  .tb-diagram-wrap text {
+    font-family: 'Montserrat', sans-serif;
+    fill: var(--color-muted);
+    pointer-events: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .tb-room-label { font-size: 11px; font-style: italic; letter-spacing: 0.4px; }
+  .tb-compass { font-size: 11px; font-weight: 700; letter-spacing: 1px; }
+
+  /* ---- Interactive items ---- */
+  .tb-item { cursor: pointer; }
+  .tb-item .tb-hit { fill: transparent; stroke: transparent; }
+  .tb-item:focus { outline: none; }
+  .tb-item:focus-visible .tb-badge-dot,
+  .tb-item:hover .tb-badge-dot {
+    stroke: var(--color-accent);
+    stroke-width: 2.5;
+  }
+  .tb-item.tb-selected .tb-art {
+    filter: drop-shadow(0 0 4px rgba(201,162,39,0.9));
+  }
+  .tb-item.tb-selected .tb-badge-dot {
+    fill: var(--color-accent-dark);
+    stroke: var(--color-accent);
+    stroke-width: 2.5;
+  }
+  .tb-badge-dot {
+    fill: var(--color-primary);
+    stroke: rgba(255,255,255,0.85);
+    stroke-width: 1.5;
+    transition: all 0.18s ease;
+  }
+  .tb-badge-num {
+    font-size: 11.5px;
+    font-weight: 700;
+    fill: #fff !important;
+    text-anchor: middle;
+    dominant-baseline: central;
+  }
+
+  /* ---- Numbered legend chips ---- */
+  .tb-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin: 14px 0 4px;
+  }
+  .tb-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 13px 6px 7px;
+    border: 1px solid var(--color-border);
+    border-radius: 22px;
+    background: var(--color-card-bg);
+    color: var(--color-muted);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.76em;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    cursor: pointer;
+    margin: 0;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    transition: all 0.22s cubic-bezier(.34,1.56,.64,1);
+  }
+  @media (hover: hover) {
+    .tb-chip:hover {
+      border-color: var(--color-accent-dark);
+      color: var(--color-accent-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px -2px rgba(138,110,69,0.3);
+    }
+  }
+  .tb-chip .tb-chip-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 21px;
+    height: 21px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: #fff;
+    font-size: 0.9em;
+    flex: 0 0 auto;
+  }
+  .tb-chip.tb-selected {
+    border-color: var(--color-accent-dark);
+    color: var(--color-accent-dark);
+  }
+  .tb-chip.tb-selected .tb-chip-num { background: var(--color-accent-dark); }
+
+  /* ---- Detail card ---- */
+  .tb-detail-card {
+    background: var(--color-card-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 14px;
+    padding: 20px 22px;
+    margin-top: 16px;
+    box-shadow: 0 4px 18px -8px rgba(101,52,47,0.14);
+  }
+  @media (min-width: 1150px) { .tb-detail-card { margin-top: 0; } }
+  .tb-kicker {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.72em;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--color-accent-dark);
+    margin: 0 0 6px;
+  }
+  .tb-detail-card h2, .tb-study-card h3 {
+    margin: 0 0 4px;
+    font-size: 1.25em;
+  }
+  .tb-refs {
+    font-size: 0.85em;
+    font-style: italic;
+    color: var(--color-muted);
+    margin: 0 0 10px;
+  }
+  .tb-desc { margin: 0 0 12px; font-size: 0.95em; }
+  .tb-christ-head {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.78em;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--color-prayer);
+    margin: 0 0 5px;
+    padding-top: 10px;
+    border-top: 1px solid var(--color-border);
+  }
+  .tb-christ { margin: 0; font-size: 0.95em; }
+  .tb-empty {
+    color: var(--color-muted);
+    font-style: italic;
+    margin: 0;
+  }
+  .tb-nav {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 14px;
+  }
+  .tb-nav .tb-chip { padding: 6px 13px; }
+
+  /* ---- Full study list ---- */
+  .tb-study { margin-top: 34px; }
+  .tb-study-card {
+    background: var(--color-card-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 14px;
+    padding: 18px 22px;
+    margin: 14px 0;
+    box-shadow: 0 2px 10px -6px rgba(101,52,47,0.12);
+    scroll-margin-top: 80px;
+  }
+  .tb-study-card .tb-kicker { margin-bottom: 4px; }
+
+  @media print {
+    .tb-detail-card { display: none; }
+    .tb-diagram-wrap { box-shadow: none; }
+    .tb-study-card { box-shadow: none; break-inside: avoid; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Tabernacle Explorer</h1>
+  <p>When God brought Israel out of Egypt, He commanded Moses: <em>&ldquo;Let them make
+  me a sanctuary, that I may dwell in their midst&rdquo;</em> (Exodus 25:8). Every board,
+  basin, and curtain was built <em>&ldquo;after the pattern&rdquo;</em> shown on the
+  mountain (Exodus 25:40), and the letter to the Hebrews calls it all
+  <em>&ldquo;a copy and shadow of the heavenly things&rdquo;</em> (Hebrews 8:5) &mdash;
+  every part preaching Christ. Tap or click any numbered part of the diagram to see what
+  it was for, and how it is fulfilled in Him. The entrance faced east, so a worshiper
+  walked the path from right to left: through the one gate, past the altar and the basin,
+  toward the Most Holy Place.</p>
+</div>
+
+<div class="tb-layout">
+  <div>
+    <div class="tb-diagram-wrap">
+      <svg id="tb-svg" viewBox="0 0 1000 620" role="img"
+           aria-label="Plan diagram of the tabernacle: a fenced courtyard entered by a gate on the east, containing the altar of burnt offering, the bronze basin, and the tent with its Holy Place (lampstand, table of showbread, altar of incense) and, behind the veil, the Most Holy Place with the ark of the covenant.">
+        <defs>
+          <linearGradient id="tb-screen-grad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#3b5b92"/><stop offset="0.34" stop-color="#3b5b92"/>
+            <stop offset="0.34" stop-color="#7b4a8f"/><stop offset="0.67" stop-color="#7b4a8f"/>
+            <stop offset="0.67" stop-color="#a83232"/><stop offset="1" stop-color="#a83232"/>
+          </linearGradient>
+        </defs>
+
+        <!-- Courtyard ground -->
+        <rect x="80" y="160" width="840" height="420" rx="4" fill="var(--tb-ground)"/>
+
+        <!-- Room labels & compass -->
+        <text class="tb-room-label" x="560" y="215" text-anchor="middle">Courtyard</text>
+        <text class="tb-room-label" x="222" y="310" text-anchor="middle">Most Holy Place</text>
+        <text class="tb-room-label" x="352" y="310" text-anchor="middle">Holy Place</text>
+        <text class="tb-compass" x="957" y="374">E</text>
+        <text class="tb-compass" x="80" y="148">W</text>
+
+        <!-- 1. Courtyard fence (east wall broken by the gate) -->
+        <g class="tb-item" id="tb-el-fence" data-id="fence" role="button" tabindex="0"
+           aria-label="Courtyard fence, item 1">
+          <rect class="tb-hit" x="80" y="160" width="840" height="420" fill="none"
+                stroke="transparent" stroke-width="22" pointer-events="stroke"/>
+          <path class="tb-art" d="M 920 454 L 920 580 L 80 580 L 80 160 L 920 160 L 920 286"
+                fill="none" stroke="var(--tb-wall)" stroke-width="3"/>
+          <g id="tb-pillars" class="tb-art"></g>
+          <g class="tb-badge"><circle class="tb-badge-dot" cx="300" cy="580" r="11"/>
+            <text class="tb-badge-num" x="300" y="580">1</text></g>
+        </g>
+
+        <!-- 2. The gate (east screen) -->
+        <g class="tb-item" id="tb-el-gate" data-id="gate" role="button" tabindex="0"
+           aria-label="The gate of the courtyard, item 2">
+          <rect class="tb-hit" x="900" y="278" width="44" height="184"/>
+          <rect class="tb-art" x="915" y="286" width="9" height="168" rx="2"
+                fill="url(#tb-screen-grad)" stroke="var(--tb-wall)" stroke-width="1"/>
+          <g class="tb-badge"><circle class="tb-badge-dot" cx="920" cy="268" r="11"/>
+            <text class="tb-badge-num" x="920" y="268">2</text></g>
+        </g>
+
+        <!-- 3. Altar of burnt offering -->
+        <g class="tb-item" id="tb-el-altar" data-id="altar" role="button" tabindex="0"
+           aria-label="Altar of burnt offering, item 3">
+          <rect class="tb-hit" x="715" y="335" width="70" height="70"/>
+          <g class="tb-art">
+            <rect x="729" y="349" width="42" height="42" fill="var(--tb-bronze)"
+                  stroke="var(--tb-bronze-dark)" stroke-width="2.5"/>
+            <line x1="729" y1="349" x2="771" y2="391" stroke="var(--tb-bronze-dark)" stroke-width="1.4"/>
+            <line x1="771" y1="349" x2="729" y2="391" stroke="var(--tb-bronze-dark)" stroke-width="1.4"/>
+            <circle cx="729" cy="349" r="3.4" fill="var(--tb-bronze-dark)"/>
+            <circle cx="771" cy="349" r="3.4" fill="var(--tb-bronze-dark)"/>
+            <circle cx="729" cy="391" r="3.4" fill="var(--tb-bronze-dark)"/>
+            <circle cx="771" cy="391" r="3.4" fill="var(--tb-bronze-dark)"/>
+            <circle cx="750" cy="370" r="5" fill="var(--tb-flame)"/>
+          </g>
+          <g class="tb-badge"><circle class="tb-badge-dot" cx="750" cy="330" r="11"/>
+            <text class="tb-badge-num" x="750" y="330">3</text></g>
+        </g>
+
+        <!-- 4. Bronze basin (laver) -->
+        <g class="tb-item" id="tb-el-laver" data-id="laver" role="button" tabindex="0"
+           aria-label="Bronze basin, item 4">
+          <circle class="tb-hit" cx="560" cy="370" r="32"/>
+          <g class="tb-art">
+            <circle cx="560" cy="370" r="16" fill="var(--tb-bronze)"
+                    stroke="var(--tb-bronze-dark)" stroke-width="2.5"/>
+            <circle cx="560" cy="370" r="8.5" fill="none"
+                    stroke="var(--tb-bronze-dark)" stroke-width="1.4"/>
+          </g>
+          <g class="tb-badge"><circle class="tb-badge-dot" cx="560" cy="338" r="11"/>
+            <text class="tb-badge-num" x="560" y="338">4</text></g>
+        </g>
+
+        <!-- 5. The tent (drawn before its furnishings so they sit on top) -->
+        <g class="tb-item" id="tb-el-tent" data-id="tent" role="button" tabindex="0"
+           aria-label="The tabernacle tent, item 5">
+          <rect class="tb-hit" x="172" y="320" width="268" height="100"/>
+          <g class="tb-art">
+            <rect x="180" y="328" width="252" height="84" fill="var(--tb-tent)"
+                  stroke="var(--tb-gold-dark)" stroke-width="2.5"/>
+            <rect x="180" y="328" width="84" height="84" fill="var(--tb-mhp)"/>
+            <rect x="427" y="330" width="6" height="80" fill="url(#tb-screen-grad)"/>
+          </g>
+          <g class="tb-badge"><circle class="tb-badge-dot" cx="438" cy="322" r="11"/>
+            <text class="tb-badge-num" x="438" y="322">5</text></g>
+        </g>
+
+        <!-- 6. Table of showbread (north side) -->
+        <g class="tb-item" id="tb-el-table" data-id="table" role="button" tabindex="0"
+           aria-label="Table of showbread, item 6">
+          <rect class="tb-hit" x="325" y="330" width="55" height="32"/>
+          <g class="tb-art">
+            <rect x="337" y="338" width="30" height="16" rx="2" fill="var(--tb-gold)"
+                  stroke="var(--tb-gold-dark)" stroke-width="1.8"/>
+            <circle cx="343" cy="343" r="1.8" fill="var(--tb-gold-dark)"/>
+            <circle cx="349" cy="343" r="1.8" fill="var(--tb-gold-dark)"/>
+            <circle cx="355" cy="343" r="1.8" fill="var(--tb-gold-dark)"/>
+            <circle cx="361" cy="343" r="1.8" fill="var(--tb-gold-dark)"/>
+            <circle cx="343" cy="349" r="1.8" fill="var(--tb-gold-dark)"/>
+            <circle cx="349" cy="349" r="1.8" fill="var(--tb-gold-dark)"/>
+            <circle cx="355" cy="349" r="1.8" fill="var(--tb-gold-dark)"/>
+            <circle cx="361" cy="349" r="1.8" fill="var(--tb-gold-dark)"/>
+          </g>
+          <g class="tb-badge"><circle class="tb-badge-dot" cx="388" cy="346" r="11"/>
+            <text class="tb-badge-num" x="388" y="346">6</text></g>
+        </g>
+
+        <!-- 7. Golden lampstand (south side) -->
+        <g class="tb-item" id="tb-el-lampstand" data-id="lampstand" role="button" tabindex="0"
+           aria-label="Golden lampstand, item 7">
+          <rect class="tb-hit" x="325" y="376" width="55" height="34"/>
+          <g class="tb-art">
+            <line x1="352" y1="404" x2="352" y2="384" stroke="var(--tb-gold)" stroke-width="2.4"/>
+            <path d="M 340 392 Q 340 402 352 402 Q 364 402 364 392" fill="none"
+                  stroke="var(--tb-gold)" stroke-width="2"/>
+            <path d="M 344 388 Q 344 399 352 399 Q 360 399 360 388" fill="none"
+                  stroke="var(--tb-gold)" stroke-width="2"/>
+            <circle cx="340" cy="390" r="2.4" fill="var(--tb-flame)"/>
+            <circle cx="344" cy="386" r="2.4" fill="var(--tb-flame)"/>
+            <circle cx="348" cy="383" r="2.4" fill="var(--tb-flame)"/>
+            <circle cx="352" cy="382" r="2.4" fill="var(--tb-flame)"/>
+            <circle cx="356" cy="383" r="2.4" fill="var(--tb-flame)"/>
+            <circle cx="360" cy="386" r="2.4" fill="var(--tb-flame)"/>
+            <circle cx="364" cy="390" r="2.4" fill="var(--tb-flame)"/>
+          </g>
+          <g class="tb-badge"><circle class="tb-badge-dot" cx="388" cy="394" r="11"/>
+            <text class="tb-badge-num" x="388" y="394">7</text></g>
+        </g>
+
+        <!-- 8. Altar of incense (before the veil) -->
+        <g class="tb-item" id="tb-el-incense" data-id="incense" role="button" tabindex="0"
+           aria-label="Altar of incense, item 8">
+          <rect class="tb-hit" x="278" y="352" width="36" height="36"/>
+          <g class="tb-art">
+            <rect x="288" y="362" width="16" height="16" fill="var(--tb-gold)"
+                  stroke="var(--tb-gold-dark)" stroke-width="1.8"/>
+            <circle cx="296" cy="370" r="3" fill="var(--tb-flame)"/>
+          </g>
+          <g class="tb-badge"><circle class="tb-badge-dot" cx="296" cy="342" r="11"/>
+            <text class="tb-badge-num" x="296" y="342">8</text></g>
+        </g>
+
+        <!-- 9. The veil -->
+        <g class="tb-item" id="tb-el-veil" data-id="veil" role="button" tabindex="0"
+           aria-label="The veil, item 9">
+          <rect class="tb-hit" x="250" y="324" width="28" height="112"/>
+          <rect class="tb-art" x="260" y="330" width="7" height="80" rx="2"
+                fill="url(#tb-screen-grad)" stroke="var(--tb-gold-dark)" stroke-width="0.8"/>
+          <g class="tb-badge"><circle class="tb-badge-dot" cx="264" cy="428" r="11"/>
+            <text class="tb-badge-num" x="264" y="428">9</text></g>
+        </g>
+
+        <!-- 10. Ark of the covenant & mercy seat -->
+        <g class="tb-item" id="tb-el-ark" data-id="ark" role="button" tabindex="0"
+           aria-label="Ark of the covenant and mercy seat, item 10">
+          <rect class="tb-hit" x="195" y="348" width="54" height="44"/>
+          <g class="tb-art">
+            <rect x="207" y="360" width="30" height="20" rx="2" fill="var(--tb-gold)"
+                  stroke="var(--tb-gold-dark)" stroke-width="2"/>
+            <path d="M 214 370 L 219 364 L 219 376 Z" fill="var(--tb-gold-dark)"/>
+            <path d="M 230 370 L 225 364 L 225 376 Z" fill="var(--tb-gold-dark)"/>
+            <line x1="203" y1="357" x2="241" y2="357" stroke="var(--tb-gold-dark)" stroke-width="1.6"/>
+            <line x1="203" y1="383" x2="241" y2="383" stroke="var(--tb-gold-dark)" stroke-width="1.6"/>
+          </g>
+          <g class="tb-badge"><circle class="tb-badge-dot" cx="222" cy="344" r="11"/>
+            <text class="tb-badge-num" x="222" y="344">10</text></g>
+        </g>
+      </svg>
+    </div>
+
+    <div class="tb-legend no-print" id="tb-legend" role="group"
+         aria-label="Tabernacle furnishings"></div>
+  </div>
+
+  <div class="tb-detail-card" id="tb-detail" aria-live="polite">
+    <p class="tb-empty">Tap or click any numbered part of the diagram &mdash; or a button
+    beneath it &mdash; to read about that part of the tabernacle and how it points to
+    Christ.</p>
+  </div>
+</div>
+
+<section class="tb-study">
+  <h2>From the Gate to the Mercy Seat</h2>
+  <p>The order below follows the worshiper&rsquo;s path: in through the one gate, to the
+  altar of sacrifice, to the basin, and then &mdash; where only the priests could go
+  &mdash; into the Holy Place and at last, once a year, behind the veil. It is the same
+  path the Epistle to the Hebrews walks (Hebrews 9:1&ndash;12) to show that
+  <em>&ldquo;Christ has entered, not into holy places made with hands, which are copies
+  of the true things, but into heaven itself, now to appear in the presence of God on
+  our behalf&rdquo;</em> (Hebrews 9:24).</p>
+  <div id="tb-cards"></div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+(function() {
+
+  var ITEMS = [
+    {
+      id: "fence", num: 1, name: "The Courtyard Fence", where: "The Courtyard",
+      refs: "Exodus 27:9–19",
+      desc: "A wall of fine-twined white linen, about 150 feet long, 75 feet wide, and " +
+        "seven and a half feet high, hung on bronze-footed pillars with silver hooks. It " +
+        "marked the boundary between the holy and the common: no sinner could simply " +
+        "wander into the presence of the holy God. The gleaming linen preached purity to " +
+        "everyone who camped around it — and shut everyone out.",
+      christ: "The fence preaches both Law and Gospel: it bars the way, yet it has a " +
+        "gate. In Christ the barrier is gone — He “has broken down in his flesh " +
+        "the dividing wall of hostility” (Ephesians 2:14). And the white linen now " +
+        "clothes His people: “as many of you as were baptized into Christ have put " +
+        "on Christ” (Galatians 3:27); the Bride is granted “to clothe herself " +
+        "with fine linen, bright and pure” (Revelation 19:8).",
+      christRefs: "Ephesians 2:13–14; Galatians 3:27; Revelation 19:8"
+    },
+    {
+      id: "gate", num: 2, name: "The Gate", where: "East side of the courtyard",
+      refs: "Exodus 27:16",
+      desc: "One entrance only, on the east side: a thirty-foot screen woven of blue, " +
+        "purple, and scarlet on white linen — the colors of heaven, royalty, and " +
+        "blood. It was wide enough that no one needed to squeeze in, but there was no " +
+        "other way in, and everyone who entered came first to the altar of sacrifice.",
+      christ: "“I am the door. If anyone enters by me, he will be saved” " +
+        "(John 10:9). There is one gate because there is one Mediator: “no one " +
+        "comes to the Father except through me” (John 14:6). The gate is wide with " +
+        "welcome — and it is the only one there is.",
+      christRefs: "John 10:9; John 14:6; 1 Timothy 2:5"
+    },
+    {
+      id: "altar", num: 3, name: "The Altar of Burnt Offering", where: "The Courtyard",
+      refs: "Exodus 27:1–8; Leviticus 1:3–9; 6:12–13",
+      desc: "A bronze-covered altar, seven and a half feet square, with a horn at each " +
+        "corner, standing just inside the gate. Here the morning and evening lambs and " +
+        "all the sacrifices were offered, and its fire was never to go out. Nothing and " +
+        "no one went further into the tabernacle except by way of this altar, “for " +
+        "it is the blood that makes atonement by the life” (Leviticus 17:11).",
+      christ: "The altar is the shadow of the cross. Every lamb pointed to “the " +
+        "Lamb of God, who takes away the sin of the world” (John 1:29). The daily " +
+        "repetition is over, because “we have been sanctified through the offering " +
+        "of the body of Jesus Christ once for all” (Hebrews 10:10). At the cross " +
+        "the true sacrifice was finished — His own word: “It is finished” " +
+        "(John 19:30).",
+      christRefs: "John 1:29; Hebrews 10:1–14; John 19:30"
+    },
+    {
+      id: "laver", num: 4, name: "The Bronze Basin", where: "Between the altar and the tent",
+      refs: "Exodus 30:17–21; 38:8",
+      desc: "A basin of bronze — cast from the mirrors of the women who served at " +
+        "the entrance — where Aaron and his sons washed their hands and feet before " +
+        "serving at the altar or entering the tent, “so that they may not die.” " +
+        "Sacrifice dealt with guilt; the basin dealt with daily defilement on the way to " +
+        "holy service.",
+      christ: "The washing that stands between the sacrifice and God’s house is a " +
+        "picture of Holy Baptism: “the washing of regeneration and renewal of the " +
+        "Holy Spirit” (Titus 3:5), by which Christ cleanses His church “by the " +
+        "washing of water with the word” (Ephesians 5:26). And as the priests " +
+        "returned to the basin daily, the baptized return daily to their Baptism in " +
+        "contrition and repentance, drowning the old Adam so the new man arises.",
+      christRefs: "Titus 3:5; Ephesians 5:25–27; Romans 6:3–4"
+    },
+    {
+      id: "tent", num: 5, name: "The Tent Itself", where: "West end of the courtyard",
+      refs: "Exodus 26; 36:8–38; 40:34–38",
+      desc: "Gold-covered acacia frames, forty-five feet by fifteen, under four layers " +
+        "of coverings — embroidered linen within, then goats’ hair, ram skins " +
+        "dyed red, and plain weatherproof hide outermost. From outside it looked like an " +
+        "ordinary tent; inside was gold and glory, and when it was finished “the " +
+        "glory of the LORD filled the tabernacle” (Exodus 40:34). God did not stay " +
+        "on the mountain: He tented among His pilgrim people and moved when they moved.",
+      christ: "“The Word became flesh and dwelt among us” — literally, " +
+        "“tabernacled among us” — “and we have seen his glory” " +
+        "(John 1:14). Like the tent, the Lord’s appearance was plain — “no " +
+        "beauty that we should desire him” (Isaiah 53:2) — yet in Him “the " +
+        "whole fullness of deity dwells bodily” (Colossians 2:9). And the end of " +
+        "the story is the tent made permanent: “Behold, the dwelling place of God " +
+        "is with man” (Revelation 21:3).",
+      christRefs: "John 1:14; Colossians 2:9; Revelation 21:3"
+    },
+    {
+      id: "table", num: 6, name: "The Table of Showbread", where: "Holy Place, north side",
+      refs: "Exodus 25:23–30; Leviticus 24:5–9",
+      desc: "A gold-covered table on the north side of the Holy Place bearing twelve " +
+        "loaves of the “bread of the Presence” — one for each tribe of " +
+        "Israel — set fresh every Sabbath and then eaten by the priests in the holy " +
+        "place. Week after week, all Israel was represented as fed at a table before " +
+        "God’s face.",
+      christ: "“I am the bread of life; whoever comes to me shall not hunger” " +
+        "(John 6:35). Christ is Himself the bread of the Presence, and He still sets a " +
+        "table in His holy place: in the Supper His people share “a participation " +
+        "in the body of Christ,” and “we who are many are one body, for we all " +
+        "partake of the one bread” (1 Corinthians 10:16–17).",
+      christRefs: "John 6:32–35; 1 Corinthians 10:16–17; Luke 22:19"
+    },
+    {
+      id: "lampstand", num: 7, name: "The Golden Lampstand", where: "Holy Place, south side",
+      refs: "Exodus 25:31–40; 27:20–21",
+      desc: "Hammered from a single talent of pure gold, with six branches from a " +
+        "central stem and cups shaped like almond blossoms — a stylized flowering " +
+        "tree bearing seven lamps. It was the only light in the Holy Place, tended " +
+        "morning and evening with pure olive oil so that it never went out.",
+      christ: "“I am the light of the world. Whoever follows me will not walk in " +
+        "darkness” (John 8:12). In John’s vision the risen Christ walks among " +
+        "seven golden lampstands, which are His churches (Revelation 1:12–20): the " +
+        "light of the gospel is kept burning in the church, morning and evening, by the " +
+        "oil of the Spirit through the Word.",
+      christRefs: "John 8:12; Revelation 1:12–20; Matthew 5:14–16"
+    },
+    {
+      id: "incense", num: 8, name: "The Altar of Incense", where: "Holy Place, before the veil",
+      refs: "Exodus 30:1–10; Psalm 141:2; Luke 1:8–11",
+      desc: "A small golden altar standing directly before the veil. Every morning and " +
+        "every evening — the hours of the daily sacrifice and of daily prayer — " +
+        "fragrant incense was burned on it, its smoke rising toward the presence of God " +
+        "just beyond the curtain: “Let my prayer be counted as incense before " +
+        "you” (Psalm 141:2). It was here that Zechariah heard the promise of the " +
+        "forerunner of Christ (Luke 1:11–13).",
+      christ: "Prayer rises and is heard not because it is fervent but because of the " +
+        "One at the Father’s side: Christ “always lives to make intercession " +
+        "for them” (Hebrews 7:25). In Revelation an angel at the golden altar " +
+        "offers incense “with the prayers of all the saints,” and they rise " +
+        "before God (Revelation 8:3–4). Every prayer of the church ascends through " +
+        "Him.",
+      christRefs: "Hebrews 7:25; Revelation 8:3–4; John 16:23"
+    },
+    {
+      id: "veil", num: 9, name: "The Veil", where: "Between the Holy Place and the Most Holy Place",
+      refs: "Exodus 26:31–33; Leviticus 16:2",
+      desc: "A thick curtain of blue, purple, and scarlet with cherubim woven into it, " +
+        "hung on four gold-covered pillars. The cherubim recall the guards posted at " +
+        "the gate of Eden (Genesis 3:24): the way back into God’s presence was " +
+        "barred. Only the high priest passed it, one day a year, and never without " +
+        "blood.",
+      christ: "At the moment Jesus died, “the curtain of the temple was torn in " +
+        "two, from top to bottom” (Matthew 27:51) — torn from God’s side, " +
+        "not ours. So “we have confidence to enter the holy places by the blood of " +
+        "Jesus, by the new and living way that he opened for us through the curtain, " +
+        "that is, through his flesh” (Hebrews 10:19–20). The way to the Father " +
+        "stands open.",
+      christRefs: "Matthew 27:51; Hebrews 10:19–22; Hebrews 6:19–20"
+    },
+    {
+      id: "ark", num: 10, name: "The Ark & the Mercy Seat", where: "The Most Holy Place",
+      refs: "Exodus 25:10–22; Leviticus 16:14–16; Hebrews 9:4–5",
+      desc: "A gold-covered chest holding the tablets of the Law, a jar of the manna, " +
+        "and Aaron’s staff that budded. Its solid-gold lid was the mercy seat, " +
+        "overshadowed by two cherubim, where God promised to meet His people: “There " +
+        "I will meet with you” (Exodus 25:22). On the Day of Atonement the high " +
+        "priest sprinkled sacrificial blood on it — so that between the accusing " +
+        "Law inside and the enthroned God above stood a cover marked with blood.",
+      christ: "Paul reaches for this exact picture: God put Christ forward “as a " +
+        "propitiation by his blood” (Romans 3:25) — the Greek word is the " +
+        "Septuagint’s name for the mercy seat. The cross is the true mercy seat, " +
+        "where the blood of Jesus answers the Law’s accusation and God meets " +
+        "sinners in peace: “he entered once for all into the holy places … by " +
+        "means of his own blood, thus securing an eternal redemption” " +
+        "(Hebrews 9:12).",
+      christRefs: "Romans 3:23–25; Hebrews 9:11–12; 1 John 2:2"
+    }
+  ];
+
+  var svg = document.getElementById("tb-svg");
+  var detail = document.getElementById("tb-detail");
+  var legend = document.getElementById("tb-legend");
+  var cardsWrap = document.getElementById("tb-cards");
+  var byId = {};
+  ITEMS.forEach(function(it) { byId[it.id] = it; });
+
+  /* Fence pillars: a bronze-footed post every five cubits (42px), skipping
+     the gate opening on the east wall (y 286-454 at x=920). */
+  (function drawPillars() {
+    var g = document.getElementById("tb-pillars");
+    var pts = [];
+    var x, y;
+    for (x = 80; x <= 920; x += 42) { pts.push([x, 160]); pts.push([x, 580]); }
+    for (y = 202; y < 580; y += 42) {
+      pts.push([80, y]);
+      if (y < 286 || y > 454) { pts.push([920, y]); }
+    }
+    pts.forEach(function(p) {
+      var c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      c.setAttribute("cx", p[0]);
+      c.setAttribute("cy", p[1]);
+      c.setAttribute("r", 3);
+      c.setAttribute("fill", "var(--tb-bronze-dark)");
+      g.appendChild(c);
+    });
+  })();
+
+  function itemHtml(it, isCard) {
+    var h = isCard ? "h3" : "h2";
+    return (
+      '<p class="tb-kicker">№ ' + it.num + " · " + it.where + "</p>" +
+      "<" + h + ">" + it.name + "</" + h + ">" +
+      '<p class="tb-refs">' + it.refs + "</p>" +
+      '<p class="tb-desc">' + it.desc + "</p>" +
+      '<p class="tb-christ-head">✠ Fulfilled in Christ</p>' +
+      '<p class="tb-christ">' + it.christ + "</p>" +
+      '<p class="tb-refs" style="margin:8px 0 0;">' + it.christRefs + "</p>"
+    );
+  }
+
+  function select(id, opts) {
+    var it = byId[id];
+    if (!it) { return; }
+    var els = svg.querySelectorAll(".tb-item");
+    for (var i = 0; i < els.length; i++) {
+      els[i].classList.toggle("tb-selected", els[i].getAttribute("data-id") === id);
+    }
+    var chips = legend.querySelectorAll(".tb-chip");
+    for (var j = 0; j < chips.length; j++) {
+      chips[j].classList.toggle("tb-selected", chips[j].getAttribute("data-id") === id);
+    }
+    var idx = ITEMS.indexOf(it);
+    var prev = ITEMS[idx - 1];
+    var next = ITEMS[idx + 1];
+    detail.innerHTML = itemHtml(it, false) +
+      '<div class="tb-nav no-print">' +
+      (prev
+        ? '<button type="button" class="tb-chip" data-id="' + prev.id + '">← ' +
+          prev.num + ". " + prev.name + "</button>"
+        : "<span></span>") +
+      (next
+        ? '<button type="button" class="tb-chip" data-id="' + next.id + '">' +
+          next.num + ". " + next.name + " →</button>"
+        : "<span></span>") +
+      "</div>";
+    var navBtns = detail.querySelectorAll(".tb-nav .tb-chip");
+    for (var k = 0; k < navBtns.length; k++) {
+      navBtns[k].addEventListener("click", function() {
+        select(this.getAttribute("data-id"), {scroll: true});
+      });
+    }
+    /* On stacked (mobile) layout the card sits below the diagram; bring it
+       into view when a selection is made from the diagram or legend. */
+    if (opts && opts.scroll && window.innerWidth < 1150) {
+      detail.scrollIntoView({behavior: "smooth", block: "nearest"});
+    }
+  }
+
+  ITEMS.forEach(function(it) {
+    var chip = document.createElement("button");
+    chip.type = "button";
+    chip.className = "tb-chip";
+    chip.setAttribute("data-id", it.id);
+    chip.innerHTML = '<span class="tb-chip-num">' + it.num + "</span>" + it.name;
+    chip.addEventListener("click", function() { select(it.id, {scroll: true}); });
+    legend.appendChild(chip);
+
+    var card = document.createElement("article");
+    card.className = "tb-study-card";
+    card.id = "tb-study-" + it.id;
+    card.innerHTML = itemHtml(it, true);
+    cardsWrap.appendChild(card);
+  });
+
+  var els = svg.querySelectorAll(".tb-item");
+  for (var i = 0; i < els.length; i++) {
+    (function(el) {
+      var id = el.getAttribute("data-id");
+      el.addEventListener("click", function() { select(id, {scroll: true}); });
+      el.addEventListener("keydown", function(e) {
+        if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
+          e.preventDefault();
+          select(id, {scroll: true});
+        }
+      });
+    })(els[i]);
+  }
+
+})();
+{% endblock %}

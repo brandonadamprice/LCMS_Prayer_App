@@ -37,14 +37,20 @@ of context. Stylized coastline of the eastern Mediterranean / Sinai drawn as
 SVG paths; numbered stops along each route; route colors per journey with a
 legend and per-route toggle buttons like the family tree's controls.
 
-## 3. Tabernacle Explorer
+## 3. Tabernacle Explorer — SHIPPED (August 2026)
 
-A labeled SVG cutaway diagram of the tabernacle (courtyard, altar of burnt
-offering, laver, Holy Place with lampstand / table of showbread / altar of
-incense, veil, Most Holy Place with the ark). Click each element for its
-function (Exodus 25–40 refs) and its Christological fulfillment (Hebrews
-8–10, John 1:14 "tabernacled among us", etc.) — typology in the Lutheran
-tradition. Smallest-scope feature of the three; a good single-page project.
+`devotions/templates/tabernacle.html` is live at `/tabernacle` (route in
+`routes/devotions.py`, Education menu entry, sitemap entry). A labeled
+plan-view SVG of the tabernacle (courtyard fence, gate, altar of burnt
+offering, laver, the tent, lampstand, table of showbread, altar of incense,
+veil, ark & mercy seat) — ten numbered, keyboard-accessible elements. Each
+opens a detail card with its function (Exodus 25–40 refs) and its
+Christological fulfillment (Hebrews 8–10, John 1:14 "tabernacled among us",
+Romans 3:25 hilastērion, etc.) — typology in the Lutheran tradition, with
+baptism/Supper connections on the laver and showbread. Pure inline SVG — no
+D3 needed. A "From the Gate to the Mercy Seat" study section renders all ten
+entries as always-visible cards (readable without interaction, and what the
+print stylesheet picks up; the interactive detail card is print-hidden).
 
 ## Local verification recipe
 
