@@ -42,18 +42,28 @@ legend and per-route toggle buttons like the family tree's controls.
 `devotions/templates/tabernacle.html` is live at `/tabernacle` (route in
 `routes/devotions.py`, Education menu entry, sitemap entry). A labeled
 plan-view SVG of the tabernacle — fourteen numbered, keyboard-accessible
-elements: the camp of Israel (Numbers 2 tribe standards around the fence),
-courtyard fence, gate, altar of burnt offering, laver, the high priest, the
+elements: the camp of Israel (Numbers 2 tribe standards around the fence,
+with the Levitical clans of Numbers 3 in an inner ring), courtyard fence,
+gate, altar of burnt offering, laver, the high priest, the
 tent, the four coverings (peeled-back corner cutaway), table of showbread,
 lampstand, altar of incense, veil, ark & mercy seat, and the pillar of
-cloud. The scale bar states the real length (10 cubits ≈ 15 ft / 4.5 m). Each opens a detail card with its function
+cloud. The scale bar states the real length (10 cubits ≈ 15 ft / 4.5 m), and
+the drawing honors it: everything Scripture dimensions is laid out at 16.8
+units per cubit (courtyard 100 × 50, tent 30 × 10 with a 10-cubit-cube Most
+Holy Place, altar 5 × 5, ark 2.5 × 1.5, table 2 × 1, incense altar 1 × 1).
+The laver and lampstand, which Scripture does not measure, are drawn at
+plausible sizes in scale with the rest. Each opens a detail card with its function
 (Exodus 25–40 refs) and its Christological fulfillment (Hebrews 8–10,
 John 1:14 "tabernacled among us", Romans 3:25 hilastērion, etc.) — typology
 in the Lutheran tradition, with baptism/Supper connections on the laver and
 showbread. Pure inline SVG — no D3; a hand-rolled viewBox camera gives drag
 pan, pinch/wheel/button zoom, and fly-to-item on selection, so the whole
-diagram fits on mobile with no side-scrolling. A "From the Camp to the Mercy
-Seat" study section renders all thirteen entries as always-visible cards
+diagram fits on mobile with no side-scrolling. Because the svg takes pointer
+capture on pointerdown (so a pan survives leaving its box), the browser fires
+`click` at the svg itself rather than at the part pressed — selection is
+therefore delegated from the pointerdown target, not bound per item. Binding
+click to the item groups silently does nothing. A "From the Camp to the Mercy
+Seat" study section renders all fourteen entries as always-visible cards
 (readable without interaction, and what the print stylesheet picks up; the
 interactive detail card is print-hidden).
 
