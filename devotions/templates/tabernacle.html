@@ -131,6 +131,12 @@
     letter-spacing: 2.5px;
     opacity: 0.65;
   }
+  .tb-levite-label {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1.6px;
+    opacity: 0.55;
+  }
 
   /* ---- Interactive items ---- */
   .tb-item { cursor: pointer; }
@@ -299,9 +305,9 @@
   mountain (Exodus 25:40), and the letter to the Hebrews calls it all
   <em>&ldquo;a copy and shadow of the heavenly things&rdquo;</em> (Hebrews 8:5) &mdash;
   every part preaching Christ. Tap or click any of the fourteen numbered parts &mdash;
-  from the camp of Israel all the way in to the ark &mdash; to see what it was for, and
-  how it is fulfilled in Him. Drag to pan and pinch, scroll, or use the buttons to zoom;
-  selecting a part brings the camera to it. The entrance faced east, so a worshiper
+  from the camp of Israel in to the ark, and the cloud of glory over it all &mdash; to
+  see what it was for, and how it is fulfilled in Him. Drag to pan and pinch, scroll,
+  or use the buttons to zoom; selecting a part brings the camera to it. The entrance faced east, so a worshiper
   walked the path from right to left: through the one gate, past the altar and the basin,
   toward the Most Holy Place.</p>
 </div>
@@ -312,13 +318,19 @@
       <svg id="tb-svg" viewBox="0 150 2000 1200" role="img"
            aria-label="Plan diagram of the tabernacle, surrounded by the camp of Israel: a fenced courtyard entered by a gate on the east, containing the altar of burnt offering, the bronze basin, the high priest, and the tent with its Holy Place (lampstand, table of showbread, altar of incense) and, behind the veil, the Most Holy Place with the ark of the covenant, under the pillar of cloud. Drag to pan and pinch, scroll, or use the buttons to zoom.">
         <defs>
+          <!-- The screens and the veil are all named with the same four
+               materials: "blue and purple and scarlet yarns and fine twined
+               linen" (Exodus 26:31, 36; 27:16), so the linen belongs in the
+               weave too. -->
           <linearGradient id="tb-screen-grad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#3b5b92"/><stop offset="0.17" stop-color="#3b5b92"/>
-            <stop offset="0.17" stop-color="#7b4a8f"/><stop offset="0.33" stop-color="#7b4a8f"/>
-            <stop offset="0.33" stop-color="#a83232"/><stop offset="0.5" stop-color="#a83232"/>
-            <stop offset="0.5" stop-color="#3b5b92"/><stop offset="0.67" stop-color="#3b5b92"/>
-            <stop offset="0.67" stop-color="#7b4a8f"/><stop offset="0.83" stop-color="#7b4a8f"/>
-            <stop offset="0.83" stop-color="#a83232"/><stop offset="1" stop-color="#a83232"/>
+            <stop offset="0" stop-color="#3b5b92"/><stop offset="0.125" stop-color="#3b5b92"/>
+            <stop offset="0.125" stop-color="#7b4a8f"/><stop offset="0.25" stop-color="#7b4a8f"/>
+            <stop offset="0.25" stop-color="#a83232"/><stop offset="0.375" stop-color="#a83232"/>
+            <stop offset="0.375" stop-color="#ece3c9"/><stop offset="0.5" stop-color="#ece3c9"/>
+            <stop offset="0.5" stop-color="#3b5b92"/><stop offset="0.625" stop-color="#3b5b92"/>
+            <stop offset="0.625" stop-color="#7b4a8f"/><stop offset="0.75" stop-color="#7b4a8f"/>
+            <stop offset="0.75" stop-color="#a83232"/><stop offset="0.875" stop-color="#a83232"/>
+            <stop offset="0.875" stop-color="#ece3c9"/><stop offset="1" stop-color="#ece3c9"/>
           </linearGradient>
           <linearGradient id="tb-gold-grad" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0" stop-color="#ecc95d"/>
@@ -404,7 +416,9 @@
         <text class="tb-caption" x="1080" y="1326" text-anchor="middle">&ldquo;Let them make me a
           sanctuary, that I may dwell in their midst.&rdquo; &mdash; Exodus 25:8</text>
 
-        <!-- 1. The camp of Israel: three tribes on each side (Numbers 2) -->
+        <!-- 1. The camp of Israel: three tribes on each side (Numbers 2), with
+             the Levitical clans camped between them and the tabernacle
+             (Numbers 3:23, 29, 35, 38). -->
         <g class="tb-item" id="tb-el-camp" data-id="camp" role="button" tabindex="0"
            aria-label="The camp of Israel around the tabernacle, item 1">
           <rect class="tb-hit" x="160" y="185" width="1680" height="112"/>
@@ -419,12 +433,20 @@
             <text class="tb-camp-label" x="44" y="740" text-anchor="middle"
                   transform="rotate(-90 44 740)">EPHRAIM &#183; MANASSEH &#183; BENJAMIN</text>
             <g id="tb-camp-tents"></g>
+            <!-- the inner ring: the Levites, camped closest on every side -->
+            <text class="tb-levite-label" x="1000" y="292" text-anchor="middle">LEVITES &#183; MERARI</text>
+            <text class="tb-levite-label" x="1000" y="1200" text-anchor="middle">LEVITES &#183; KOHATH</text>
+            <text class="tb-levite-label" x="1874" y="740" text-anchor="middle"
+                  transform="rotate(90 1874 740)">MOSES &#183; AARON &#183; THE PRIESTS</text>
+            <text class="tb-levite-label" x="126" y="740" text-anchor="middle"
+                  transform="rotate(-90 126 740)">LEVITES &#183; GERSHON</text>
           </g>
           <g class="tb-badge"><circle class="tb-badge-dot" cx="286" cy="252" r="22"/>
             <text class="tb-badge-num" x="286" y="252">1</text></g>
         </g>
 
-        <!-- 1. Courtyard fence: linen hangings on bronze-footed pillars -->
+        <!-- 2. Courtyard fence: 100 x 50 cubits of linen hangings on
+             bronze-footed pillars with silver hooks (Exodus 27:9-19) -->
         <g class="tb-item" id="tb-el-fence" data-id="fence" role="button" tabindex="0"
            aria-label="Courtyard fence, item 2">
           <rect class="tb-hit" x="160" y="320" width="1680" height="840" fill="none"
@@ -440,7 +462,7 @@
             <text class="tb-badge-num" x="600" y="1160">2</text></g>
         </g>
 
-        <!-- 2. The gate: woven screen of blue, purple, and scarlet -->
+        <!-- 3. The gate: a 20-cubit screen on four pillars (Exodus 27:16) -->
         <g class="tb-item" id="tb-el-gate" data-id="gate" role="button" tabindex="0"
            aria-label="The gate of the courtyard, item 3">
           <rect class="tb-hit" x="1800" y="556" width="88" height="368"/>
@@ -456,7 +478,8 @@
             <text class="tb-badge-num" x="1840" y="528">3</text></g>
         </g>
 
-        <!-- 3. Altar of burnt offering: bronze, horned, fire always burning -->
+        <!-- 4. Altar of burnt offering: bronze, horned, five cubits square
+             (Exodus 27:1-8), with the fire that never goes out -->
         <g class="tb-item" id="tb-el-altar" data-id="altar" role="button" tabindex="0"
            aria-label="Altar of burnt offering, item 4">
           <rect class="tb-hit" x="1430" y="670" width="140" height="140"/>
@@ -496,11 +519,13 @@
             <text class="tb-badge-num" x="1500" y="652">4</text></g>
         </g>
 
-        <!-- 4. Bronze basin: water for washing -->
+        <!-- 5. Bronze basin, set between the tent and the altar (Exodus 30:18).
+             Scripture gives it no dimensions, so it is drawn at a modest ~3
+             cubits across, small beside the 5-cubit altar. -->
         <g class="tb-item" id="tb-el-laver" data-id="laver" role="button" tabindex="0"
            aria-label="Bronze basin, item 5">
           <circle class="tb-hit" cx="1120" cy="740" r="64"/>
-          <g class="tb-art">
+          <g class="tb-art" transform="translate(1120 740) scale(0.7) translate(-1120 -740)">
             <ellipse cx="1120" cy="752" rx="44" ry="12" fill="#000" opacity="0.16" filter="url(#tb-blur)"/>
             <circle cx="1120" cy="740" r="36" fill="url(#tb-bronze-grad)"
                     stroke="var(--tb-bronze-dark)" stroke-width="4"/>
@@ -578,7 +603,9 @@
             <text class="tb-badge-num" x="975" y="662">6</text></g>
         </g>
 
-        <!-- 5. The tent: gold-framed boards under its coverings -->
+        <!-- 7. The tent: 30 x 10 cubits of gold-covered acacia frames under its
+             coverings, divided by the veil into a 20-cubit Holy Place and a
+             10-cubit-cube Most Holy Place (Exodus 26:15-30, 33) -->
         <g class="tb-item" id="tb-el-tent" data-id="tent" role="button" tabindex="0"
            aria-label="The tabernacle tent, item 7">
           <rect class="tb-hit" x="344" y="640" width="536" height="200"/>
@@ -622,11 +649,14 @@
             <text class="tb-badge-num" x="316" y="878">8</text></g>
         </g>
 
-        <!-- 6. Table of showbread: two piles of six loaves (Leviticus 24:6) -->
+        <!-- 9. Table of showbread, on the north side (Exodus 26:35), with its
+             two piles of six loaves (Leviticus 24:6). Drawn to its stated size,
+             two cubits by one (Exodus 25:23): the art below is laid out at 56 x
+             30 units and scaled to the diagram's 16.8 units per cubit. -->
         <g class="tb-item" id="tb-el-table" data-id="table" role="button" tabindex="0"
            aria-label="Table of showbread, item 9">
           <rect class="tb-hit" x="646" y="658" width="118" height="66"/>
-          <g class="tb-art">
+          <g class="tb-art" transform="translate(704 691) scale(0.6) translate(-704 -691)">
             <rect x="676" y="676" width="56" height="30" rx="4" filter="url(#tb-shadow)"
                   fill="url(#tb-gold-grad)" stroke="var(--tb-gold-dark)" stroke-width="2.5"/>
             <rect x="681" y="681" width="46" height="20" rx="2" fill="none"
@@ -644,60 +674,70 @@
             <text class="tb-badge-num" x="776" y="691">9</text></g>
         </g>
 
-        <!-- 7. Golden lampstand: seven lamps on a flowering stem -->
+        <!-- 10. Golden lampstand: seven lamps on a flowering stem, on the south
+             side opposite the table (Exodus 26:35). Scripture gives it no
+             footprint, so it is drawn at about two cubits across the branches,
+             in scale with the table it faces. -->
         <g class="tb-item" id="tb-el-lampstand" data-id="lampstand" role="button" tabindex="0"
            aria-label="Golden lampstand, item 10">
           <rect class="tb-hit" x="646" y="752" width="118" height="70"/>
           <g class="tb-art">
-            <ellipse cx="704" cy="764" rx="32" ry="9" fill="url(#tb-fire-glow)" opacity="0.8">
+            <ellipse cx="704" cy="774" rx="26" ry="8" fill="url(#tb-fire-glow)" opacity="0.8">
               <animate attributeName="opacity" values="0.8;0.5;0.8" dur="2.7s" repeatCount="indefinite"/>
             </ellipse>
-            <ellipse cx="704" cy="810" rx="8" ry="3.5" fill="var(--tb-gold-dark)"/>
-            <line x1="704" y1="808" x2="704" y2="772" stroke="#c9a227" stroke-width="4.5"
-                  stroke-linecap="round"/>
-            <path d="M 680 772 Q 680 806 704 806 Q 728 806 728 772" fill="none"
-                  stroke="#c9a227" stroke-width="3.6"/>
-            <path d="M 688 772 Q 688 799 704 799 Q 720 799 720 772" fill="none"
-                  stroke="#c9a227" stroke-width="3.3"/>
-            <path d="M 696 772 Q 696 792 704 792 Q 712 792 712 772" fill="none"
-                  stroke="#c9a227" stroke-width="3"/>
-            <circle cx="680" cy="771" r="2.6" fill="var(--tb-gold-dark)"/>
-            <circle cx="688" cy="771" r="2.6" fill="var(--tb-gold-dark)"/>
-            <circle cx="696" cy="771" r="2.6" fill="var(--tb-gold-dark)"/>
-            <circle cx="704" cy="771" r="2.6" fill="var(--tb-gold-dark)"/>
-            <circle cx="712" cy="771" r="2.6" fill="var(--tb-gold-dark)"/>
-            <circle cx="720" cy="771" r="2.6" fill="var(--tb-gold-dark)"/>
-            <circle cx="728" cy="771" r="2.6" fill="var(--tb-gold-dark)"/>
-            <use href="#tb-flame" transform="translate(680 768) scale(0.62)"/>
-            <use href="#tb-flame" transform="translate(688 768) scale(0.62)"/>
-            <use href="#tb-flame" transform="translate(696 768) scale(0.62)"/>
-            <use href="#tb-flame" transform="translate(704 768) scale(0.72)"/>
-            <use href="#tb-flame" transform="translate(712 768) scale(0.62)"/>
-            <use href="#tb-flame" transform="translate(720 768) scale(0.62)"/>
-            <use href="#tb-flame" transform="translate(728 768) scale(0.62)"/>
+            <g transform="translate(704 788) scale(0.72) translate(-704 -788)">
+              <ellipse cx="704" cy="810" rx="8" ry="3.5" fill="var(--tb-gold-dark)"/>
+              <line x1="704" y1="808" x2="704" y2="772" stroke="#c9a227" stroke-width="4.5"
+                    stroke-linecap="round"/>
+              <path d="M 680 772 Q 680 806 704 806 Q 728 806 728 772" fill="none"
+                    stroke="#c9a227" stroke-width="3.6"/>
+              <path d="M 688 772 Q 688 799 704 799 Q 720 799 720 772" fill="none"
+                    stroke="#c9a227" stroke-width="3.3"/>
+              <path d="M 696 772 Q 696 792 704 792 Q 712 792 712 772" fill="none"
+                    stroke="#c9a227" stroke-width="3"/>
+              <circle cx="680" cy="771" r="2.6" fill="var(--tb-gold-dark)"/>
+              <circle cx="688" cy="771" r="2.6" fill="var(--tb-gold-dark)"/>
+              <circle cx="696" cy="771" r="2.6" fill="var(--tb-gold-dark)"/>
+              <circle cx="704" cy="771" r="2.6" fill="var(--tb-gold-dark)"/>
+              <circle cx="712" cy="771" r="2.6" fill="var(--tb-gold-dark)"/>
+              <circle cx="720" cy="771" r="2.6" fill="var(--tb-gold-dark)"/>
+              <circle cx="728" cy="771" r="2.6" fill="var(--tb-gold-dark)"/>
+              <use href="#tb-flame" transform="translate(680 768) scale(0.62)"/>
+              <use href="#tb-flame" transform="translate(688 768) scale(0.62)"/>
+              <use href="#tb-flame" transform="translate(696 768) scale(0.62)"/>
+              <use href="#tb-flame" transform="translate(704 768) scale(0.72)"/>
+              <use href="#tb-flame" transform="translate(712 768) scale(0.62)"/>
+              <use href="#tb-flame" transform="translate(720 768) scale(0.62)"/>
+              <use href="#tb-flame" transform="translate(728 768) scale(0.62)"/>
+            </g>
           </g>
           <g class="tb-badge"><circle class="tb-badge-dot" cx="776" cy="790" r="22"/>
             <text class="tb-badge-num" x="776" y="790">10</text></g>
         </g>
 
-        <!-- 8. Altar of incense: golden, smoke rising before the veil -->
+        <!-- 11. Altar of incense: golden and horned, standing before the veil,
+             one cubit square (Exodus 30:1-6), the smallest of the furnishings.
+             The art is laid out at 28 units and scaled to 16.8 (one cubit); the
+             rising smoke is left unscaled. -->
         <g class="tb-item" id="tb-el-incense" data-id="incense" role="button" tabindex="0"
            aria-label="Altar of incense, item 11">
           <rect class="tb-hit" x="552" y="700" width="80" height="80"/>
           <g class="tb-art">
-            <path d="M 580 728 L 573 721 L 580 718 Z" fill="var(--tb-gold-dark)"/>
-            <path d="M 604 728 L 611 721 L 604 718 Z" fill="var(--tb-gold-dark)"/>
-            <path d="M 580 752 L 573 759 L 580 762 Z" fill="var(--tb-gold-dark)"/>
-            <path d="M 604 752 L 611 759 L 604 762 Z" fill="var(--tb-gold-dark)"/>
-            <rect x="578" y="726" width="28" height="28" rx="3" filter="url(#tb-shadow)"
-                  fill="url(#tb-gold-grad)" stroke="var(--tb-gold-dark)" stroke-width="2.5"/>
-            <circle cx="592" cy="740" r="4.5" fill="url(#tb-fire-grad)"/>
-            <path d="M 592 722 C 586 710 598 700 592 688 C 586 678 596 668 591 658"
+            <g transform="translate(592 740) scale(0.6) translate(-592 -740)">
+              <path d="M 580 728 L 573 721 L 580 718 Z" fill="var(--tb-gold-dark)"/>
+              <path d="M 604 728 L 611 721 L 604 718 Z" fill="var(--tb-gold-dark)"/>
+              <path d="M 580 752 L 573 759 L 580 762 Z" fill="var(--tb-gold-dark)"/>
+              <path d="M 604 752 L 611 759 L 604 762 Z" fill="var(--tb-gold-dark)"/>
+              <rect x="578" y="726" width="28" height="28" rx="3" filter="url(#tb-shadow)"
+                    fill="url(#tb-gold-grad)" stroke="var(--tb-gold-dark)" stroke-width="2.5"/>
+              <circle cx="592" cy="740" r="4.5" fill="url(#tb-fire-grad)"/>
+            </g>
+            <path d="M 592 731 C 586 719 598 709 592 697 C 586 687 596 677 591 667"
                   fill="none" stroke="#98938a" stroke-width="3.5" stroke-linecap="round"
                   opacity="0.5" filter="url(#tb-blur)">
               <animate attributeName="opacity" values="0.5;0.28;0.5" dur="4.5s" repeatCount="indefinite"/>
             </path>
-            <path d="M 599 724 C 595 715 603 708 599 698" fill="none" stroke="#98938a"
+            <path d="M 597 732 C 593 723 601 716 597 706" fill="none" stroke="#98938a"
                   stroke-width="2.6" stroke-linecap="round" opacity="0.35" filter="url(#tb-blur)">
               <animate attributeName="opacity" values="0.35;0.18;0.35" dur="3.8s" repeatCount="indefinite"/>
             </path>
@@ -706,7 +746,9 @@
             <text class="tb-badge-num" x="592" y="686">11</text></g>
         </g>
 
-        <!-- 9. The veil, with woven cherubim marks -->
+        <!-- 12. The veil, with woven cherubim marks, hung on four pillars of
+             acacia overlaid with gold, standing in four bases of silver
+             (Exodus 26:31-32) -->
         <g class="tb-item" id="tb-el-veil" data-id="veil" role="button" tabindex="0"
            aria-label="The veil, item 12">
           <rect class="tb-hit" x="500" y="648" width="56" height="224"/>
@@ -715,12 +757,27 @@
                   fill="url(#tb-screen-grad)" stroke="var(--tb-gold-dark)" stroke-width="1.2"/>
             <path d="M 528 694 l 5.5 7 l -5.5 7 l -5.5 -7 Z" fill="#e8cf7a" opacity="0.85"/>
             <path d="M 528 772 l 5.5 7 l -5.5 7 l -5.5 -7 Z" fill="#e8cf7a" opacity="0.85"/>
+            <g>
+              <circle cx="528" cy="677" r="4" fill="var(--tb-gold-dark)"/>
+              <circle cx="528" cy="719" r="4" fill="var(--tb-gold-dark)"/>
+              <circle cx="528" cy="761" r="4" fill="var(--tb-gold-dark)"/>
+              <circle cx="528" cy="803" r="4" fill="var(--tb-gold-dark)"/>
+              <circle cx="528" cy="677" r="1.5" fill="#d8d5cb"/>
+              <circle cx="528" cy="719" r="1.5" fill="#d8d5cb"/>
+              <circle cx="528" cy="761" r="1.5" fill="#d8d5cb"/>
+              <circle cx="528" cy="803" r="1.5" fill="#d8d5cb"/>
+            </g>
           </g>
           <g class="tb-badge"><circle class="tb-badge-dot" cx="528" cy="856" r="22"/>
             <text class="tb-badge-num" x="528" y="856">12</text></g>
         </g>
 
-        <!-- 10. Ark of the covenant: mercy seat, cherubim, carrying poles -->
+        <!-- 13. Ark of the covenant: mercy seat, cherubim, carrying poles. Two
+             and a half cubits by one and a half (Exodus 25:10), so the art is
+             laid out at 60 x 44 units and scaled to 42 x 26.4 (16.8 per cubit).
+             The poles run east-west along its long sides, the way 1 Kings 8:8
+             has their ends showing toward the Holy Place, and the two cherubim
+             face one another across the mercy seat (Exodus 25:20). -->
         <g class="tb-item" id="tb-el-ark" data-id="ark" role="button" tabindex="0"
            aria-label="Ark of the covenant and mercy seat, item 13">
           <rect class="tb-hit" x="386" y="694" width="116" height="92"/>
@@ -728,29 +785,34 @@
             <circle cx="444" cy="740" r="76" fill="url(#tb-shekinah)">
               <animate attributeName="opacity" values="1;0.7;1" dur="6s" repeatCount="indefinite"/>
             </circle>
-            <line x1="398" y1="714" x2="490" y2="714" stroke="var(--tb-gold-dark)"
-                  stroke-width="5" stroke-linecap="round"/>
-            <line x1="398" y1="766" x2="490" y2="766" stroke="var(--tb-gold-dark)"
-                  stroke-width="5" stroke-linecap="round"/>
-            <rect x="414" y="718" width="60" height="44" rx="4" filter="url(#tb-shadow)"
-                  fill="url(#tb-gold-grad)" stroke="var(--tb-gold-dark)" stroke-width="3"/>
-            <rect x="419" y="723" width="50" height="34" rx="2" fill="none"
-                  stroke="#f2df9a" stroke-width="1.6" opacity="0.8"/>
-            <circle cx="416" cy="719" r="3.5" fill="none" stroke="var(--tb-gold-dark)" stroke-width="2"/>
-            <circle cx="472" cy="719" r="3.5" fill="none" stroke="var(--tb-gold-dark)" stroke-width="2"/>
-            <circle cx="416" cy="761" r="3.5" fill="none" stroke="var(--tb-gold-dark)" stroke-width="2"/>
-            <circle cx="472" cy="761" r="3.5" fill="none" stroke="var(--tb-gold-dark)" stroke-width="2"/>
-            <!-- cherubim facing one another over the mercy seat -->
-            <use href="#tb-wing" transform="translate(436 746)" fill="var(--tb-gold-dark)"/>
-            <use href="#tb-wing" transform="translate(452 746) scale(-1,1)" fill="var(--tb-gold-dark)"/>
-            <circle cx="431" cy="729" r="3.2" fill="var(--tb-gold-dark)"/>
-            <circle cx="457" cy="729" r="3.2" fill="var(--tb-gold-dark)"/>
+            <g transform="translate(444 740) scale(0.7 0.6) translate(-444 -740)">
+              <!-- the poles, which stayed in their rings (Exodus 25:14-15) -->
+              <line x1="398" y1="714" x2="490" y2="714" stroke="var(--tb-gold-dark)"
+                    stroke-width="5" stroke-linecap="round"/>
+              <line x1="398" y1="766" x2="490" y2="766" stroke="var(--tb-gold-dark)"
+                    stroke-width="5" stroke-linecap="round"/>
+              <rect x="414" y="718" width="60" height="44" rx="4" filter="url(#tb-shadow)"
+                    fill="url(#tb-gold-grad)" stroke="var(--tb-gold-dark)" stroke-width="3"/>
+              <rect x="419" y="723" width="50" height="34" rx="2" fill="none"
+                    stroke="#f2df9a" stroke-width="1.6" opacity="0.8"/>
+              <circle cx="416" cy="719" r="3.5" fill="none" stroke="var(--tb-gold-dark)" stroke-width="2"/>
+              <circle cx="472" cy="719" r="3.5" fill="none" stroke="var(--tb-gold-dark)" stroke-width="2"/>
+              <circle cx="416" cy="761" r="3.5" fill="none" stroke="var(--tb-gold-dark)" stroke-width="2"/>
+              <circle cx="472" cy="761" r="3.5" fill="none" stroke="var(--tb-gold-dark)" stroke-width="2"/>
+              <!-- cherubim facing one another over the mercy seat -->
+              <use href="#tb-wing" transform="translate(436 746)" fill="var(--tb-gold-dark)"/>
+              <use href="#tb-wing" transform="translate(452 746) scale(-1,1)" fill="var(--tb-gold-dark)"/>
+              <circle cx="431" cy="729" r="3.2" fill="var(--tb-gold-dark)"/>
+              <circle cx="457" cy="729" r="3.2" fill="var(--tb-gold-dark)"/>
+            </g>
           </g>
           <g class="tb-badge"><circle class="tb-badge-dot" cx="444" cy="686" r="22"/>
             <text class="tb-badge-num" x="444" y="686">13</text></g>
         </g>
 
-        <!-- 13. The pillar of cloud and fire over the tabernacle -->
+        <!-- 14. The pillar of cloud and fire over the tabernacle (Exodus
+             40:34-38). A plan view has no room above the tent, so it is drawn
+             just off the tent's west end. -->
         <g class="tb-item" id="tb-el-cloud" data-id="cloud" role="button" tabindex="0"
            aria-label="The pillar of cloud and fire, item 14">
           <rect class="tb-hit" x="230" y="530" width="150" height="115"/>
@@ -818,13 +880,16 @@
   var ITEMS = [
     {
       id: "camp", num: 1, name: "The Camp of Israel", where: "Around the tabernacle",
-      refs: "Numbers 2; 1:52–53",
+      refs: "Numbers 2; 3:14–39; 1:52–53",
       desc: "Israel did not camp at random. Three tribes lay on each side, each under " +
         "its own standard: Judah with Issachar and Zebulun on the east, Reuben with " +
         "Simeon and Gad on the south, Ephraim with Manasseh and Benjamin on the west, " +
-        "and Dan with Asher and Naphtali on the north — with the Levites camped " +
-        "closest, immediately around the tabernacle. God's dwelling stood at the exact " +
-        "center of His people's life, and every tent door looked toward His.",
+        "and Dan with Asher and Naphtali on the north. Inside that square the Levites " +
+        "camped closest of all — Gershon behind the tabernacle on the west, Kohath on " +
+        "the south, Merari on the north, and Moses, Aaron and his sons at the entrance " +
+        "on the east (Numbers 3:23–38). God's dwelling stood at the exact center of " +
+        "His people's life, and all of them camped “facing the tent of meeting on " +
+        "every side” (Numbers 2:2).",
       christ: "The ordered camp is a picture of the church gathered around her Lord — " +
         "and it ends in the city “having the glory of God,” with twelve gates " +
         "bearing “the names of the twelve tribes of the sons of Israel” " +
@@ -853,10 +918,12 @@
     {
       id: "gate", num: 3, name: "The Gate", where: "East side of the courtyard",
       refs: "Exodus 27:16",
-      desc: "One entrance only, on the east side: a thirty-foot screen woven of blue, " +
-        "purple, and scarlet on white linen — the colors of heaven, royalty, and " +
-        "blood. It was wide enough that no one needed to squeeze in, but there was no " +
-        "other way in, and everyone who entered came first to the altar of sacrifice.",
+      desc: "One entrance only, on the east side: a screen twenty cubits wide — some " +
+        "thirty feet — “of blue and purple and scarlet yarns and fine twined " +
+        "linen,” hung on four pillars. Scripture does not say why those colors; the " +
+        "church has long read them as heaven, royalty, and blood. The gate was wide " +
+        "enough that no one needed to squeeze in, but there was no other way in, and " +
+        "everyone who entered came first to the altar of sacrifice.",
       christ: "“I am the door. If anyone enters by me, he will be saved” " +
         "(John 10:9). There is one gate because there is one Mediator: “no one " +
         "comes to the Father except through me” (John 14:6). The gate is wide with " +
@@ -866,8 +933,9 @@
     {
       id: "altar", num: 4, name: "The Altar of Burnt Offering", where: "The Courtyard",
       refs: "Exodus 27:1–8; Leviticus 1:3–9; 6:12–13",
-      desc: "A bronze-covered altar, seven and a half feet square, with a horn at each " +
-        "corner, standing just inside the gate. Here the morning and evening lambs and " +
+      desc: "A bronze-covered altar, five cubits square and three high — seven and a " +
+        "half feet by four and a half — with a horn at each corner, standing between " +
+        "the gate and the tent. Here the morning and evening lambs and " +
         "all the sacrifices were offered, and its fire was never to go out. Nothing and " +
         "no one went further into the tabernacle except by way of this altar, “for " +
         "it is the blood that makes atonement by the life” (Leviticus 17:11).",
@@ -907,7 +975,8 @@
         "(Exodus 28:17–20). So whenever he went in before the LORD, he carried all " +
         "Israel on his shoulders and on his heart. On his turban a plate of pure gold " +
         "read “Holy to the LORD.” He alone entered the Most Holy Place, one " +
-        "day a year, and never without blood.",
+        "day a year, and never without blood — and on that day even he laid the gold " +
+        "and colors aside and went in dressed in plain linen (Leviticus 16:4).",
       christ: "“We have a great high priest who has passed through the heavens, " +
         "Jesus, the Son of God” (Hebrews 4:14) — one “holy, innocent, " +
         "unstained,” who does not need to offer sacrifices for His own sins " +
@@ -920,7 +989,10 @@
     {
       id: "tent", num: 7, name: "The Tent Itself", where: "West end of the courtyard",
       refs: "Exodus 26:15–30; 38:24–27; 40:34–38",
-      desc: "Gold-covered acacia frames, forty-five feet by fifteen, in two rooms. Each " +
+      desc: "Gold-covered acacia frames, thirty cubits by ten and ten high — some " +
+        "forty-five feet by fifteen — divided by the veil into two rooms: a Holy " +
+        "Place twenty cubits long, and behind it a Most Holy Place that was a perfect " +
+        "cube, ten cubits every way. Each " +
         "board stood in two sockets of silver — and that silver was the ransom " +
         "money, the half-shekel every Israelite paid “to make atonement” " +
         "(Exodus 30:11–16; 38:25–27), so that God’s house rested, board by board, " +
@@ -958,11 +1030,11 @@
     {
       id: "table", num: 9, name: "The Table of Showbread", where: "Holy Place, north side",
       refs: "Exodus 25:23–30; Leviticus 24:5–9",
-      desc: "A gold-covered table on the north side of the Holy Place bearing twelve " +
-        "loaves of the “bread of the Presence” — one for each tribe of " +
-        "Israel — set fresh every Sabbath and then eaten by the priests in the holy " +
-        "place. Week after week, all Israel was represented as fed at a table before " +
-        "God’s face.",
+      desc: "A gold-covered table, two cubits by one, on the north side of the Holy " +
+        "Place, bearing twelve loaves of the “bread of the Presence” in two " +
+        "rows of six — one loaf for each tribe of Israel — set out fresh every " +
+        "Sabbath and then eaten by the priests in a holy place. Week after week, all " +
+        "Israel was represented as fed at a table before God’s face.",
       christ: "“I am the bread of life; whoever comes to me shall not hunger” " +
         "(John 6:35). Christ is Himself the bread of the Presence, and He still sets a " +
         "table in His holy place: in the Supper His people share “a participation " +
@@ -972,11 +1044,14 @@
     },
     {
       id: "lampstand", num: 10, name: "The Golden Lampstand", where: "Holy Place, south side",
-      refs: "Exodus 25:31–40; 27:20–21",
+      refs: "Exodus 25:31–40; 27:20–21; Leviticus 24:1–4",
       desc: "Hammered from a single talent of pure gold, with six branches from a " +
         "central stem and cups shaped like almond blossoms — a stylized flowering " +
-        "tree bearing seven lamps. It was the only light in the Holy Place, tended " +
-        "morning and evening with pure olive oil so that it never went out.",
+        "tree bearing seven lamps. It was the only light in the Holy Place. Aaron " +
+        "dressed the lamps each morning and set them burning at twilight, on pure " +
+        "beaten olive oil the people themselves brought, so that a light was kept " +
+        "“from evening to morning before the LORD regularly” (Leviticus 24:1–4) " +
+        "— never a night when God’s house stood dark.",
       christ: "“I am the light of the world. Whoever follows me will not walk in " +
         "darkness” (John 8:12). In John’s vision the risen Christ walks among " +
         "seven golden lampstands, which are His churches (Revelation 1:12–20): the " +
@@ -986,13 +1061,15 @@
     },
     {
       id: "incense", num: 11, name: "The Altar of Incense", where: "Holy Place, before the veil",
-      refs: "Exodus 30:1–10; Psalm 141:2; Luke 1:8–11",
-      desc: "A small golden altar standing directly before the veil. Every morning and " +
-        "every evening — the hours of the daily sacrifice and of daily prayer — " +
-        "fragrant incense was burned on it, its smoke rising toward the presence of God " +
-        "just beyond the curtain: “Let my prayer be counted as incense before " +
-        "you” (Psalm 141:2). It was here that Zechariah heard the promise of the " +
-        "forerunner of Christ (Luke 1:11–13).",
+      refs: "Exodus 30:1–10; Psalm 141:2; Luke 1:8–13",
+      desc: "A small golden altar — a single cubit square, the least of the " +
+        "furnishings — standing directly before the veil. Every morning and every " +
+        "evening, when Aaron tended the lamps, fragrant incense was burned on it, its " +
+        "smoke rising toward the presence of God just beyond the curtain: “Let my " +
+        "prayer be counted as incense before you” (Psalm 141:2). Centuries later " +
+        "it was while serving at its successor in the temple, at the hour of incense, " +
+        "that Zechariah heard the promise of the forerunner of Christ " +
+        "(Luke 1:8–13).",
       christ: "Prayer rises and is heard not because it is fervent but because of the " +
         "One at the Father’s side: Christ “always lives to make intercession " +
         "for them” (Hebrews 7:25). In Revelation an angel at the golden altar " +
@@ -1020,12 +1097,15 @@
     {
       id: "ark", num: 13, name: "The Ark & the Mercy Seat", where: "The Most Holy Place",
       refs: "Exodus 25:10–22; Leviticus 16:14–16; Hebrews 9:4–5",
-      desc: "A gold-covered chest holding the tablets of the Law, a jar of the manna, " +
-        "and Aaron’s staff that budded. Its solid-gold lid was the mercy seat, " +
-        "overshadowed by two cherubim, where God promised to meet His people: “There " +
-        "I will meet with you” (Exodus 25:22). On the Day of Atonement the high " +
-        "priest sprinkled sacrificial blood on it — so that between the accusing " +
-        "Law inside and the enthroned God above stood a cover marked with blood.",
+      desc: "A gold-covered chest, two and a half cubits by one and a half, holding the " +
+        "tablets of the Law; Hebrews 9:4 names with them the golden jar of manna and " +
+        "Aaron’s staff that budded, which Exodus and Numbers place “before the " +
+        "testimony,” and which were gone by Solomon’s day (1 Kings 8:9). Its " +
+        "solid-gold lid was the mercy seat, overshadowed by two cherubim facing one " +
+        "another, where God promised to meet His people: “There I will meet with " +
+        "you” (Exodus 25:22). On the Day of Atonement the high priest sprinkled " +
+        "sacrificial blood on it — so that between the accusing Law inside and the " +
+        "enthroned God above stood a cover marked with blood.",
       christ: "Paul reaches for this exact picture: God put Christ forward “as a " +
         "propitiation by his blood” (Romans 3:25) — the Greek word is the " +
         "Septuagint’s name for the mercy seat. The cross is the true mercy seat, " +
@@ -1214,9 +1294,11 @@
     var pointerCount = 0;
     var dragDist = 0;
     var lastPinchDist = null;
+    var downTarget = null;
 
     svg.addEventListener("pointerdown", function(e) {
       svg.setPointerCapture(e.pointerId);
+      downTarget = e.target;
       pointers[e.pointerId] = {x: e.clientX, y: e.clientY, sx: null, sy: null};
       var p = svgPoint(e.clientX, e.clientY);
       pointers[e.pointerId].sx = p.x;
@@ -1261,10 +1343,18 @@
     svg.addEventListener("pointerup", release);
     svg.addEventListener("pointercancel", release);
 
-    /* A real drag should not count as a tap on whatever it ends over. */
-    svg.addEventListener("click", function(e) {
-      if (dragDist > 10) { e.stopPropagation(); e.preventDefault(); }
-    }, true);
+    /* Selection is delegated here rather than bound to each item, because the
+       svg captures the pointer so that a pan survives leaving its box — and a
+       captured pointer makes the browser fire `click` at the svg itself, not
+       at the part that was pressed. So resolve the item from the pointerdown
+       target, and ignore a "click" that was really the end of a drag. */
+    svg.addEventListener("click", function() {
+      if (dragDist > 10) { return; }
+      var item = downTarget && downTarget.closest
+        ? downTarget.closest(".tb-item")
+        : null;
+      if (item) { select(item.getAttribute("data-id"), {scroll: true}); }
+    });
 
     svg.addEventListener("wheel", function(e) {
       e.preventDefault();
@@ -1357,11 +1447,12 @@
     cardsWrap.appendChild(card);
   });
 
+  /* Pointer selection is handled by the delegated click listener above; these
+     groups only need keyboard activation. */
   var els = svg.querySelectorAll(".tb-item");
   for (var i = 0; i < els.length; i++) {
     (function(el) {
       var id = el.getAttribute("data-id");
-      el.addEventListener("click", function() { select(id, {scroll: true}); });
       el.addEventListener("keydown", function(e) {
         if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
           e.preventDefault();
