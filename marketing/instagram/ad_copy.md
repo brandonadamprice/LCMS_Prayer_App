@@ -21,6 +21,17 @@ condensed type, and a plate underneath carrying the reference. Scripture leads,
 the product line is one quiet line of positioning copy, and the URL sits in the
 bar at the bottom.
 
+Their art is Gustave Doré's *Bible Gallery* (1866), duotoned into the brand
+navy — public domain, so it can run in paid placements without a licence. Each
+plate is chosen for the verse it carries, not for decoration; the pairing is
+half the ad, and captions that name it (see F–K) tend to earn the comment.
+
+**On the Full of Eyes art from Reel Ad 2:** their gallery is published under
+CC BY-NC-ND, which rules out both paid placement (NonCommercial) and laying copy
+over the image (NoDerivatives). Running it again in an ad needs written
+permission from the artist — worth asking for, since it is the best art this
+brand has had, but not something the licence grants on its own.
+
 The reels are rendered **silent** — add a music track from Instagram's licensed
 library when publishing (audio bundled into the file would need its own
 license).
@@ -49,18 +60,23 @@ so the website URL works as the single CTA for both web and app installs.
   CTA. Broad top-of-funnel spot.
 - **02-everything-for-prayer** (reel) — title → animated feature list → CTA.
   Better for people comparing prayer apps.
-- **05-evening-and-morning** (Ps 55:17) — the daily-office angle, led by the
-  verse the offices are built on. The broadest of the verse cards.
-- **06-new-every-morning** (Lam 3:22–23) — grace days and starting over. Aim at
-  people who have broken a streak in some other app.
-- **07-lamp-to-my-feet** (Ps 119:105) — Bible in a Year. The one daylight card
-  in the series, so it stands out in a feed of the others.
-- **08-i-will-give-you-rest** (Matt 11:28) — Close of Day. Best late-evening
-  placement; the softest, least "app-like" of the set.
-- **09-prayer-as-incense** (Ps 141:2) — liturgical/Church Year affinity. Highest
-  intent, narrowest audience.
-- **10-pray-without-ceasing** (1 Thess 5:16–18) — the everything-in-one-place
-  angle; pairs with reel 02.
+- **05-evening-and-morning** (Ps 55:17 · Daniel in the Lions' Den) — the
+  daily-office angle, led by the verse the offices are built on, over the man who
+  kept them three times a day. The broadest of the verse cards.
+- **06-new-every-morning** (Lam 3:22–23 · The Angel at the Sepulchre) — grace
+  days and starting over, on resurrection morning. Aim at people who have broken
+  a streak in some other app.
+- **07-lamp-to-my-feet** (Ps 119:105 · The Journey to Emmaus) — Bible in a Year;
+  a road walked at dusk for the verse about a path. The brightest plate in the
+  set, so it stands out in a feed of the others.
+- **08-i-will-give-you-rest** (Matt 11:28 · Christ Stilling the Tempest) — Close
+  of Day. Rest given in the middle of the storm rather than after it; the
+  strongest single image in the set.
+- **09-prayer-as-incense** (Ps 141:2 · Prayer in the Garden of Olives) —
+  liturgical/Church Year affinity. Highest intent, narrowest audience.
+- **10-pray-without-ceasing** (1 Thess 5:16–18 · The Pharisee and the Publican) —
+  the everything-in-one-place angle, over a parable about how to pray; pairs
+  with reel 02.
 
 Run the four feature statics in one ad set and let Meta optimize. Run the verse
 cards as their own ad set rather than mixing them in — they are a different
@@ -70,6 +86,11 @@ different audience.
 Scripture is quoted from the ESV, credited on every card. ESV permission covers
 quotation of this scale without written request; keep the "ESV" mark on any new
 card.
+
+Doré needs no credit legally, but naming the plate in the caption is cheap and
+performs — this audience knows the engravings. A tail line works:
+
+> Art: Gustave Doré, *Christ Stilling the Tempest* (1866).
 
 ## Primary text (feed caption) options
 

@@ -78,10 +78,15 @@ body.reel { width: 1080px; height: 1920px; }
 /* ---------------------------------------------------------------------------
    Verse card — the layout of the "Reel Ad 2" spot, as a 4:5 feed still.
 
-   Art panel (blurred bleed + a sharp band of the same banner) -> big condensed
-   Scripture -> navy plate carrying the reference -> deep bar with the mark and
-   the URL. The stills that use it (still-05..10) supply only the banner, the
-   verse, and one line of positioning copy.
+   Full-bleed engraving -> big condensed Scripture -> navy plate carrying the
+   reference -> deep bar with the mark and the URL. The stills that use it
+   (still-05..10) supply only a plate from art/, the verse, and one line of
+   positioning copy.
+
+   The art is Doré (public domain — see art/SOURCES.md), which is monochrome and
+   already close to 4:5, so it fills the panel with no crop tricks. A navy
+   colour-blend turns it into a duotone in the brand palette rather than a
+   scanned book page.
    --------------------------------------------------------------------------- */
 
 body.verse {
@@ -100,38 +105,40 @@ body.verse {
     background: #1d2130;
 }
 
-/* The banners are wide crops (1024x318), so filling 4:5 with one would upscale
-   ~3x. Instead the bleed is a blurred, heavily darkened tint over a navy field,
-   and the sharp band across the bottom rides at close to native size. */
-.verse-art .bleed {
+.verse-art .plate-art {
     position: absolute;
-    inset: -60px;
-    width: calc(100% + 120px);
-    height: calc(100% + 120px);
-    object-fit: cover;
-    filter: blur(30px) brightness(0.3) saturate(0.8);
-}
-
-.verse-art .band {
-    position: absolute;
-    left: 0;
-    bottom: 0;
+    inset: 0;
     width: 100%;
-    height: 420px;
+    height: 100%;
     object-fit: cover;
-    filter: brightness(0.88) saturate(1.05);
-    -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 52%, #000 100%);
-    mask-image: linear-gradient(180deg, transparent 0%, #000 52%, #000 100%);
+    object-position: 50% 50%;
+    /* The scans are flat, aged paper — the contrast push is what keeps Doré's
+       line work legible once the tint and scrim are over it. */
+    filter: grayscale(1) contrast(1.36) brightness(0.84);
 }
 
-/* Pulls the whole panel toward the navy of the plate below, so the warm banner
-   photography reads as atmosphere rather than as the subject. */
+/* Colour-blend over the greyscale engraving = navy duotone. Kept well under 1
+   so the plate still reads as an engraving and not as a blue rectangle. */
+.verse-art .tint {
+    position: absolute;
+    inset: 0;
+    background: #3b4d78;
+    mix-blend-mode: color;
+    opacity: 0.5;
+}
+
+/* Darkens the top third where the verse sits and seats the art into the navy
+   plate below, leaving the middle of the engraving clear. Cards raise
+   --scrim-top when their plate is light where the verse lands. */
 .verse-art .scrim {
     position: absolute;
     inset: 0;
     background:
-        linear-gradient(180deg, #232939 0%, rgba(35, 41, 57, 0.86) 42%, rgba(35, 41, 57, 0.42) 68%, rgba(30, 28, 34, 0.3) 100%),
-        radial-gradient(720px 560px at 50% 34%, rgba(12, 9, 18, 0.4), transparent 74%);
+        linear-gradient(180deg,
+            rgba(20, 25, 40, var(--scrim-top, 0.6)) 0%,
+            rgba(20, 25, 40, calc(var(--scrim-top, 0.6) * 0.88)) 34%,
+            rgba(20, 25, 40, 0.12) 62%,
+            rgba(42, 48, 62, 0.55) 100%);
 }
 
 .verse-art .words {

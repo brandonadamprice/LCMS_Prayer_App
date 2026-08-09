@@ -5,15 +5,19 @@
 <title>Still 07 — A lamp to my feet (Psalm 119:105)</title>
 <link rel="stylesheet" href="shared.css">
 <style>
-    /* The default banner is the brightest of the set — the one card in the
-       series that reads as daylight. Take a different slice than the siblings. */
-    .verse-art .band { filter: brightness(0.78) saturate(0.95); object-position: 74% 50%; }
+    /* Doré 92, The Journey to Emmaus — a road walked at dusk, for the verse
+       about a path. The plate is bright sky above the horizon, so this is the
+       one card that needs a heavy scrim to hold the verse. */
+    body.verse { --scrim-top: 0.82; }
+    /* Crop high so the travellers drop clear of the verse and walk into the
+       lower half of the card. */
+    .verse-art .plate-art { object-position: 50% 22%; }
 </style>
 </head>
 <body class="verse">
     <div class="verse-art">
-        <img class="bleed" src="../../../devotions/static/banner.jpg" alt="">
-        <img class="band" src="../../../devotions/static/banner.jpg" alt="">
+        <img class="plate-art" src="art/dore-092-the-journey-to-emmaus.jpg" alt="">
+        <div class="tint"></div>
         <div class="scrim"></div>
         <div class="words">Your word is a lamp to my feet
             and a light to my path.</div>

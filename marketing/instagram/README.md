@@ -2,7 +2,8 @@
 
 Ready-to-post Instagram ad creative for [asimplewaytopray.com](https://asimplewaytopray.com),
 generated from the app's own brand assets (palette, Lora/Montserrat type, and the
-season banners in `devotions/static/`).
+season banners in `devotions/static/`) plus public-domain engravings in
+`src/art/`.
 
 **The rendered creative lives in Google Drive, not in git:**
 [Social Media / Instagram](https://drive.google.com/drive/folders/1G8dcPDklGEX9el93Xdc77nzGM0xGX9W-)
@@ -16,6 +17,7 @@ build output and are gitignored.
 ```
 src/         HTML/CSS sources + render.js (regenerate any time)
 src/fonts/   locally-cached Lora, Montserrat & Oswald webfonts (OFL) — offline rendering
+src/art/     public-domain Doré engravings + SOURCES.md (provenance & licensing)
 ad_copy.md   campaign copy: captions, headlines, hashtags, creative angles
 stills/      render output, gitignored — 1080x1350 PNG (4:5), feed posts / ads
 reels/       render output, gitignored — 1080x1920 MP4 (9:16, 30fps, H.264)
@@ -33,26 +35,36 @@ Feature cards — the product, stated plainly:
 | `stills/04-church-year.png` | Liturgical seasons — Lent/Easter imagery |
 
 Verse cards — Scripture first, in the layout of the "Reel Ad 2" spot (the one
-that performed): navy field, the verse large in condensed Oswald, a plate under
-it carrying the reference, and the URL in the bar at the bottom. They share the
-`body.verse` layout in `shared.css`, so each source file is just a banner, a
-verse, and one line of positioning copy.
+that performed): a full-bleed engraving, the verse large in condensed Oswald, a
+navy plate under it carrying the reference, and the URL in the bar at the
+bottom. They share the `body.verse` layout in `shared.css`, so each source file
+is just a plate from `src/art/`, a verse, and one line of positioning copy.
 
-| File | Verse | Angle |
-| --- | --- | --- |
-| `stills/05-evening-and-morning.png` | Psalm 55:17 | Daily office |
-| `stills/06-new-every-morning.png` | Lamentations 3:22–23 | Streaks & grace days |
-| `stills/07-lamp-to-my-feet.png` | Psalm 119:105 | Bible in a Year |
-| `stills/08-i-will-give-you-rest.png` | Matthew 11:28 | Close of Day |
-| `stills/09-prayer-as-incense.png` | Psalm 141:2 | Church Year |
-| `stills/10-pray-without-ceasing.png` | 1 Thess. 5:16–18 | Everything in one place |
+| File | Verse | Doré plate | Angle |
+| --- | --- | --- | --- |
+| `stills/05-evening-and-morning.png` | Psalm 55:17 | Daniel in the Lions' Den | Daily office |
+| `stills/06-new-every-morning.png` | Lamentations 3:22–23 | The Angel at the Sepulchre | Streaks & grace days |
+| `stills/07-lamp-to-my-feet.png` | Psalm 119:105 | The Journey to Emmaus | Bible in a Year |
+| `stills/08-i-will-give-you-rest.png` | Matthew 11:28 | Christ Stilling the Tempest | Close of Day |
+| `stills/09-prayer-as-incense.png` | Psalm 141:2 | Prayer in the Garden of Olives | Church Year |
+| `stills/10-pray-without-ceasing.png` | 1 Thess. 5:16–18 | The Pharisee and the Publican | Everything in one place |
 
-The banners in `devotions/static/` are wide crops (1024x318), so a verse card
-does not scale one up to fill 4:5 — the background is a blurred, heavily
-darkened copy under a navy wash, with a sharp band of the same banner across the
-bottom at close to native size. All six draw on the same photographed scene, so
-each takes a different slice of it via `object-position`; if the set ever needs
-real visual variety it will need new source photography, not new crops.
+The art is Gustave Doré's *Bible Gallery* (1866) — public domain, provenance and
+licensing in `src/art/SOURCES.md`. The plates are monochrome and already close
+to 4:5, so each one fills the panel with no crop tricks; a navy colour-blend
+turns it into a duotone in the brand palette instead of a scanned book page.
+
+Three knobs per card, all set in the card's own `<style>`:
+
+- `--scrim-top` — how hard the top of the plate is darkened so the verse holds.
+  Light plates (Emmaus) want ~0.8; already-dark ones (the tempest) want ~0.5.
+- `object-position` on `.plate-art` — which slice of the plate survives the crop.
+  Aim it so figures land *below* the verse rather than behind it.
+- `.words.long` — drops the verse from 76px to 66px. Use it past ~90 characters.
+
+The Gutenberg edition has 100 plates, so new cards mostly mean picking another
+one and writing two lines of copy. `src/art/SOURCES.md` has the repo path they
+come from.
 
 ### Reels (9:16, 14s, silent)
 
