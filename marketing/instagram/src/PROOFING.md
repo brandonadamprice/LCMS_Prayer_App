@@ -83,9 +83,9 @@ is the one place the card is not character-identical to the page.
 
 ## If a verse changes
 
-`scrim`, `focus`, `bright` and `long` are computed from the verse length and the
-plate, so re-run the tuner after any copy edit or the card renders with stale
-values:
+`place`, `scrim`, `focus`, `bright` and `long` are computed from the verse length
+and the plate, so re-run the tuner after any copy edit or the card renders with
+stale values:
 
 ```sh
 python3 tune_cards.py          # rewrites verse-cards.json

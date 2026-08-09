@@ -29,9 +29,10 @@ pairing is half the ad, and captions that name it tend to earn the comment.
 **A hundred cards is a posting calendar, not an ad set.** Do not put them all in
 one campaign. Two uses:
 
-- **Paid** — pick 4–6 at a time by angle (the `hook` field groups them), run
-  them as their own ad set, rotate as they fatigue. There are enough to never
-  reuse a creative in a year of weekly rotation.
+- **Paid** — pick 4–6 at a time by angle (the `angle` field groups them; the
+  printed `hook` is unique per card), run them as their own ad set, rotate as
+  they fatigue. There are enough to never reuse a creative in a year of weekly
+  rotation.
 - **Organic** — one a day is a year and a half of grid. The whole set is dark
   navy at the same exposure, so the profile grid reads as one body of work.
 
@@ -91,7 +92,8 @@ so the website URL works as the single CTA for both web and app installs.
   Better for people comparing prayer apps.
 
 The 100 verse cards are not enumerated here — `src/verse-cards.json` is their
-source of truth, and the `hook` field is the angle. The six worth naming, because
+source of truth. Each card prints its own `hook`, written against the verse it
+carries, and the `angle` field is what groups them. The six worth naming, because
 they are the strongest pairings in the set and the pattern to copy when picking
 more:
 
