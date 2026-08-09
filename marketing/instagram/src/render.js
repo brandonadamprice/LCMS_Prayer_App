@@ -55,7 +55,8 @@ const STILLS = [
 ];
 
 // Verse cards — one per Doré plate, built from verse-cards.json + the template
-// rather than 100 near-identical HTML files. tune_cards.py owns scrim/focus/long.
+// rather than 100 near-identical HTML files. tune_cards.py owns the visual
+// fields (place/scrim/bright/focus/long); the copy fields are hand-written.
 const CARDS = path.join(SRC, 'verse-cards.json');
 const PLATES = path.join(SRC, 'art', 'plates.json');
 const TEMPLATE = path.join(SRC, 'verse-card.template.html');
@@ -82,6 +83,7 @@ function verseCards() {
             .replace('{{FOCUS}}', card.focus)
             .replace('{{PLATE_FILE}}', plate.file)
             .replace('{{LONG}}', card.long ? ' long' : '')
+            .replace('{{PLACE}}', card.place === 'bottom' ? ' at-bottom' : '')
             .replace('{{VERSE}}', escapeHtml(card.verse))
             .replace('{{REF}}', escapeHtml(card.ref))
             .replace('{{HOOK}}', escapeHtml(card.hook));

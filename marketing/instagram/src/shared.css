@@ -129,7 +129,7 @@ body.verse {
     opacity: 0.5;
 }
 
-/* Darkens the top third where the verse sits and seats the art into the navy
+/* Darkens the third where the verse sits and seats the art into the navy
    plate below, leaving the middle of the engraving clear. Cards raise
    --scrim-top when their plate is light where the verse lands. */
 .verse-art .scrim {
@@ -141,6 +141,20 @@ body.verse {
             rgba(20, 25, 40, calc(var(--scrim-top, 0.6) * 0.88)) 34%,
             rgba(20, 25, 40, 0.12) 62%,
             rgba(42, 48, 62, 0.55) 100%);
+}
+
+/* Verse at the bottom — for plates where Doré's subject sits high and the crop
+   cannot push it clear of a top-set verse (tune_cards.py picks this per card).
+   The stops are the top gradient mirrored about 50%, so the verse still lands
+   on ~0.88 of --scrim-top and the tuner's alpha math is unchanged. The top end
+   keeps a light wash so a bright plate does not glare at the card's edge. */
+body.verse.at-bottom .verse-art .scrim {
+    background:
+        linear-gradient(180deg,
+            rgba(42, 48, 62, 0.30) 0%,
+            rgba(20, 25, 40, 0.12) 38%,
+            rgba(20, 25, 40, calc(var(--scrim-top, 0.6) * 0.88)) 66%,
+            rgba(20, 25, 40, var(--scrim-top, 0.6)) 100%);
 }
 
 .verse-art .words {
@@ -163,6 +177,10 @@ body.verse {
 }
 
 .verse-art .words.long { font-size: 66px; }
+
+/* Same 660px box flipped to the foot of the art, so the verse keeps the same
+   170px of clear plate between it and the card edge that it has at the top. */
+body.verse.at-bottom .verse-art .words { top: auto; bottom: 0; }
 
 .verse-plate {
     flex: 1;
