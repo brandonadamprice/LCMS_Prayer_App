@@ -11,8 +11,15 @@ into this folder.
 
 | Placement | Files | Spec |
 |---|---|---|
-| Feed (4:5) | `stills/{01-hero, 02-daily-office, 03-bible-in-a-year, 04-church-year}.png` | 1080x1350 PNG |
+| Feed (4:5) — feature cards | `stills/{01-hero, 02-daily-office, 03-bible-in-a-year, 04-church-year}.png` | 1080x1350 PNG |
+| Feed (4:5) — verse cards | `stills/{05-evening-and-morning, 06-new-every-morning, 07-lamp-to-my-feet, 08-i-will-give-you-rest, 09-prayer-as-incense, 10-pray-without-ceasing}.png` | 1080x1350 PNG |
 | Reels & Stories (9:16) | `reels/{01-a-day-of-prayer, 02-everything-for-prayer}.mp4` | 1080x1920, H.264, 30fps, 14s |
+
+The **verse cards** (05–10) are built in the layout of the ASWTP "Reel Ad 2"
+spot, which outperformed the rest: a dark navy field, the Scripture set large in
+condensed type, and a plate underneath carrying the reference. Scripture leads,
+the product line is one quiet line of positioning copy, and the URL sits in the
+bar at the bottom.
 
 The reels are rendered **silent** — add a music track from Instagram's licensed
 library when publishing (audio bundled into the file would need its own
@@ -42,8 +49,27 @@ so the website URL works as the single CTA for both web and app installs.
   CTA. Broad top-of-funnel spot.
 - **02-everything-for-prayer** (reel) — title → animated feature list → CTA.
   Better for people comparing prayer apps.
+- **05-evening-and-morning** (Ps 55:17) — the daily-office angle, led by the
+  verse the offices are built on. The broadest of the verse cards.
+- **06-new-every-morning** (Lam 3:22–23) — grace days and starting over. Aim at
+  people who have broken a streak in some other app.
+- **07-lamp-to-my-feet** (Ps 119:105) — Bible in a Year. The one daylight card
+  in the series, so it stands out in a feed of the others.
+- **08-i-will-give-you-rest** (Matt 11:28) — Close of Day. Best late-evening
+  placement; the softest, least "app-like" of the set.
+- **09-prayer-as-incense** (Ps 141:2) — liturgical/Church Year affinity. Highest
+  intent, narrowest audience.
+- **10-pray-without-ceasing** (1 Thess 5:16–18) — the everything-in-one-place
+  angle; pairs with reel 02.
 
-Run the four statics in one ad set and let Meta optimize.
+Run the four feature statics in one ad set and let Meta optimize. Run the verse
+cards as their own ad set rather than mixing them in — they are a different
+promise (Scripture first, product second) and will train the algorithm toward a
+different audience.
+
+Scripture is quoted from the ESV, credited on every card. ESV permission covers
+quotation of this scale without written request; keep the "ESV" mark on any new
+card.
 
 ## Primary text (feed caption) options
 
@@ -74,12 +100,49 @@ Run the four statics in one ad set and let Meta optimize.
 > reminders that actually show up. Everything for prayer, in one place, free.
 > asimplewaytopray.com
 
+**F — Psalm 55:17 (pairs: 05-evening-and-morning)**
+
+> "Evening and morning and at noon…" — the hours the Church has always kept.
+> Morning, Midday, Evening, and Close of Day, each one short and ready when you
+> are. Free at asimplewaytopray.com
+
+**G — Lamentations 3:22–23 (pairs: 06-new-every-morning)**
+
+> Missed a day? His mercies are new every morning — and so are your grace days.
+> A reading plan that lets you begin again instead of starting over.
+> asimplewaytopray.com
+
+**H — Psalm 119:105 (pairs: 07-lamp-to-my-feet)**
+
+> One lamp, one day at a time. The whole Bible in a year, with the day's reading
+> waiting for you when you open it. asimplewaytopray.com
+
+**I — Matthew 11:28 (pairs: 08-i-will-give-you-rest)**
+
+> Put the day down. Close of Day is a short office of confession, psalm, and the
+> Nunc Dimittis — the oldest way there is to fall asleep. asimplewaytopray.com
+
+**J — Psalm 141:2 (pairs: 09-prayer-as-incense)**
+
+> The evening sacrifice, still offered. Prayers and readings that keep the
+> Church Year — Advent through Pentecost — without you having to look anything
+> up. asimplewaytopray.com
+
+**K — 1 Thessalonians 5:16–18 (pairs: 10-pray-without-ceasing)**
+
+> Without ceasing is a tall order. A rhythm helps. Daily offices, the psalter,
+> the Small Catechism, a prayer wall, and reminders that actually show up.
+> asimplewaytopray.com
+
 ## Headline (single line, shows under the creative)
 
 - Pray the hours. Free.
 - The whole Bible, one day at a time.
 - Prayer in the rhythm of the Church Year.
 - Everything for prayer, in one place.
+- Morning, midday, evening, night.
+- Grace days, because life happens.
+- Begin again every morning.
 
 ## Hashtags (organic posts; ads generally skip them)
 

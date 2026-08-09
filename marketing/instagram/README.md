@@ -15,7 +15,7 @@ build output and are gitignored.
 
 ```
 src/         HTML/CSS sources + render.js (regenerate any time)
-src/fonts/   locally-cached Lora & Montserrat webfonts (OFL) — offline rendering
+src/fonts/   locally-cached Lora, Montserrat & Oswald webfonts (OFL) — offline rendering
 ad_copy.md   campaign copy: captions, headlines, hashtags, creative angles
 stills/      render output, gitignored — 1080x1350 PNG (4:5), feed posts / ads
 reels/       render output, gitignored — 1080x1920 MP4 (9:16, 30fps, H.264)
@@ -23,12 +23,36 @@ reels/       render output, gitignored — 1080x1920 MP4 (9:16, 30fps, H.264)
 
 ### Stills (feed, 4:5)
 
+Feature cards — the product, stated plainly:
+
 | File | Concept |
 | --- | --- |
 | `stills/01-hero.png` | Brand hero — app icon, name, tagline, CTA |
 | `stills/02-daily-office.png` | "Pray the hours" — the four daily offices |
 | `stills/03-bible-in-a-year.png` | Bible in a Year — streaks & grace days |
 | `stills/04-church-year.png` | Liturgical seasons — Lent/Easter imagery |
+
+Verse cards — Scripture first, in the layout of the "Reel Ad 2" spot (the one
+that performed): navy field, the verse large in condensed Oswald, a plate under
+it carrying the reference, and the URL in the bar at the bottom. They share the
+`body.verse` layout in `shared.css`, so each source file is just a banner, a
+verse, and one line of positioning copy.
+
+| File | Verse | Angle |
+| --- | --- | --- |
+| `stills/05-evening-and-morning.png` | Psalm 55:17 | Daily office |
+| `stills/06-new-every-morning.png` | Lamentations 3:22–23 | Streaks & grace days |
+| `stills/07-lamp-to-my-feet.png` | Psalm 119:105 | Bible in a Year |
+| `stills/08-i-will-give-you-rest.png` | Matthew 11:28 | Close of Day |
+| `stills/09-prayer-as-incense.png` | Psalm 141:2 | Church Year |
+| `stills/10-pray-without-ceasing.png` | 1 Thess. 5:16–18 | Everything in one place |
+
+The banners in `devotions/static/` are wide crops (1024x318), so a verse card
+does not scale one up to fill 4:5 — the background is a blurred, heavily
+darkened copy under a navy wash, with a sharp band of the same banner across the
+bottom at close to native size. All six draw on the same photographed scene, so
+each takes a different slice of it via `object-position`; if the set ever needs
+real visual variety it will need new source photography, not new crops.
 
 ### Reels (9:16, 14s, silent)
 

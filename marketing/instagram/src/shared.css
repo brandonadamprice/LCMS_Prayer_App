@@ -13,6 +13,13 @@
     --brand-purple: #8e44ad;
     --serif: 'Lora', Georgia, serif;
     --sans: 'Montserrat', 'Helvetica Neue', sans-serif;
+    --display: 'Oswald', 'Arial Narrow', sans-serif;
+
+    /* Verse-card palette, sampled from the ASWTP "Reel Ad 2" spot. */
+    --plate: #2a303e;
+    --plate-deep: #252527;
+    --verse-text: #debed4;
+    --plate-text: #8a8896;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -66,4 +73,137 @@ body.reel { width: 1080px; height: 1920px; }
 
 .divider::after {
     background: linear-gradient(90deg, var(--brand-gold), transparent);
+}
+
+/* ---------------------------------------------------------------------------
+   Verse card — the layout of the "Reel Ad 2" spot, as a 4:5 feed still.
+
+   Art panel (blurred bleed + a sharp band of the same banner) -> big condensed
+   Scripture -> navy plate carrying the reference -> deep bar with the mark and
+   the URL. The stills that use it (still-05..10) supply only the banner, the
+   verse, and one line of positioning copy.
+   --------------------------------------------------------------------------- */
+
+body.verse {
+    width: 1080px;
+    height: 1350px;
+    display: flex;
+    flex-direction: column;
+    background: var(--plate);
+}
+
+.verse-art {
+    position: relative;
+    flex: none;
+    height: 1010px;
+    overflow: hidden;
+    background: #1d2130;
+}
+
+/* The banners are wide crops (1024x318), so filling 4:5 with one would upscale
+   ~3x. Instead the bleed is a blurred, heavily darkened tint over a navy field,
+   and the sharp band across the bottom rides at close to native size. */
+.verse-art .bleed {
+    position: absolute;
+    inset: -60px;
+    width: calc(100% + 120px);
+    height: calc(100% + 120px);
+    object-fit: cover;
+    filter: blur(30px) brightness(0.3) saturate(0.8);
+}
+
+.verse-art .band {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 420px;
+    object-fit: cover;
+    filter: brightness(0.88) saturate(1.05);
+    -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 52%, #000 100%);
+    mask-image: linear-gradient(180deg, transparent 0%, #000 52%, #000 100%);
+}
+
+/* Pulls the whole panel toward the navy of the plate below, so the warm banner
+   photography reads as atmosphere rather than as the subject. */
+.verse-art .scrim {
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(180deg, #232939 0%, rgba(35, 41, 57, 0.86) 42%, rgba(35, 41, 57, 0.42) 68%, rgba(30, 28, 34, 0.3) 100%),
+        radial-gradient(720px 560px at 50% 34%, rgba(12, 9, 18, 0.4), transparent 74%);
+}
+
+.verse-art .words {
+    position: absolute;
+    left: 84px;
+    right: 84px;
+    top: 0;
+    height: 660px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    text-wrap: balance;   /* even rag, no one-word last line */
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 76px;
+    line-height: 1.32;
+    color: var(--verse-text);
+    text-shadow: 0 4px 22px rgba(0, 0, 0, 0.55), 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+
+.verse-art .words.long { font-size: 66px; }
+
+.verse-plate {
+    flex: 1;
+    background: var(--plate);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 22px;
+    text-align: center;
+}
+
+.verse-plate .ref {
+    font-family: var(--serif);
+    font-size: 60px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    color: var(--plate-text);
+}
+
+.verse-plate .ref .esv {
+    font-size: 40px;
+    letter-spacing: 0.14em;
+    text-transform: lowercase;
+    font-variant: small-caps;
+}
+
+.verse-plate .hook {
+    font-family: var(--sans);
+    font-size: 27px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    color: #6f7180;
+}
+
+.verse-bar {
+    flex: none;
+    height: 104px;
+    background: var(--plate-deep);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 22px;
+}
+
+.verse-bar img { width: 52px; height: 52px; }
+
+.verse-bar .url {
+    font-family: var(--serif);
+    font-size: 36px;
+    letter-spacing: 0.01em;
+    color: #d3a865;
 }

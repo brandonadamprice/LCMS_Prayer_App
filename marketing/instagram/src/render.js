@@ -46,6 +46,13 @@ const STILLS = [
     ['still-02-daily-office.html', '02-daily-office.png'],
     ['still-03-bible-in-a-year.html', '03-bible-in-a-year.png'],
     ['still-04-church-year.html', '04-church-year.png'],
+    // Verse cards, in the style of the "Reel Ad 2" spot.
+    ['still-05-evening-and-morning.html', '05-evening-and-morning.png'],
+    ['still-06-new-every-morning.html', '06-new-every-morning.png'],
+    ['still-07-lamp-to-my-feet.html', '07-lamp-to-my-feet.png'],
+    ['still-08-i-will-give-you-rest.html', '08-i-will-give-you-rest.png'],
+    ['still-09-prayer-as-incense.html', '09-prayer-as-incense.png'],
+    ['still-10-pray-without-ceasing.html', '10-pray-without-ceasing.png'],
 ];
 
 const REELS = [
