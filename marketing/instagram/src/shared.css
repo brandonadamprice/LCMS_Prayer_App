@@ -13,6 +13,13 @@
     --brand-purple: #8e44ad;
     --serif: 'Lora', Georgia, serif;
     --sans: 'Montserrat', 'Helvetica Neue', sans-serif;
+    --display: 'Oswald', 'Arial Narrow', sans-serif;
+
+    /* Verse-card palette, sampled from the ASWTP "Reel Ad 2" spot. */
+    --plate: #2a303e;
+    --plate-deep: #252527;
+    --verse-text: #debed4;
+    --plate-text: #8a8896;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -66,4 +73,146 @@ body.reel { width: 1080px; height: 1920px; }
 
 .divider::after {
     background: linear-gradient(90deg, var(--brand-gold), transparent);
+}
+
+/* ---------------------------------------------------------------------------
+   Verse card — the layout of the "Reel Ad 2" spot, as a 4:5 feed still.
+
+   Full-bleed engraving -> big condensed Scripture -> navy plate carrying the
+   reference -> deep bar with the mark and the URL. The stills that use it
+   (still-05..10) supply only a plate from art/, the verse, and one line of
+   positioning copy.
+
+   The art is Doré (public domain — see art/SOURCES.md), which is monochrome and
+   already close to 4:5, so it fills the panel with no crop tricks. A navy
+   colour-blend turns it into a duotone in the brand palette rather than a
+   scanned book page.
+   --------------------------------------------------------------------------- */
+
+body.verse {
+    width: 1080px;
+    height: 1350px;
+    display: flex;
+    flex-direction: column;
+    background: var(--plate);
+}
+
+.verse-art {
+    position: relative;
+    flex: none;
+    height: 1010px;
+    overflow: hidden;
+    background: #1d2130;
+}
+
+.verse-art .plate-art {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 50%;
+    /* The scans are flat, aged paper — the contrast push is what keeps Doré's
+       line work legible once the tint and scrim are over it. --art-bright is
+       per-card exposure from tune_cards.py: it pulls a plate printed on bright
+       paper and one printed almost black onto the same mood. */
+    filter: grayscale(1) contrast(1.36) brightness(var(--art-bright, 0.84));
+}
+
+/* Colour-blend over the greyscale engraving = navy duotone. Kept well under 1
+   so the plate still reads as an engraving and not as a blue rectangle. */
+.verse-art .tint {
+    position: absolute;
+    inset: 0;
+    background: #3b4d78;
+    mix-blend-mode: color;
+    opacity: 0.5;
+}
+
+/* Darkens the top third where the verse sits and seats the art into the navy
+   plate below, leaving the middle of the engraving clear. Cards raise
+   --scrim-top when their plate is light where the verse lands. */
+.verse-art .scrim {
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(180deg,
+            rgba(20, 25, 40, var(--scrim-top, 0.6)) 0%,
+            rgba(20, 25, 40, calc(var(--scrim-top, 0.6) * 0.88)) 34%,
+            rgba(20, 25, 40, 0.12) 62%,
+            rgba(42, 48, 62, 0.55) 100%);
+}
+
+.verse-art .words {
+    position: absolute;
+    left: 84px;
+    right: 84px;
+    top: 0;
+    height: 660px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    text-wrap: balance;   /* even rag, no one-word last line */
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 76px;
+    line-height: 1.32;
+    color: var(--verse-text);
+    text-shadow: 0 4px 22px rgba(0, 0, 0, 0.55), 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+
+.verse-art .words.long { font-size: 66px; }
+
+.verse-plate {
+    flex: 1;
+    background: var(--plate);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 22px;
+    text-align: center;
+}
+
+.verse-plate .ref {
+    font-family: var(--serif);
+    font-size: 60px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    color: var(--plate-text);
+}
+
+.verse-plate .ref .esv {
+    font-size: 40px;
+    letter-spacing: 0.14em;
+    text-transform: lowercase;
+    font-variant: small-caps;
+}
+
+.verse-plate .hook {
+    font-family: var(--sans);
+    font-size: 27px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    color: #6f7180;
+}
+
+.verse-bar {
+    flex: none;
+    height: 104px;
+    background: var(--plate-deep);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 22px;
+}
+
+.verse-bar img { width: 52px; height: 52px; }
+
+.verse-bar .url {
+    font-family: var(--serif);
+    font-size: 36px;
+    letter-spacing: 0.01em;
+    color: #d3a865;
 }

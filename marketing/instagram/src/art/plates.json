@@ -1,0 +1,605 @@
+{
+ "_comment": "Plate index for Dore's Bible Gallery (1866). Titles from the Project Gutenberg edition; see SOURCES.md. Generated once - not rebuilt by render.js.",
+ "plates": [
+  {
+   "plate": 1,
+   "title": "The Creation of Eve",
+   "slug": "the-creation-of-eve",
+   "file": "dore-001-the-creation-of-eve.jpg"
+  },
+  {
+   "plate": 2,
+   "title": "The Expulsion from the Garden",
+   "slug": "the-expulsion-from-the-garden",
+   "file": "dore-002-the-expulsion-from-the-garden.jpg"
+  },
+  {
+   "plate": 3,
+   "title": "The Murder of Abel",
+   "slug": "the-murder-of-abel",
+   "file": "dore-003-the-murder-of-abel.jpg"
+  },
+  {
+   "plate": 4,
+   "title": "The Deluge",
+   "slug": "the-deluge",
+   "file": "dore-004-the-deluge.jpg"
+  },
+  {
+   "plate": 5,
+   "title": "Noah Cursing Ham",
+   "slug": "noah-cursing-ham",
+   "file": "dore-005-noah-cursing-ham.jpg"
+  },
+  {
+   "plate": 6,
+   "title": "The Tower of Babel",
+   "slug": "the-tower-of-babel",
+   "file": "dore-006-the-tower-of-babel.jpg"
+  },
+  {
+   "plate": 7,
+   "title": "Abraham Entertains Three Strangers",
+   "slug": "abraham-entertains-three-strangers",
+   "file": "dore-007-abraham-entertains-three-strangers.jpg"
+  },
+  {
+   "plate": 8,
+   "title": "The Destruction of Sodom",
+   "slug": "the-destruction-of-sodom",
+   "file": "dore-008-the-destruction-of-sodom.jpg"
+  },
+  {
+   "plate": 9,
+   "title": "The Expulsion of Hagar",
+   "slug": "the-expulsion-of-hagar",
+   "file": "dore-009-the-expulsion-of-hagar.jpg"
+  },
+  {
+   "plate": 10,
+   "title": "Hagar in the Wilderness",
+   "slug": "hagar-in-the-wilderness",
+   "file": "dore-010-hagar-in-the-wilderness.jpg"
+  },
+  {
+   "plate": 11,
+   "title": "The Trial of the Faith of Abraham",
+   "slug": "the-trial-of-the-faith-of-abraham",
+   "file": "dore-011-the-trial-of-the-faith-of-abraham.jpg"
+  },
+  {
+   "plate": 12,
+   "title": "The Burial of Sarah",
+   "slug": "the-burial-of-sarah",
+   "file": "dore-012-the-burial-of-sarah.jpg"
+  },
+  {
+   "plate": 13,
+   "title": "Eliezer and Rebekah",
+   "slug": "eliezer-and-rebekah",
+   "file": "dore-013-eliezer-and-rebekah.jpg"
+  },
+  {
+   "plate": 14,
+   "title": "Isaac Blessing Jacob",
+   "slug": "isaac-blessing-jacob",
+   "file": "dore-014-isaac-blessing-jacob.jpg"
+  },
+  {
+   "plate": 15,
+   "title": "Jacob Tending the Flocks of Laban",
+   "slug": "jacob-tending-the-flocks-of-laban",
+   "file": "dore-015-jacob-tending-the-flocks-of-laban.jpg"
+  },
+  {
+   "plate": 16,
+   "title": "Joseph Sold into Egypt",
+   "slug": "joseph-sold-into-egypt",
+   "file": "dore-016-joseph-sold-into-egypt.jpg"
+  },
+  {
+   "plate": 17,
+   "title": "Joseph Interpreting Pharaoh’s Dream",
+   "slug": "joseph-interpreting-pharaohs-dream",
+   "file": "dore-017-joseph-interpreting-pharaohs-dream.jpg"
+  },
+  {
+   "plate": 18,
+   "title": "Joseph Making Himself Known to His Brethren",
+   "slug": "joseph-making-himself-known-to-his-brethren",
+   "file": "dore-018-joseph-making-himself-known-to-his-brethren.jpg"
+  },
+  {
+   "plate": 19,
+   "title": "Moses in the Bulrushes",
+   "slug": "moses-in-the-bulrushes",
+   "file": "dore-019-moses-in-the-bulrushes.jpg"
+  },
+  {
+   "plate": 20,
+   "title": "The War Against Gibeon",
+   "slug": "the-war-against-gibeon",
+   "file": "dore-020-the-war-against-gibeon.jpg"
+  },
+  {
+   "plate": 21,
+   "title": "Sisera Slain by Jael",
+   "slug": "sisera-slain-by-jael",
+   "file": "dore-021-sisera-slain-by-jael.jpg"
+  },
+  {
+   "plate": 22,
+   "title": "Deborah’s Song of Triumph",
+   "slug": "deborahs-song-of-triumph",
+   "file": "dore-022-deborahs-song-of-triumph.jpg"
+  },
+  {
+   "plate": 23,
+   "title": "Jephthah Met by His Daughter",
+   "slug": "jephthah-met-by-his-daughter",
+   "file": "dore-023-jephthah-met-by-his-daughter.jpg"
+  },
+  {
+   "plate": 24,
+   "title": "Jephthah's Daughter and Her Companions",
+   "slug": "jephthah-s-daughter-and-her-companions",
+   "file": "dore-024-jephthah-s-daughter-and-her-companions.jpg"
+  },
+  {
+   "plate": 25,
+   "title": "Samson Slaying the Lion",
+   "slug": "samson-slaying-the-lion",
+   "file": "dore-025-samson-slaying-the-lion.jpg"
+  },
+  {
+   "plate": 26,
+   "title": "Samson and Delilah",
+   "slug": "samson-and-delilah",
+   "file": "dore-026-samson-and-delilah.jpg"
+  },
+  {
+   "plate": 27,
+   "title": "The Death of Samson",
+   "slug": "the-death-of-samson",
+   "file": "dore-027-the-death-of-samson.jpg"
+  },
+  {
+   "plate": 28,
+   "title": "Naomi and Her Daughters in Law",
+   "slug": "naomi-and-her-daughters-in-law",
+   "file": "dore-028-naomi-and-her-daughters-in-law.jpg"
+  },
+  {
+   "plate": 29,
+   "title": "Ruth and Boaz",
+   "slug": "ruth-and-boaz",
+   "file": "dore-029-ruth-and-boaz.jpg"
+  },
+  {
+   "plate": 30,
+   "title": "The Return of the Ark",
+   "slug": "the-return-of-the-ark",
+   "file": "dore-030-the-return-of-the-ark.jpg"
+  },
+  {
+   "plate": 31,
+   "title": "Saul and David",
+   "slug": "saul-and-david",
+   "file": "dore-031-saul-and-david.jpg"
+  },
+  {
+   "plate": 32,
+   "title": "David Sparing Saul",
+   "slug": "david-sparing-saul",
+   "file": "dore-032-david-sparing-saul.jpg"
+  },
+  {
+   "plate": 33,
+   "title": "Death of Saul",
+   "slug": "death-of-saul",
+   "file": "dore-033-death-of-saul.jpg"
+  },
+  {
+   "plate": 34,
+   "title": "The Death of Absalom",
+   "slug": "the-death-of-absalom",
+   "file": "dore-034-the-death-of-absalom.jpg"
+  },
+  {
+   "plate": 35,
+   "title": "David Mourning Over Absalom",
+   "slug": "david-mourning-over-absalom",
+   "file": "dore-035-david-mourning-over-absalom.jpg"
+  },
+  {
+   "plate": 36,
+   "title": "Solomon",
+   "slug": "solomon",
+   "file": "dore-036-solomon.jpg"
+  },
+  {
+   "plate": 37,
+   "title": "The Judgment of Solomon",
+   "slug": "the-judgment-of-solomon",
+   "file": "dore-037-the-judgment-of-solomon.jpg"
+  },
+  {
+   "plate": 38,
+   "title": "The Cedars Destined for the Temple",
+   "slug": "the-cedars-destined-for-the-temple",
+   "file": "dore-038-the-cedars-destined-for-the-temple.jpg"
+  },
+  {
+   "plate": 39,
+   "title": "The Prophet Slain by a Lion",
+   "slug": "the-prophet-slain-by-a-lion",
+   "file": "dore-039-the-prophet-slain-by-a-lion.jpg"
+  },
+  {
+   "plate": 40,
+   "title": "Elijah Destroying the Messengers of Ahaziah",
+   "slug": "elijah-destroying-the-messengers-of-ahaziah",
+   "file": "dore-040-elijah-destroying-the-messengers-of-ahaziah.jpg"
+  },
+  {
+   "plate": 41,
+   "title": "Elijah’s Ascent in a Chariot of Fire",
+   "slug": "elijahs-ascent-in-a-chariot-of-fire",
+   "file": "dore-041-elijahs-ascent-in-a-chariot-of-fire.jpg"
+  },
+  {
+   "plate": 42,
+   "title": "The Death of Jezebel",
+   "slug": "the-death-of-jezebel",
+   "file": "dore-042-the-death-of-jezebel.jpg"
+  },
+  {
+   "plate": 43,
+   "title": "Esther Confounding Haman",
+   "slug": "esther-confounding-haman",
+   "file": "dore-043-esther-confounding-haman.jpg"
+  },
+  {
+   "plate": 44,
+   "title": "Isaiah",
+   "slug": "isaiah",
+   "file": "dore-044-isaiah.jpg"
+  },
+  {
+   "plate": 45,
+   "title": "Destruction of Sennacherib’s Host",
+   "slug": "destruction-of-sennacheribs-host",
+   "file": "dore-045-destruction-of-sennacheribs-host.jpg"
+  },
+  {
+   "plate": 46,
+   "title": "Baruch",
+   "slug": "baruch",
+   "file": "dore-046-baruch.jpg"
+  },
+  {
+   "plate": 47,
+   "title": "Ezekiel Prophesying",
+   "slug": "ezekiel-prophesying",
+   "file": "dore-047-ezekiel-prophesying.jpg"
+  },
+  {
+   "plate": 48,
+   "title": "The Vision of Ezekiel",
+   "slug": "the-vision-of-ezekiel",
+   "file": "dore-048-the-vision-of-ezekiel.jpg"
+  },
+  {
+   "plate": 49,
+   "title": "Daniel",
+   "slug": "daniel",
+   "file": "dore-049-daniel.jpg"
+  },
+  {
+   "plate": 50,
+   "title": "The Fiery Furnace",
+   "slug": "the-fiery-furnace",
+   "file": "dore-050-the-fiery-furnace.jpg"
+  },
+  {
+   "plate": 51,
+   "title": "Belshazzar’s Feast",
+   "slug": "belshazzars-feast",
+   "file": "dore-051-belshazzars-feast.jpg"
+  },
+  {
+   "plate": 52,
+   "title": "Daniel in the Lions’ Den",
+   "slug": "daniel-in-the-lions-den",
+   "file": "dore-052-daniel-in-the-lions-den.jpg"
+  },
+  {
+   "plate": 53,
+   "title": "The Prophet Amos",
+   "slug": "the-prophet-amos",
+   "file": "dore-053-the-prophet-amos.jpg"
+  },
+  {
+   "plate": 54,
+   "title": "Jonah Calling Nineveh to Repentance",
+   "slug": "jonah-calling-nineveh-to-repentance",
+   "file": "dore-054-jonah-calling-nineveh-to-repentance.jpg"
+  },
+  {
+   "plate": 55,
+   "title": "Daniel Confounding the Priests of Bel",
+   "slug": "daniel-confounding-the-priests-of-bel",
+   "file": "dore-055-daniel-confounding-the-priests-of-bel.jpg"
+  },
+  {
+   "plate": 56,
+   "title": "Heliodorus Punished in the Temple",
+   "slug": "heliodorus-punished-in-the-temple",
+   "file": "dore-056-heliodorus-punished-in-the-temple.jpg"
+  },
+  {
+   "plate": 57,
+   "title": "The Nativity",
+   "slug": "the-nativity",
+   "file": "dore-057-the-nativity.jpg"
+  },
+  {
+   "plate": 58,
+   "title": "The Star in the East",
+   "slug": "the-star-in-the-east",
+   "file": "dore-058-the-star-in-the-east.jpg"
+  },
+  {
+   "plate": 59,
+   "title": "The Flight into Egypt",
+   "slug": "the-flight-into-egypt",
+   "file": "dore-059-the-flight-into-egypt.jpg"
+  },
+  {
+   "plate": 60,
+   "title": "The Massacre of the Innocents",
+   "slug": "the-massacre-of-the-innocents",
+   "file": "dore-060-the-massacre-of-the-innocents.jpg"
+  },
+  {
+   "plate": 61,
+   "title": "Jesus Questioning the Doctors",
+   "slug": "jesus-questioning-the-doctors",
+   "file": "dore-061-jesus-questioning-the-doctors.jpg"
+  },
+  {
+   "plate": 62,
+   "title": "Jesus Healing the Sick",
+   "slug": "jesus-healing-the-sick",
+   "file": "dore-062-jesus-healing-the-sick.jpg"
+  },
+  {
+   "plate": 63,
+   "title": "Sermon on the Mount",
+   "slug": "sermon-on-the-mount",
+   "file": "dore-063-sermon-on-the-mount.jpg"
+  },
+  {
+   "plate": 64,
+   "title": "Christ Stilling the Tempest",
+   "slug": "christ-stilling-the-tempest",
+   "file": "dore-064-christ-stilling-the-tempest.jpg"
+  },
+  {
+   "plate": 65,
+   "title": "The Dumb Man Possessed",
+   "slug": "the-dumb-man-possessed",
+   "file": "dore-065-the-dumb-man-possessed.jpg"
+  },
+  {
+   "plate": 66,
+   "title": "Christ in the Synagogue",
+   "slug": "christ-in-the-synagogue",
+   "file": "dore-066-christ-in-the-synagogue.jpg"
+  },
+  {
+   "plate": 67,
+   "title": "The Disciples Plucking Corn on the Sabbath",
+   "slug": "the-disciples-plucking-corn-on-the-sabbath",
+   "file": "dore-067-the-disciples-plucking-corn-on-the-sabbath.jpg"
+  },
+  {
+   "plate": 68,
+   "title": "Jesus Walking on the Water",
+   "slug": "jesus-walking-on-the-water",
+   "file": "dore-068-jesus-walking-on-the-water.jpg"
+  },
+  {
+   "plate": 69,
+   "title": "Christ’s Entry into Jerusalem",
+   "slug": "christs-entry-into-jerusalem",
+   "file": "dore-069-christs-entry-into-jerusalem.jpg"
+  },
+  {
+   "plate": 70,
+   "title": "Jesus and the Tribute Money",
+   "slug": "jesus-and-the-tribute-money",
+   "file": "dore-070-jesus-and-the-tribute-money.jpg"
+  },
+  {
+   "plate": 71,
+   "title": "The Widow’s Mite",
+   "slug": "the-widows-mite",
+   "file": "dore-071-the-widows-mite.jpg"
+  },
+  {
+   "plate": 72,
+   "title": "Raising of the Daughter of Jairus",
+   "slug": "raising-of-the-daughter-of-jairus",
+   "file": "dore-072-raising-of-the-daughter-of-jairus.jpg"
+  },
+  {
+   "plate": 73,
+   "title": "The Good Samaritan",
+   "slug": "the-good-samaritan",
+   "file": "dore-073-the-good-samaritan.jpg"
+  },
+  {
+   "plate": 74,
+   "title": "Arrival of the Samaritan at the Inn",
+   "slug": "arrival-of-the-samaritan-at-the-inn",
+   "file": "dore-074-arrival-of-the-samaritan-at-the-inn.jpg"
+  },
+  {
+   "plate": 75,
+   "title": "The Prodigal Son",
+   "slug": "the-prodigal-son",
+   "file": "dore-075-the-prodigal-son.jpg"
+  },
+  {
+   "plate": 76,
+   "title": "Lazarus and the Rich Man",
+   "slug": "lazarus-and-the-rich-man",
+   "file": "dore-076-lazarus-and-the-rich-man.jpg"
+  },
+  {
+   "plate": 77,
+   "title": "The Pharisee and the Publican",
+   "slug": "the-pharisee-and-the-publican",
+   "file": "dore-077-the-pharisee-and-the-publican.jpg"
+  },
+  {
+   "plate": 78,
+   "title": "Jesus and the Woman of Samaria",
+   "slug": "jesus-and-the-woman-of-samaria",
+   "file": "dore-078-jesus-and-the-woman-of-samaria.jpg"
+  },
+  {
+   "plate": 79,
+   "title": "Jesus and the Woman Taken in Adultery",
+   "slug": "jesus-and-the-woman-taken-in-adultery",
+   "file": "dore-079-jesus-and-the-woman-taken-in-adultery.jpg"
+  },
+  {
+   "plate": 80,
+   "title": "The Resurrection of Lazarus",
+   "slug": "the-resurrection-of-lazarus",
+   "file": "dore-080-the-resurrection-of-lazarus.jpg"
+  },
+  {
+   "plate": 81,
+   "title": "Mary Magdalene",
+   "slug": "mary-magdalene",
+   "file": "dore-081-mary-magdalene.jpg"
+  },
+  {
+   "plate": 82,
+   "title": "The Last Supper",
+   "slug": "the-last-supper",
+   "file": "dore-082-the-last-supper.jpg"
+  },
+  {
+   "plate": 83,
+   "title": "The Agony in the Garden",
+   "slug": "the-agony-in-the-garden",
+   "file": "dore-083-the-agony-in-the-garden.jpg"
+  },
+  {
+   "plate": 84,
+   "title": "Prayer of Jesus in the Garden of Olives",
+   "slug": "prayer-of-jesus-in-the-garden-of-olives",
+   "file": "dore-084-prayer-of-jesus-in-the-garden-of-olives.jpg"
+  },
+  {
+   "plate": 85,
+   "title": "The Betrayal",
+   "slug": "the-betrayal",
+   "file": "dore-085-the-betrayal.jpg"
+  },
+  {
+   "plate": 86,
+   "title": "Christ Fainting Under the Cross",
+   "slug": "christ-fainting-under-the-cross",
+   "file": "dore-086-christ-fainting-under-the-cross.jpg"
+  },
+  {
+   "plate": 87,
+   "title": "The Flagellation",
+   "slug": "the-flagellation",
+   "file": "dore-087-the-flagellation.jpg"
+  },
+  {
+   "plate": 88,
+   "title": "The Crucifixion",
+   "slug": "the-crucifixion",
+   "file": "dore-088-the-crucifixion.jpg"
+  },
+  {
+   "plate": 89,
+   "title": "Close of the Crucifixion",
+   "slug": "close-of-the-crucifixion",
+   "file": "dore-089-close-of-the-crucifixion.jpg"
+  },
+  {
+   "plate": 90,
+   "title": "The Burial of Jesus",
+   "slug": "the-burial-of-jesus",
+   "file": "dore-090-the-burial-of-jesus.jpg"
+  },
+  {
+   "plate": 91,
+   "title": "The Angel at the Sepulchre",
+   "slug": "the-angel-at-the-sepulchre",
+   "file": "dore-091-the-angel-at-the-sepulchre.jpg"
+  },
+  {
+   "plate": 92,
+   "title": "The Journey to Emmaus",
+   "slug": "the-journey-to-emmaus",
+   "file": "dore-092-the-journey-to-emmaus.jpg"
+  },
+  {
+   "plate": 93,
+   "title": "The Ascension",
+   "slug": "the-ascension",
+   "file": "dore-093-the-ascension.jpg"
+  },
+  {
+   "plate": 94,
+   "title": "The Martyrdom of St. Stephen",
+   "slug": "the-martyrdom-of-st-stephen",
+   "file": "dore-094-the-martyrdom-of-st-stephen.jpg"
+  },
+  {
+   "plate": 95,
+   "title": "Saul’s Conversion",
+   "slug": "sauls-conversion",
+   "file": "dore-095-sauls-conversion.jpg"
+  },
+  {
+   "plate": 96,
+   "title": "The Deliverance of St. Peter",
+   "slug": "the-deliverance-of-st-peter",
+   "file": "dore-096-the-deliverance-of-st-peter.jpg"
+  },
+  {
+   "plate": 97,
+   "title": "Paul at Ephesus",
+   "slug": "paul-at-ephesus",
+   "file": "dore-097-paul-at-ephesus.jpg"
+  },
+  {
+   "plate": 98,
+   "title": "Paul Menaced by the Crowd",
+   "slug": "paul-menaced-by-the-crowd",
+   "file": "dore-098-paul-menaced-by-the-crowd.jpg"
+  },
+  {
+   "plate": 99,
+   "title": "Paul’s Shipwreck",
+   "slug": "pauls-shipwreck",
+   "file": "dore-099-pauls-shipwreck.jpg"
+  },
+  {
+   "plate": 100,
+   "title": "Death on the Pale Horse",
+   "slug": "death-on-the-pale-horse",
+   "file": "dore-100-death-on-the-pale-horse.jpg"
+  }
+ ]
+}
