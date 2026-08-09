@@ -49,9 +49,11 @@ paid feed:
 
 `node render.js --stills-only --tier=ad` renders just the paid-ready set.
 
-**The verse text on these has not been diffed against an actual ESV** — see
-`src/PROOFING.md`. Read the verse against esv.org before a card goes out. Once
-per card, forever.
+**The verse text has been diffed against an ESV text** — every card is a
+contiguous quote of its verse, no compressions or reorderings. The corpus used is
+a third-party re-parse rather than Crossway's own, so `src/PROOFING.md` records
+exactly what that is and is not worth; a card carrying unusual weight is still
+worth ten seconds against esv.org.
 
 **On the Full of Eyes art from Reel Ad 2:** their gallery is published under
 CC BY-NC-ND, which rules out both paid placement (NonCommercial) and laying copy

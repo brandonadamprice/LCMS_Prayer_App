@@ -18,7 +18,7 @@ build output and are gitignored.
 src/                   HTML/CSS sources + render.js (regenerate any time)
 src/verse-cards.json   the 100 verse cards — plate, verse, hook, tier
 src/tune_cards.py      derives each card's crop/exposure/scrim from its plate
-src/check_verses.py    sanity-checks the quotations (see src/PROOFING.md)
+src/check_verses.py    diffs every quotation against a Bible text (src/PROOFING.md)
 src/fonts/             locally-cached Lora, Montserrat & Oswald webfonts (OFL)
 src/art/               100 public-domain Doré plates + SOURCES.md, plates.json
 ad_copy.md             campaign copy: captions, headlines, hashtags, angles
@@ -84,9 +84,10 @@ They are written back into `verse-cards.json` so they stay reviewable in the
 diff. **Re-run `python3 tune_cards.py` after editing any verse**, or the card
 renders with stale values; `--check` exits non-zero when anything is stale.
 
-**The verse text needs proofing before publication** — see `src/PROOFING.md` for
-what has been checked (all 100 references resolve; 95 score clean against the
-ASV) and what has not (no line has been diffed against an actual ESV).
+**The verse text checks out** — all 100 are now a contiguous substring of their
+verse, diffed against an ESV text. `src/PROOFING.md` records what that check is
+worth (the corpus is a third-party re-parse, not Crossway) and the eight cards it
+caught, which were compressions no overlap score would have flagged.
 
 The art is public domain; provenance, licensing and the display-title overrides
 are in `src/art/SOURCES.md`.
