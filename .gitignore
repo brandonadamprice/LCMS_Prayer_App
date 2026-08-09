@@ -38,3 +38,6 @@ Thumbs.db
 # marketing/instagram/src/render.js (see marketing/instagram/README.md)
 marketing/instagram/stills/
 marketing/instagram/reels/
+
+# render.js writes this per verse card and removes it when done
+marketing/instagram/src/.verse-card.html

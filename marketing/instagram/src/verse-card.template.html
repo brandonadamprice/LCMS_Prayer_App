@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>{{TITLE}}</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+    body.verse { --scrim-top: {{SCRIM}}; --art-bright: {{BRIGHT}}; }
+    .verse-art .plate-art { object-position: {{FOCUS}}; }
+</style>
+</head>
+<body class="verse">
+    <div class="verse-art">
+        <img class="plate-art" src="art/{{PLATE_FILE}}" alt="">
+        <div class="tint"></div>
+        <div class="scrim"></div>
+        <div class="words{{LONG}}">{{VERSE}}</div>
+    </div>
+    <div class="verse-plate">
+        <div class="ref">{{REF}} <span class="esv">ESV</span></div>
+        <div class="hook">{{HOOK}}</div>
+    </div>
+    <div class="verse-bar">
+        <img src="../../../devotions/static/icons/android-chrome-512x512.png" alt="">
+        <span class="url">asimplewaytopray.com</span>
+    </div>
+</body>
+</html>

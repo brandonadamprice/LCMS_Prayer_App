@@ -14,21 +14,35 @@ Complete*, mirrored on GitHub by the GITenberg project:
 
 <https://github.com/GITenberg/The-Dor--Bible-Gallery-Complete--13-Containing-One-Hundred-Superb-Illustrations-and-a-Page-of-__8710>
 
-Files are unmodified from that source; the plate number in each filename is the
-plate number in the Gutenberg edition, which has 100 in total if more are ever
-needed.
+All 100 plates are vendored here, one per verse card. `plates.json` is the index
+— plate number, display title and filename — and is what `render.js` joins
+against `verse-cards.json`.
 
-| File | Plate | Title | Used by |
-| --- | --- | --- | --- |
-| `dore-052-daniel-in-the-lions-den.jpg` | 52 | Daniel in the Lions' Den | 05 — Ps 55:17 |
-| `dore-091-the-angel-at-the-sepulchre.jpg` | 91 | The Angel at the Sepulchre | 06 — Lam 3:22–23 |
-| `dore-092-the-journey-to-emmaus.jpg` | 92 | The Journey to Emmaus | 07 — Ps 119:105 |
-| `dore-064-christ-stilling-the-tempest.jpg` | 64 | Christ Stilling the Tempest | 08 — Matt 11:28 |
-| `dore-084-prayer-in-the-garden-of-olives.jpg` | 84 | Prayer of Jesus in the Garden of Olives | 09 — Ps 141:2 |
-| `dore-077-the-pharisee-and-the-publican.jpg` | 77 | The Pharisee and the Publican | 10 — 1 Thess 5:16–18 |
+The only change from the source scans is a convert to 8-bit greyscale (the CSS
+greyscales them anyway) and a re-encode at JPEG q84. That is ~17 MB for the set.
+Engravings are dense high-frequency detail and barely compress — q72 saves only
+3 MB and starts eating the line work the cards are made of — so the size is
+accepted rather than optimised away. They are vendored rather than fetched at
+render time so rendering stays offline and deterministic, the same reason the
+webfonts are vendored.
 
 No attribution is legally required, but crediting Doré in the caption is good
 practice and tends to do well with this audience.
+
+### Display titles
+
+Titles come from the Gutenberg edition's own captions, title-cased. Four are
+overridden in the generator:
+
+| Plate | Gutenberg caption | Displayed as | Why |
+| --- | --- | --- | --- |
+| 24 | JEPHTHAH'S DAUGHTER AND HER COMPANIONS | Jephthah's Daughter and Her Companions | caption lacks its full stop |
+| 36 | SOLOMON | Solomon | — |
+| 84 | PRAYER OF, JESUS IN THE GARDEN OF' OLIVES | Prayer of Jesus in the Garden of Olives | stray punctuation in the scan |
+| 98 | PAUL MENACED BY THE JEWS | Paul Menaced by the Crowd | the 1866 caption's framing is not one to reproduce in a brand asset; the card is also tiered `hold` |
+
+The original captions are recorded here so the provenance stays honest even
+though the display titles differ.
 
 ## What was considered and not used
 

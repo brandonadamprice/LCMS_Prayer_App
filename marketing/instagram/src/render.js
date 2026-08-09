@@ -1,14 +1,19 @@
 #!/usr/bin/env node
 /**
  * Renders the Instagram ad compositions in this folder:
- *   - still-*.html  -> ../stills/*.png   (1080x1350, 4:5 feed)
- *   - reel-*.html   -> ../reels/*.mp4    (1080x1920, 9:16, 30fps H.264)
+ *   - still-*.html        -> ../stills/*.png        (1080x1350, 4:5 feed)
+ *   - verse-cards.json    -> ../stills/verse-*.png  (1080x1350, one per plate)
+ *   - reel-*.html         -> ../reels/*.mp4         (1080x1920, 9:16, 30fps H.264)
  *
  * Reels are pure-CSS animations on a fixed 14s timeline; frames are captured
  * deterministically by pausing every animation and seeking its currentTime.
  *
  * Usage:
  *   NODE_PATH=$(npm root -g) node render.js [--stills-only|--reels-only]
+ *                                           [--tier=ad|organic|hold]
+ *
+ * --tier renders only the verse cards at that clearance level; --tier=ad is the
+ * set that can go straight into paid placements.
  *
  * Requires: playwright (with a Chromium install) and ffmpeg with libx264.
  * Override binaries with CHROMIUM_PATH / FFMPEG_PATH env vars.
@@ -41,19 +46,48 @@ const SRC = __dirname;
 const OUT_STILLS = path.join(SRC, '..', 'stills');
 const OUT_REELS = path.join(SRC, '..', 'reels');
 
+// Feature stills — the product stated plainly. One bespoke file each.
 const STILLS = [
     ['still-01-hero.html', '01-hero.png'],
     ['still-02-daily-office.html', '02-daily-office.png'],
     ['still-03-bible-in-a-year.html', '03-bible-in-a-year.png'],
     ['still-04-church-year.html', '04-church-year.png'],
-    // Verse cards, in the style of the "Reel Ad 2" spot.
-    ['still-05-evening-and-morning.html', '05-evening-and-morning.png'],
-    ['still-06-new-every-morning.html', '06-new-every-morning.png'],
-    ['still-07-lamp-to-my-feet.html', '07-lamp-to-my-feet.png'],
-    ['still-08-i-will-give-you-rest.html', '08-i-will-give-you-rest.png'],
-    ['still-09-prayer-as-incense.html', '09-prayer-as-incense.png'],
-    ['still-10-pray-without-ceasing.html', '10-pray-without-ceasing.png'],
 ];
+
+// Verse cards — one per Doré plate, built from verse-cards.json + the template
+// rather than 100 near-identical HTML files. tune_cards.py owns scrim/focus/long.
+const CARDS = path.join(SRC, 'verse-cards.json');
+const PLATES = path.join(SRC, 'art', 'plates.json');
+const TEMPLATE = path.join(SRC, 'verse-card.template.html');
+// Written next to the sources so shared.css, art/ and fonts/ resolve as usual,
+// then removed. Dotfile so sync_drive's collect() ignores it either way.
+const SCRATCH = path.join(SRC, '.verse-card.html');
+
+const ESCAPES = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' };
+const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ESCAPES[c]);
+
+function verseCards() {
+    const template = fs.readFileSync(TEMPLATE, 'utf8');
+    const plates = new Map(
+        JSON.parse(fs.readFileSync(PLATES, 'utf8')).plates.map((p) => [p.plate, p])
+    );
+    return JSON.parse(fs.readFileSync(CARDS, 'utf8')).cards.map((card) => {
+        const plate = plates.get(card.plate);
+        if (!plate) throw new Error(`verse-cards.json: no plate ${card.plate}`);
+        const num = String(card.plate).padStart(3, '0');
+        const html = template
+            .replace('{{TITLE}}', escapeHtml(`Verse ${num} — ${plate.title} (${card.ref})`))
+            .replace('{{SCRIM}}', card.scrim)
+            .replace('{{BRIGHT}}', card.bright)
+            .replace('{{FOCUS}}', card.focus)
+            .replace('{{PLATE_FILE}}', plate.file)
+            .replace('{{LONG}}', card.long ? ' long' : '')
+            .replace('{{VERSE}}', escapeHtml(card.verse))
+            .replace('{{REF}}', escapeHtml(card.ref))
+            .replace('{{HOOK}}', escapeHtml(card.hook));
+        return { html, out: `verse-${num}-${plate.slug}.png`, tier: card.tier };
+    });
+}
 
 const REELS = [
     ['reel-01-a-day-of-prayer.html', '01-a-day-of-prayer.mp4', 14],
@@ -85,6 +119,20 @@ async function loadPage(page, file) {
             await loadPage(page, file);
             await page.screenshot({ path: path.join(OUT_STILLS, out) });
             console.log('still  ->', out);
+        }
+
+        const cards = verseCards();
+        const only = (process.argv.find((a) => a.startsWith('--tier=')) || '').split('=')[1];
+        try {
+            for (const card of cards) {
+                if (only && card.tier !== only) continue;
+                fs.writeFileSync(SCRATCH, card.html);
+                await loadPage(page, path.basename(SCRATCH));
+                await page.screenshot({ path: path.join(OUT_STILLS, card.out) });
+                console.log(`verse  -> ${card.out} [${card.tier}]`);
+            }
+        } finally {
+            fs.rmSync(SCRATCH, { force: true });
         }
         await page.close();
     }

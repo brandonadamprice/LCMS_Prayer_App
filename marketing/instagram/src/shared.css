@@ -113,8 +113,10 @@ body.verse {
     object-fit: cover;
     object-position: 50% 50%;
     /* The scans are flat, aged paper — the contrast push is what keeps Doré's
-       line work legible once the tint and scrim are over it. */
-    filter: grayscale(1) contrast(1.36) brightness(0.84);
+       line work legible once the tint and scrim are over it. --art-bright is
+       per-card exposure from tune_cards.py: it pulls a plate printed on bright
+       paper and one printed almost black onto the same mood. */
+    filter: grayscale(1) contrast(1.36) brightness(var(--art-bright, 0.84));
 }
 
 /* Colour-blend over the greyscale engraving = navy duotone. Kept well under 1
