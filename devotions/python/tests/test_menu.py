@@ -58,6 +58,14 @@ class StaticMenuTests(unittest.TestCase):
       self.assertIsNotNone(morning)
       self.assertTrue(morning["enabled"])
 
+  def test_bible_dropdown_lists_reading_plans(self):
+    items = menu.get_menu_items(False, False, False)
+    bible = next(t for t in items if t.get("label") == "Bible")
+    labels = [sub["label"] for sub in bible["submenu"]]
+    self.assertIn("Bible in a Year", labels)
+    self.assertIn("Psalter Plans", labels)
+    self.assertEqual(_find(items, "Psalter Plans")["url"], "/psalter")
+
   def test_calendar_dropdown_groups_calendar_pages(self):
     items = menu.get_menu_items(False, False, False)
     calendar = next(t for t in items if t.get("label") == "Calendar")

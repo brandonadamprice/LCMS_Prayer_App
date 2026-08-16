@@ -30,6 +30,7 @@ _SITEMAP_PATHS = (
     ("/daily_lectionary", "daily"),
     ("/prayer_wall", "daily"),
     ("/bible_in_a_year", "daily"),
+    ("/psalter", "daily"),
     ("/litany", "monthly"),
     ("/short_prayers", "monthly"),
     ("/prayer_weaver", "monthly"),

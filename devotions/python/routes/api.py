@@ -6,6 +6,7 @@ import secrets
 import flask
 import flask_login
 import models
+import psalter_logic
 from routes.settings import _save_user_fields
 import secrets_fetcher
 from services import fullofeyes_scraper
@@ -154,6 +155,32 @@ def register(app, *, admin_required, rate_limited):
       return flask.jsonify({"error": "Failed to update"}), 500
 
 
+  @app.route("/api/complete_psalter_reading", methods=["POST"])
+  @flask_login.login_required
+  def complete_psalter_reading_route():
+    """Marks a Psalter plan day as complete."""
+    data = flask.request.json
+    day = data.get("day")
+    psalms_per_day = data.get("psalms_per_day")
+    if not psalter_logic.is_valid_choice(psalms_per_day):
+      return flask.jsonify({"error": "Invalid plan"}), 400
+    if not isinstance(day, int) or not (
+        1 <= day <= psalter_logic.plan_length(psalms_per_day)
+    ):
+      return flask.jsonify({"error": "Invalid day"}), 400
+
+    user_id = flask_login.current_user.id
+    timezone_str = flask_login.current_user.timezone or "America/New_York"
+
+    result = users.process_psalter_completion(
+        user_id, psalms_per_day, day, timezone_str
+    )
+    if result:
+      return flask.jsonify(result)
+    else:
+      return flask.jsonify({"error": "Failed to update"}), 500
+
+
   @app.route("/api/toggle_memorized_verse", methods=["POST"])
   @flask_login.login_required
   def toggle_memorized_verse_route():
@@ -241,6 +268,37 @@ def register(app, *, admin_required, rate_limited):
         return flask.jsonify({"success": True})
       except Exception as e:
         app.logger.error("Failed to save BIA progress: %s", e)
+        return (
+            flask.jsonify({"success": False, "error": "Database save failed"}),
+            500,
+        )
+    return (
+        flask.jsonify({"success": False, "error": "Invalid progress data"}),
+        400,
+    )
+
+
+  @app.route("/save_psalter_progress", methods=["POST"])
+  @flask_login.login_required
+  def save_psalter_progress_route():
+    """Saves Psalter plan progress for the current user."""
+    data = flask.request.json
+    day = data.get("day")
+    psalms_per_day = data.get("psalms_per_day")
+    last_visit = data.get("last_visit")
+    if (
+        psalter_logic.is_valid_choice(psalms_per_day)
+        and isinstance(day, int)
+        and 1 <= day <= psalter_logic.plan_length(psalms_per_day)
+        and last_visit
+    ):
+      try:
+        utils.save_psalter_progress(
+            flask_login.current_user.id, psalms_per_day, day, last_visit
+        )
+        return flask.jsonify({"success": True})
+      except Exception as e:
+        app.logger.error("Failed to save Psalter progress: %s", e)
         return (
             flask.jsonify({"success": False, "error": "Database save failed"}),
             500,
