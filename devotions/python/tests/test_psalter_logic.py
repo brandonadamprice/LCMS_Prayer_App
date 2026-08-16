@@ -74,6 +74,39 @@ class PlanShapeTests(unittest.TestCase):
     for n in psalter_logic.PLAN_CHOICES:
       self.assertEqual(psalter_logic.build_plan(n), psalter_logic.build_plan(n))
 
+  # Golden snapshots: the last psalm of every day, which (with canonical
+  # order) fully determines each partition. Two users on the same plan must
+  # always see the same schedule -- across processes, servers, and releases.
+  # If an intentional algorithm change alters these, treat it as a breaking
+  # change for saved per-plan progress before updating the snapshot.
+  GOLDEN_DAY_ENDS = {
+      1: tuple(range(1, 151)),
+      2: (3, 5, 7, 9, 11, 15, 17, 18, 21, 23, 25, 27, 30, 31, 33, 34, 36, 37,
+          38, 40, 43, 44, 46, 48, 49, 50, 53, 55, 57, 59, 62, 65, 67, 68, 69,
+          71, 72, 73, 75, 77, 78, 80, 82, 84, 86, 88, 89, 91, 93, 95, 97, 101,
+          102, 103, 104, 105, 106, 107, 109, 112, 115, 117, 118, 119, 124,
+          129, 132, 135, 137, 139, 142, 144, 145, 147, 150),
+      3: (5, 8, 11, 17, 18, 21, 23, 26, 30, 33, 35, 37, 39, 43, 45, 49, 51,
+          55, 59, 63, 66, 68, 70, 72, 74, 77, 78, 81, 85, 88, 89, 92, 96, 101,
+          103, 104, 105, 106, 108, 111, 115, 118, 119, 126, 133, 136, 139,
+          143, 146, 150),
+      4: (6, 10, 17, 19, 24, 29, 33, 36, 38, 43, 47, 50, 55, 60, 65, 68, 71,
+          73, 77, 78, 82, 87, 89, 93, 97, 102, 104, 105, 106, 108, 114, 118,
+          119, 128, 135, 139, 145, 150),
+      5: (7, 15, 18, 24, 30, 34, 37, 43, 48, 53, 59, 66, 69, 73, 77, 78, 83,
+          88, 91, 97, 103, 105, 107, 113, 118, 119, 131, 138, 144, 150),
+  }
+
+  def test_plans_match_golden_snapshots(self):
+    self.assertEqual(
+        set(self.GOLDEN_DAY_ENDS), set(psalter_logic.PLAN_CHOICES)
+    )
+    for n, expected_ends in self.GOLDEN_DAY_ENDS.items():
+      plan = psalter_logic.build_plan(n)
+      self.assertEqual(
+          tuple(day[-1] for day in plan), expected_ends, f"plan {n} changed"
+      )
+
 
 class PlanBalanceTests(unittest.TestCase):
   """Days are balanced by verse count, not by psalm count."""
