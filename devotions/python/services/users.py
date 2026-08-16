@@ -10,6 +10,7 @@ import flask
 from google.cloud import firestore
 from itsdangerous import URLSafeTimedSerializer
 import models
+import psalter_logic
 import streak_logic
 import utils
 
@@ -634,6 +635,84 @@ def process_bible_reading_completion(user_id, day_number, timezone_str):
 
   transaction = db.transaction()
   return update_bible_streak_in_transaction(transaction, user_ref)
+
+
+def process_psalter_completion(user_id, psalms_per_day, day_number, timezone_str):
+  """Marks a Psalter plan day as complete and updates plan progress.
+
+  Completed days are kept per plan (keyed by the psalms-per-day choice) so
+  switching plans never loses progress. Completing every day of a plan
+  unlocks a one-time achievement for that plan length.
+  """
+  tz = utils.resolve_timezone(timezone_str)
+  now = datetime.datetime.now(tz)
+  today_str = now.strftime("%Y-%m-%d")
+
+  plan_days = psalter_logic.plan_length(psalms_per_day)
+  plan_key = str(psalms_per_day)
+
+  db = utils.get_db_client()
+  user_ref = db.collection("users").document(user_id)
+
+  @firestore.transactional
+  def update_psalter_in_transaction(transaction, user_ref):
+    snapshot = next(transaction.get(user_ref))
+    if not snapshot.exists:
+      return None
+
+    user_data = snapshot.to_dict()
+    completed_by_plan = user_data.get("completed_psalter_days") or {}
+    current_achievements = user_data.get("achievements", [])
+
+    plan_completed = list(completed_by_plan.get(plan_key, []))
+    if day_number not in plan_completed:
+      plan_completed.append(day_number)
+      plan_completed.sort()
+    completed_by_plan[plan_key] = plan_completed
+
+    total_completed = len(plan_completed)
+    progress_pct = (total_completed / plan_days) * 100
+
+    milestone_reached = False
+    milestone_msg = ""
+    new_achievements = []
+    if total_completed >= plan_days:
+      ach_id = f"psalter_{plan_days}_day_complete"
+      if not any(a["id"] == ach_id for a in current_achievements):
+        title = f"{plan_days}-Day Psalter Completed"
+        new_achievements.append({
+            "id": ach_id,
+            "title": title,
+            "date": today_str,
+            "icon": "🎼",
+        })
+        milestone_reached = True
+        milestone_msg = f"Achievement Unlocked: {title}!"
+
+    update_data = {
+        "completed_psalter_days": completed_by_plan,
+        "psalter_progress": {
+            "psalms_per_day": psalms_per_day,
+            "current_day": day_number,
+            "last_visit_str": today_str,
+        },
+    }
+    if new_achievements:
+      update_data["achievements"] = current_achievements + new_achievements
+
+    transaction.update(user_ref, update_data)
+
+    return {
+        "success": True,
+        "total_completed": total_completed,
+        "plan_days": plan_days,
+        "progress_pct": progress_pct,
+        "milestone_reached": milestone_reached,
+        "milestone_msg": milestone_msg,
+    }
+
+  transaction = db.transaction()
+  return update_psalter_in_transaction(transaction, user_ref)
 
 
 def mark_bible_days_completed(user_id, days):

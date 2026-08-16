@@ -644,6 +644,24 @@ def save_bia_progress(user_id: str, day: int, last_visit_str: str):
   )
 
 
+def save_psalter_progress(
+    user_id: str, psalms_per_day: int, day: int, last_visit_str: str
+):
+  """Saves Psalter plan progress for a user."""
+  db = get_db_client()
+  user_ref = db.collection("users").document(user_id)
+  user_ref.set(
+      {
+          "psalter_progress": {
+              "psalms_per_day": psalms_per_day,
+              "current_day": day,
+              "last_visit_str": last_visit_str,
+          }
+      },
+      merge=True,
+  )
+
+
 def _bia_current_day_from_user(user_id, now):
   """Returns the request user's Bible-in-a-Year day without a Firestore read.
 

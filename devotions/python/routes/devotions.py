@@ -16,6 +16,7 @@ from devotional_content import mid_week
 from devotional_content import new_year
 from devotional_content import nicene_creed_study
 from devotional_content import psalms_by_category
+from devotional_content import psalter
 from devotional_content import short_prayers
 from devotional_content import small_catechism
 from devotional_content import trinity_study
@@ -247,6 +248,23 @@ def register(app):
 
     return bible_in_a_year.generate_bible_in_a_year_page(
         bia_progress, completed_days, bible_streak
+    )
+
+
+  @app.route("/psalter")
+  def psalter_route():
+    """Returns the Psalter reading plans page."""
+    psalter_progress = None
+    completed_by_plan = {}
+
+    if flask_login.current_user.is_authenticated:
+      # The user document is already loaded onto current_user by the Flask-Login
+      # user_loader, so read from it instead of issuing a second Firestore get.
+      psalter_progress = flask_login.current_user.psalter_progress
+      completed_by_plan = flask_login.current_user.completed_psalter_days
+
+    return psalter.generate_psalter_page(
+        psalter_progress, completed_by_plan, flask.request.args.get("plan")
     )
 
 

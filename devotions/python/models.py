@@ -73,6 +73,8 @@ class User(flask_login.UserMixin):
       created_at=None,
       last_seen=None,
       bia_progress=None,
+      psalter_progress=None,
+      completed_psalter_days=None,
   ):
     self.id = user_id
     self.email = email
@@ -106,6 +108,8 @@ class User(flask_login.UserMixin):
     self.created_at = created_at
     self.last_seen = last_seen
     self.bia_progress = bia_progress or {}
+    self.psalter_progress = psalter_progress or {}
+    self.completed_psalter_days = completed_psalter_days or {}
 
     # Capture best streak before potential reset (for legacy data)
     self.best_streak_count = max(best_streak_count, streak_count)
@@ -178,5 +182,7 @@ class User(flask_login.UserMixin):
           created_at=data.get("created_at"),
           last_seen=data.get("last_seen"),
           bia_progress=data.get("bia_progress"),
+          psalter_progress=data.get("psalter_progress"),
+          completed_psalter_days=data.get("completed_psalter_days"),
       )
     return None
