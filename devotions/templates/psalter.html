@@ -287,7 +287,11 @@ function loadProgress() {
             const parts = lastVisitStr.split('-').map(p => parseInt(p, 10));
             const lastVisitDate = new Date(parts[0], parts[1] - 1, parts[2]);
             lastVisitDate.setHours(0, 0, 0, 0);
-            if (today > lastVisitDate) {
+            // Only progress to the next day once the saved day was marked
+            // as read. Anonymous visitors have no Mark Complete button, so
+            // they keep the old advance-on-a-new-day behavior.
+            if (today > lastVisitDate &&
+                (!isAuthenticated || completedDays.includes(dayToLoad))) {
                 dayToLoad = (dayToLoad % NUM_DAYS) + 1;
             }
         } catch (e) {
