@@ -1,0 +1,331 @@
+{% extends parent_template|default("base.html") %}
+{% import "_macros.html" as macros with context %}
+
+{% block title %}Psalter Plans{% endblock %}
+
+{% block head %}
+<style>
+    .plan-picker {
+        margin: 10px 0;
+    }
+    .plan-picker select, #day-select {
+        padding: 5px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        margin: 0 5px;
+    }
+    .psalm-section {
+        margin-bottom: 20px;
+    }
+    .progress-label {
+        font-weight: bold;
+        color: #555;
+    }
+    body.dark-mode .progress-label {
+        color: #ccc;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="page-header">
+      <h1>Psalter Plans</h1>
+      <h2>Pray through all 150 Psalms at your own pace. Each day carries a similar amount of reading&mdash;a day may hold one long psalm or several short ones.</h2>
+      <div class="plan-picker">
+        <label for="plan-select">Plan:</label>
+        <select id="plan-select" onchange="switchPlan(this.value)">
+          {% for choice in plan_choices %}
+            <option value="{{ choice.n }}" {% if choice.n == psalms_per_day %}selected{% endif %}>{{ choice.days }} days (~{{ choice.n }} psalm{{ 's' if choice.n > 1 else '' }} a day)</option>
+          {% endfor %}
+        </select>
+      </div>
+      <p>Reading for Day <span id="day-display">1</span> of {{ num_days }}: <strong id="day-label"></strong></p>
+      <div>
+        <button class="button" onclick="changeDay(-1)">Prev Day</button>
+        <label for="day-select">Jump to Day:</label>
+        <select id="day-select" onchange="jumpToDay(this.value)">
+          {% for i in range(1, num_days + 1) %}
+            <option value="{{ i }}">{{ i }}</option>
+          {% endfor %}
+        </select>
+        <button class="button" onclick="changeDay(1)">Next Day</button>
+      </div>
+    </div>
+
+    {% call macros.card("Today's Psalms") %}
+        <div id="psalms-container"><em>Loading...</em></div>
+    {% endcall %}
+
+    {% if current_user.is_authenticated %}
+    <div class="card" style="text-align: center;">
+        <div style="margin-bottom: 20px;">
+            <p class="progress-label">Your Psalter Progress</p>
+            <div style="background-color: #eee; border-radius: 10px; height: 20px; overflow: hidden; max-width: 400px; margin: 0 auto;">
+                <div id="progress-bar" style="background-color: #65342f; width: 0%; height: 100%; transition: width 0.5s ease; text-align: center; color: white; font-size: 0.8em; line-height: 20px;">0%</div>
+            </div>
+            <p style="font-size: 0.9em; color: #7f8c8d; margin-top: 5px;">
+                <span id="completed-count">0</span> of {{ num_days }} days completed
+            </p>
+        </div>
+
+        <button id="btn-mark-complete" class="button" onclick="markReadingComplete()" style="background-color: #27ae60; font-size: 1.1em; padding: 12px 24px;">
+             Mark Reading as Complete
+        </button>
+        <p id="completion-msg" style="color: #27ae60; font-weight: bold; display: none; margin-top: 10px;"></p>
+    </div>
+    {% else %}
+    <div class="card" style="text-align: center;">
+        <p>Log in to track your Psalter progress across devices!</p>
+        <a href="/login" class="button">Log In</a>
+    </div>
+    {% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+const schedule = JSON.parse('{{ schedule|safe }}');
+const completedDays = JSON.parse('{{ completed_days|safe }}');
+const serverProgress = JSON.parse('{{ psalter_progress|safe }}');
+const isAuthenticated = {{ current_user.is_authenticated|tojson }};
+const PSALMS_PER_DAY = {{ psalms_per_day }};
+const NUM_DAYS = {{ num_days }};
+const PLAN_EXPLICIT = {{ plan_explicit|tojson }};
+
+const dayDisplay = document.getElementById('day-display');
+const dayLabel = document.getElementById('day-label');
+const daySelect = document.getElementById('day-select');
+const psalmsContainer = document.getElementById('psalms-container');
+
+let currentDay = 1;
+
+function getTodayDateString() {
+    const now = new Date();
+    return now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate();
+}
+
+async function fetchPsalm(ref, textElement) {
+    try {
+        const response = await fetch('/get_passage_text?ref=' + encodeURIComponent(ref));
+        if (!response.ok) throw new Error('Network response was not ok for ' + ref);
+        const data = await response.json();
+        textElement.innerHTML = data.text;
+    } catch (error) {
+        console.error('Error fetching passage:', error);
+        textElement.innerHTML = '<em>Error loading ' + ref + '.</em>';
+    }
+}
+
+function loadReadingsForDay(day) {
+    const dayData = schedule[day - 1];
+    if (!dayData) return;
+
+    currentDay = day;
+    dayDisplay.textContent = day;
+    daySelect.value = day;
+    dayLabel.textContent = dayData.label;
+
+    psalmsContainer.innerHTML = '';
+    dayData.refs.forEach(ref => {
+        const section = document.createElement('div');
+        section.className = 'psalm-section';
+        const heading = document.createElement('span');
+        heading.className = 'ref';
+        heading.textContent = ref;
+        const text = document.createElement('div');
+        text.innerHTML = '<em>Loading...</em>';
+        section.appendChild(heading);
+        section.appendChild(text);
+        psalmsContainer.appendChild(section);
+        fetchPsalm(ref, text);
+    });
+
+    saveProgress(day);
+    updateCompletionUI();
+}
+
+function updateCompletionUI() {
+    if (!isAuthenticated) return;
+
+    const btn = document.getElementById('btn-mark-complete');
+    const msg = document.getElementById('completion-msg');
+    const progressBar = document.getElementById('progress-bar');
+    const completedCount = document.getElementById('completed-count');
+
+    const count = completedDays.length;
+    let pct = Math.round((count / NUM_DAYS) * 100);
+    let displayWidth = pct;
+    if (count > 0 && pct < 1) {
+        displayWidth = 1;
+        pct = "<1";
+    }
+
+    if (progressBar) {
+        progressBar.style.width = displayWidth + '%';
+        progressBar.textContent = pct + '%';
+    }
+    if (completedCount) completedCount.textContent = count;
+
+    if (completedDays.includes(currentDay)) {
+        if (btn) {
+            btn.innerHTML = '<span style="margin-right: 8px;">✓</span> Completed';
+            btn.style.backgroundColor = "#95a5a6";
+            btn.disabled = true;
+            btn.style.cursor = "not-allowed";
+        }
+    } else {
+        if (btn) {
+            btn.innerHTML = 'Mark Reading as Complete';
+            btn.style.backgroundColor = "#27ae60";
+            btn.disabled = false;
+            btn.style.cursor = "pointer";
+        }
+    }
+    if (msg) msg.style.display = 'none';
+}
+
+async function markReadingComplete() {
+    const btn = document.getElementById('btn-mark-complete');
+    const msg = document.getElementById('completion-msg');
+
+    if (btn) btn.disabled = true;
+
+    try {
+        const response = await fetch('/api/complete_psalter_reading', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ day: currentDay, psalms_per_day: PSALMS_PER_DAY })
+        });
+        const result = await response.json();
+
+        if (result.success) {
+            if (!completedDays.includes(currentDay)) {
+                completedDays.push(currentDay);
+                completedDays.sort((a, b) => a - b);
+            }
+            updateCompletionUI();
+
+            if (msg) {
+                msg.style.display = 'block';
+                msg.textContent = "Reading recorded!";
+            }
+
+            if (result.milestone_reached) {
+                if (window.triggerMilestoneModal) {
+                    window.triggerMilestoneModal(result.milestone_msg, "N/A");
+                } else {
+                    showToast(result.milestone_msg, "success");
+                }
+            }
+        } else {
+            showToast("Error: " + (result.error || "Unknown error"), "error");
+            if (btn) btn.disabled = false;
+        }
+    } catch (e) {
+        console.error(e);
+        showToast("Failed to mark complete.", "error");
+        if (btn) btn.disabled = false;
+    }
+}
+
+function saveProgress(day) {
+    const todayStr = getTodayDateString();
+    if (isAuthenticated) {
+        fetch('/save_psalter_progress', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                day: day,
+                last_visit: todayStr,
+                psalms_per_day: PSALMS_PER_DAY
+            })
+        }).catch(err => console.error("Failed to save progress to server:", err));
+    } else {
+        localStorage.setItem('psalterPlan', PSALMS_PER_DAY);
+        localStorage.setItem('psalterDay', day);
+        localStorage.setItem('psalterLastVisit', todayStr);
+    }
+}
+
+function firstUncompletedDay() {
+    for (let i = 1; i <= NUM_DAYS; i++) {
+        if (!completedDays.includes(i)) return i;
+    }
+    return 1;
+}
+
+function loadProgress() {
+    // Anonymous users who chose a plan earlier get redirected to it, unless
+    // the URL explicitly asks for a different plan.
+    if (!isAuthenticated && !PLAN_EXPLICIT) {
+        const storedPlan = parseInt(localStorage.getItem('psalterPlan'), 10);
+        if (storedPlan && storedPlan !== PSALMS_PER_DAY) {
+            window.location.replace('/psalter?plan=' + storedPlan);
+            return;
+        }
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    let savedDay = null;
+    let lastVisitStr = null;
+
+    if (isAuthenticated && serverProgress &&
+        serverProgress.psalms_per_day === PSALMS_PER_DAY &&
+        serverProgress.current_day && serverProgress.last_visit_str) {
+        savedDay = serverProgress.current_day;
+        lastVisitStr = serverProgress.last_visit_str;
+    } else if (!isAuthenticated &&
+        parseInt(localStorage.getItem('psalterPlan'), 10) === PSALMS_PER_DAY) {
+        savedDay = localStorage.getItem('psalterDay');
+        lastVisitStr = localStorage.getItem('psalterLastVisit');
+    }
+
+    let dayToLoad;
+    if (savedDay && lastVisitStr) {
+        dayToLoad = parseInt(savedDay, 10);
+        try {
+            const parts = lastVisitStr.split('-').map(p => parseInt(p, 10));
+            const lastVisitDate = new Date(parts[0], parts[1] - 1, parts[2]);
+            lastVisitDate.setHours(0, 0, 0, 0);
+            if (today > lastVisitDate) {
+                dayToLoad = (dayToLoad % NUM_DAYS) + 1;
+            }
+        } catch (e) {
+            console.error('Could not parse last visit date:', lastVisitStr, e);
+        }
+        if (!(dayToLoad >= 1 && dayToLoad <= NUM_DAYS)) dayToLoad = 1;
+    } else {
+        // First visit on this plan: pick up at the first uncompleted day.
+        dayToLoad = firstUncompletedDay();
+    }
+    loadReadingsForDay(dayToLoad);
+}
+
+function switchPlan(planStr) {
+    const plan = parseInt(planStr, 10);
+    if (!plan || plan === PSALMS_PER_DAY) return;
+    if (!isAuthenticated) {
+        localStorage.setItem('psalterPlan', plan);
+        localStorage.removeItem('psalterDay');
+        localStorage.removeItem('psalterLastVisit');
+    }
+    window.location.href = '/psalter?plan=' + plan;
+}
+
+function changeDay(delta) {
+    let newDay = currentDay + delta;
+    if (newDay < 1) newDay = NUM_DAYS;
+    if (newDay > NUM_DAYS) newDay = 1;
+    loadReadingsForDay(newDay);
+}
+
+function jumpToDay(dayStr) {
+    const day = parseInt(dayStr, 10);
+    if (day >= 1 && day <= NUM_DAYS) {
+        loadReadingsForDay(day);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', loadProgress);
+
+{% endblock %}

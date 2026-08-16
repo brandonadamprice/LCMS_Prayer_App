@@ -139,6 +139,11 @@ def get_menu_items(is_advent, is_new_year, is_lent):
                   "url": "/bible_in_a_year",
                   "enabled": True,
               },
+              {
+                  "label": "Psalter Plans",
+                  "url": "/psalter",
+                  "enabled": True,
+              },
           ],
       },
       {
