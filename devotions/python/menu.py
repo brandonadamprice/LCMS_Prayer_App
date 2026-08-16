@@ -125,12 +125,12 @@ def get_menu_items(is_advent, is_new_year, is_lent):
                   "enabled": True,
               },
               {
-                  "label": "Psalms",
+                  "label": "Psalms by Category",
                   "url": "/psalms_by_category",
                   "enabled": True,
               },
               {
-                  "label": "Gospels",
+                  "label": "Gospels by Category",
                   "url": "/gospels_by_category",
                   "enabled": True,
               },
