@@ -28,14 +28,20 @@
         <p>{{ psalm_text|safe }}</p>
     {% endcall %}
 
-    {% call macros.card('Scripture Readings') %}
-        <span class="ref">Old Testament: {{ ot_ref }}</span>
+    {# One card per reading so printing keeps each reading on one page
+       where it fits (the print stylesheet avoids breaking inside cards). #}
+    {% call macros.card('Old Testament Reading') %}
+        <span class="ref">{{ ot_ref }}</span>
         <p>{{ ot_text|safe }}</p>
-        <hr />
-        <span class="ref">Epistle: {{ epistle_ref }}</span>
+    {% endcall %}
+
+    {% call macros.card('Epistle Reading') %}
+        <span class="ref">{{ epistle_ref }}</span>
         <p>{{ epistle_text|safe }}</p>
-        <hr />
-        <span class="ref">Gospel: {{ gospel_ref }}</span>
+    {% endcall %}
+
+    {% call macros.card('Gospel Reading') %}
+        <span class="ref">{{ gospel_ref }}</span>
         <p>{{ gospel_text|safe }}</p>
     {% endcall %}
 

@@ -65,6 +65,7 @@
             </div>
             <p style="font-size: 0.9em; color: #7f8c8d; margin-top: 5px;">
                 <span id="completed-count">0</span> of {{ num_days }} days completed
+                &middot; Bible Streak: <strong id="bible-streak-display" style="color: #e67e22;">{{ bible_streak }}</strong> Days
             </p>
         </div>
 
@@ -204,9 +205,18 @@ async function markReadingComplete() {
             }
             updateCompletionUI();
 
+            const streakDisplay = document.getElementById('bible-streak-display');
+            if (streakDisplay && result.bible_streak !== undefined) {
+                streakDisplay.textContent = result.bible_streak;
+            }
+
             if (msg) {
                 msg.style.display = 'block';
                 msg.textContent = "Reading recorded!";
+            }
+
+            if (result.grace_used) {
+                showToast(result.grace_msg || "A grace day kept your streak alive.", "info", 9000);
             }
 
             if (result.milestone_reached) {

@@ -256,15 +256,20 @@ def register(app):
     """Returns the Psalter reading plans page."""
     psalter_progress = None
     completed_by_plan = {}
+    bible_streak = 0
 
     if flask_login.current_user.is_authenticated:
       # The user document is already loaded onto current_user by the Flask-Login
       # user_loader, so read from it instead of issuing a second Firestore get.
       psalter_progress = flask_login.current_user.psalter_progress
       completed_by_plan = flask_login.current_user.completed_psalter_days
+      bible_streak = flask_login.current_user.bible_streak_count
 
     return psalter.generate_psalter_page(
-        psalter_progress, completed_by_plan, flask.request.args.get("plan")
+        psalter_progress,
+        completed_by_plan,
+        flask.request.args.get("plan"),
+        bible_streak,
     )
 
 
