@@ -137,6 +137,22 @@ def register(app, *, admin_required, rate_limited):
       return flask.jsonify({"error": "Failed to update"}), 500
 
 
+  @app.route("/api/uncomplete_bible_reading", methods=["POST"])
+  @flask_login.login_required
+  def uncomplete_bible_reading_route():
+    """Unmarks a Bible reading that was marked complete by mistake."""
+    data = flask.request.json
+    day = data.get("day")
+    if not isinstance(day, int) or not 1 <= day <= 365:
+      return flask.jsonify({"error": "Invalid day"}), 400
+
+    result = users.unmark_bible_day_completed(flask_login.current_user.id, day)
+    if result:
+      return flask.jsonify(result)
+    else:
+      return flask.jsonify({"error": "Failed to update"}), 500
+
+
   @app.route("/api/catch_up_bible_readings", methods=["POST"])
   @flask_login.login_required
   def catch_up_bible_readings_route():

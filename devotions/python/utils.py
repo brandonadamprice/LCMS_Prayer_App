@@ -14,6 +14,7 @@ import flask_login
 from google.cloud import firestore
 import liturgy
 import pytz
+import reading_plan_logic
 import secrets_fetcher as secrets
 from services import scripture
 
@@ -666,16 +667,22 @@ def _bia_current_day_from_user(user_id, now):
   """Returns the request user's Bible-in-a-Year day without a Firestore read.
 
   When the logged-in current_user is that same user, their bia_progress is
-  already loaded, so we return their saved day (or the day-of-year default).
+  already loaded, so we return their saved day (or the day-of-year default),
+  advanced past a day they've already marked as read -- the same progression
+  rule the Bible in a Year page applies client-side.
   Returns None when current_user can't authoritatively answer for user_id, so
   the caller falls back to reading the user document.
   """
   user = flask_login.current_user
   if user_id and user.is_authenticated and user.id == user_id:
     bia = getattr(user, "bia_progress", None) or {}
-    if "current_day" in bia:
-      return int(bia["current_day"])
-    return now.timetuple().tm_yday
+    day = reading_plan_logic.effective_current_day(
+        bia.get("current_day"),
+        bia.get("last_visit_str"),
+        getattr(user, "completed_bible_days", None),
+        now.date(),
+    )
+    return day if day is not None else now.timetuple().tm_yday
   return None
 
 
@@ -698,9 +705,16 @@ def get_bible_in_a_year_devotion_data(user_id=None, date_obj=None, current_day=N
       if doc.exists:
         user_data = doc.to_dict()
         if user_data:
-          bia_progress = user_data.get("bia_progress")
-          if bia_progress and "current_day" in bia_progress:
-            current_day = int(bia_progress["current_day"])
+          bia_progress = user_data.get("bia_progress") or {}
+          # Same advance-once-read progression rule as the BIA page itself.
+          saved_day = reading_plan_logic.effective_current_day(
+              bia_progress.get("current_day"),
+              bia_progress.get("last_visit_str"),
+              user_data.get("completed_bible_days"),
+              now.date(),
+          )
+          if saved_day is not None:
+            current_day = saved_day
 
   # Ensure day is within range 1-365
   current_day = max(1, min(current_day, 365))

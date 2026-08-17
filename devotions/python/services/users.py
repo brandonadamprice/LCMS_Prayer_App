@@ -784,6 +784,39 @@ def mark_bible_days_completed(user_id, days):
   return update_bulk_transaction(transaction, user_ref)
 
 
+def unmark_bible_day_completed(user_id, day_number):
+  """Removes a day from completed_bible_days (marked by mistake).
+
+  Only the completion list changes -- streaks and already-earned achievements
+  are left as they are.
+  """
+  db = utils.get_db_client()
+  user_ref = db.collection("users").document(user_id)
+
+  @firestore.transactional
+  def update_transaction(transaction, user_ref):
+    snapshot = next(transaction.get(user_ref))
+    if not snapshot.exists:
+      return None
+
+    user_data = snapshot.to_dict()
+    completed_bible_days = user_data.get("completed_bible_days", [])
+    if day_number in completed_bible_days:
+      completed_bible_days = [
+          d for d in completed_bible_days if d != day_number
+      ]
+      transaction.update(
+          user_ref, {"completed_bible_days": completed_bible_days}
+      )
+    return {
+        "success": True,
+        "total_completed": len(completed_bible_days),
+    }
+
+  transaction = db.transaction()
+  return update_transaction(transaction, user_ref)
+
+
 def record_prayer_for_others(user_id, request_id, operation):
   """Updates user's prayed_request_ids and checks for achievements."""
   db = utils.get_db_client()
