@@ -102,41 +102,47 @@
         {{ macros.format_prayer(config['OTHER_PRAYERS']['gloria_patri']) }}
     {% endcall %}
 
-    {% call macros.card('Readings') %}
-        <div id="office-reading-container">
-            <span class="ref">Old Testament: {{ ot_reading_ref }}</span>
+    {# One card per reading so printing keeps each reading on one page
+       where it fits (the print stylesheet avoids breaking inside cards). #}
+    <div id="office-reading-container">
+        {% call macros.card('Old Testament Reading') %}
+            <span class="ref">{{ ot_reading_ref }}</span>
             <div>{{ ot_text|safe }}</div>
-            <hr />
-            <span class="ref">New Testament: {{ nt_reading_ref }}</span>
+        {% endcall %}
+        {% call macros.card('New Testament Reading') %}
+            <span class="ref">{{ nt_reading_ref }}</span>
             <div>{{ nt_text|safe }}</div>
-        </div>
-        
-        <div id="bible-year-reading-container" style="display: none;">
-            {% if bible_in_a_year_reading %}
-                <p class="subheader"><strong>Old Testament</strong></p>
+        {% endcall %}
+    </div>
+
+    <div id="bible-year-reading-container" style="display: none;">
+        {% if bible_in_a_year_reading %}
+            {% call macros.card('Old Testament') %}
                 <span class="ref">{{ bible_in_a_year_reading.ot_ref }}</span>
                 <div>{{ bible_in_a_year_reading.ot_text|safe }}</div>
-                <hr>
-                <p class="subheader"><strong>New Testament</strong></p>
+            {% endcall %}
+            {% call macros.card('New Testament') %}
                 <span class="ref">{{ bible_in_a_year_reading.nt_ref }}</span>
                 <div>{{ bible_in_a_year_reading.nt_text|safe }}</div>
-                <hr>
-                <p class="subheader"><strong>Psalms & Proverbs</strong></p>
+            {% endcall %}
+            {% call macros.card('Psalms & Proverbs') %}
                 <span class="ref">{{ bible_in_a_year_reading.psp_ref }}</span>
                 <div>{{ bible_in_a_year_reading.psp_text|safe }}</div>
-            {% else %}
-                 <p><em>Bible in a Year reading not available.</em></p>
-            {% endif %}
-        </div>
+            {% endcall %}
+        {% else %}
+            {% call macros.card('Readings') %}
+                <p><em>Bible in a Year reading not available.</em></p>
+            {% endcall %}
+        {% endif %}
+    </div>
 
-        <div style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 10px;">
-            <label for="reading-mode-select" style="font-weight: bold; align-self: center;">Reading Plan:</label>
-            <select id="reading-mode-select" onchange="setReadingMode(this.value)" class="form-input" style="width: auto; padding: 5px;">
-                <option value="office">Daily Lectionary</option>
-                <option value="bible_year">Bible in a Year (Day {{ bible_in_a_year_reading.day_number }})</option>
-            </select>
-        </div>
-    {% endcall %}
+    <div class="reading-plan-picker no-print" style="margin: -10px 0 20px 0; display: flex; flex-wrap: wrap; gap: 10px;">
+        <label for="reading-mode-select" style="font-weight: bold; align-self: center;">Reading Plan:</label>
+        <select id="reading-mode-select" onchange="setReadingMode(this.value)" class="form-input" style="width: auto; padding: 5px;">
+            <option value="office">Daily Lectionary</option>
+            <option value="bible_year">Bible in a Year (Day {{ bible_in_a_year_reading.day_number }})</option>
+        </select>
+    </div>
 
     {% call macros.card('Creed') %}
         {% if is_trinity_sunday %}

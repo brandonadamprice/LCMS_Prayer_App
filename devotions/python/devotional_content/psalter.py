@@ -8,7 +8,7 @@ DEFAULT_PSALMS_PER_DAY = 1
 
 
 def generate_psalter_page(
-    psalter_progress=None, completed_by_plan=None, plan_arg=None
+    psalter_progress=None, completed_by_plan=None, plan_arg=None, bible_streak=0
 ):
   """Generates HTML for the Psalter reading plans page.
 
@@ -48,6 +48,7 @@ def generate_psalter_page(
       "psalms_per_day": psalms_per_day,
       "num_days": len(schedule),
       "plan_explicit": plan_explicit,
+      "bible_streak": bible_streak,
       "plan_choices": [
           {"n": n, "days": psalter_logic.plan_length(n)}
           for n in psalter_logic.PLAN_CHOICES

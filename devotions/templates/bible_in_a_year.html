@@ -69,7 +69,7 @@
             </p>
         </div>
 
-        <button id="btn-mark-complete" class="button" onclick="markReadingComplete()" style="background-color: #27ae60; font-size: 1.1em; padding: 12px 24px;">
+        <button id="btn-mark-complete" class="button" onclick="toggleReadingComplete()" style="background-color: #27ae60; font-size: 1.1em; padding: 12px 24px;">
              Mark Reading as Complete
         </button>
         <p id="completion-msg" style="color: #27ae60; font-weight: bold; display: none; margin-top: 10px;"></p>
@@ -173,13 +173,14 @@ function updateCompletionUI() {
         progressBar.textContent = pct + '%';
     }
 
-    // Update Button State
+    // Update Button State. A completed day stays clickable so a reading
+    // marked by mistake can be unmarked.
     if (completedDays.includes(currentDay)) {
         if(btn) {
-            btn.innerHTML = '<span style="margin-right: 8px;">✓</span> Completed';
+            btn.innerHTML = '<span style="margin-right: 8px;">✓</span> Completed &mdash; Tap to Unmark';
             btn.style.backgroundColor = "#95a5a6";
-            btn.disabled = true;
-            btn.style.cursor = "not-allowed";
+            btn.disabled = false;
+            btn.style.cursor = "pointer";
         }
         if(msg) msg.style.display = 'none';
     } else {
@@ -275,6 +276,43 @@ function dismissCatchUp() {
     const container = document.getElementById('catch-up-container');
     if(container) container.style.display = 'none';
     localStorage.setItem('catchUpDismissed', 'true');
+}
+
+function toggleReadingComplete() {
+    if (completedDays.includes(currentDay)) {
+        unmarkReadingComplete();
+    } else {
+        markReadingComplete();
+    }
+}
+
+async function unmarkReadingComplete() {
+    const btn = document.getElementById('btn-mark-complete');
+
+    if(btn) btn.disabled = true;
+
+    try {
+        const response = await fetch('/api/uncomplete_bible_reading', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ day: currentDay })
+        });
+        const result = await response.json();
+
+        if (result.success) {
+            const idx = completedDays.indexOf(currentDay);
+            if (idx !== -1) completedDays.splice(idx, 1);
+            updateCompletionUI();
+            showToast("Day " + currentDay + " unmarked.", "info");
+        } else {
+            showToast("Error: " + (result.error || "Unknown error"), "error");
+            if(btn) btn.disabled = false;
+        }
+    } catch(e) {
+        console.error(e);
+        showToast("Failed to unmark reading.", "error");
+        if(btn) btn.disabled = false;
+    }
 }
 
 async function markReadingComplete() {

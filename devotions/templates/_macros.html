@@ -111,9 +111,11 @@ function hideRandomPrayer() {
 </div>
 {% endmacro %}
 
+{# Each reading gets its own card so the print stylesheet's
+   break-inside: avoid keeps a whole reading on one page where it fits. #}
 {% macro reading_card(reading_ref, reading_text, reading_options, daily_lectionary_readings, lectionary_texts, bible_in_a_year_reading) %}
-    {% call card('Reading') %}
-        <div id="office-reading-container" style="{{ office_reading_style|default('display: block;') }}">
+    <div id="office-reading-container" style="{{ office_reading_style|default('display: block;') }}">
+        {% call card('Reading') %}
             <span class="ref" id="ref-reading">{{ reading_ref }}</span>
             <div id="text-reading">{{ reading_text|safe }}</div>
             <button class="button picker-toggle-button" id="office-picker-btn" onclick="togglePicker(this, 'reading')">Select Reading</button>
@@ -122,55 +124,61 @@ function hideRandomPrayer() {
                 <button class="button picker-select-button" onclick="selectRef('{{ r }}', 'reading')">{{ r }}</button>
                 {% endfor %}
             </div>
-        </div>
+        {% endcall %}
+    </div>
 
-        <div id="lectionary-reading-container" style="{{ lectionary_reading_style|default('display: none;') }}">
-            {% if daily_lectionary_readings %}
-                <p class="subheader"><strong>Old Testament Reading</strong></p>
+    <div id="lectionary-reading-container" style="{{ lectionary_reading_style|default('display: none;') }}">
+        {% if daily_lectionary_readings %}
+            {% call card('Old Testament Reading') %}
                 <span class="ref">{{ daily_lectionary_readings[0] }}</span>
                 <div>{{ lectionary_texts[0]|safe }}</div>
-                {% if daily_lectionary_readings|length > 1 %}
-                    <hr>
-                    <p class="subheader"><strong>New Testament Reading</strong></p>
+            {% endcall %}
+            {% if daily_lectionary_readings|length > 1 %}
+                {% call card('New Testament Reading') %}
                     <span class="ref">{{ daily_lectionary_readings[1] }}</span>
                     <div>{{ lectionary_texts[1]|safe }}</div>
-                {% endif %}
-            {% else %}
-                <p><em>No Daily Lectionary readings available for today.</em></p>
+                {% endcall %}
             {% endif %}
-        </div>
+        {% else %}
+            {% call card('Reading') %}
+                <p><em>No Daily Lectionary readings available for today.</em></p>
+            {% endcall %}
+        {% endif %}
+    </div>
 
-        <div id="bible-year-reading-container" style="{{ bible_year_reading_style|default('display: none;') }}">
-            {% if bible_in_a_year_reading %}
-                <p class="subheader"><strong>Old Testament</strong></p>
+    <div id="bible-year-reading-container" style="{{ bible_year_reading_style|default('display: none;') }}">
+        {% if bible_in_a_year_reading %}
+            {% call card('Old Testament') %}
                 <span class="ref">{{ bible_in_a_year_reading.ot_ref }}</span>
                 <div>{{ bible_in_a_year_reading.ot_text|safe }}</div>
-                <hr>
-                <p class="subheader"><strong>New Testament</strong></p>
+            {% endcall %}
+            {% call card('New Testament') %}
                 <span class="ref">{{ bible_in_a_year_reading.nt_ref }}</span>
                 <div>{{ bible_in_a_year_reading.nt_text|safe }}</div>
-                <hr>
-                <p class="subheader"><strong>Psalms & Proverbs</strong></p>
+            {% endcall %}
+            {% call card('Psalms & Proverbs') %}
                 <span class="ref">{{ bible_in_a_year_reading.psp_ref }}</span>
                 <div>{{ bible_in_a_year_reading.psp_text|safe }}</div>
-            {% else %}
-                 <p><em>Bible in a Year reading not available.</em></p>
-            {% endif %}
-        </div>
+            {% endcall %}
+        {% else %}
+            {% call card('Reading') %}
+                <p><em>Bible in a Year reading not available.</em></p>
+            {% endcall %}
+        {% endif %}
+    </div>
 
-        <div style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 10px;">
-            <label for="reading-mode-select" style="font-weight: bold; align-self: center;">Reading Plan:</label>
-            {% if parent_template == 'email_base.html' %}
-                <span style="align-self: center;">{{ reading_plan_name }}</span>
-            {% else %}
-            <select id="reading-mode-select" onchange="setReadingMode(this.value)" class="form-input" style="width: auto; padding: 5px;">
-                <option value="office">Office Reading (Rotating)</option>
-                <option value="lectionary">Daily Lectionary (Church Year)</option>
-                <option value="bible_year">Bible in a Year (Day {{ bible_in_a_year_reading.day_number }})</option>
-            </select>
-            {% endif %}
-        </div>
-    {% endcall %}
+    <div class="reading-plan-picker no-print" style="margin: -10px 0 20px 0; display: flex; flex-wrap: wrap; gap: 10px;">
+        <label for="reading-mode-select" style="font-weight: bold; align-self: center;">Reading Plan:</label>
+        {% if parent_template == 'email_base.html' %}
+            <span style="align-self: center;">{{ reading_plan_name }}</span>
+        {% else %}
+        <select id="reading-mode-select" onchange="setReadingMode(this.value)" class="form-input" style="width: auto; padding: 5px;">
+            <option value="office">Office Reading (Rotating)</option>
+            <option value="lectionary">Daily Lectionary (Church Year)</option>
+            <option value="bible_year">Bible in a Year (Day {{ bible_in_a_year_reading.day_number }})</option>
+        </select>
+        {% endif %}
+    </div>
 {% endmacro %}
 
 {% macro reading_mode_js(bible_year_day, default_mode='office') %}

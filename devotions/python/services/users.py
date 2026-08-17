@@ -508,6 +508,68 @@ def process_prayer_completion(
   return update_streak_in_transaction(transaction, user_ref)
 
 
+BIBLE_STREAK_MILESTONES = {
+    7: ("1 Week Bible Streak", "📚"),
+    30: ("1 Month Bible Streak", "🕯️"),
+    90: ("3 Months Bible Streak", "📜"),
+    180: ("6 Months Bible Streak", "🏛️"),
+    365: ("1 Year Bible Streak", "⛪"),
+}
+
+
+def _evaluate_bible_streak(user_data, today_date, today_str):
+  """Shared Bible-reading streak math for any completed reading.
+
+  Bible in a Year days and Psalter plan days both feed the same daily Bible
+  reading streak (with its single-day grace rule). Returns
+  (update_data, info): the streak fields to write, and the computed outcome
+  plus any newly earned streak-milestone achievements (already filtered
+  against the user's existing ones).
+  """
+  current_streak = user_data.get("bible_streak_count", 0)
+  best_streak = max(user_data.get("best_bible_streak_count", 0), current_streak)
+  current_achievements = user_data.get("achievements", [])
+
+  last_date = streak_logic.parse_ymd(user_data.get("last_bible_reading_date"))
+  last_grace_date = streak_logic.parse_ymd(
+      user_data.get("last_bible_grace_date")
+  )
+  grace_ok = streak_logic.grace_available(last_grace_date, today_date)
+  outcome = streak_logic.evaluate_completion(
+      last_date, today_date, current_streak, grace_ok
+  )
+  new_streak = outcome["new_streak"]
+  best_streak = max(best_streak, new_streak)
+
+  update_data = {
+      "last_bible_reading_date": today_str,
+      "best_bible_streak_count": best_streak,
+  }
+  if outcome["streak_updated"]:
+    update_data["bible_streak_count"] = new_streak
+  if outcome["grace_used"]:
+    update_data["last_bible_grace_date"] = today_str
+
+  new_achievements = []
+  for days, (title, icon) in BIBLE_STREAK_MILESTONES.items():
+    if days <= new_streak:
+      ach_id = f"bible_streak_{days}"
+      if not any(a["id"] == ach_id for a in current_achievements):
+        new_achievements.append({
+            "id": ach_id,
+            "title": title,
+            "date": today_str,
+            "icon": icon,
+        })
+
+  return update_data, {
+      "new_streak": new_streak,
+      "streak_updated": outcome["streak_updated"],
+      "grace_used": outcome["grace_used"],
+      "new_achievements": new_achievements,
+  }
+
+
 def process_bible_reading_completion(user_id, day_number, timezone_str):
   """Marks a Bible reading as complete and updates the Bible streak."""
   tz = utils.resolve_timezone(timezone_str)
@@ -525,44 +587,32 @@ def process_bible_reading_completion(user_id, day_number, timezone_str):
       return None
 
     user_data = snapshot.to_dict()
-    current_bible_streak = user_data.get("bible_streak_count", 0)
-    best_bible_streak = user_data.get("best_bible_streak_count", 0)
     current_achievements = user_data.get("achievements", [])
     completed_bible_days = user_data.get("completed_bible_days", [])
-    last_bible_date_str = user_data.get("last_bible_reading_date")
-
-    if current_bible_streak > best_bible_streak:
-      best_bible_streak = current_bible_streak
 
     # Update completed days
     if day_number not in completed_bible_days:
       completed_bible_days.append(day_number)
       completed_bible_days.sort()
 
-    last_bible_date = streak_logic.parse_ymd(last_bible_date_str)
-
-    today_date = now.date()
-
     # Streak update with a grace day for a single missed day (mirrors the
-    # prayer streak; Bible reading keeps its own grace cooldown).
-    last_grace_date = streak_logic.parse_ymd(
-        user_data.get("last_bible_grace_date")
+    # prayer streak; Bible reading keeps its own grace cooldown). Shared
+    # with Psalter completions -- see _evaluate_bible_streak.
+    streak_updates, streak_info = _evaluate_bible_streak(
+        user_data, now.date(), today_str
     )
-    grace_ok = streak_logic.grace_available(last_grace_date, today_date)
-    outcome = streak_logic.evaluate_completion(
-        last_bible_date, today_date, current_bible_streak, grace_ok
+    new_bible_streak = streak_info["new_streak"]
+    grace_used = streak_info["grace_used"]
+
+    # Achievements: streak milestones from the shared helper, then progress
+    # milestones below.
+    new_achievements = list(streak_info["new_achievements"])
+    milestone_reached = bool(new_achievements)
+    milestone_msg = (
+        f"Achievement Unlocked: {new_achievements[-1]['title']}!"
+        if new_achievements
+        else ""
     )
-    new_bible_streak = outcome["new_streak"]
-    streak_updated = outcome["streak_updated"]
-    grace_used = outcome["grace_used"]
-
-    if new_bible_streak > best_bible_streak:
-      best_bible_streak = new_bible_streak
-
-    # Achievements
-    new_achievements = []
-    milestone_reached = False
-    milestone_msg = ""
 
     # Helper to add achievement
     def check_and_add(ach_id, title, icon):
@@ -576,19 +626,6 @@ def process_bible_reading_completion(user_id, day_number, timezone_str):
         })
         milestone_reached = True
         milestone_msg = f"Achievement Unlocked: {title}!"
-
-    # Streak Milestones
-    streak_milestones = {
-        7: ("1 Week Bible Streak", "📚"),
-        30: ("1 Month Bible Streak", "🕯️"),
-        90: ("3 Months Bible Streak", "📜"),
-        180: ("6 Months Bible Streak", "🏛️"),
-        365: ("1 Year Bible Streak", "⛪"),
-    }
-
-    for days, (title, icon) in streak_milestones.items():
-      if days <= new_bible_streak:
-        check_and_add(f"bible_streak_{days}", title, icon)
 
     # Progress Milestones (Total 365 days)
     total_completed = len(completed_bible_days)
@@ -606,17 +643,12 @@ def process_bible_reading_completion(user_id, day_number, timezone_str):
     # Update Data
     update_data = {
         "completed_bible_days": completed_bible_days,
-        "last_bible_reading_date": today_str,
         "bia_progress": {  # Sync with old tracking for continuity
             "current_day": day_number,
             "last_visit_str": today_str,
         },
-        "best_bible_streak_count": best_bible_streak,
+        **streak_updates,
     }
-    if streak_updated:
-      update_data["bible_streak_count"] = new_bible_streak
-    if grace_used:
-      update_data["last_bible_grace_date"] = today_str
 
     if new_achievements:
       update_data["achievements"] = current_achievements + new_achievements
@@ -673,9 +705,21 @@ def process_psalter_completion(user_id, psalms_per_day, day_number, timezone_str
     total_completed = len(plan_completed)
     progress_pct = (total_completed / plan_days) * 100
 
+    # Reading the Psalter is Bible reading: it feeds the same daily Bible
+    # streak (and its streak milestones) as Bible in a Year.
+    streak_updates, streak_info = _evaluate_bible_streak(
+        user_data, now.date(), today_str
+    )
+    grace_used = streak_info["grace_used"]
+
     milestone_reached = False
     milestone_msg = ""
-    new_achievements = []
+    new_achievements = list(streak_info["new_achievements"])
+    if new_achievements:
+      milestone_reached = True
+      milestone_msg = (
+          f"Achievement Unlocked: {new_achievements[-1]['title']}!"
+      )
     if total_completed >= plan_days:
       ach_id = f"psalter_{plan_days}_day_complete"
       if not any(a["id"] == ach_id for a in current_achievements):
@@ -696,6 +740,7 @@ def process_psalter_completion(user_id, psalms_per_day, day_number, timezone_str
             "current_day": day_number,
             "last_visit_str": today_str,
         },
+        **streak_updates,
     }
     if new_achievements:
       update_data["achievements"] = current_achievements + new_achievements
@@ -709,6 +754,11 @@ def process_psalter_completion(user_id, psalms_per_day, day_number, timezone_str
         "progress_pct": progress_pct,
         "milestone_reached": milestone_reached,
         "milestone_msg": milestone_msg,
+        "bible_streak": streak_info["new_streak"],
+        "grace_used": grace_used,
+        "grace_msg": (
+            grace_message(streak_info["new_streak"]) if grace_used else ""
+        ),
     }
 
   transaction = db.transaction()
@@ -782,6 +832,39 @@ def mark_bible_days_completed(user_id, days):
 
   transaction = db.transaction()
   return update_bulk_transaction(transaction, user_ref)
+
+
+def unmark_bible_day_completed(user_id, day_number):
+  """Removes a day from completed_bible_days (marked by mistake).
+
+  Only the completion list changes -- streaks and already-earned achievements
+  are left as they are.
+  """
+  db = utils.get_db_client()
+  user_ref = db.collection("users").document(user_id)
+
+  @firestore.transactional
+  def update_transaction(transaction, user_ref):
+    snapshot = next(transaction.get(user_ref))
+    if not snapshot.exists:
+      return None
+
+    user_data = snapshot.to_dict()
+    completed_bible_days = user_data.get("completed_bible_days", [])
+    if day_number in completed_bible_days:
+      completed_bible_days = [
+          d for d in completed_bible_days if d != day_number
+      ]
+      transaction.update(
+          user_ref, {"completed_bible_days": completed_bible_days}
+      )
+    return {
+        "success": True,
+        "total_completed": len(completed_bible_days),
+    }
+
+  transaction = db.transaction()
+  return update_transaction(transaction, user_ref)
 
 
 def record_prayer_for_others(user_id, request_id, operation):
