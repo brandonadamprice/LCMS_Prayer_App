@@ -40,7 +40,7 @@ platform :ios do
     if bundle_id
       UI.message("Bundle ID #{APP_ID} is already registered")
     else
-      bundle_id = Spaceship::ConnectAPI::BundleId.register(name: APP_NAME, identifier: APP_ID)
+      bundle_id = Spaceship::ConnectAPI::BundleId.create(name: APP_NAME, identifier: APP_ID, platform: "IOS")
       UI.success("Registered bundle ID #{APP_ID}")
     end
     begin
