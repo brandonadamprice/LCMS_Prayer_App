@@ -91,11 +91,13 @@ The per-app surface is deliberately tiny:
    The Matchfile and env contract need no changes — that's the point.
 3. Copy `.github/workflows/ios-release.yml`; register a runner for the repo
    (section above).
-4. One-time, over SSH from the app's `ios/App` dir:
-   `fastlane bootstrap` — registers the bundle ID (push enabled) and the
-   App Store Connect app entry via the API key, then generates
-   certs/profiles into the shared certs repo. Subsequent releases are
-   `fastlane beta` or the workflow button.
+4. One-time, over SSH from the app's `ios/App` dir: `fastlane bootstrap`
+   — registers the bundle ID (push enabled) via the API key and generates
+   certs/profiles into the shared certs repo. Then create the App Store
+   Connect app entry in the browser (My Apps → + → New App, picking that
+   bundle ID) — Apple has no API for that one step, and fastlane's
+   `produce` only supports interactive Apple ID login. Subsequent releases
+   are `fastlane beta` or the workflow button.
 
 Certificates are team-level: the first app's `bootstrap` created the Apple
 Distribution cert, and every later app's `match` run reuses it, adding only

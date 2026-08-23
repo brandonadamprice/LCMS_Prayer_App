@@ -61,17 +61,30 @@ FCM delivers to iOS through APNs, so Firebase needs an APNs auth key:
 No server changes: reminders already send both `notification` and `data`
 blocks via FCM, which is exactly what a backgrounded iOS app needs.
 
-## 3. Bootstrap the app with Apple (one-time, over SSH)
+## 3. Bootstrap the app with Apple (one-time)
 
-```bash
-cd mobile/ios/App
-fastlane bootstrap
-```
+Two halves — the API key covers most of it, but Apple exposes no API for
+creating the App Store Connect app entry itself, so that one piece is a
+browser step.
 
-Registers the bundle ID (push capability on) and the App Store Connect app
-entry through the API key, then runs `match` to mint the distribution cert
-and provisioning profile into the shared certs repo. Requires
-`~/.ios-build.env` (see ios-build-server.md).
+1. Over SSH (requires `~/.ios-build.env`, see ios-build-server.md):
+
+   ```bash
+   cd mobile/ios/App
+   fastlane bootstrap
+   ```
+
+   Registers the bundle ID with the Developer Portal (push capability
+   enabled) via the API key, then runs `match` to mint the distribution
+   cert and provisioning profile into the shared certs repo. Safe to
+   re-run; it skips what already exists.
+
+2. In a browser: [App Store Connect](https://appstoreconnect.apple.com) →
+   **My Apps** → **+** → **New App**. Platform iOS, name "A Simple Way to
+   Pray", primary language English (U.S.), Bundle ID
+   `com.hallowedgains.aswtp` (it's in the dropdown thanks to the previous
+   step), SKU `com.hallowedgains.aswtp`. Without this entry `fastlane
+   beta`'s TestFlight upload has nowhere to land.
 
 ## 4. First build → TestFlight
 

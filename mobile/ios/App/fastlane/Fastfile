@@ -28,18 +28,27 @@ platform :ios do
     )
   end
 
-  desc "One-time per app: register the bundle ID (push enabled) and the " \
-       "App Store Connect app entry, then generate signing certs/profiles"
+  desc "One-time per app: register the bundle ID (push enabled) with the " \
+       "Developer Portal, then generate signing certs/profiles. The App " \
+       "Store Connect app entry can't be created here: Apple has no API " \
+       "for it (and produce/create_app_online only speaks interactive " \
+       "Apple ID login) — it's a one-time browser step, see " \
+       "docs/capacitor-ios.md step 3."
   lane :bootstrap do
-    create_app_online(
-      api_key: asc_api_key,
-      app_identifier: APP_ID,
-      app_name: APP_NAME,
-      language: "en-US",
-      app_version: "1.0",
-      sku: APP_ID,
-      enable_services: { push_notification: "on" }
-    )
+    Spaceship::ConnectAPI.token = Spaceship::ConnectAPI::Token.from(hash: asc_api_key)
+    bundle_id = Spaceship::ConnectAPI::BundleId.find(APP_ID)
+    if bundle_id
+      UI.message("Bundle ID #{APP_ID} is already registered")
+    else
+      bundle_id = Spaceship::ConnectAPI::BundleId.register(name: APP_NAME, identifier: APP_ID)
+      UI.success("Registered bundle ID #{APP_ID}")
+    end
+    begin
+      bundle_id.create_capability(Spaceship::ConnectAPI::BundleIdCapability::Type::PUSH_NOTIFICATIONS)
+      UI.success("Enabled the push notifications capability on #{APP_ID}")
+    rescue StandardError => e
+      UI.important("Push capability not added (#{e.message}) — fine if it was already enabled")
+    end
     sync_certs
   end
 
