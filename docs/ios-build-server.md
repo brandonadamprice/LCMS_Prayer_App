@@ -55,11 +55,24 @@ APP_STORE_CONNECT_ISSUER_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 APP_STORE_CONNECT_KEY_PATH=/Users/<user>/.appstoreconnect/private_keys/AuthKey_XXXXXXXXXX.p8
 MATCH_GIT_URL=git@github.com-certs:Hallowed-Gains-LLC/ios-certs.git
 MATCH_PASSWORD=<match passphrase>
+MATCH_KEYCHAIN_PASSWORD=<macOS login password of the build user>
 ```
 
 `chmod 600 ~/.ios-build.env`. Because the Fastfile reads this file itself,
 it works identically for an interactive SSH session and for the GitHub
 Actions runner service (which has no login-shell environment).
+
+`MATCH_KEYCHAIN_PASSWORD` exists because SSH sessions see the login
+keychain **locked** and macOS cannot show its unlock dialog there — cert
+import and codesigning fail with "User interaction is not allowed". The
+lanes' `prepare_keychain` step unlocks the login keychain with it before
+match touches anything (and match reuses the same variable for the
+key-partition-list step). CI runs skip all of this: `setup_ci` gives the
+runner a throwaway keychain. Verify the password is the right one with
+`security unlock-keychain ~/Library/Keychains/login.keychain-db` (prompts
+once; silence means success) — if the macOS login password fails there,
+the keychain's own password has drifted from the account password and
+needs `security set-keychain-password` first.
 
 ## Self-hosted GitHub Actions runner
 
