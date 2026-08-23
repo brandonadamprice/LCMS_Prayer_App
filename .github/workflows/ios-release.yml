@@ -1,0 +1,45 @@
+# Builds a signed iOS IPA from the Capacitor shell and uploads it to
+# TestFlight. Runs on the self-hosted macOS runner (the Hallowed Gains Mac
+# mini build server) — nothing here works on GitHub-hosted runners because
+# signing keys, the App Store Connect API key, and the match deploy key all
+# live on that machine (~/.ios-build.env). Server setup:
+# docs/ios-build-server.md; app release checklist: docs/capacitor-ios.md.
+#
+# Manual-trigger only, mirroring the Android release workflow: a store
+# release is only needed when mobile/ changes. The build number is derived
+# from TestFlight (latest + 1) inside the fastlane lane, so re-runs are safe.
+
+name: iOS Release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: [self-hosted, macOS]
+    steps:
+      - uses: actions/checkout@v4
+
+      # The runner runs as a launchd service without a login shell, so
+      # Homebrew tools (node, fastlane, xcodes) aren't on PATH by default.
+      - name: Add Homebrew to PATH
+        run: echo "/opt/homebrew/bin" >> "$GITHUB_PATH"
+
+      - name: Install web deps
+        working-directory: mobile
+        run: npm ci
+
+      - name: Sync Capacitor iOS
+        working-directory: mobile
+        run: npx cap sync ios
+
+      - name: Build and upload to TestFlight
+        working-directory: mobile/ios/App
+        run: fastlane beta

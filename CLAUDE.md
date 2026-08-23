@@ -45,6 +45,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   code is already consumed (Play rejects a reused code, and the bump is
   harmless if it wasn't). Bump the human-facing `versionName` alongside it,
   and keep `mobile/package.json`'s `version` in step with `versionName`.
+- **iOS shell**: bump `MARKETING_VERSION` in
+  `mobile/ios/App/App.xcodeproj/project.pbxproj` (both configs) in step
+  with `versionName`/`package.json`. Do NOT manage the iOS build number
+  (`CURRENT_PROJECT_VERSION`) in the repo — the fastlane beta lane sets it
+  to TestFlight's latest + 1 at build time (`docs/capacitor-ios.md`).
 - **Web static assets**: any change to `static/app.js` or `static/styles.css`
   requires bumping its `?v=` query in `base.html` AND the matching entry in
   the offline-download list in `settings.html` — the two must stay in sync or

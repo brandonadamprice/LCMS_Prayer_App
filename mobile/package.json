@@ -1,6 +1,6 @@
 {
   "name": "asimplewaytopray-mobile",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Capacitor native shell for A Simple Way to Pray (loads the live site; see docs/capacitor-android.md)",
   "private": true,
   "scripts": {
@@ -12,6 +12,7 @@
     "@capacitor/android": "^8.4.1",
     "@capacitor/app": "^8.1.0",
     "@capacitor/core": "^8.4.1",
+    "@capacitor/ios": "^8.5.0",
     "@capacitor/push-notifications": "^8.1.1",
     "firebase": "^12.15.0"
   },
