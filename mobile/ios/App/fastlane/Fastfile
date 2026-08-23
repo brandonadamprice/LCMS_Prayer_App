@@ -28,6 +28,23 @@ platform :ios do
     )
   end
 
+  # SSH sessions see the login keychain locked and macOS can't pop its
+  # unlock dialog ("SecKeychainItemImport: User interaction is not
+  # allowed"), so cert import/codesign silently fail; match itself never
+  # unlocks — it only uses MATCH_KEYCHAIN_PASSWORD for the partition list.
+  # CI runs skip this: setup_ci builds a throwaway keychain instead.
+  private_lane :prepare_keychain do
+    next if ENV["CI"]
+    password = ENV["MATCH_KEYCHAIN_PASSWORD"].to_s
+    if password.empty?
+      UI.user_error!("Set MATCH_KEYCHAIN_PASSWORD in ~/.ios-build.env (the macOS login password of the build user) — needed to unlock the login keychain in SSH sessions. See docs/ios-build-server.md.")
+    end
+    unlock_keychain(
+      path: File.expand_path("~/Library/Keychains/login.keychain-db"),
+      password: password
+    )
+  end
+
   desc "One-time per app: register the bundle ID (push enabled) with the " \
        "Developer Portal, then generate signing certs/profiles. The App " \
        "Store Connect app entry can't be created here: Apple has no API " \
@@ -54,12 +71,14 @@ platform :ios do
 
   desc "Create or renew signing certs + profiles in the shared certs repo"
   lane :sync_certs do
+    prepare_keychain
     match(type: "appstore", api_key: asc_api_key, readonly: false)
   end
 
   desc "Build a signed IPA and upload it to TestFlight"
   lane :beta do
     setup_ci if ENV["CI"] # temp keychain, so runner jobs never touch login keychain
+    prepare_keychain
     api_key = asc_api_key
     match(type: "appstore", api_key: api_key, readonly: true)
     build_number = latest_testflight_build_number(
