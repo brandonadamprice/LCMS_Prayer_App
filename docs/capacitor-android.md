@@ -272,5 +272,6 @@ into the app, and launcher shortcuts become possible later.
   upgrades or config changes. After any `mobile/package.json` change run
   `npx cap sync android` and commit the result. Ship it via the **Android
   Release** GitHub Action (step 7) — bump `versionCode` first.
-- iOS later reuses this exact project: `npx cap add ios`, plus the items in
-  `docs/native-apps.md` step 5 (Sign in with Apple, APNs, Guideline 4.2).
+- iOS reuses this exact project — `mobile/ios/` is scaffolded and has its
+  own checklist: [capacitor-ios.md](capacitor-ios.md) (build server setup:
+  [ios-build-server.md](ios-build-server.md)).

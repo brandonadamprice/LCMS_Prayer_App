@@ -1,0 +1,7 @@
+# Signing certs/profiles live encrypted in the shared Hallowed Gains certs
+# repo — one repo for every app on the Apple team. The build server reaches
+# it via the github.com-certs SSH alias (a repo-scoped deploy key), and
+# MATCH_PASSWORD decrypts it; both come from ~/.ios-build.env.
+git_url(ENV["MATCH_GIT_URL"] || "git@github.com-certs:Hallowed-Gains-LLC/ios-certs.git")
+storage_mode("git")
+type("appstore")

@@ -88,7 +88,13 @@ Capacitor plugin equivalents; the web fallbacks keep working inside the shell.
    Remaining are the console/store steps (Firebase Android app +
    `google-services.json`, SHA fingerprints, device testing, Play Console):
    see [capacitor-android.md](capacitor-android.md).
-5. **iOS follow-on from the same shell**: add Sign in with Apple (review
-   `firebase_auth_logic` matching first — Apple's relay emails won't match
-   existing docs), APNs setup, and the Guideline 4.2 native-value items
-   (widget / biometric lock candidates); App Store submission.
+5. 🔄 **iOS follow-on from the same shell**: code complete — `mobile/ios/`
+   scaffolded (Capacitor 8 / SPM, same remote-URL mode), Swift
+   `PrinterPlugin`, APNs→FCM token bridge in `AppDelegate`, fastlane
+   lanes + self-hosted-runner workflow for headless TestFlight releases
+   from the Mac mini build server. Remaining are the console/store steps
+   (Firebase iOS app, APNs key, `fastlane bootstrap`, TestFlight, then
+   pre-submission: **Sign in with Apple** — review `firebase_auth_logic`
+   matching first, Apple's relay emails won't match existing docs — and
+   the Guideline 4.2 review case): see [capacitor-ios.md](capacitor-ios.md)
+   and [ios-build-server.md](ios-build-server.md).
