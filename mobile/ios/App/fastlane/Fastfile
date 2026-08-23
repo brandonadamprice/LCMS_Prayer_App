@@ -1,0 +1,83 @@
+# iOS release lanes, built to run headlessly on the Hallowed Gains build
+# server (SSH or the self-hosted GitHub Actions runner) — no Xcode GUI.
+# Machine/account-level config is the ~/.ios-build.env contract described in
+# docs/ios-build-server.md; per-app values are this directory's Appfile and
+# the constants below. New apps copy mobile/ios/App/fastlane/ wholesale and
+# change only the Appfile and these constants.
+
+# Fill unset vars from the machine-level env file; anything already in the
+# environment (e.g. injected by CI) wins over the file.
+require "dotenv"
+machine_env = File.expand_path("~/.ios-build.env")
+Dotenv.load(machine_env) if File.exist?(machine_env)
+
+default_platform(:ios)
+
+APP_ID = CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier)
+APP_NAME = "A Simple Way to Pray"
+XCODEPROJ = "App.xcodeproj"
+SCHEME = "App"
+PROFILE_NAME = "match AppStore #{APP_ID}"
+
+platform :ios do
+  private_lane :asc_api_key do
+    app_store_connect_api_key(
+      key_id: ENV.fetch("APP_STORE_CONNECT_KEY_ID"),
+      issuer_id: ENV.fetch("APP_STORE_CONNECT_ISSUER_ID"),
+      key_filepath: ENV.fetch("APP_STORE_CONNECT_KEY_PATH")
+    )
+  end
+
+  desc "One-time per app: register the bundle ID (push enabled) and the " \
+       "App Store Connect app entry, then generate signing certs/profiles"
+  lane :bootstrap do
+    create_app_online(
+      api_key: asc_api_key,
+      app_identifier: APP_ID,
+      app_name: APP_NAME,
+      language: "en-US",
+      app_version: "1.0",
+      sku: APP_ID,
+      enable_services: { push_notification: "on" }
+    )
+    sync_certs
+  end
+
+  desc "Create or renew signing certs + profiles in the shared certs repo"
+  lane :sync_certs do
+    match(type: "appstore", api_key: asc_api_key, readonly: false)
+  end
+
+  desc "Build a signed IPA and upload it to TestFlight"
+  lane :beta do
+    setup_ci if ENV["CI"] # temp keychain, so runner jobs never touch login keychain
+    api_key = asc_api_key
+    match(type: "appstore", api_key: api_key, readonly: true)
+    build_number = latest_testflight_build_number(
+      api_key: api_key,
+      app_identifier: APP_ID,
+      initial_build_number: 0
+    ) + 1
+    update_code_signing_settings(
+      path: XCODEPROJ,
+      use_automatic_signing: false,
+      team_id: ENV.fetch("APPLE_TEAM_ID"),
+      code_sign_identity: "Apple Distribution",
+      profile_name: PROFILE_NAME,
+      bundle_identifier: APP_ID
+    )
+    build_app(
+      project: XCODEPROJ,
+      scheme: SCHEME,
+      output_directory: "build",
+      # CFBundleVersion comes from TestFlight's latest + 1 rather than the
+      # repo, so re-runs never collide with an already-uploaded build.
+      xcargs: "CURRENT_PROJECT_VERSION=#{build_number}",
+      export_method: "app-store",
+      export_options: {
+        provisioningProfiles: { APP_ID => PROFILE_NAME }
+      }
+    )
+    upload_to_testflight(api_key: api_key, skip_waiting_for_build_processing: true)
+  end
+end

@@ -68,6 +68,7 @@ devotions/
   static/              # CSS, icons, manifest.json, sw.js (PWA)
   requirements.txt
   Procfile             # gunicorn entry (also see Dockerfile)
+mobile/                # Capacitor native shell (android/ + ios/) wrapping the live site
 docs/                  # Architecture, migration plans, native-app notes
 CLAUDE.md              # Working notes for AI-assisted development
 ```
@@ -112,3 +113,5 @@ on `:8080`). Flow: feature branches → `dev` → staging instance → `main`/pr
 - [Architecture overview](docs/architecture.md)
 - [Firebase Auth migration plan](docs/firebase-auth-migration.md) (phases, status)
 - [Native app (Android/iOS) plan](docs/native-apps.md)
+- [Android build & ship checklist](docs/capacitor-android.md)
+- [iOS build & ship checklist](docs/capacitor-ios.md) (shared build server: [ios-build-server.md](docs/ios-build-server.md))

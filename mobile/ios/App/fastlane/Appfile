@@ -1,0 +1,5 @@
+# Per-app fastlane identity. Everything machine/account-level (team ID,
+# App Store Connect key, match repo, match passphrase) comes from
+# ~/.ios-build.env on the build server — see docs/ios-build-server.md.
+app_identifier "com.hallowedgains.aswtp"
+team_id ENV["APPLE_TEAM_ID"] if ENV["APPLE_TEAM_ID"]
