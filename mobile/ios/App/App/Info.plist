@@ -28,7 +28,7 @@
 				<!-- REVERSED_CLIENT_ID from the real GoogleService-Info.plist;
 				     Google sign-in's round-trip back into the app needs it.
 				     Replace alongside that file (docs/capacitor-ios.md step 1). -->
-				<string>com.googleusercontent.apps.REPLACE-ME</string>
+				<string>com.googleusercontent.apps.978583660884-i7s0fl1h9utjqgbeft0n586hhonickm8</string>
 			</array>
 		</dict>
 	</array>
