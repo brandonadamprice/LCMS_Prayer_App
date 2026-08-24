@@ -42,6 +42,31 @@ def password_claims(**overrides):
   return claims
 
 
+def apple_claims(**overrides):
+  """Decoded-token claims as produced by Sign in with Apple through Firebase.
+
+  Defaults model the common case: hide-my-email relay address, verified
+  (Firebase asserts Apple emails verified), and NO name claim -- Apple only
+  shares the name on the very first authorization, and even that first
+  token routinely lacks it.
+  """
+  claims = {
+      "uid": "fb-uid-apple-1",
+      "sub": "fb-uid-apple-1",
+      "email": "k3jd92xq7f@privaterelay.appleid.com",
+      "email_verified": True,
+      "firebase": {
+          "sign_in_provider": "apple.com",
+          "identities": {
+              "apple.com": ["001234.abcdef1234567890.1234"],
+              "email": ["k3jd92xq7f@privaterelay.appleid.com"],
+          },
+      },
+  }
+  claims.update(overrides)
+  return claims
+
+
 class ExtractIdentityTest(unittest.TestCase):
 
   def test_google_sign_in(self):
@@ -231,6 +256,74 @@ class BuildNewUserDataTest(unittest.TestCase):
         data,
         {"firebase_uid": "fb-uid-789", "email": "simple@example.com"},
     )
+
+
+class AppleSignInTest(unittest.TestCase):
+  """Sign in with Apple flows through the shared logic; these tests pin the
+  Apple-specific behaviors: verified relay emails, absent name claims, and
+  the fallback display names."""
+
+  def test_extract_identity_apple_provider(self):
+    identity = firebase_auth_logic.extract_identity(apple_claims())
+    self.assertEqual(identity.provider, "apple.com")
+    self.assertEqual(identity.email, "k3jd92xq7f@privaterelay.appleid.com")
+    self.assertTrue(identity.email_verified)
+    self.assertIsNone(identity.name)
+    self.assertIsNone(identity.google_sub)
+
+  def test_apple_sign_in_is_never_blocked_on_verification(self):
+    identity = firebase_auth_logic.extract_identity(apple_claims())
+    self.assertFalse(firebase_auth_logic.needs_email_verification(identity))
+
+  def test_relay_email_matches_nothing_and_creates_fresh_account(self):
+    identity = firebase_auth_logic.extract_identity(apple_claims())
+    action, doc_id = firebase_auth_logic.resolve_login(identity)
+    self.assertEqual(action, firebase_auth_logic.CREATE)
+    self.assertEqual(doc_id, "fb-uid-apple-1")
+
+  def test_shared_real_email_links_legacy_account(self):
+    identity = firebase_auth_logic.extract_identity(
+        apple_claims(email="pray.always@example.com")
+    )
+    action, doc_id = firebase_auth_logic.resolve_login(
+        identity, email_match_id="legacy-doc-1"
+    )
+    self.assertEqual(action, firebase_auth_logic.LINK)
+    self.assertEqual(doc_id, "legacy-doc-1")
+
+  def test_link_data_is_only_the_firebase_uid(self):
+    identity = firebase_auth_logic.extract_identity(apple_claims())
+    self.assertEqual(
+        firebase_auth_logic.build_link_data(identity),
+        {"firebase_uid": "fb-uid-apple-1"},
+    )
+
+  def test_new_user_with_relay_email_gets_generic_name(self):
+    identity = firebase_auth_logic.extract_identity(apple_claims())
+    data = firebase_auth_logic.build_new_user_data(identity)
+    self.assertEqual(data["name"], "Friend")
+    self.assertEqual(data["email"], "k3jd92xq7f@privaterelay.appleid.com")
+
+  def test_new_user_with_real_email_gets_local_part_name(self):
+    identity = firebase_auth_logic.extract_identity(
+        apple_claims(email="katie.luther@example.com")
+    )
+    data = firebase_auth_logic.build_new_user_data(identity)
+    self.assertEqual(data["name"], "katie.luther")
+
+  def test_new_user_keeps_name_when_apple_provides_one(self):
+    identity = firebase_auth_logic.extract_identity(
+        apple_claims(name="Katharina von Bora")
+    )
+    data = firebase_auth_logic.build_new_user_data(identity)
+    self.assertEqual(data["name"], "Katharina von Bora")
+
+  def test_name_fallback_is_apple_only(self):
+    # The password flow's omit-missing-fields behavior is pinned by
+    # BuildNewUserDataTest; this guards the provider scoping directly.
+    identity = firebase_auth_logic.extract_identity(password_claims())
+    data = firebase_auth_logic.build_new_user_data(identity)
+    self.assertNotIn("name", data)
 
 
 if __name__ == "__main__":

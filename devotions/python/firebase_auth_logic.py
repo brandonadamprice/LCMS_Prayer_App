@@ -19,9 +19,24 @@ Matching precedence (resolve_login):
                       safe when Firebase asserts the email is verified;
                       otherwise anyone could claim an existing account by
                       creating an unverified Firebase user with that email.
+
+Sign in with Apple (provider "apple.com") flows through the same precedence
+untouched: Firebase asserts Apple emails verified, so a user who shares
+their real address links to their legacy account (step 3), while a hidden
+address (@privaterelay.appleid.com) matches nothing and creates a fresh
+account -- the relay address is unknowable in advance, so that is the only
+correct outcome. Two Apple quirks ARE handled here: the name claim is
+routinely absent (Apple shares the name only on the very first
+authorization, and the token minted right then may already lack it), and a
+relay address's local part is an opaque random string, so
+build_new_user_data falls back accordingly.
 """
 
 import dataclasses
+
+# Apple's hide-my-email relay domain; its local parts are opaque random
+# strings, useless as display names.
+APPLE_RELAY_SUFFIX = "@privaterelay.appleid.com"
 
 # Actions returned by resolve_login.
 LOGIN = "login"  # Existing Firebase-linked user; just refresh and sign in.
@@ -142,14 +157,33 @@ def build_link_data(identity):
   return data
 
 
+def apple_fallback_name(email):
+  """Display name for an Apple sign-in whose token carries no name claim.
+
+  The email's local part is a reasonable default for a shared real address,
+  but a private-relay address's local part is random noise, so those get a
+  friendly generic instead.
+  """
+  if email and not email.endswith(APPLE_RELAY_SUFFIX):
+    return email.split("@")[0]
+  return "Friend"
+
+
 def build_new_user_data(identity):
-  """Fields for a brand-new user document (mirrors the legacy OAuth shape)."""
+  """Fields for a brand-new user document (mirrors the legacy OAuth shape).
+
+  Missing fields are omitted rather than written as None -- except the name
+  of an Apple sign-in, which is routinely absent (see module docstring) and
+  would otherwise render as a blank profile; those get apple_fallback_name.
+  """
   data = {
       "firebase_uid": identity.firebase_uid,
       "email": identity.email,
       "name": identity.name,
       "profile_pic": identity.picture,
   }
+  if identity.provider == "apple.com" and not data["name"]:
+    data["name"] = apple_fallback_name(identity.email)
   if identity.google_sub:
     data["google_id"] = identity.google_sub
     data["google_profile_pic"] = identity.picture

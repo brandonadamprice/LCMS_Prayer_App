@@ -1,4 +1,5 @@
-{# Progressive enhancement for the "Sign in/up with Google" button.
+{# Progressive enhancement for the "Sign in/up with Google" button, plus the
+   iOS-only "Sign in with Apple" button.
 
    Include this in any page that has an <a href="/login/google"> button. The
    anchor keeps working exactly as before when JavaScript is unavailable; this
@@ -18,59 +19,74 @@
    failures NEVER fall back to /login/google -- Google refuses its OAuth
    pages inside webviews (disallowed_useragent), which is the whole reason
    the native path exists.
+
+   Sign in with Apple: App Store Guideline 4.8 requires it because the app
+   offers Google login. It is offered ONLY inside the iOS native shell
+   (native AuthenticationServices flow via the same plugin) -- pages ship an
+   [data-apple-signin] element hidden by default and this script reveals it
+   there. Deliberately not offered on the web/Android: that would need an
+   Apple Services ID + domain verification for zero benefit, since Apple
+   only mandates it where the app runs. Backend-wise Apple tokens flow
+   through the same /auth/firebase bridge (see firebase_auth_logic.py for
+   the relay-email and missing-name handling).
 #}
 <script type="module">
   const googleBtn = document.querySelector('a[href="/login/google"]');
+  const appleWrap = document.querySelector('[data-apple-signin]');
+  const appleBtn = appleWrap && appleWrap.querySelector('a');
+  let busy = false;
+
+  // POSTs a Firebase ID token to the session bridge. Returns true when a
+  // session was created (caller should navigate), false when the bridge
+  // showed/threw a user-facing outcome that just resets the button.
+  // Throws on anything unexpected so each caller applies its own fallback.
+  async function createSession(idToken) {
+    const resp = await fetch('/auth/firebase', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idToken: idToken }),
+    });
+    const data = await resp.json();
+    if (resp.ok && data.success) return true;
+    if (resp.status === 409 && data.error) {
+      showToast(data.error, 'error');
+      return false;
+    }
+    throw new Error(data.error || 'session bridge failed');
+  }
+
+  // Shared native-plugin flow: run the provider's OS-level sign-in, then
+  // exchange the *Firebase* ID token (not the provider credential) for a
+  // session. cancelPattern matches the "user backed out" errors, which are
+  // not failures.
+  async function nativeSignIn(providerSignIn, providerLabel, cancelPattern) {
+    try {
+      const { FirebaseAuthentication } = window.Capacitor.Plugins;
+      await providerSignIn(FirebaseAuthentication);
+      const { token } = await FirebaseAuthentication.getIdToken();
+      if (await createSession(token)) {
+        window.location.href = '/';
+        return;
+      }
+    } catch (err) {
+      const msg = String((err && (err.message || err.code)) || '');
+      if (!cancelPattern.test(msg)) {
+        console.warn('Native ' + providerLabel + ' sign-in failed.', err);
+        showToast(providerLabel + ' sign-in failed. Please try again.', 'error');
+      }
+    }
+    busy = false;
+  }
+
   if (googleBtn) {
-    let busy = false;
-
-    // POSTs a Firebase ID token to the session bridge. Returns true when a
-    // session was created (caller should navigate), false when the bridge
-    // showed/threw a user-facing outcome that just resets the button.
-    // Throws on anything unexpected so each caller applies its own fallback.
-    async function createSession(idToken) {
-      const resp = await fetch('/auth/firebase', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idToken: idToken }),
-      });
-      const data = await resp.json();
-      if (resp.ok && data.success) return true;
-      if (resp.status === 409 && data.error) {
-        showToast(data.error, 'error');
-        return false;
-      }
-      throw new Error(data.error || 'session bridge failed');
-    }
-
-    async function nativeSignIn() {
-      try {
-        const { FirebaseAuthentication } = window.Capacitor.Plugins;
-        await FirebaseAuthentication.signInWithGoogle();
-        // The bridge needs the *Firebase* ID token, not the Google OAuth
-        // credential returned by signInWithGoogle().
-        const { token } = await FirebaseAuthentication.getIdToken();
-        if (await createSession(token)) {
-          window.location.href = '/';
-          return;
-        }
-      } catch (err) {
-        const msg = String((err && (err.message || err.code)) || '');
-        // User backed out of the account chooser: not an error.
-        if (!/cancel|12501/i.test(msg)) {
-          console.warn('Native Google sign-in failed.', err);
-          showToast('Google sign-in failed. Please try again.', 'error');
-        }
-      }
-      busy = false;
-    }
-
     googleBtn.addEventListener('click', async (event) => {
       event.preventDefault();
       if (busy) return;
       busy = true;
       if (window.isNativeShell) {
-        await nativeSignIn();
+        // 12501 is Android's sign-in-cancelled status code.
+        await nativeSignIn(
+          (fa) => fa.signInWithGoogle(), 'Google', /cancel|12501/i);
         return;
       }
       try {
@@ -110,6 +126,19 @@
         console.warn('Firebase sign-in failed; using legacy flow.', err);
         window.location.href = '/login/google';
       }
+    });
+  }
+
+  if (appleBtn && window.isNativeShell &&
+      window.Capacitor.getPlatform && window.Capacitor.getPlatform() === 'ios') {
+    appleWrap.style.display = '';
+    appleBtn.addEventListener('click', async (event) => {
+      event.preventDefault();
+      if (busy) return;
+      busy = true;
+      // 1001 is ASAuthorizationError.canceled.
+      await nativeSignIn(
+        (fa) => fa.signInWithApple(), 'Apple', /cancel|1001/i);
     });
   }
 </script>
