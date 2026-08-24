@@ -114,4 +114,4 @@ on `:8080`). Flow: feature branches → `dev` → staging instance → `main`/pr
 - [Firebase Auth migration plan](docs/firebase-auth-migration.md) (phases, status)
 - [Native app (Android/iOS) plan](docs/native-apps.md)
 - [Android build & ship checklist](docs/capacitor-android.md)
-- [iOS build & ship checklist](docs/capacitor-ios.md) (shared build server: [ios-build-server.md](docs/ios-build-server.md))
+- [iOS build & ship checklist](docs/capacitor-ios.md) (shared build server: [ios-build-server.md](docs/ios-build-server.md); Apple process playbook: [apple-release-playbook.md](docs/apple-release-playbook.md))
