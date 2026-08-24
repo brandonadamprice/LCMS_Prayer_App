@@ -67,10 +67,24 @@ platform :ios do
       UI.important("Push capability not added (#{e.message}) — fine if it was already enabled")
     end
     begin
-      bundle_id.create_capability(Spaceship::ConnectAPI::BundleIdCapability::Type::APPLE_ID_AUTH)
-      UI.success("Enabled the Sign in with Apple capability on #{APP_ID}")
+      # Unlike push, Sign in with Apple refuses to enable without a
+      # configuration ("Please select at least one configuration"): the app
+      # must be declared its own primary App ID (vs grouped under another).
+      bundle_id.create_capability(
+        Spaceship::ConnectAPI::BundleIdCapability::Type::APPLE_ID_AUTH,
+        settings: [
+          {
+            key: Spaceship::ConnectAPI::BundleIdCapability::Settings::APPLE_ID_AUTH_APP_CONSENT,
+            options: [
+              { key: Spaceship::ConnectAPI::BundleIdCapability::Options::PRIMARY_APP_CONSENT }
+            ]
+          }
+        ]
+      )
+      UI.success("Enabled the Sign in with Apple capability on #{APP_ID} (primary App ID)")
     rescue StandardError => e
-      UI.important("Sign in with Apple capability not added (#{e.message}) — fine if it was already enabled")
+      UI.important("Sign in with Apple capability not added: #{e.message}")
+      UI.important("Re-runs hit this when it's already enabled. If this is the FIRST enable, treat it as a real failure: verify the checkbox at developer.apple.com → Identifiers → #{APP_ID} before building.")
     end
     sync_certs
   end
