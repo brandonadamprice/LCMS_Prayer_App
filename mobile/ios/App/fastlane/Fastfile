@@ -66,13 +66,27 @@ platform :ios do
     rescue StandardError => e
       UI.important("Push capability not added (#{e.message}) — fine if it was already enabled")
     end
+    begin
+      bundle_id.create_capability(Spaceship::ConnectAPI::BundleIdCapability::Type::APPLE_ID_AUTH)
+      UI.success("Enabled the Sign in with Apple capability on #{APP_ID}")
+    rescue StandardError => e
+      UI.important("Sign in with Apple capability not added (#{e.message}) — fine if it was already enabled")
+    end
     sync_certs
   end
 
-  desc "Create or renew signing certs + profiles in the shared certs repo"
+  desc "Create or renew signing certs + profiles in the shared certs repo. " \
+       "After changing App ID capabilities (push, Sign in with Apple, ...) " \
+       "run with MATCH_FORCE=1 — match won't notice the App ID changed and " \
+       "would keep serving the stale provisioning profile."
   lane :sync_certs do
     prepare_keychain
-    match(type: "appstore", api_key: asc_api_key, readonly: false)
+    match(
+      type: "appstore",
+      api_key: asc_api_key,
+      readonly: false,
+      force: ENV["MATCH_FORCE"] == "1"
+    )
   end
 
   desc "Upload the App Store listing (metadata + screenshots, no binary) " \

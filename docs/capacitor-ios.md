@@ -114,13 +114,10 @@ Same list as the Android doc's step 4, with iOS-specific eyes on:
 
 Apple-specific hurdles Google didn't have — plan these in:
 
-- **Sign in with Apple is mandatory** (Guideline 4.8): the app offers
-  Google sign-in, so Apple requires their login too. Needs web-side work,
-  not just shell work: add the Apple provider in Firebase Auth, surface the
-  button in `_firebase_signin.html`, and review `firebase_auth_logic.py`
-  matching rules first — Apple's private-relay emails won't match existing
-  user docs (see native-apps.md, blocker 4). **Budget this before the App
-  Store submission; TestFlight testing doesn't require it.**
+- **Sign in with Apple is mandatory** (Guideline 4.8) because the app
+  offers Google sign-in. ✅ Code complete — see the "Sign in with Apple"
+  section below for the two one-time console steps and the rebuild.
+  TestFlight testing doesn't require it; App Store review does.
 - **Guideline 4.2 (minimum functionality)**: expect "it's a website
   wrapper" pushback. Native push, native Google sign-in, and native print
   are the counterargument; have them all working before review, and
@@ -166,6 +163,38 @@ Plus the standing facts: encrypted in transit, deletable on request.
 **Age rating**: answer None to all content questions → 4+. The app is not
 a general web browser (it shows only its own site), so "unrestricted web
 access" is No.
+
+## Sign in with Apple
+
+Offered **only inside the iOS shell** (native `AuthenticationServices` flow
+via the same Firebase plugin as Google) — deliberately not on web/Android,
+which would require an Apple Services ID + domain verification for zero
+benefit, since Apple only mandates the option where the app runs. What's in
+the code: hidden "Sign in/up with Apple" buttons in `signin.html` /
+`register.html` that `_firebase_signin.html` reveals in the iOS shell and
+wires to `FirebaseAuthentication.signInWithApple()` → the same
+`/auth/firebase` bridge; the `com.apple.developer.applesignin` entitlement;
+`apple.com` in the plugin's providers; and `firebase_auth_logic.py`
+handling for Apple's quirks (relay emails create fresh accounts, shared
+real emails link to legacy accounts, missing name claims get a fallback —
+all unit-tested).
+
+One-time setup to turn it on:
+
+1. **Firebase console** → Authentication → Sign-in method → **Apple** →
+   Enable. Leave the Services ID / OAuth fields empty — they're only for
+   web flows, which we don't offer.
+2. **On the mini**: `git pull`, then `MATCH_FORCE=1 fastlane bootstrap` —
+   the updated bootstrap enables the Sign in with Apple capability on the
+   App ID, and `MATCH_FORCE=1` makes match regenerate the provisioning
+   profile so it embeds the new entitlement (without it match happily
+   serves the stale profile and the build fails signing).
+3. `npx cap sync ios` (providers config changed), then `fastlane beta`.
+
+Known-and-accepted UX caveat: an existing Google/email user who signs in
+with Apple *and hides their email* gets a fresh empty account — the relay
+address is unknowable in advance, so no linking rule can catch it. Signing
+in with Apple while sharing the real address links correctly.
 
 ## Ongoing
 

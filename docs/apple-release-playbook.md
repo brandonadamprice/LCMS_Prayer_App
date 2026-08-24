@@ -85,7 +85,15 @@ interactive Apple ID login and will fail with the API key.
 
 - **Sign in with Apple is mandatory** the moment the app offers any
   third-party login (Google, Facebook, …). Plan the auth work before the
-  submission, not after the rejection.
+  submission, not after the rejection. Cost-saver: offer it **natively in
+  the shell only** — Apple only mandates it where the app runs, and the
+  native flow needs no Services ID, no key, and no domain verification;
+  the Firebase console just needs the Apple provider toggled on. After
+  enabling the App ID capability, regenerate the provisioning profile
+  (`MATCH_FORCE=1` — match won't notice the App ID changed and keeps
+  serving the stale profile). Relay-email caveat: a hidden address can
+  never match an existing account, so returning users should sign in the
+  way they signed up.
 - **Guideline 4.2 (minimum functionality)** for web-shell apps: expect
   "it's a website wrapper" pushback. Counter with genuine native value —
   native push, OS-level sign-in, native print/share/widgets — working at

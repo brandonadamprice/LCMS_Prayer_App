@@ -88,13 +88,13 @@ Capacitor plugin equivalents; the web fallbacks keep working inside the shell.
    Remaining are the console/store steps (Firebase Android app +
    `google-services.json`, SHA fingerprints, device testing, Play Console):
    see [capacitor-android.md](capacitor-android.md).
-5. 🔄 **iOS follow-on from the same shell**: code complete — `mobile/ios/`
-   scaffolded (Capacitor 8 / SPM, same remote-URL mode), Swift
-   `PrinterPlugin`, APNs→FCM token bridge in `AppDelegate`, fastlane
-   lanes + self-hosted-runner workflow for headless TestFlight releases
-   from the Mac mini build server. Remaining are the console/store steps
-   (Firebase iOS app, APNs key, `fastlane bootstrap`, TestFlight, then
-   pre-submission: **Sign in with Apple** — review `firebase_auth_logic`
-   matching first, Apple's relay emails won't match existing docs — and
-   the Guideline 4.2 review case): see [capacitor-ios.md](capacitor-ios.md)
-   and [ios-build-server.md](ios-build-server.md).
+5. 🔄 **iOS follow-on from the same shell**: code complete and in external
+   TestFlight testing — `mobile/ios/` (Capacitor 8 / SPM, same remote-URL
+   mode), Swift `PrinterPlugin`, APNs→FCM token bridge, headless fastlane
+   release pipeline from the Mac mini build server, App Store listing
+   uploaded, and **Sign in with Apple** (iOS-shell-only, native flow;
+   `firebase_auth_logic` handles relay emails and missing names —
+   unit-tested). Remaining: SIWA console toggles + rebuild
+   ([capacitor-ios.md](capacitor-ios.md) "Sign in with Apple"), device
+   test pass, then App Store submission (Guideline 4.2 case documented in
+   [apple-release-playbook.md](apple-release-playbook.md)).
