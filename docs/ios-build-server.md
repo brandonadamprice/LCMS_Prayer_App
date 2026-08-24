@@ -3,9 +3,11 @@
 This doc describes the **shared, project-agnostic** iOS release
 infrastructure: one Mac mini builds and ships every Hallowed Gains iOS app
 headlessly (SSH / CI only — no screen sharing, no Xcode GUI). This is the
-canonical copy; it's useful to mirror it into the
-`Hallowed-Gains-LLC/ios-certs` README so every project's contributors find
-it. App-specific release steps live in each app repo (here:
+canonical copy; mirror it — together with
+[apple-release-playbook.md](apple-release-playbook.md), the Apple-side
+process knowledge and traps — into `Hallowed-Gains-LLC/ios-certs` so every
+project's contributors find them (commands at the bottom of the playbook).
+App-specific release steps live in each app repo (here:
 [capacitor-ios.md](capacitor-ios.md)).
 
 ## The machine
@@ -123,6 +125,12 @@ The per-app surface is deliberately tiny:
    bundle ID) — Apple has no API for that one step, and fastlane's
    `produce` only supports interactive Apple ID login. Subsequent releases
    are `fastlane beta` or the workflow button.
+5. The store listing: write the app's `fastlane/metadata/` texts, capture
+   screenshots at the required sizes (script pattern:
+   `store-assets/capture_ios_screenshots.py`), and upload everything with
+   `fastlane sync_store_listing`. TestFlight mechanics, review gates, and
+   the traps already hit once:
+   [apple-release-playbook.md](apple-release-playbook.md).
 
 Certificates are team-level: the first app's `bootstrap` created the Apple
 Distribution cert, and every later app's `match` run reuses it, adding only
