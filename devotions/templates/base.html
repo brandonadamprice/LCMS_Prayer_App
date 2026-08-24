@@ -11,7 +11,10 @@
       gtag('config', 'G-N46CBBTKNE');
     </script>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- viewport-fit=cover: in the iOS Capacitor shell the WebView draws under
+         the status bar; this opts into env(safe-area-inset-*) so the navbar
+         can pad itself clear (styles.css). No-op in normal browsers. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     {% set page_title %}{% block title %}A Simple Way to Pray{% endblock %}{% endset %}
     <title>{{ page_title }}</title>
     {% set meta_description %}{% block meta_description %}A website for daily prayer, Scripture reading, and reflection on the Catechism, according to LCMS traditions.{% endblock %}{% endset %}
@@ -29,7 +32,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Lora:ital,wght@0,400..700;1,400..700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <noscript><link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Lora:ital,wght@0,400..700;1,400..700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet"></noscript>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}?v=26" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}?v=27" />
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='icons/favicon.ico') }}">
     <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='icons/favicon-32x32.png') }}">
     <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='icons/favicon-16x16.png') }}">
