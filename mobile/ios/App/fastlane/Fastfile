@@ -75,6 +75,21 @@ platform :ios do
     match(type: "appstore", api_key: asc_api_key, readonly: false)
   end
 
+  desc "Upload the App Store listing (metadata + screenshots, no binary) " \
+       "from fastlane/metadata and fastlane/screenshots. Screenshot " \
+       "regeneration: mobile/store-assets/capture_ios_screenshots.py."
+  lane :sync_store_listing do
+    deliver(
+      api_key: asc_api_key,
+      app_version: get_version_number(xcodeproj: XCODEPROJ, target: "App"),
+      skip_binary_upload: true,
+      overwrite_screenshots: true,
+      force: true, # no interactive HTML-preview confirmation (headless)
+      run_precheck_before_submit: false,
+      submit_for_review: false
+    )
+  end
+
   desc "Build a signed IPA and upload it to TestFlight"
   lane :beta do
     setup_ci if ENV["CI"] # temp keychain, so runner jobs never touch login keychain
