@@ -367,7 +367,10 @@ button.picker-select-button:hover {
     background-color: rgba(255, 255, 255, 0.98);
     backdrop-filter: blur(8px);
     border-bottom: 1px solid rgba(0,0,0,0.08);
-    padding: 0 20px;
+    /* Safe-area padding: in the iOS app shell (and installed PWAs) the page
+       extends under the status bar / notch; env() is 0 everywhere else.
+       Content-box sizing keeps the nav row itself 60px tall. */
+    padding: env(safe-area-inset-top, 0px) calc(20px + env(safe-area-inset-right, 0px)) 0 calc(20px + env(safe-area-inset-left, 0px));
     height: 60px;
     display: flex;
     justify-content: space-between;
@@ -558,7 +561,7 @@ button.picker-select-button:hover {
 #app-menu {
     display: none;
     position: absolute;
-    top: 65px; /* Below navbar */
+    top: calc(65px + env(safe-area-inset-top, 0px)); /* Below navbar (which grows by the safe-area inset) */
     right: 10px;
     width: 280px;
     background-color: white;
@@ -1836,7 +1839,8 @@ body.dark-mode .nav-streak.scripture-tooltip.active::before {
         z-index: 2000;
         box-shadow: 0 -4px 15px rgba(0,0,0,0.3);
         text-align: left;
-        padding: 20px;
+        /* Bottom sheet clears the iPhone home indicator */
+        padding: 20px 20px calc(20px + env(safe-area-inset-bottom, 0px));
         box-sizing: border-box;
         border-radius: 12px 12px 0 0;
         max-height: 50vh;
@@ -2332,7 +2336,7 @@ select:focus-visible,
    ========================================================================= */
 #toast-container {
     position: fixed;
-    top: 78px;
+    top: calc(78px + env(safe-area-inset-top, 0px));
     right: 16px;
     z-index: 3000;
     display: flex;
