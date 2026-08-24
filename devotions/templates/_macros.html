@@ -406,3 +406,10 @@ function showMilestonePopup(message, streak) {
 </script>
 {% endif %}
 {% endmacro %}
+
+{# Renders a word/phrase that changes when a devotion is prayed alone.
+   The plural (congregational) form is rendered by default; page JS swaps in
+   the singular form when the reader turns on a "praying alone" toggle. #}
+{% macro solo(plural, singular) -%}
+<span class="solo-swap" data-plural="{{ plural }}" data-solo="{{ singular }}">{{ plural }}</span>
+{%- endmacro %}

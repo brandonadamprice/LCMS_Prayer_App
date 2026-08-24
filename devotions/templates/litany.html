@@ -6,132 +6,145 @@
       <h1>The Litany</h1>
     </div>
 
+    <div class="card no-print" style="padding: 12px 15px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+        <span style="font-size: 0.9em; font-weight: bold; color: var(--text-heading);">
+          <span class="scripture-tooltip" data-text="Praying by yourself? This changes the responses from &quot;us / we / our&quot; to &quot;me / I / my.&quot; The Lord's Prayer is left as our Lord gave it." style="border-bottom: none; font-size: 1.2em; vertical-align: middle; margin-right: 3px;">&#9432;</span>
+          Praying alone
+        </span>
+        <label class="switch">
+          <input type="checkbox" id="solo-mode-toggle" aria-label="Praying alone: use singular words">
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+
     {% call macros.card('The Kyrie') %}
         <p>
           O Lord,<br>
-          <strong>have mercy upon us.</strong>
+          <strong>have mercy upon {{ macros.solo('us', 'me') }}.</strong>
         </p>
         <p>
           O Christ,<br>
-          <strong>have mercy upon us.</strong>
+          <strong>have mercy upon {{ macros.solo('us', 'me') }}.</strong>
         </p>
         <p>
           O Lord,<br>
-          <strong>have mercy upon us.</strong>
+          <strong>have mercy upon {{ macros.solo('us', 'me') }}.</strong>
         </p>
         <p>
           O Christ,<br>
-          <strong>hear Thou us.</strong>
+          <strong>hear Thou {{ macros.solo('us', 'me') }}.</strong>
         </p>
         <p>
           O God the Father in heaven,<br>
-          <strong>have mercy upon us.</strong>
+          <strong>have mercy upon {{ macros.solo('us', 'me') }}.</strong>
         </p>
         <p>
           O God the Son, Redeemer of the world,<br>
-          <strong>have mercy upon us.</strong>
+          <strong>have mercy upon {{ macros.solo('us', 'me') }}.</strong>
         </p>
         <p>
           O God the Holy Spirit,<br>
-          <strong>have mercy upon us.</strong>
+          <strong>have mercy upon {{ macros.solo('us', 'me') }}.</strong>
         </p>
     {% endcall %}
 
     {% call macros.card('The Supplication') %}
         <p>
-          Be gracious to us.<br>
-          <strong>Spare us, good Lord.</strong>
+          Be gracious to {{ macros.solo('us', 'me') }}.<br>
+          <strong>Spare {{ macros.solo('us', 'me') }}, good Lord.</strong>
         </p>
         <p>
-          Be gracious to us.<br>
-          <strong>Help us, good Lord.</strong>
+          Be gracious to {{ macros.solo('us', 'me') }}.<br>
+          <strong>Help {{ macros.solo('us', 'me') }}, good Lord.</strong>
         </p>
         <p>
           From all sin; from all error; from all evil:<br>
-          <strong>Good Lord, deliver us.</strong>
+          <strong>Good Lord, deliver {{ macros.solo('us', 'me') }}.</strong>
         </p>
         <p>
           From the crafts and assaults of the devil; from sudden and evil death;<br>
           From pestilence and famine; from war and bloodshed; from sedition and rebellion;<br>
           From lightning and tempest; from all calamity by fire and water; and from everlasting death:<br>
-          <strong>Good Lord, deliver us.</strong>
+          <strong>Good Lord, deliver {{ macros.solo('us', 'me') }}.</strong>
         </p>
         <p>
           By the mystery of Your holy Incarnation; by Your holy Nativity;<br>
           By Your baptism, fasting, and temptation; by Your agony and bloody sweat;<br>
           By Your cross and Passion; by Your precious death and burial;<br>
           By Your glorious resurrection and ascension; and by the coming of the Holy Spirit, the Comforter:<br>
-          <strong>Help us, good Lord.</strong>
+          <strong>Help {{ macros.solo('us', 'me') }}, good Lord.</strong>
         </p>
         <p>
-          In all time of our tribulation; in all time of our prosperity;<br>
+          In all time of {{ macros.solo('our', 'my') }} tribulation; in all time of {{ macros.solo('our', 'my') }} prosperity;<br>
           In the hour of death; and in the day of Judgment:<br>
-          <strong>Help us, good Lord.</strong>
+          <strong>Help {{ macros.solo('us', 'me') }}, good Lord.</strong>
         </p>
     {% endcall %}
 
     {% call macros.card('The Intercession') %}
         <p>
-          We poor sinners implore You<br>
-          <strong>To hear us, O Lord God.</strong>
+          {{ macros.solo('We poor sinners implore You', 'I, a poor sinner, implore You') }}<br>
+          <strong>To hear {{ macros.solo('us', 'me') }}, O Lord God.</strong>
         </p>
         <p>
           And to rule and govern Your holy Christian Church; to preserve all pastors and ministers of Your Church in the true knowledge and understanding of Your Word and in holiness of life;<br>
           To put an end to all schisms and causes of offense; to bring into the way of truth all such as have erred and are deceived;<br>
-          To beat down Satan under our feet; to send faithful laborers into Your harvest; to accompany Your Word with Your Spirit and grace;<br>
+          To beat down Satan under {{ macros.solo('our', 'my') }} feet; to send faithful laborers into Your harvest; to accompany Your Word with Your Spirit and grace;<br>
           To raise up them that fall and to strengthen such as do stand; and to comfort and help the weak-hearted and the distressed:<br>
-          <strong>We implore You to hear us, good Lord.</strong>
+          <strong>{{ macros.solo('We', 'I') }} implore You to hear {{ macros.solo('us', 'me') }}, good Lord.</strong>
         </p>
         <p>
           To give to all nations peace and concord; to preserve our country from discord and contention; to give to our nation perpetual victory over all its enemies;<br>
           To direct and defend our President and all in authority; and to bless and keep our magistrates and all our people:<br>
-          <strong>We implore You to hear us, good Lord.</strong>
+          <strong>{{ macros.solo('We', 'I') }} implore You to hear {{ macros.solo('us', 'me') }}, good Lord.</strong>
         </p>
         <p>
           To behold and succor all who are in danger, necessity, and tribulation; to protect all who travel by land or water;<br>
           To preserve all women in the perils of childbirth; to strengthen and keep all sick persons and young children;<br>
           To set free all who are innocently imprisoned; to defend and provide for all fatherless children and widows;<br>
           And to have mercy upon all men:<br>
-          <strong>We implore You to hear us, good Lord.</strong>
+          <strong>{{ macros.solo('We', 'I') }} implore You to hear {{ macros.solo('us', 'me') }}, good Lord.</strong>
         </p>
         <p>
-          To forgive our enemies, persecutors, and slanderers and to turn their hearts; to give and preserve to our use the kindly fruits of the earth; and graciously to hear our prayers:<br>
-          <strong>We implore You to hear us, good Lord.</strong>
+          To forgive {{ macros.solo('our', 'my') }} enemies, persecutors, and slanderers and to turn their hearts; to give and preserve to {{ macros.solo('our', 'my') }} use the kindly fruits of the earth; and graciously to hear {{ macros.solo('our', 'my') }} prayers:<br>
+          <strong>{{ macros.solo('We', 'I') }} implore You to hear {{ macros.solo('us', 'me') }}, good Lord.</strong>
         </p>
     {% endcall %}
 
     {% call macros.card('Conclusion') %}
         <p>
           O Lord Jesus Christ, Son of God,<br>
-          <strong>We implore You to hear us, good Lord.</strong>
+          <strong>{{ macros.solo('We', 'I') }} implore You to hear {{ macros.solo('us', 'me') }}, good Lord.</strong>
         </p>
         <p>
           O Lamb of God, who takes away the sin of the world,<br>
-          <strong>Have mercy upon us.</strong>
+          <strong>Have mercy upon {{ macros.solo('us', 'me') }}.</strong>
         </p>
         <p>
           O Lamb of God, who takes away the sin of the world,<br>
-          <strong>Have mercy upon us.</strong>
+          <strong>Have mercy upon {{ macros.solo('us', 'me') }}.</strong>
         </p>
         <p>
           O Lamb of God, who takes away the sin of the world,<br>
-          <strong>Grant us Your peace.</strong>
+          <strong>Grant {{ macros.solo('us', 'me') }} Your peace.</strong>
         </p>
         <p>
           O Christ,<br>
-          <strong>hear us.</strong>
+          <strong>hear {{ macros.solo('us', 'me') }}.</strong>
         </p>
         <p>
           O Lord,<br>
-          <strong>have mercy upon us.</strong>
+          <strong>have mercy upon {{ macros.solo('us', 'me') }}.</strong>
         </p>
         <p>
           O Christ,<br>
-          <strong>have mercy upon us.</strong>
+          <strong>have mercy upon {{ macros.solo('us', 'me') }}.</strong>
         </p>
         <p>
           O Lord,<br>
-          <strong>have mercy upon us. Amen.</strong>
+          <strong>have mercy upon {{ macros.solo('us', 'me') }}. Amen.</strong>
         </p>
     {% endcall %}
     
@@ -141,7 +154,7 @@
     
     {% call macros.card('Collect') %}
         <p>
-            O God, who despises not the sighing of a contrite heart, nor the desire of such as be sorrowful; Mercifully assist our prayers that we make before You in all our troubles and adversities, whensoever they oppress us; and graciously hear us, that those evils, which the craft and subtlety of the devil or man works against us, be brought to nothing; and by the providence of Your goodness they may be dispersed; that we Your servants, being hurt by no persecutions, may evermore give thanks to You in Your holy Church; through Jesus Christ our Lord.
+            O God, who despises not the sighing of a contrite heart, nor the desire of such as be sorrowful; Mercifully assist {{ macros.solo('our', 'my') }} prayers that {{ macros.solo('we', 'I') }} make before You in all {{ macros.solo('our', 'my') }} troubles and adversities, whensoever they oppress {{ macros.solo('us', 'me') }}; and graciously hear {{ macros.solo('us', 'me') }}, that those evils, which the craft and subtlety of the devil or man works against {{ macros.solo('us', 'me') }}, be brought to nothing; and by the providence of Your goodness they may be dispersed; that {{ macros.solo('we Your servants', 'I Your servant') }}, being hurt by no persecutions, may evermore give thanks to You in Your holy Church; through Jesus Christ our Lord.
             <br>
             <strong>Amen.</strong>
         </p>
@@ -156,7 +169,34 @@
 
 {% block extra_js %}
 window.suppressDefaultArt = true;
+
+// "Praying alone" mode: swap the congregational us/we/our for me/I/my.
+// The Lord's Prayer is intentionally left in the plural, as Christ gave it.
+function applyLitanySoloMode(enabled) {
+    document.querySelectorAll('.solo-swap').forEach(el => {
+        el.textContent = enabled ? el.dataset.solo : el.dataset.plural;
+    });
+    try {
+        localStorage.setItem('litanySoloMode', enabled ? 'true' : 'false');
+    } catch (e) {
+        // Private browsing / storage disabled - the toggle still works for this visit.
+    }
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
+    const soloToggle = document.getElementById('solo-mode-toggle');
+    if (soloToggle) {
+        let savedSolo = false;
+        try {
+            savedSolo = localStorage.getItem('litanySoloMode') === 'true';
+        } catch (e) {
+            savedSolo = false;
+        }
+        soloToggle.checked = savedSolo;
+        applyLitanySoloMode(savedSolo);
+        soloToggle.addEventListener('change', (e) => applyLitanySoloMode(e.target.checked));
+    }
+
     const theme = "Prayer";
     try {
         const response = await fetch(`/api/lectionary/art?theme=${encodeURIComponent(theme)}`);
