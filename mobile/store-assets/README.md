@@ -19,6 +19,11 @@ Catechism, Prayer Weaver — all render fully without login or the ESV API.
 Still needed separately (not in this folder): the 512×512 hi-res app icon
 (export from the icon source used for `@capacitor/assets`).
 
+The **App Store** set lives in `mobile/ios/App/fastlane/screenshots/en-US/`
+(same five pages, iPhone 6.9" 1320×2868 + iPad 13" 2064×2752), regenerated
+with `capture_ios_screenshots.py` in this directory and uploaded with
+`fastlane sync_store_listing` (listing copy: `fastlane/metadata/en-US/`).
+
 Note: screenshots were captured logged-out on a dated devotion page, so
 they show real daily content; if you retake them, pick a day whose
 propers look good.

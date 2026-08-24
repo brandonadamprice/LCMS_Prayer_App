@@ -127,11 +127,42 @@ Apple-specific hurdles Google didn't have — plan these in:
   mention them in the Review Notes.
 - **Demo account** for the login-gated content: same drill as Play (App
   Store Connect → App Review Information), same warning — verified email,
-  credentials never committed.
-- Listing chores: screenshots (6.9" and 6.5" iPhone; iPad if kept enabled),
-  privacy policy URL, **App Privacy** questionnaire (matches the Play Data
-  safety answers: account/email, push tokens, encrypted in transit,
-  deletable), age rating.
+  credentials never committed. Reuse the Play review account — its
+  credentials live in Play Console → App content → App access (and the
+  password manager), deliberately not in this repo.
+
+### The listing itself is in-repo and uploads programmatically
+
+`mobile/ios/App/fastlane/metadata/` (name, subtitle, description, keywords,
+categories, URLs — the copy mirrors `store-assets/listing-copy.md`) and
+`mobile/ios/App/fastlane/screenshots/en-US/` (same five pages as the Play
+set, iPhone 6.9" + iPad 13", regenerated via
+`store-assets/capture_ios_screenshots.py`). Upload both with:
+
+```bash
+cd mobile/ios/App && fastlane sync_store_listing
+```
+
+The app icon needs no upload — App Store Connect takes it from the
+uploaded build.
+
+### Questionnaires that must be clicked by hand in App Store Connect
+
+**App Privacy** (App Store Connect → App Privacy) — declare "data is
+collected", then (matching the Play Data safety form):
+
+| Data type | Purpose | Linked to identity? | Tracking? |
+| --- | --- | --- | --- |
+| Contact Info → Email Address | App Functionality | Yes | No |
+| User Content → Other User Content (personal prayers, prayer wall) | App Functionality | Yes | No |
+| Identifiers → User ID | App Functionality | Yes | No |
+| Usage Data → Product Interaction (Google Analytics on the site) | Analytics | No | No |
+
+Plus the standing facts: encrypted in transit, deletable on request.
+
+**Age rating**: answer None to all content questions → 4+. The app is not
+a general web browser (it shows only its own site), so "unrestricted web
+access" is No.
 
 ## Ongoing
 
