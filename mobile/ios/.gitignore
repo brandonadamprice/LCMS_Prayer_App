@@ -5,6 +5,7 @@ App/App/public
 App/fastlane/report.xml
 App/fastlane/README.md
 App/fastlane/test_output
+App/fastlane/.env*
 DerivedData
 xcuserdata
 
