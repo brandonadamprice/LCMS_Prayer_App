@@ -95,11 +95,17 @@ platform :ios do
       demo_account_name: "REVIEW_DEMO_USER",
       demo_account_password: "REVIEW_DEMO_PASSWORD"
     }
-    missing = review_env.values.select { |var| ENV[var].to_s.strip.empty? }
+    # Non-secret defaults live here so the env file only needs the private
+    # values (phone, email, demo credentials); env still overrides.
+    review_defaults = { first_name: "Brandon", last_name: "Price" }
+    review_information = review_env.to_h do |key, var|
+      value = ENV[var].to_s.strip
+      [key, value.empty? ? review_defaults[key].to_s : value]
+    end
+    missing = review_env.select { |key, _| review_information[key].empty? }.values
     unless missing.empty?
       UI.user_error!("Missing #{missing.join(', ')} — add them to ~/.ios-build.env (docs/ios-build-server.md). They fill App Review contact + demo account, and deliver needs them on a brand-new app (fastlane#20538).")
     end
-    review_information = review_env.transform_values { |var| ENV[var] }
     review_information[:notes] =
       "The app is a native shell around our website, with native push " \
       "notifications (FCM/APNs), OS-level Google sign-in, and native " \

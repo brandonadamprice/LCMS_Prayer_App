@@ -56,12 +56,12 @@ APP_STORE_CONNECT_KEY_PATH=/Users/<user>/.appstoreconnect/private_keys/AuthKey_X
 MATCH_GIT_URL=git@github.com-certs:Hallowed-Gains-LLC/ios-certs.git
 MATCH_PASSWORD=<match passphrase>
 MATCH_KEYCHAIN_PASSWORD=<macOS login password of the build user>
-REVIEW_CONTACT_FIRST_NAME=<App Review contact>
-REVIEW_CONTACT_LAST_NAME=<App Review contact>
 REVIEW_CONTACT_PHONE=<intl format, e.g. +1 555 555 5555>
 REVIEW_CONTACT_EMAIL=<App Review contact email>
 REVIEW_DEMO_USER=<review demo account email>
 REVIEW_DEMO_PASSWORD=<review demo account password>
+# Optional: REVIEW_CONTACT_FIRST_NAME / REVIEW_CONTACT_LAST_NAME override
+# the committed defaults (Brandon Price) in the app's Fastfile.
 ```
 
 `chmod 600 ~/.ios-build.env`. Because the Fastfile reads this file itself,
