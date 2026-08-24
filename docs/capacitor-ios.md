@@ -125,11 +125,14 @@ Apple-specific hurdles Google didn't have — plan these in:
   wrapper" pushback. Native push, native Google sign-in, and native print
   are the counterargument; have them all working before review, and
   mention them in the Review Notes.
-- **Demo account** for the login-gated content: same drill as Play (App
-  Store Connect → App Review Information), same warning — verified email,
-  credentials never committed. Reuse the Play review account — its
-  credentials live in Play Console → App content → App access (and the
-  password manager), deliberately not in this repo.
+- **Demo account** for the login-gated content: reuse the Play review
+  account — its credentials live in Play Console → App content → App
+  access (and the password manager), deliberately not in this repo. No
+  App Store Connect clicking needed: `fastlane sync_store_listing`
+  uploads the App Review contact + demo account from the `REVIEW_*`
+  variables in `~/.ios-build.env` (see ios-build-server.md). Keep the
+  account's email verified — `/auth/firebase` rejects unverified
+  password accounts, which would lock reviewers out.
 
 ### The listing itself is in-repo and uploads programmatically
 

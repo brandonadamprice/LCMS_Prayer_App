@@ -79,9 +79,36 @@ platform :ios do
        "from fastlane/metadata and fastlane/screenshots. Screenshot " \
        "regeneration: mobile/store-assets/capture_ios_screenshots.py."
   lane :sync_store_listing do
+    # app_review_information is required here for two reasons: it fills the
+    # App Review contact + demo account programmatically, and it works
+    # around a deliver crash on brand-new apps (fastlane#20538) — a version
+    # has no App Review detail record until something creates it, and
+    # deliver's unconditional review-attachment step raises "No data" on
+    # the empty response. Supplying review info makes deliver create the
+    # record first. Values come from ~/.ios-build.env or the per-app,
+    # gitignored fastlane/.env — the demo password never lives in the repo.
+    review_env = {
+      first_name: "REVIEW_CONTACT_FIRST_NAME",
+      last_name: "REVIEW_CONTACT_LAST_NAME",
+      phone_number: "REVIEW_CONTACT_PHONE",
+      email_address: "REVIEW_CONTACT_EMAIL",
+      demo_account_name: "REVIEW_DEMO_USER",
+      demo_account_password: "REVIEW_DEMO_PASSWORD"
+    }
+    missing = review_env.values.select { |var| ENV[var].to_s.strip.empty? }
+    unless missing.empty?
+      UI.user_error!("Missing #{missing.join(', ')} — add them to ~/.ios-build.env (docs/ios-build-server.md). They fill App Review contact + demo account, and deliver needs them on a brand-new app (fastlane#20538).")
+    end
+    review_information = review_env.transform_values { |var| ENV[var] }
+    review_information[:notes] =
+      "The app is a native shell around our website, with native push " \
+      "notifications (FCM/APNs), OS-level Google sign-in, and native " \
+      "print. The demo account is pre-verified; sign in with the " \
+      "email/password form."
     deliver(
       api_key: asc_api_key,
       app_version: get_version_number(xcodeproj: XCODEPROJ, target: "App"),
+      app_review_information: review_information,
       skip_binary_upload: true,
       overwrite_screenshots: true,
       force: true, # no interactive HTML-preview confirmation (headless)
