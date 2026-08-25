@@ -1,5 +1,5 @@
 {# Progressive enhancement for the "Sign in/up with Google" button, plus the
-   iOS-only "Sign in with Apple" button.
+   "Sign in with Apple" button.
 
    Include this in any page that has an <a href="/login/google"> button. The
    anchor keeps working exactly as before when JavaScript is unavailable; this
@@ -8,27 +8,33 @@
    This is the flow that also works inside native app shells, where Google
    blocks its OAuth pages in embedded webviews.
 
-   Failure policy: any unexpected failure (config fetch, SDK load, blocked
-   popup, bridge error) falls back to the legacy /login/google redirect, so
-   the worst case is identical to the pre-Firebase behavior. A deliberately
-   closed popup just resets the button, and a 409 from the bridge carries a
-   real user-facing message, so neither falls through to the legacy flow.
+   Failure policy (Google): any unexpected failure (config fetch, SDK load,
+   blocked popup, bridge error) falls back to the legacy /login/google
+   redirect, so the worst case is identical to the pre-Firebase behavior. A
+   deliberately closed popup just resets the button, and a 409 from the
+   bridge carries a real user-facing message, so neither falls through to
+   the legacy flow.
 
-   Native shell (Capacitor): the sign-in goes through the OS-level Google
-   flow via the FirebaseAuthentication plugin instead of the web popup, and
-   failures NEVER fall back to /login/google -- Google refuses its OAuth
-   pages inside webviews (disallowed_useragent), which is the whole reason
-   the native path exists.
+   Native shell (Capacitor): sign-in goes through the OS-level flow via the
+   FirebaseAuthentication plugin instead of the web popup, and failures
+   NEVER fall back to /login/google -- Google refuses its OAuth pages inside
+   webviews (disallowed_useragent), which is the whole reason the native
+   path exists.
 
-   Sign in with Apple: App Store Guideline 4.8 requires it because the app
-   offers Google login. It is offered ONLY inside the iOS native shell
-   (native AuthenticationServices flow via the same plugin) -- pages ship an
-   [data-apple-signin] element hidden by default and this script reveals it
-   there. Deliberately not offered on the web/Android: that would need an
-   Apple Services ID + domain verification for zero benefit, since Apple
-   only mandates it where the app runs. Backend-wise Apple tokens flow
-   through the same /auth/firebase bridge (see firebase_auth_logic.py for
-   the relay-email and missing-name handling).
+   Sign in with Apple (App Store Guideline 4.8 requires it because the app
+   offers Google login): pages ship a [data-apple-signin] element hidden by
+   default and this script reveals it in the iOS shell (native
+   AuthenticationServices flow via the plugin) and in normal web browsers
+   (Firebase popup flow -- needs the Apple provider fully configured in the
+   Firebase console with a Services ID + key, see docs/capacitor-ios.md).
+   Either route lands on the same Firebase account, so an account created on
+   iPhone signs straight into itself on the web and vice versa. Deliberately
+   still hidden in the ANDROID shell: its WebView can't host the popup flow
+   and the plugin's Android Apple support needs extra config -- revisit if
+   ever needed (Play does not mandate Apple sign-in). Apple has no legacy
+   redirect flow, so its failures toast and reset, never falling through.
+   Backend-wise Apple tokens use the same /auth/firebase bridge (see
+   firebase_auth_logic.py for relay-email and missing-name handling).
 #}
 <script type="module">
   const googleBtn = document.querySelector('a[href="/login/google"]');
@@ -78,6 +84,42 @@
     busy = false;
   }
 
+  // Lazily initialize the Firebase web SDK for browser popup flows, shared
+  // between providers. Loaded on demand so visitors who don't use these
+  // buttons never download the SDK. Same SDK version as settings.html.
+  let webAuthPromise = null;
+  function webFirebaseAuth() {
+    webAuthPromise = webAuthPromise || (async () => {
+      const configResp = await fetch('/auth/firebase_config');
+      if (!configResp.ok) throw new Error('config fetch failed');
+      const config = await configResp.json();
+      const [{ initializeApp }, authMod] = await Promise.all([
+        import('https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js'),
+        import('https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js'),
+      ]);
+      const app = initializeApp(config);
+      return { auth: authMod.getAuth(app), authMod: authMod };
+    })();
+    return webAuthPromise;
+  }
+
+  // Runs a browser popup sign-in and returns the Firebase ID token, or null
+  // when the user closed the popup on purpose. Throws on real failures.
+  async function webPopupSignIn(makeProvider) {
+    const { auth, authMod } = await webFirebaseAuth();
+    let result;
+    try {
+      result = await authMod.signInWithPopup(auth, makeProvider(authMod));
+    } catch (err) {
+      if (err && (err.code === 'auth/popup-closed-by-user' ||
+                  err.code === 'auth/cancelled-popup-request')) {
+        return null;
+      }
+      throw err;
+    }
+    return await result.user.getIdToken();
+  }
+
   if (googleBtn) {
     googleBtn.addEventListener('click', async (event) => {
       event.preventDefault();
@@ -90,38 +132,13 @@
         return;
       }
       try {
-        const configResp = await fetch('/auth/firebase_config');
-        if (!configResp.ok) throw new Error('config fetch failed');
-        const config = await configResp.json();
-
-        // Loaded on demand so visitors who don't use Google sign-in never
-        // download the Firebase SDK. Same SDK version as settings.html.
-        const [{ initializeApp }, authMod] = await Promise.all([
-          import('https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js'),
-          import('https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js'),
-        ]);
-        const app = initializeApp(config);
-        const auth = authMod.getAuth(app);
-        const provider = new authMod.GoogleAuthProvider();
-
-        let result;
-        try {
-          result = await authMod.signInWithPopup(auth, provider);
-        } catch (err) {
-          if (err && (err.code === 'auth/popup-closed-by-user' ||
-                      err.code === 'auth/cancelled-popup-request')) {
-            busy = false;
-            return;
-          }
-          throw err;
-        }
-
-        const idToken = await result.user.getIdToken();
-        if (await createSession(idToken)) {
-          window.location.href = '/';
-        } else {
+        const idToken = await webPopupSignIn(
+          (authMod) => new authMod.GoogleAuthProvider());
+        if (idToken === null || !(await createSession(idToken))) {
           busy = false;
+          return;
         }
+        window.location.href = '/';
       } catch (err) {
         console.warn('Firebase sign-in failed; using legacy flow.', err);
         window.location.href = '/login/google';
@@ -129,16 +146,37 @@
     });
   }
 
-  if (appleBtn && window.isNativeShell &&
-      window.Capacitor.getPlatform && window.Capacitor.getPlatform() === 'ios') {
+  const capPlatform = (window.Capacitor && window.Capacitor.getPlatform)
+      ? window.Capacitor.getPlatform() : 'web';
+  const appleAvailable = capPlatform === 'ios' || !window.isNativeShell;
+  if (appleBtn && appleAvailable) {
     appleWrap.style.display = '';
     appleBtn.addEventListener('click', async (event) => {
       event.preventDefault();
       if (busy) return;
       busy = true;
-      // 1001 is ASAuthorizationError.canceled.
-      await nativeSignIn(
-        (fa) => fa.signInWithApple(), 'Apple', /cancel|1001/i);
+      if (window.isNativeShell) {
+        // 1001 is ASAuthorizationError.canceled.
+        await nativeSignIn(
+          (fa) => fa.signInWithApple(), 'Apple', /cancel|1001/i);
+        return;
+      }
+      try {
+        const idToken = await webPopupSignIn((authMod) => {
+          const provider = new authMod.OAuthProvider('apple.com');
+          provider.addScope('email');
+          provider.addScope('name');
+          return provider;
+        });
+        if (idToken !== null && await createSession(idToken)) {
+          window.location.href = '/';
+          return;
+        }
+      } catch (err) {
+        console.warn('Apple sign-in failed.', err);
+        showToast('Apple sign-in failed. Please try again.', 'error');
+      }
+      busy = false;
     });
   }
 </script>

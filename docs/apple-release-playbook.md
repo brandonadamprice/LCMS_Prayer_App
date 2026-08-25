@@ -85,15 +85,25 @@ interactive Apple ID login and will fail with the API key.
 
 - **Sign in with Apple is mandatory** the moment the app offers any
   third-party login (Google, Facebook, …). Plan the auth work before the
-  submission, not after the rejection. Cost-saver: offer it **natively in
-  the shell only** — Apple only mandates it where the app runs, and the
-  native flow needs no Services ID, no key, and no domain verification;
-  the Firebase console just needs the Apple provider toggled on. After
-  enabling the App ID capability, regenerate the provisioning profile
-  (`MATCH_FORCE=1` — match won't notice the App ID changed and keeps
-  serving the stale profile). Relay-email caveat: a hidden address can
-  never match an existing account, so returning users should sign in the
-  way they signed up.
+  submission, not after the rejection. Lessons:
+  - The **native shell flow** needs only the App ID capability +
+    entitlement and the Firebase Apple provider toggled on. Enabling the
+    capability via API requires the primary-App-ID consent setting
+    (`APPLE_ID_AUTH` + `APPLE_ID_AUTH_APP_CONSENT`/`PRIMARY_APP_CONSENT`
+    — a bare enable 409s). After any capability change, regenerate the
+    provisioning profile (`MATCH_FORCE=1` — match won't notice the App ID
+    changed and keeps serving the stale profile).
+  - Ship the **web flow too** for a web-first product, or app-created
+    Apple accounts are stranded app-only. Web needs a Services ID
+    (configured against the App ID) + a Sign in with Apple key pasted
+    into the Firebase provider config. Apple dropped domain file
+    verification — just list domains and return URLs. Gotcha: when
+    `authDomain` is customized to the site's own domain (reverse-proxied
+    `/__/auth`), Apple must accept THAT domain's `/__/auth/handler`, not
+    firebaseapp.com's. Both routes resolve to the same Firebase account.
+  - Relay-email caveat: a hidden address can never match a pre-existing
+    non-Apple account, so returning users should sign in the way they
+    signed up.
 - **Guideline 4.2 (minimum functionality)** for web-shell apps: expect
   "it's a website wrapper" pushback. Counter with genuine native value —
   native push, OS-level sign-in, native print/share/widgets — working at
