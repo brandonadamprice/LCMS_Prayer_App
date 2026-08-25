@@ -92,7 +92,8 @@ Capacitor plugin equivalents; the web fallbacks keep working inside the shell.
    TestFlight testing — `mobile/ios/` (Capacitor 8 / SPM, same remote-URL
    mode), Swift `PrinterPlugin`, APNs→FCM token bridge, headless fastlane
    release pipeline from the Mac mini build server, App Store listing
-   uploaded, and **Sign in with Apple** (iOS-shell-only, native flow;
+   uploaded, and **Sign in with Apple** (native flow in the iOS shell +
+   popup flow in web browsers, same Firebase account either way;
    `firebase_auth_logic` handles relay emails and missing names —
    unit-tested). Remaining: SIWA console toggles + rebuild
    ([capacitor-ios.md](capacitor-ios.md) "Sign in with Apple"), device
