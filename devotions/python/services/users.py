@@ -215,6 +215,7 @@ def handle_firebase_login(claims):
           "firebase_uid", identity.firebase_uid
       ),
       google_match_id=_find_user_id_by_field("google_id", identity.google_sub),
+      apple_match_id=_find_user_id_by_field("apple_id", identity.apple_sub),
       email_match_id=_find_user_id_by_field("email", identity.email),
   )
 
@@ -254,6 +255,64 @@ def handle_firebase_login(claims):
       "Firebase sign-in create: user=%s provider=%s", doc_id, identity.provider
   )
   return models.User.get(doc_id), None
+
+
+def link_firebase_identity(user_id, claims):
+  """Attaches a verified Firebase identity to an already-signed-in account.
+
+  Powers the settings "Link Apple/Google account" flow: unlike
+  handle_firebase_login this never switches the session or creates a user --
+  it only adds the identity's linkage fields (firebase_uid, apple_id,
+  google_id) to the CURRENT user's doc, after which resolve_login finds this
+  account by those fields. This is the escape hatch for Apple's
+  hide-my-email addresses: once linked here, even a relay-email Apple
+  sign-in resolves to this account.
+
+  Args:
+    user_id: doc ID of the signed-in user (flask_login current_user.id).
+    claims: decoded claims from firebase_admin.auth.verify_id_token; the
+      caller is responsible for having verified the token.
+
+  Returns:
+    (linked, error): (True, None) on success, else (False,
+    (error_code, user_facing_message)). Codes: invalid_token,
+    identity_in_use.
+  """
+  identity = firebase_auth_logic.extract_identity(claims)
+  if identity is None:
+    return False, ("invalid_token", "Invalid authentication token.")
+
+  # Refuse identities already attached to a different account -- linking
+  # must never quietly steal a login method from another user.
+  claimed_fields = (
+      ("firebase_uid", identity.firebase_uid),
+      ("google_id", identity.google_sub),
+      ("apple_id", identity.apple_sub),
+  )
+  for field, value in claimed_fields:
+    other_id = _find_user_id_by_field(field, value)
+    if other_id and other_id != user_id:
+      logger.warning(
+          "Firebase link refused (%s already on another account):"
+          " user=%s provider=%s",
+          field,
+          user_id,
+          identity.provider,
+      )
+      return False, (
+          "identity_in_use",
+          "That sign-in is already linked to a different account.",
+      )
+
+  update_existing_user_doc(
+      user_id, firebase_auth_logic.build_link_data(identity)
+  )
+  logger.info(
+      "Firebase identity linked: user=%s provider=%s",
+      user_id,
+      identity.provider,
+  )
+  return True, None
 
 
 def handle_oauth_login(user_info, provider):

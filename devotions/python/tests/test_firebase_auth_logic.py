@@ -270,6 +270,7 @@ class AppleSignInTest(unittest.TestCase):
     self.assertTrue(identity.email_verified)
     self.assertIsNone(identity.name)
     self.assertIsNone(identity.google_sub)
+    self.assertEqual(identity.apple_sub, "001234.abcdef1234567890.1234")
 
   def test_apple_sign_in_is_never_blocked_on_verification(self):
     identity = firebase_auth_logic.extract_identity(apple_claims())
@@ -291,12 +292,41 @@ class AppleSignInTest(unittest.TestCase):
     self.assertEqual(action, firebase_auth_logic.LINK)
     self.assertEqual(doc_id, "legacy-doc-1")
 
-  def test_link_data_is_only_the_firebase_uid(self):
+  def test_link_data_carries_the_apple_sub(self):
     identity = firebase_auth_logic.extract_identity(apple_claims())
     self.assertEqual(
         firebase_auth_logic.build_link_data(identity),
-        {"firebase_uid": "fb-uid-apple-1"},
+        {
+            "firebase_uid": "fb-uid-apple-1",
+            "apple_id": "001234.abcdef1234567890.1234",
+        },
     )
+
+  def test_apple_id_match_links_even_with_relay_email(self):
+    # The stored apple_id is how a hide-my-email sign-in finds an account
+    # that was linked to Apple from settings: the relay email matches
+    # nothing, but the Apple "sub" does.
+    identity = firebase_auth_logic.extract_identity(apple_claims())
+    action, doc_id = firebase_auth_logic.resolve_login(
+        identity, apple_match_id="linked-doc-1"
+    )
+    self.assertEqual(action, firebase_auth_logic.LINK)
+    self.assertEqual(doc_id, "linked-doc-1")
+
+  def test_apple_match_wins_over_email_match(self):
+    identity = firebase_auth_logic.extract_identity(
+        apple_claims(email="pray.always@example.com")
+    )
+    action, doc_id = firebase_auth_logic.resolve_login(
+        identity, apple_match_id="apple-doc", email_match_id="email-doc"
+    )
+    self.assertEqual(action, firebase_auth_logic.LINK)
+    self.assertEqual(doc_id, "apple-doc")
+
+  def test_new_user_doc_stores_the_apple_sub(self):
+    identity = firebase_auth_logic.extract_identity(apple_claims())
+    data = firebase_auth_logic.build_new_user_data(identity)
+    self.assertEqual(data["apple_id"], "001234.abcdef1234567890.1234")
 
   def test_new_user_with_relay_email_gets_generic_name(self):
     identity = firebase_auth_logic.extract_identity(apple_claims())
