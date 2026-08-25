@@ -166,35 +166,68 @@ access" is No.
 
 ## Sign in with Apple
 
-Offered **only inside the iOS shell** (native `AuthenticationServices` flow
-via the same Firebase plugin as Google) — deliberately not on web/Android,
-which would require an Apple Services ID + domain verification for zero
-benefit, since Apple only mandates the option where the app runs. What's in
-the code: hidden "Sign in/up with Apple" buttons in `signin.html` /
-`register.html` that `_firebase_signin.html` reveals in the iOS shell and
-wires to `FirebaseAuthentication.signInWithApple()` → the same
-`/auth/firebase` bridge; the `com.apple.developer.applesignin` entitlement;
-`apple.com` in the plugin's providers; and `firebase_auth_logic.py`
-handling for Apple's quirks (relay emails create fresh accounts, shared
-real emails link to legacy accounts, missing name claims get a fallback —
-all unit-tested).
+Offered in the **iOS shell** (native `AuthenticationServices` flow via the
+same Firebase plugin as Google) and in **web browsers** (Firebase popup
+flow) — either route resolves to the same Firebase account, so an account
+created on iPhone signs straight into itself on the web and vice versa.
+Hidden in the **Android shell** only (its WebView can't host the popup
+flow; Play doesn't mandate Apple sign-in — revisit with the plugin's
+native Android support if ever wanted; Android users can still use the
+mobile browser site).
 
-One-time setup to turn it on:
+What's in the code: hidden "Sign in/up with Apple" buttons in
+`signin.html` / `register.html` that `_firebase_signin.html` reveals and
+wires to the native plugin (iOS shell) or `signInWithPopup` with
+`OAuthProvider('apple.com')` (browsers) → the same `/auth/firebase`
+bridge; the `com.apple.developer.applesignin` entitlement; `apple.com` in
+the plugin's providers; and `firebase_auth_logic.py` handling for Apple's
+quirks (relay emails create fresh accounts, shared real emails link to
+legacy accounts, missing name claims get a fallback — all unit-tested).
+
+One-time setup — iOS native flow:
 
 1. **Firebase console** → Authentication → Sign-in method → **Apple** →
-   Enable. Leave the Services ID / OAuth fields empty — they're only for
-   web flows, which we don't offer.
+   Enable.
 2. **On the mini**: `git pull`, then `MATCH_FORCE=1 fastlane bootstrap` —
-   the updated bootstrap enables the Sign in with Apple capability on the
-   App ID, and `MATCH_FORCE=1` makes match regenerate the provisioning
-   profile so it embeds the new entitlement (without it match happily
-   serves the stale profile and the build fails signing).
+   bootstrap enables the Sign in with Apple capability on the App ID
+   (primary-App-ID configuration included), and `MATCH_FORCE=1` makes
+   match regenerate the provisioning profile so it embeds the new
+   entitlement.
 3. `npx cap sync ios` (providers config changed), then `fastlane beta`.
 
-Known-and-accepted UX caveat: an existing Google/email user who signs in
-with Apple *and hides their email* gets a fresh empty account — the relay
-address is unknowable in advance, so no linking rule can catch it. Signing
-in with Apple while sharing the real address links correctly.
+One-time setup — web popup flow (all browser steps):
+
+1. [Apple portal](https://developer.apple.com/account) → Identifiers →
+   **+** → **Services IDs** → identifier `com.hallowedgains.aswtp.web`,
+   description "A Simple Way to Pray Web". Create it, open it, enable
+   **Sign In with Apple** → Configure: Primary App ID
+   `com.hallowedgains.aswtp`; Domains: `asimplewaytopray.com` and
+   `staging.asimplewaytopray.com`; Return URLs:
+   `https://asimplewaytopray.com/__/auth/handler` and
+   `https://staging.asimplewaytopray.com/__/auth/handler`. (Our
+   `/auth/firebase_config` serves the site's own domain as `authDomain`
+   with a `/__/auth` reverse proxy, so Apple must accept OUR handler
+   URLs, not firebaseapp.com's. Apple no longer requires domain file
+   verification.) Save.
+2. Apple portal → **Keys** → **+** → name "Sign in with Apple —
+   Firebase" → check **Sign in with Apple** → Configure → Primary App ID
+   `com.hallowedgains.aswtp` → register, download the `.p8` (one-shot →
+   password manager), note the Key ID.
+3. **Firebase console** → Authentication → Sign-in method → Apple →
+   expand the OAuth code flow configuration: Services ID
+   `com.hallowedgains.aswtp.web`, Apple Team ID, the Key ID from step 2,
+   and paste the `.p8` contents as the private key. Save.
+
+Known UX caveat and its mitigation: an existing Google/email user who
+signs in with Apple *and hides their email* gets a fresh empty account —
+the relay address is unknowable in advance, so no matching rule can catch
+it on first contact. Signing in with Apple while sharing the real address
+links correctly, and anyone who signed *up* with Apple always lands on
+their own account on every platform. The mitigation is **Settings →
+Linked Accounts → Link Apple Account** (web + iOS shell): linking from a
+signed-in session stores the Apple ID (`apple_id`) on the account via the
+`/auth/firebase` link mode, after which even hide-my-email Apple sign-ins
+resolve to the right account.
 
 ## Ongoing
 

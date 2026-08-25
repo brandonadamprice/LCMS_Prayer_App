@@ -56,6 +56,7 @@ class FirebaseIdentity:
   name: str = None
   picture: str = None
   google_sub: str = None
+  apple_sub: str = None
 
 
 def extract_identity(claims):
@@ -75,6 +76,8 @@ def extract_identity(claims):
   identities = firebase_info.get("identities") or {}
   google_subs = identities.get("google.com") or []
   google_sub = str(google_subs[0]) if google_subs else None
+  apple_subs = identities.get("apple.com") or []
+  apple_sub = str(apple_subs[0]) if apple_subs else None
 
   email = (claims.get("email") or "").strip().lower() or None
 
@@ -86,6 +89,7 @@ def extract_identity(claims):
       name=claims.get("name"),
       picture=claims.get("picture"),
       google_sub=google_sub,
+      apple_sub=apple_sub,
   )
 
 
@@ -113,7 +117,11 @@ def choose_doc_id(identity):
 
 
 def resolve_login(
-    identity, uid_match_id=None, google_match_id=None, email_match_id=None
+    identity,
+    uid_match_id=None,
+    google_match_id=None,
+    apple_match_id=None,
+    email_match_id=None,
 ):
   """Decides how a Firebase sign-in maps onto existing user documents.
 
@@ -121,6 +129,11 @@ def resolve_login(
     identity: FirebaseIdentity from extract_identity.
     uid_match_id: doc ID of the user whose firebase_uid matches, if any.
     google_match_id: doc ID of the user whose google_id matches, if any.
+    apple_match_id: doc ID of the user whose apple_id matches, if any --
+      set when the account was explicitly linked to Apple (settings) or a
+      prior Apple sign-in stored the Apple "sub". Lets a hide-my-email
+      Apple sign-in find its account even when the relay email and the
+      current firebase_uid both fail to match.
     email_match_id: doc ID of the user whose email matches, if any. Callers
       must pass this whenever the identity has an email -- even an unverified
       one -- so an unverified collision is rejected instead of silently
@@ -134,6 +147,8 @@ def resolve_login(
     return LOGIN, uid_match_id
   if google_match_id:
     return LINK, google_match_id
+  if apple_match_id:
+    return LINK, apple_match_id
   if email_match_id:
     if identity.email_verified:
       return LINK, email_match_id
@@ -154,6 +169,8 @@ def build_link_data(identity):
     data["google_id"] = identity.google_sub
     if identity.picture:
       data["google_profile_pic"] = identity.picture
+  if identity.apple_sub:
+    data["apple_id"] = identity.apple_sub
   return data
 
 
@@ -187,4 +204,6 @@ def build_new_user_data(identity):
   if identity.google_sub:
     data["google_id"] = identity.google_sub
     data["google_profile_pic"] = identity.picture
+  if identity.apple_sub:
+    data["apple_id"] = identity.apple_sub
   return {k: v for k, v in data.items() if v is not None}
