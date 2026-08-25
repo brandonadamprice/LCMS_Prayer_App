@@ -51,6 +51,7 @@ class User(flask_login.UserMixin):
       notification_preferences=None,
       password_hash=None,
       google_id=None,
+      apple_id=None,
       timezone=None,
       background_art=True,
       hide_catechism=False,
@@ -94,6 +95,7 @@ class User(flask_login.UserMixin):
     }
     self.password_hash = password_hash
     self.google_id = google_id
+    self.apple_id = apple_id
     self.timezone = timezone
     self.background_art = background_art
     self.hide_catechism = hide_catechism
@@ -158,6 +160,7 @@ class User(flask_login.UserMixin):
           notification_preferences=data.get("notification_preferences"),
           password_hash=data.get("password_hash"),
           google_id=data.get("google_id"),
+          apple_id=data.get("apple_id"),
           timezone=data.get("timezone"),
           background_art=data.get("background_art", True),
           hide_catechism=data.get("hide_catechism", False),

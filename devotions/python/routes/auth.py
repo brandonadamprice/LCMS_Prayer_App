@@ -312,6 +312,26 @@ def register(app, *, google, rate_limited):
       app.logger.warning("Firebase ID token verification failed: %s", e)
       return flask.jsonify({"success": False, "error": "Invalid token"}), 401
 
+    if data.get("link"):
+      # Link mode (settings "Linked Accounts"): attach this identity to the
+      # signed-in account instead of switching/creating sessions.
+      if not flask_login.current_user.is_authenticated:
+        return (
+            flask.jsonify({"success": False, "error": "Not signed in"}),
+            401,
+        )
+      linked, link_error = users.link_firebase_identity(
+          flask_login.current_user.id, claims
+      )
+      if not linked:
+        code, message = link_error
+        status = 409 if code == "identity_in_use" else 400
+        return (
+            flask.jsonify({"success": False, "error": message, "code": code}),
+            status,
+        )
+      return flask.jsonify({"success": True})
+
     user, error = users.handle_firebase_login(claims)
     if user is None:
       code, message = error

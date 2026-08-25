@@ -218,12 +218,16 @@ One-time setup — web popup flow (all browser steps):
    `com.hallowedgains.aswtp.web`, Apple Team ID, the Key ID from step 2,
    and paste the `.p8` contents as the private key. Save.
 
-Known-and-accepted UX caveat: an existing Google/email user who signs in
-with Apple *and hides their email* gets a fresh empty account — the relay
-address is unknowable in advance, so no linking rule can catch it.
-Signing in with Apple while sharing the real address links correctly, and
-anyone who signed *up* with Apple always lands on their own account on
-every platform.
+Known UX caveat and its mitigation: an existing Google/email user who
+signs in with Apple *and hides their email* gets a fresh empty account —
+the relay address is unknowable in advance, so no matching rule can catch
+it on first contact. Signing in with Apple while sharing the real address
+links correctly, and anyone who signed *up* with Apple always lands on
+their own account on every platform. The mitigation is **Settings →
+Linked Accounts → Link Apple Account** (web + iOS shell): linking from a
+signed-in session stores the Apple ID (`apple_id`) on the account via the
+`/auth/firebase` link mode, after which even hide-my-email Apple sign-ins
+resolve to the right account.
 
 ## Ongoing
 
