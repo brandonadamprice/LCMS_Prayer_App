@@ -2035,16 +2035,26 @@ body.dark-mode .random-prayer-box {
     color: #ecf0f1;
 }
 
-/* Prayer Weaver Styles */
+/* Prayer Weaver Styles
+   Built to survive a heavily zoomed phone: Android's "Display size" setting
+   plus large text scaling leaves a very narrow CSS viewport, so every box
+   here is border-box, wraps long words, and tightens its padding under
+   480px. */
 .weaver-container {
     max-width: 800px;
     margin: 0 auto;
-    padding: 20px;
+    /* Side gutters come from base.html's .container -- padding here too
+       would double them and squeeze the content on zoomed-in phones. */
+    padding: 20px 0;
+    /* Inherited: a word too long for its box breaks instead of running
+       past the edge (e.g. "Commandments" at a large font scale). */
+    overflow-wrap: break-word;
 }
 .weaver-card {
     background: white;
     border-radius: 10px;
     padding: 20px;
+    box-sizing: border-box;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     margin-bottom: 20px;
 }
@@ -2062,12 +2072,12 @@ body.dark-mode .random-prayer-box {
 }
 .selection-list {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 10px;
 }
 @media (min-width: 600px) {
     .selection-list {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     }
 }
 .selection-item {
@@ -2075,6 +2085,8 @@ body.dark-mode .random-prayer-box {
     border: 1px solid #ddd;
     padding: 15px;
     border-radius: 8px;
+    box-sizing: border-box;
+    min-width: 0;
     cursor: pointer;
     transition: transform 0.2s, box-shadow 0.2s;
 }
@@ -2121,8 +2133,13 @@ body.dark-mode .random-prayer-box {
     background: #46627f;
 }
 .step-dot {
-    width: 30px;
-    height: 30px;
+    /* em, not px: the circle has to grow with the user's font scale or the
+       numeral spills out of it (1.9em == the original 30px at 16px base),
+       but it stays capped so four dots always fit the card. */
+    width: clamp(28px, 1.9em, 42px);
+    height: clamp(28px, 1.9em, 42px);
+    flex: 0 0 auto;
+    line-height: 1;
     border-radius: 50%;
     background: #ddd;
     display: flex;
@@ -2158,8 +2175,12 @@ body.dark-mode .random-prayer-box {
     border-radius: 5px;
     cursor: pointer;
     margin: 15px 0;
+    max-width: 100%;
+    box-sizing: border-box;
     display: inline-flex;
+    flex-wrap: wrap;
     align-items: center;
+    justify-content: center;
     gap: 5px;
     transition: background 0.2s;
 }
@@ -2168,6 +2189,10 @@ body.dark-mode .random-prayer-box {
 }
 textarea.prayer-input {
     width: 100%;
+    /* Without border-box the 10px padding + 1px border push the field 22px
+       past the card it sits in -- very visible on a zoomed-in phone. */
+    box-sizing: border-box;
+    max-width: 100%;
     min-height: 120px;
     padding: 10px;
     border: 1px solid #ddd;
@@ -2184,7 +2209,27 @@ textarea.prayer-input {
 }
 .nav-buttons {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
+    gap: 10px;
+}
+.nav-buttons .button {
+    margin: 0;
+    /* min-width:0 lets a long label wrap inside the button rather than
+       forcing the row wider than the card. */
+    min-width: 0;
+}
+
+/* Action row under the finished prayer */
+.weaver-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+.weaver-actions .button {
+    margin: 0;
+    min-width: 0;
 }
 
 /* Completion View */
@@ -2193,6 +2238,7 @@ textarea.prayer-input {
     background: #fcfcfc;
     border: 1px solid var(--border-subtle);
     border-radius: 10px;
+    box-sizing: border-box;
     margin-bottom: 20px;
 }
 .dark-mode .wreath-container {
@@ -2212,6 +2258,7 @@ textarea.prayer-input {
     border-radius: 5px;
     margin-bottom: 20px;
     font-size: 0.9em;
+    box-sizing: border-box;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -2236,10 +2283,28 @@ textarea.prayer-input {
     padding: 15px;
     background: var(--surface-hover);
     border-radius: 5px;
+    box-sizing: border-box;
 }
 .dark-mode .source-text-container {
     background: #34495e;
     color: #ecf0f1;
+}
+
+/* Zoomed-in phones: reclaim the padding that nested boxes stack up.
+   Scoped to .weaver-container -- .wreath-container is shared with the
+   Advent devotion page. */
+@media (max-width: 480px) {
+    .weaver-container {
+        padding: 10px 0;
+    }
+    .weaver-card,
+    .weaver-container .wreath-container {
+        padding: 15px;
+    }
+    .selection-item,
+    .source-text-container {
+        padding: 12px;
+    }
 }
 
 /* Home page signup card */
