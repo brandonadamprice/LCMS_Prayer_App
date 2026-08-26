@@ -10,7 +10,7 @@
   {% if messages %}
     <div class="card">
       {% for category, message in messages %}
-        <div class="alert alert-{{ category }}" style="color: {% if category == 'error' %}red{% else %}green{% endif %}; margin-bottom: 10px;">
+        <div class="alert alert-{{ category }}" style="color: {% if category == 'error' %}red{% elif category == 'info' %}var(--color-primary){% else %}green{% endif %}; margin-bottom: 10px; font-weight: {% if category == 'info' %}700{% else %}400{% endif %};">
           {{ message }}
         </div>
       {% endfor %}

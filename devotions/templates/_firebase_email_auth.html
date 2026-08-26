@@ -79,7 +79,8 @@
         }
         const { resp, data } = await bridgeSession(credential.user);
         if (resp.ok && data.success) {
-          window.location.href = '/';
+          // data.next is the page that sent them to sign in, if any.
+          window.location.href = data.next || '/';
           return;
         }
         if (data.code === 'email_unverified') {
