@@ -25,7 +25,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
       `liturgy.py`, `firebase_auth_logic.py`, `password_hash_logic.py`,
       `reminder_logic.py`, `menu.py`, `rate_limit_logic.py`,
       `signup_analytics_logic.py`, `psalter_logic.py`,
-      `reading_plan_logic.py`) and run without
+      `reading_plan_logic.py`, `auth_prompt_logic.py`) and run without
       touching Firestore. Keep pure, testable logic out of modules that
       import `firebase`/`google-cloud`.
     - The whole app imports cleanly under Python 3.14 (protobuf is pinned to
@@ -65,6 +65,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
     - `liturgy.py`: Contains logic for the liturgical year, church seasons, and calculating feast days.
     - `streak_logic.py`: Pure, dependency-free streak/grace-day math (no Firestore imports) so it stays unit-testable.
     - `firebase_auth_logic.py`: Pure, dependency-free logic mapping Firebase Authentication sign-ins onto existing user docs (matching precedence, account-linking rules). Firestore side: `services/users.py` (`handle_firebase_login`); session bridge: `/auth/firebase` in `main.py`. Migration plan and phase status: `docs/firebase-auth-migration.md`.
+    - `auth_prompt_logic.py`: Pure logic behind the "you need a free account" prompt that replaced Flask-Login's bare 401 on every `@login_required` route (`login_manager.unauthorized_handler` in `main.py`). Decides whether a refused request is a page navigation (redirect to `/login` with a flash) or a script's fetch (`401 {"error": "login_required"}`, which `app.js` turns into a dialog), and validates the post-sign-in return URL. NOTE: `Sec-Fetch-Dest` is unreliable here — `sw.js` re-issues navigations through `fetch(event.request)`, which rewrites it to `empty`; `Sec-Fetch-Mode` and `Accept` survive and are what the check trusts.
     - `utils.py`: Shared utility functions (encryption, database access, scripture fetching, etc.).
     - `services/`: Business logic services (e.g., `users.py` for user management, `scripture.py` for ESV API interaction, `reminders.py` for notifications).
     - `devotional_content/`: Logic for generating various devotional types (daily offices, seasonal devotions, Bible in a Year, etc.).

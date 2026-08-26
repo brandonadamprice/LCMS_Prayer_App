@@ -70,6 +70,52 @@ window.showConfirm = function (message, opts) {
     });
 };
 
+/* Members-only features: invite, don't fail.
+
+   main.py answers a signed-out fetch to any @login_required route with
+   401 {"error": "login_required"}, and a signed-out page navigation with a
+   redirect to sign-in. This is the fetch half: any such response raises the
+   same invitation without leaving the page. Wrapping fetch once covers every
+   feature that needs an account -- current and future -- instead of each
+   call site having to remember. */
+const LOGIN_REQUIRED = 'login_required';
+let signInPromptOpen = false;
+
+window.promptSignIn = async function (message) {
+    if (signInPromptOpen) return;   // several fetches can fail at once
+    signInPromptOpen = true;
+    try {
+        const go = await showConfirm(
+            message || 'You need a free account to use this feature.',
+            { okText: 'Sign In / Sign Up', cancelText: 'Not Now' });
+        if (go) {
+            const back = window.location.pathname + window.location.search;
+            window.location.href = '/login?next=' + encodeURIComponent(back);
+        }
+    } finally {
+        signInPromptOpen = false;
+    }
+};
+
+(function interceptLoginRequired() {
+    const nativeFetch = window.fetch.bind(window);
+    window.fetch = async function (...args) {
+        const response = await nativeFetch(...args);
+        if (response.status === 401) {
+            // clone() so the caller still gets an unread body.
+            try {
+                const data = await response.clone().json();
+                if (data && data.error === LOGIN_REQUIRED) {
+                    window.promptSignIn(data.message);
+                }
+            } catch (e) {
+                /* not our JSON -- leave it to the caller */
+            }
+        }
+        return response;
+    };
+})();
+
 // Global function to set background art
 function displayBackgroundArt(data) {
     if (localStorage.getItem('backgroundArt') === 'disabled') {
@@ -99,7 +145,7 @@ function displayBackgroundArt(data) {
 // Favorites handling
 async function toggleFavorite(path, title, callback) {
     if (!isLoggedIn) {
-        showToast("Please log in to favorite pages.", "info");
+        promptSignIn('You need a free account to save favorites.');
         return;
     }
 

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'prayer-app-v33';
+const CACHE_NAME = 'prayer-app-v34';
 // Stable, version-independent cache for user-downloaded offline devotions
 // (Settings -> "Download Next 3 Days"). Kept across deploys by the activate
 // handler below, so a CACHE_NAME bump doesn't wipe what the user saved.
@@ -73,6 +73,17 @@ self.addEventListener('fetch', (event) => {
   if (event.request.mode === 'navigate') {
     event.respondWith(fetch(event.request)
                           .then((response) => {
+                            // A redirect has to reach the browser AS a
+                            // redirect. fetch() follows it internally, so
+                            // returning the followed response here would
+                            // leave the address bar on the old URL -- and
+                            // cache the destination under the old URL's key.
+                            // That is how a signed-out visitor sent from a
+                            // members-only page to /login ended up seeing the
+                            // sign-in page still labelled /prayer_requests.
+                            if (response && response.redirected) {
+                              return Response.redirect(response.url, 302);
+                            }
                             // Update cache with the latest version
                             if (response && response.status === 200 &&
                                 response.type === 'basic') {
@@ -109,6 +120,10 @@ self.addEventListener('fetch', (event) => {
       event.respondWith(
           fetch(event.request)
               .then((response) => {
+                if (response && response.redirected) {
+                  // Never cache a followed redirect under the original key.
+                  return response;
+                }
                 if (response && response.ok && response.type === 'basic') {
                   const copy = response.clone();
                   event.waitUntil(
