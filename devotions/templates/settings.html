@@ -46,7 +46,7 @@
   <hr>
 
   <div style="margin-top: 20px;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+      <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; align-items: center; margin-bottom: 10px;">
         <span style="font-size: 1.1em; font-weight: bold;">Font Size <span id="font-size-display" style="font-weight: normal; font-size: 0.9em; color: #666; margin-left: 5px;">(100%)</span></span>
         <div class="font-controls">
             <button id="settings-decrease-font" aria-label="Decrease font size">-</button>
@@ -119,6 +119,7 @@
           <p style="font-size: 0.9em; color: #7f8c8d;">Used for reminder scheduling. Defaults to your device time if not set.</p>
       </div>
 
+      <div class="table-scroll">
       <table style="width: 100%; text-align: left; border-collapse: collapse;">
           <thead>
               <tr>
@@ -167,6 +168,7 @@
               </tr>
           </tbody>
       </table>
+      </div>
 
       <p style="font-size: 0.85em; color: #7f8c8d; margin-top: 15px;">
           By enabling these notifications, you consent to receiving emails and/or text messages from asimplewaytopray.com. Standard carrier rates may apply for SMS.
@@ -342,7 +344,7 @@
   <hr>
 
   <h3>Profile Picture</h3>
-  <div style="display: flex; align-items: flex-start; gap: 20px;">
+  <div style="display: flex; flex-wrap: wrap; align-items: flex-start; gap: 20px;">
       <div style="text-align: center;">
           <img src="{{ current_user.profile_pic }}" alt="Current Profile" style="width: 80px; height: 80px; border-radius: 50%; border: 3px solid #eee;">
       </div>
@@ -766,7 +768,7 @@
         // app.js?v=N, and cache.match includes the query string, so an
         // unversioned copy would never be served. Keep the ?v= values in
         // sync with base.html.
-        urlsToCache.push('/static/styles.css?v=27');
+        urlsToCache.push('/static/styles.css?v=28');
         urlsToCache.push('/static/app.js?v=6');
         urlsToCache.push('/static/icons/favicon.ico');
         urlsToCache.push('/static/icons/android-chrome-192x192.png');

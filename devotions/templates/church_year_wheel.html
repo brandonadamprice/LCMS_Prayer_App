@@ -204,14 +204,18 @@
     padding: 0;
     margin: 0;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    /* min(): on a screen narrower than 280px the track follows the screen
+       instead of forcing the page to scroll sideways. */
+    grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
     gap: 2px 18px;
   }
   .major-item {
     display: flex;
+    flex-wrap: wrap;
     align-items: baseline;
     gap: 8px;
     width: 100%;
+    min-width: 0;
     padding: 6px 8px;
     margin: 0;
     border: none;
@@ -226,6 +230,9 @@
     .major-item:hover { background: var(--surface-hover); }
   }
   .major-item .liturgical-color-dot { position: static; flex: 0 0 auto; display: inline-block; }
+  .major-name {
+    min-width: 0;
+  }
   .major-date {
     margin-left: auto;
     color: var(--color-muted);
@@ -282,7 +289,7 @@
     {% for m in majors %}
     <li><button type="button" class="major-item no-print-button" data-i="{{ m.i }}">
       <span class="liturgical-color-dot" title="{{ m.c }}"></span>
-      <span>{{ m.n }}</span>
+      <span class="major-name">{{ m.n }}</span>
       <span class="major-date">{{ m.date }}</span>
     </button></li>
     {% endfor %}
