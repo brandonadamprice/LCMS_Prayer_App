@@ -6,6 +6,7 @@ import logging
 import os
 
 from authlib.integrations.flask_client import OAuth
+import auth_prompt_logic
 import flask
 from flask_compress import Compress
 import flask_login
@@ -93,6 +94,48 @@ google = oauth.register(
 def load_user(user_id):
   """Flask-Login user loader."""
   return models.User.get(user_id)
+
+
+@login_manager.unauthorized_handler
+def handle_unauthorized():
+  """Invites a signed-out visitor to register instead of aborting with 401.
+
+  Flask-Login's default is `abort(401)`, which serves Werkzeug's bare "The
+  server could not verify that you are authorized" page -- what visitors saw
+  on every @login_required route, including ones the nav menu links to. This
+  replaces it for all of them at once:
+
+    * a page navigation is redirected to sign-in with an explanation, and the
+      page they wanted is remembered so sign-in returns them to it;
+    * a fetch/XHR gets `401 {"error": "login_required", ...}`, which app.js
+      turns into the same invitation without leaving the page.
+  """
+  if auth_prompt_logic.wants_json_response(
+      path=flask.request.path,
+      accept=flask.request.headers.get("Accept", ""),
+      requested_with=flask.request.headers.get("X-Requested-With", ""),
+      sec_fetch_mode=flask.request.headers.get("Sec-Fetch-Mode", ""),
+      sec_fetch_dest=flask.request.headers.get("Sec-Fetch-Dest", ""),
+      content_type=flask.request.headers.get("Content-Type", ""),
+  ):
+    return (
+        flask.jsonify({
+            "success": False,
+            "error": auth_prompt_logic.LOGIN_REQUIRED_CODE,
+            "message": auth_prompt_logic.LOGIN_REQUIRED_MESSAGE,
+            "login_url": "/login",
+        }),
+        401,
+    )
+
+  if auth_prompt_logic.should_remember_next(
+      flask.request.path, flask.request.method
+  ):
+    flask.session[auth_prompt_logic.NEXT_URL_SESSION_KEY] = (
+        auth_prompt_logic.safe_next_url(flask.request.full_path.rstrip("?"))
+    )
+  flask.flash(auth_prompt_logic.LOGIN_REQUIRED_MESSAGE, "info")
+  return flask.redirect(flask.url_for("login"))
 
 
 @app.before_request

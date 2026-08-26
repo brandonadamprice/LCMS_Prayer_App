@@ -3,6 +3,7 @@
 import datetime
 import secrets
 
+import auth_prompt_logic
 from firebase_admin import auth as firebase_admin_auth
 import flask
 import flask_login
@@ -35,11 +36,29 @@ _PROXY_SKIP_HEADERS = frozenset({
 def register(app, *, google, rate_limited):
   """Registers the authentication routes on the app."""
 
+  def pop_next_url(default="/"):
+    """Returns (and clears) the page a visitor was sent to sign in from.
+
+    main.py's unauthorized handler stashes it when it turns a signed-out
+    request for a @login_required page into a trip through sign-in, so that
+    signing in lands on the feature they wanted rather than the home page.
+    """
+    target = flask.session.pop(auth_prompt_logic.NEXT_URL_SESSION_KEY, None)
+    return auth_prompt_logic.safe_next_url(target, default)
+
   @app.route("/login")
   def login():
     """Renders the sign-in page."""
     if flask_login.current_user.is_authenticated:
-      return flask.redirect("/settings")
+      return flask.redirect(pop_next_url("/settings"))
+    # ?next= comes from app.js's sign-in prompt, which fires where a fetch was
+    # refused and so left no stash of its own. Kept in the session rather than
+    # the URL so it survives the round trip through Google/Firebase.
+    requested = auth_prompt_logic.safe_next_url(
+        flask.request.args.get("next"), ""
+    )
+    if requested and auth_prompt_logic.should_remember_next(requested):
+      flask.session[auth_prompt_logic.NEXT_URL_SESSION_KEY] = requested
     return flask.render_template("signin.html")
 
 
@@ -107,7 +126,7 @@ def register(app, *, google, rate_limited):
             " notification preferences.",
             "success",
         )
-      return flask.redirect("/")
+      return flask.redirect(pop_next_url())
     except Exception as e:
       app.logger.warning("Google OAuth Error: %s", e)
       return "Authentication failed.", 400
@@ -347,4 +366,6 @@ def register(app, *, google, rate_limited):
 
     flask_login.login_user(user, remember=True)
     flask.session.permanent = True
-    return flask.jsonify({"success": True})
+    # The client navigates after this resolves, so tell it where to go: the
+    # page that sent them to sign in, or home.
+    return flask.jsonify({"success": True, "next": pop_next_url()})

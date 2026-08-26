@@ -42,6 +42,9 @@
   const appleBtn = appleWrap && appleWrap.querySelector('a');
   let busy = false;
 
+  // Where to go once a session exists; /auth/firebase fills this in.
+  let nextUrl = '/';
+
   // POSTs a Firebase ID token to the session bridge. Returns true when a
   // session was created (caller should navigate), false when the bridge
   // showed/threw a user-facing outcome that just resets the button.
@@ -53,7 +56,13 @@
       body: JSON.stringify({ idToken: idToken }),
     });
     const data = await resp.json();
-    if (resp.ok && data.success) return true;
+    if (resp.ok && data.success) {
+      // The bridge echoes the page that sent them here to sign in (main.py
+      // stashes it when a @login_required page turns a visitor away), so
+      // sign-in lands on the feature they wanted rather than the home page.
+      nextUrl = data.next || '/';
+      return true;
+    }
     if (resp.status === 409 && data.error) {
       showToast(data.error, 'error');
       return false;
@@ -71,7 +80,7 @@
       await providerSignIn(FirebaseAuthentication);
       const { token } = await FirebaseAuthentication.getIdToken();
       if (await createSession(token)) {
-        window.location.href = '/';
+        window.location.href = nextUrl;
         return;
       }
     } catch (err) {
@@ -138,7 +147,7 @@
           busy = false;
           return;
         }
-        window.location.href = '/';
+        window.location.href = nextUrl;
       } catch (err) {
         console.warn('Firebase sign-in failed; using legacy flow.', err);
         window.location.href = '/login/google';
@@ -169,7 +178,7 @@
           return provider;
         });
         if (idToken !== null && await createSession(idToken)) {
-          window.location.href = '/';
+          window.location.href = nextUrl;
           return;
         }
       } catch (err) {
