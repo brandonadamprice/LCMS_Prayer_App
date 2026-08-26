@@ -11,10 +11,10 @@
     </div>
 
     <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <a href="/liturgical_calendar?year={{ prev_year }}&month={{ prev_month }}" class="button">&laquo; Prev</a>
-            <h2 style="border-bottom: none; margin: 0;">{{ month_name }} {{ year }}</h2>
-            <a href="/liturgical_calendar?year={{ next_year }}&month={{ next_month }}" class="button">Next &raquo;</a>
+        <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <a href="/liturgical_calendar?year={{ prev_year }}&month={{ prev_month }}" class="button" style="margin: 0; min-width: 0;">&laquo; Prev</a>
+            <h2 style="border-bottom: none; margin: 0; min-width: 0;">{{ month_name }} {{ year }}</h2>
+            <a href="/liturgical_calendar?year={{ next_year }}&month={{ next_month }}" class="button" style="margin: 0; min-width: 0;">Next &raquo;</a>
         </div>
 
         <div class="calendar-wrapper">

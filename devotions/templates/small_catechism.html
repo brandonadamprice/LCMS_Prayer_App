@@ -11,7 +11,7 @@
 
 <!-- Navigation Menu -->
 <div class="card">
-    <div style="margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
+    <div style="margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; align-items: center;">
         <label for="catechism-nav" style="font-weight: bold; color: #555; margin-bottom: 0;">Select Part:</label>
         
         <div style="display: flex; align-items: center;">
@@ -43,7 +43,7 @@
 {% for group_name, sections in grouped_catechism.items() %}
     <div id="part-{{ loop.index0 }}" class="catechism-part" style="display: {% if loop.first %}block{% else %}none{% endif %};">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #65342f; padding-bottom: 10px;">
-             <h2 style="margin: 0; border: none; color: #65342f;">{{ group_name }}</h2>
+             <h2 style="margin: 0; border: none; color: #65342f; min-width: 0;">{{ group_name }}</h2>
         </div>
         
         <div style="margin-bottom: 15px; text-align: right;">
@@ -153,9 +153,9 @@
             {% endfor %}
         {% endif %}
 
-        <div style="display: flex; justify-content: space-between; margin-top: 30px;">
-             <button class="button" onclick="navigate(-1)" {% if loop.first %}disabled style="opacity: 0.5;"{% endif %}>&laquo; Previous Part</button>
-             <button class="button" onclick="navigate(1)" {% if loop.last %}disabled style="opacity: 0.5;"{% endif %}>Next Part &raquo;</button>
+        <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; margin-top: 30px;">
+             <button class="button" onclick="navigate(-1)" style="margin: 0; min-width: 0;{% if loop.first %} opacity: 0.5;{% endif %}" {% if loop.first %}disabled{% endif %}>&laquo; Previous Part</button>
+             <button class="button" onclick="navigate(1)" style="margin: 0; min-width: 0;{% if loop.last %} opacity: 0.5;{% endif %}" {% if loop.last %}disabled{% endif %}>Next Part &raquo;</button>
         </div>
     </div>
 {% endfor %}
