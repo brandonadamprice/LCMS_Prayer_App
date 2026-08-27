@@ -7,9 +7,11 @@ forward through a book instead of re-reading verses.
 
 Both checks came out of a real defect. "24 Aug" carried the NT reference
 "1 Corinthians 14:23-2:17" -- a range whose end chapter precedes its start,
-which the ESV API cannot resolve -- and "31 Aug" carries
-"2 Corinthians 2:1-22", which both overruns chapter 2 (17 verses) and
-re-covers verses already read on "30 Aug" ("2 Corinthians 1:23-2:17").
+which the ESV API cannot resolve -- and "31 Aug" carried
+"2 Corinthians 2:1-22", which both overran chapter 2 (17 verses) and
+re-covered verses already read on "30 Aug". Both were symptoms of the NT
+column running several rows behind the printed LSB daily lectionary through
+the late summer; see the note on KNOWN_BAD_OVERLAPS below.
 
 Gaps are deliberate and are NOT checked: the daily lectionary skips passages
 freely (e.g. "28 Oct" Matthew 15:21-39 -> "29 Oct" Matthew 19:1-15).
@@ -62,14 +64,20 @@ BOOK_NAMES = sorted(
 # lectionary uses to split John 12:36.
 _CHAPTER_VERSE = re.compile(r"(\d+):(\d+)[ab]?")
 
-# Entries known to be wrong that this suite deliberately does not fail on.
-# "31 Aug" is a symptom of a wider defect: the NT column runs seven days
-# behind the printed LSB daily lectionary from mid-summer into the autumn
-# (LSB gives 2 Corinthians 5:1-21 on 27 Aug and 2 Corinthians 9 on 31 Aug,
-# both of which sit seven rows later in this file). Correcting one row in
-# isolation would leave the sequence more incoherent than it already is, so
-# the row stays as-is until the NT column is rebuilt from the printed table.
-KNOWN_BAD_OVERLAPS = frozenset({("31 Aug", "NT")})
+# The NT column runs behind the printed LSB daily lectionary through the
+# summer: LSB gives 2 Corinthians 1:23-2:17 on 24 Aug, 2 Corinthians 5:1-21
+# on 27 Aug and 2 Corinthians 9 on 31 Aug, which sat six, seven and seven
+# rows later in this file. "24 Aug" through "04 Sep" have been re-laid onto
+# the readings those anchors pin down. Beyond 4 Sep the correction depends
+# on where seven readings missing from this file belong -- most likely
+# Ephesians and Philemon in mid-September, which would also restore the
+# OT/NT block co-start on "28 Sep" (Deuteronomy 1 + Matthew 1) that this
+# file shows at every other block boundary -- so those rows are untouched.
+#
+# "05 Sep" is the seam between the corrected and uncorrected stretches: it
+# still holds a reading already covered on 29 Aug. It resolves when the rest
+# of the column is rebuilt from the printed table.
+KNOWN_BAD_OVERLAPS = frozenset({("05 Sep", "NT")})
 
 
 def book_of(reference):
