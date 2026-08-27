@@ -155,6 +155,41 @@ class DailyLectionaryCoverageTest(unittest.TestCase):
         )
         day += datetime.timedelta(days=1)
 
+  def test_no_reading_is_read_twice_in_one_year(self):
+    """No date in a year may repeat a reading another date already gave.
+
+    This is the check that catches a column slipping out of step. When the
+    NT column ran seven days behind through September 2026, the file held
+    2 Corinthians 7-12 on both 29 Aug-04 Sep and 05-11 Sep, and Matthew 1-2
+    on both 28 Sep-01 Oct and 25-28 Dec -- duplicates that were invisible to
+    the per-row checks in test_daily_lectionary_data.py because each row on
+    its own was a perfectly good reference.
+
+    The John 5-13 readings deliberately appear twice in the file, on
+    "18 May"-"11 Jun" and again on "14 Feb"-"09 Mar". Those are the two ends
+    of the fixed-date block, and the movable season always covers one end or
+    the other, so no single year ever reaches the same reading twice. That is
+    exactly what this test pins down.
+    """
+    for year in range(2026, 2046):
+      cy = liturgy.get_church_year(year)
+      for column in ("OT", "NT"):
+        seen = {}
+        day = datetime.date(year, 1, 1)
+        end = datetime.date(year, 12, 31)
+        while day <= end:
+          key = cy.get_liturgical_key(day)
+          reference = self.data[key][column]
+          # Not assertNotIn: it would dump the whole year's readings into the
+          # failure message, burying the one pair that actually collided.
+          if reference in seen:
+            self.fail(
+                f"{year}: {column} {reference!r} is read on both"
+                f" {seen[reference]!r} and {key!r}"
+            )
+          seen[reference] = key
+          day += datetime.timedelta(days=1)
+
 
 if __name__ == "__main__":
   unittest.main()
