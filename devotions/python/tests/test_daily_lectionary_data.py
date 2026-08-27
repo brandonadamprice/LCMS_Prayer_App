@@ -2,21 +2,29 @@
 
 test_lectionary_keys.py checks that every date resolves to a key that exists
 in the file. These tests check the other half: that the readings behind those
-keys are usable scripture references, and that consecutive entries move
-forward through a book instead of re-reading verses.
+keys are usable scripture references -- they name a real book, they do not run
+backwards, they fit inside the chapter they name, they are roughly the size of
+every other reading -- and that consecutive entries move forward through a book
+instead of re-reading verses.
 
-Both checks came out of a real defect. "24 Aug" carried the NT reference
-"1 Corinthians 14:23-2:17" -- a range whose end chapter precedes its start,
-which the ESV API cannot resolve -- and "31 Aug" carried
-"2 Corinthians 2:1-22", which both overran chapter 2 (17 verses) and
-re-covered verses already read on "30 Aug". Both were symptoms of the NT
-column running several rows behind the printed LSB daily lectionary through
-the late summer; see the note on KNOWN_BAD_OVERLAPS below.
+Several came out of real defects. "24 Aug" carried "1 Corinthians 14:23-2:17",
+a range whose end chapter precedes its start, which the ESV API cannot resolve;
+"31 Aug" carried "2 Corinthians 2:1-22", which both overran chapter 2
+(17 verses) and re-covered verses already read on "30 Aug". Both were symptoms
+of the NT column running several rows behind the printed table through the late
+summer. The file has since been checked reading by reading against the printed
+LSB Daily Lectionary and against wartburgproject.org/daily; see
+docs/daily-lectionary-verification.md.
 
-Gaps are deliberate and are NOT checked: the daily lectionary skips passages
-freely (e.g. "28 Oct" Matthew 15:21-39 -> "29 Oct" Matthew 19:1-15).
-Overlaps are the anomaly, because the lectionary never doubles back within a
-book on consecutive days.
+These are per-row checks, so they cannot see a whole column slipping out of
+step: every row of a shifted column is a valid reference on its own. The test
+that catches that is test_no_reading_is_read_twice_in_one_year in
+test_lectionary_keys.py, which needs liturgy to resolve dates to keys.
+
+Gaps are deliberate and are NOT checked: the OT column covers about a third of
+the Old Testament in a year, so it skips freely (e.g. "26 Oct"
+Deuteronomy 28:1-22 -> "27 Oct" Deuteronomy 29:1-29). Overlaps are the anomaly,
+because the lectionary never doubles back within a book on consecutive days.
 
 liturgy is not imported here, so this suite is pure JSON + stdlib. Run from
 the repo root:
@@ -36,6 +44,13 @@ DAILY_LECTIONARY_PATH = os.path.join(
     "..",
     "data",
     "daily_lectionary.json",
+)
+
+# Last verse of every chapter this lectionary draws on, so a reference can be
+# checked against the chapter it names. Only the referenced chapters are
+# listed. See docs/daily-lectionary-verification.md for where it came from.
+CHAPTER_VERSE_COUNTS_PATH = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "chapter_verse_counts.json"
 )
 
 # Books the daily lectionary may draw on, matched longest-first so
@@ -64,20 +79,11 @@ BOOK_NAMES = sorted(
 # lectionary uses to split John 12:36.
 _CHAPTER_VERSE = re.compile(r"(\d+):(\d+)[ab]?")
 
-# The NT column runs behind the printed LSB daily lectionary through the
-# summer: LSB gives 2 Corinthians 1:23-2:17 on 24 Aug, 2 Corinthians 5:1-21
-# on 27 Aug and 2 Corinthians 9 on 31 Aug, which sat six, seven and seven
-# rows later in this file. "24 Aug" through "04 Sep" have been re-laid onto
-# the readings those anchors pin down. Beyond 4 Sep the correction depends
-# on where seven readings missing from this file belong -- most likely
-# Ephesians and Philemon in mid-September, which would also restore the
-# OT/NT block co-start on "28 Sep" (Deuteronomy 1 + Matthew 1) that this
-# file shows at every other block boundary -- so those rows are untouched.
-#
-# "05 Sep" is the seam between the corrected and uncorrected stretches: it
-# still holds a reading already covered on 29 Aug. It resolves when the rest
-# of the column is rebuilt from the printed table.
-KNOWN_BAD_OVERLAPS = frozenset({("05 Sep", "NT")})
+# Both columns have since been checked against the printed LSB table, which
+# they now match everywhere except the two misprints noted on
+# test_no_reading_runs_past_the_end_of_its_chapter. The drift that needed an
+# exemption is gone, so nothing is exempt from the overlap check any more.
+KNOWN_BAD_OVERLAPS = frozenset()
 
 
 def book_of(reference):
@@ -86,6 +92,54 @@ def book_of(reference):
     if reference.startswith(book + " "):
       return book
   return None
+
+
+def segments(reference):
+  """Splits a reference into (start_chapter, start_verse, end_chapter, end_verse).
+
+  A bare second span carries on in the chapter the previous one ended in, which
+  is how the printed lectionary writes "Isaiah 58:1-59:3; 14-21" (Isaiah 59:14-21)
+  and "Deuteronomy 14:1-2; 22-23; 28-15:15". Returns None when any part of the
+  reference does not parse, so callers can skip it rather than guess.
+  """
+  book = book_of(reference)
+  if book is None:
+    return None, None
+  spans, chapter = [], None
+  for part in re.split(r"[;,]", reference[len(book):]):
+    part = part.strip()
+    if not part:
+      continue
+    match = re.fullmatch(r"(\d+):(\d+)[ab]?-(\d+):(\d+)[ab]?", part)
+    if match:
+      chapter = int(match.group(3))
+      spans.append(
+          (int(match.group(1)), int(match.group(2)), chapter, int(match.group(4)))
+      )
+      continue
+    match = re.fullmatch(r"(\d+):(\d+)[ab]?-(\d+)[ab]?", part)
+    if match:
+      chapter = int(match.group(1))
+      spans.append((chapter, int(match.group(2)), chapter, int(match.group(3))))
+      continue
+    match = re.fullmatch(r"(\d+)-(\d+):(\d+)[ab]?", part)
+    if match and chapter is not None:
+      end = int(match.group(2))
+      spans.append((chapter, int(match.group(1)), end, int(match.group(3))))
+      chapter = end
+      continue
+    match = re.fullmatch(r"(\d+)-(\d+)", part)
+    if match and chapter is not None:
+      spans.append((chapter, int(match.group(1)), chapter, int(match.group(2))))
+      continue
+    match = re.fullmatch(r"(\d+)[ab]?", part)
+    if match and chapter is not None:
+      # A lone verse tacked onto the end, as in "Genesis 42:1-34; 38".
+      verse = int(match.group(1))
+      spans.append((chapter, verse, chapter, verse))
+      continue
+    return book, None
+  return book, (spans or None)
 
 
 def chapter_verse_span(reference):
@@ -107,6 +161,35 @@ class DailyLectionaryDataTest(unittest.TestCase):
   def setUpClass(cls):
     with open(DAILY_LECTIONARY_PATH, "r", encoding="utf-8") as f:
       cls.data = json.load(f)
+    with open(CHAPTER_VERSE_COUNTS_PATH, "r", encoding="utf-8") as f:
+      cls.verse_counts = json.load(f)
+    # json.load preserves file order, which is the lectionary's own order:
+    # the movable season (Ash Wednesday -> Holy Trinity) followed by the
+    # fixed dates (18 May -> 09 Mar). Adjacent keys are adjacent days.
+    cls.keys = list(cls.data)
+
+  def reading_length(self, reference):
+    """Number of verses a reference covers, or None if it does not parse."""
+    book, spans = segments(reference)
+    if not spans:
+      return None
+    total = 0
+    for start_chapter, start_verse, end_chapter, end_verse in spans:
+      chapters = self.verse_counts.get(book, {})
+      if start_chapter == end_chapter:
+        total += end_verse - start_verse + 1
+        continue
+      first = chapters.get(str(start_chapter))
+      if first is None:
+        return None
+      total += first - start_verse + 1
+      for chapter in range(start_chapter + 1, end_chapter):
+        length = chapters.get(str(chapter))
+        if length is None:
+          return None
+        total += length
+      total += end_verse
+    return total
     # json.load preserves file order, which is the lectionary's own order:
     # the movable season (Ash Wednesday -> Holy Trinity) followed by the
     # fixed dates (18 May -> 09 Mar). Adjacent keys are adjacent days.
@@ -146,6 +229,52 @@ class DailyLectionaryDataTest(unittest.TestCase):
             last_chapter,
             f"{key!r} {column} {reference!r} ends in an earlier chapter than"
             " it starts",
+        )
+
+  def test_no_reading_runs_past_the_end_of_its_chapter(self):
+    # A reference whose last verse does not exist comes back short or empty
+    # from the ESV API. The printed LSB table has two of these -- it gives
+    # "Ezekiel 3:12-28" for a chapter that ends at 27 and "2 Timothy 3:1-18"
+    # for one that ends at 17 -- and this file deliberately carries the
+    # fetchable ends instead. See docs/daily-lectionary-verification.md.
+    for key in self.keys:
+      for column in ("OT", "NT"):
+        reference = self.data[key][column]
+        book, spans = segments(reference)
+        if not spans:
+          continue
+        for _, _, end_chapter, end_verse in spans:
+          last = self.verse_counts.get(book, {}).get(str(end_chapter))
+          if last is None:
+            continue
+          self.assertLessEqual(
+              end_verse,
+              last,
+              f"{key!r} {column} {reference!r} ends at {book} {end_chapter}:"
+              f"{end_verse}, but that chapter ends at verse {last}",
+          )
+
+  def test_reading_lengths_stay_in_a_sane_band(self):
+    """No reading is a fraction or a multiple of the size of its neighbours.
+
+    The lectionary aims at 15-25 verses a reading; in practice this file runs
+    10-37 (OT) and 8-31 (NT), the extremes being whole short chapters like
+    Ecclesiastes 11 or self-contained scenes like Matthew 1:18-25. A reading
+    far outside that is a dropped digit rather than an editorial choice: the
+    wartburgproject.org page gives "Mark 3:20-25" where LSB prints
+    "Mark 3:20-35", and 6 verses would be the shortest reading of the year by
+    a third while leaving Mark 3:26-35 unread.
+    """
+    for key in self.keys:
+      for column in ("OT", "NT"):
+        reference = self.data[key][column]
+        length = self.reading_length(reference)
+        if length is None:
+          continue
+        self.assertTrue(
+            8 <= length <= 40,
+            f"{key!r} {column} {reference!r} is {length} verses, outside the"
+            " 8-40 band every other reading sits in",
         )
 
   def test_consecutive_readings_do_not_overlap(self):
