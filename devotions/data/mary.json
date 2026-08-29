@@ -22,7 +22,7 @@
           },
           {
             "title": "The Exemplar of Faith and Humility",
-            "description": "Mary’s reply to Gabriel (“Let it be to me according to your word”) illustrates pure receptive faith. In her song of praise, the Magnificat (<bible-ref>Luke 1:46-55</bible-ref>), she rejoices in “God my Savior,” pointing all glory away from herself and toward God’s undeserved mercy.",
+            "description": "Mary’s reply to Gabriel (“Let it be to me according to your word”) illustrates pure receptive faith. In her song of praise, the Magnificat (<bible-ref>Luke 1:46-55</bible-ref>), she rejoices in “God my Savior,” both confessing her sin and pointing all glory away from herself and toward God’s undeserved mercy.",
             "scriptures": [
               "<bible-ref>Luke 1:38</bible-ref>",
               "<bible-ref>Luke 1:46-55</bible-ref>"
@@ -33,6 +33,58 @@
             "description": "Article XXI of the Apology of the Augsburg Confession identifies the three biblically faithful ways to honor Mary: (1) Thanksgiving to God for His mercy, (2) Strengthening our faith by seeing grace given to humble sinners, and (3) Imitating her faith and devotion.",
             "confessional_references": [
               "Apology of the Augsburg Confession XXI"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "mary-as-a-redeemed-sinner",
+        "heading": "Mary as a Redeemed Sinner",
+        "summary": "Like every descendant of Adam, Mary was born in original sin and stood in absolute need of God’s saving grace. Her greatness is the greatness of what that grace did for her.",
+        "items": [
+          {
+            "title": "The Universal Reality of Original Sin",
+            "description": "Article II of the Augsburg Confession affirms the biblical truth that every human being brought into the world by natural generation inherits original sin. Jesus Christ alone was conceived without sin, by the power of the Holy Spirit. Mary was no exception to fallen human nature.",
+            "scriptures": [
+              "<bible-ref>Psalm 51:5</bible-ref>",
+              "<bible-ref>Romans 3:23</bible-ref>",
+              "<bible-ref>Romans 5:12</bible-ref>",
+              "<bible-ref>Hebrews 4:15</bible-ref>",
+              "<bible-ref>1 Peter 2:22</bible-ref>"
+            ],
+            "confessional_references": [
+              "Augsburg Confession II"
+            ]
+          },
+          {
+            "title": "Mary’s Own Confession in the Magnificat",
+            "description": "In <bible-ref>Luke 1:46-47</bible-ref> Mary names her own spiritual condition: “My soul magnifies the Lord, and my spirit rejoices in God my Savior.” A sinless person has no need of a Savior. In calling God her Savior, Mary confesses aloud both her lowliness and her dependence on His redemption.",
+            "scriptures": [
+              "<bible-ref>Luke 1:46-47</bible-ref>"
+            ]
+          },
+          {
+            "title": "Mary’s Purification Under the Law",
+            "description": "Her deeds say what her words say. After Jesus’ birth Mary submitted to the purification the Law prescribed for every mother in Israel, and brought the offering of the poor, two birds. The Law names the second of them a sin offering. Mary claimed no exemption; she put herself where the Law put every other mother, among those needing purification and atonement.",
+            "scriptures": [
+              "<bible-ref>Luke 2:22-24</bible-ref>",
+              "<bible-ref>Leviticus 12:8</bible-ref>"
+            ]
+          },
+          {
+            "title": "Rejection of the Immaculate Conception",
+            "description": "The LCMS rejects the Roman Catholic dogma of the Immaculate Conception (promulgated in 1854), which holds that Mary was preserved immune from original sin from the moment of her own conception. Scripture shuts everyone up under sin so that the promise might come by faith in Christ, and an exception carved out for Mary narrows that promise. Nor may any article of faith be bound on the conscience where God has not spoken: we are not to go beyond what is written, or add to His words. Confessional Lutherans therefore reject the dogma as speculation without divine warrant.",
+            "scriptures": [
+              "<bible-ref>Galatians 3:22</bible-ref>",
+              "<bible-ref>Proverbs 30:5-6</bible-ref>",
+              "<bible-ref>1 Corinthians 4:6</bible-ref>"
+            ]
+          },
+          {
+            "title": "A Vessel of Pure Grace",
+            "description": "Mary’s honor rests on no innate perfection or merit of her own, but wholly on the unmerited grace of God. As Luther wrote in his commentary on the Magnificat, she was a poor, lowly maiden whom God freely chose and justified by grace through faith in the promised Seed. Her life is a standing witness to how God exalts the humble and forgives the repentant sinner.",
+            "scriptures": [
+              "<bible-ref>Luke 1:48</bible-ref>"
             ]
           }
         ]
@@ -95,7 +147,8 @@
       "we_confess": [
         "Mary is the Theotokos (Mother of God)",
         "Jesus was conceived by the Holy Spirit and born of the Virgin Mary",
-        "Mary is blessed among women and an exemplar of faith"
+        "Mary is blessed among women and an exemplar of faith",
+        "Mary was born in original sin and redeemed by grace, as she confesses in the Magnificat"
       ],
       "we_reject": [
         "Prayers and invocations directed to Mary or departed saints",

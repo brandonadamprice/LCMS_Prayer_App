@@ -22,6 +22,12 @@
     text-transform: uppercase;
   }
 
+  /* Section ids are shareable anchors; without this a deep link parks the
+     heading under the 60px sticky navbar. Matches tabernacle.html. */
+  .mary-section {
+    scroll-margin-top: 80px;
+  }
+
   .mary-summary {
     font-style: italic;
     color: var(--text-muted);
@@ -154,7 +160,7 @@
 
 {% for section in sections %}
   {% call macros.card(section.heading) %}
-    <div id="{{ section.id }}">
+    <div id="{{ section.id }}" class="mary-section">
       {% if section.summary %}
         <p class="mary-summary">{{ section.summary|safe }}</p>
       {% endif %}
