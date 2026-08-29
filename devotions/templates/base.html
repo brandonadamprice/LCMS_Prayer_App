@@ -32,7 +32,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Lora:ital,wght@0,400..700;1,400..700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <noscript><link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Lora:ital,wght@0,400..700;1,400..700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet"></noscript>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}?v=28" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}?v=29" />
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='icons/favicon.ico') }}">
     <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='icons/favicon-32x32.png') }}">
     <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='icons/favicon-16x16.png') }}">
@@ -215,7 +215,7 @@
     </script>
     <!-- Shared page behavior lives in static/app.js (bump ?v= on change;
          keep in sync with the offline list in settings.html). -->
-    <script src="{{ url_for('static', filename='app.js') }}?v=7"></script>
+    <script src="{{ url_for('static', filename='app.js') }}?v=8"></script>
 
     {% block body_scripts %}{% endblock %}
     <script>
