@@ -1,0 +1,107 @@
+{
+  "mary_study": {
+    "title": "Mary in Lutheran Theology: A Confessional Primer",
+    "category": "Doctrine & Prayer",
+    "description": "An LCMS perspective on how confessional Lutherans honor the Virgin Mary, what Scripture confesses about her, and why prayer is directed to Christ alone.",
+    "sections": [
+      {
+        "id": "how-lutherans-view-mary",
+        "heading": "How Lutherans View Mary",
+        "summary": "Lutherans honor Mary with deep biblical regard as the Mother of God (Theotokos) and a model of receptive faith, without making her an object of worship or prayer.",
+        "items": [
+          {
+            "title": "Mother of God (Theotokos)",
+            "description": "In harmony with the Council of Ephesus (431) and the Formula of Concord (Solid Declaration VIII), Lutherans confess that Mary is truly the Mother of God. Because Jesus is true God and true man in one person, Mary gave birth to God in the flesh.",
+            "scriptures": [
+              "<bible-ref>Luke 1:31-35</bible-ref>",
+              "<bible-ref>Galatians 4:4</bible-ref>"
+            ],
+            "confessional_references": [
+              "Formula of Concord, Solid Declaration VIII"
+            ]
+          },
+          {
+            "title": "The Exemplar of Faith and Humility",
+            "description": "Mary’s reply to Gabriel (“Let it be to me according to your word”) illustrates pure receptive faith. In her song of praise, the Magnificat (<bible-ref>Luke 1:46-55</bible-ref>), she rejoices in “God my Savior,” pointing all glory away from herself and toward God’s undeserved mercy.",
+            "scriptures": [
+              "<bible-ref>Luke 1:38</bible-ref>",
+              "<bible-ref>Luke 1:46-55</bible-ref>"
+            ]
+          },
+          {
+            "title": "The Three Confessional Ways to Honor Saints",
+            "description": "Article XXI of the Apology of the Augsburg Confession identifies the three biblically faithful ways to honor Mary: (1) Thanksgiving to God for His mercy, (2) Strengthening our faith by seeing grace given to humble sinners, and (3) Imitating her faith and devotion.",
+            "confessional_references": [
+              "Apology of the Augsburg Confession XXI"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "why-we-do-not-pray-to-mary",
+        "heading": "Why Lutherans Do Not Pray to Mary",
+        "summary": "Scripture explicitly directs all prayers to the Triune God and names Jesus Christ as our only intercessor and mediator.",
+        "items": [
+          {
+            "title": "Christ is the Sole Mediator",
+            "description": "Holy Scripture teaches that there is only one mediator between God and man, Jesus Christ. Lutheran theology rejects saintly invocation because it obscures Christ’s finished work and ready intercession for sinners.",
+            "scriptures": [
+              "<bible-ref>1 Timothy 2:5</bible-ref>",
+              "<bible-ref>Hebrews 7:25</bible-ref>",
+              "<bible-ref>1 John 2:1</bible-ref>"
+            ]
+          },
+          {
+            "title": "Absence of Command or Promise",
+            "description": "True prayer must rest on a divine promise. Scripture nowhere commands us to pray to saints, nor does it promise that departed believers hear individual earthly requests.",
+            "scriptures": [
+              "<bible-ref>Matthew 6:9</bible-ref>",
+              "<bible-ref>John 16:23</bible-ref>"
+            ]
+          },
+          {
+            "title": "Worship Belongs to God Alone",
+            "description": "Calling on departed saints in prayer attributes divine characteristics (such as omniscience and omnipresence) to created beings, which violates the First Commandment.",
+            "scriptures": [
+              "<bible-ref>Matthew 4:10</bible-ref>",
+              "<bible-ref>Isaiah 63:16</bible-ref>"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "the-hail-mary-in-lutheran-practice",
+        "heading": "The Hail Mary (Ave Maria) in Lutheran Practice",
+        "summary": "A distinction between the biblical salutation and the late-medieval prayer petition.",
+        "items": [
+          {
+            "title": "The Scriptural Portion",
+            "text": "Hail, Mary, full of grace [highly favored], the Lord is with you! Blessed are you among women, and blessed is the fruit of your womb, Jesus.",
+            "lutheran_view": "Derived from <bible-ref>Luke 1:28</bible-ref> and <bible-ref>Luke 1:42</bible-ref>, these words are inspired Scripture. Martin Luther recognized them as a meditation on the mystery of the Incarnation rather than an invocatory prayer.",
+            "scriptures": [
+              "<bible-ref>Luke 1:28</bible-ref>",
+              "<bible-ref>Luke 1:42</bible-ref>"
+            ]
+          },
+          {
+            "title": "The Invocatory Addition",
+            "text": "Holy Mary, Mother of God, pray for us sinners, now and at the hour of our death.",
+            "lutheran_view": "Added in the late Middle Ages, this petition directly invokes Mary’s heavenly intercession. Lutherans omit it because it lacks biblical warrant and compromises trust in Christ alone."
+          }
+        ]
+      }
+    ],
+    "confessional_summary": {
+      "we_confess": [
+        "Mary is the Theotokos (Mother of God)",
+        "Jesus was conceived by the Holy Spirit and born of the Virgin Mary",
+        "Mary is blessed among women and an exemplar of faith"
+      ],
+      "we_reject": [
+        "Prayers and invocations directed to Mary or departed saints",
+        "Mary functioning as Co-Redemptrix or Mediatrix of grace",
+        "Non-biblical dogmas such as the Immaculate Conception or Bodily Assumption"
+      ]
+    }
+  }
+}

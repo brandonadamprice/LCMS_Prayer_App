@@ -66,6 +66,13 @@ class StaticMenuTests(unittest.TestCase):
     self.assertIn("Psalter Plans", labels)
     self.assertEqual(_find(items, "Psalter Plans")["url"], "/psalter")
 
+  def test_education_dropdown_lists_the_study_pages(self):
+    items = menu.get_menu_items(False, False, False)
+    education = next(t for t in items if t.get("label") == "Education")
+    labels = [sub["label"] for sub in education["submenu"]]
+    self.assertIn("Mary Study", labels)
+    self.assertEqual(_find(items, "Mary Study")["url"], "/mary_study")
+
   def test_calendar_dropdown_groups_calendar_pages(self):
     items = menu.get_menu_items(False, False, False)
     calendar = next(t for t in items if t.get("label") == "Calendar")
