@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+{% import "_macros.html" as macros with context %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block meta_description %}{{ description }}{% endblock %}
+
+{% block head %}
+<link rel="preload" as="image" href="{{ url_for('static', filename='banner.jpg') }}">
+<style>
+  /* Page-scoped styles: nothing here touches static/styles.css, so no ?v= bump.
+     Colors come from the shared design tokens, which dark mode remaps. */
+  .mary-category {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 4px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 20px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .mary-summary {
+    font-style: italic;
+    color: var(--text-muted);
+    border-left: 3px solid var(--color-accent);
+    padding-left: 14px;
+    margin: 0 0 22px;
+  }
+
+  .mary-point {
+    margin-bottom: 26px;
+    /* Keep a point and its references together on a printed handout. */
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .mary-point:last-child {
+    margin-bottom: 0;
+  }
+
+  .mary-point h3 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1rem;
+    color: var(--color-primary);
+    margin: 0 0 8px;
+  }
+
+  body.dark-mode .mary-point h3 {
+    color: var(--color-accent);
+  }
+
+  .mary-point p {
+    margin: 0 0 10px;
+  }
+
+  .mary-quote {
+    margin: 0 0 12px;
+    padding: 14px 18px;
+    background-color: var(--surface-subtle);
+    border-left: 4px solid var(--color-primary);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    font-family: 'Lora', serif;
+    font-style: italic;
+    font-size: 1.05em;
+  }
+
+  body.dark-mode .mary-quote {
+    border-left-color: var(--color-accent);
+  }
+
+  .mary-refs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .mary-refs-label {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .ref-chip {
+    display: inline-block;
+    padding: 3px 11px;
+    border: 1px solid var(--color-border);
+    border-radius: 14px;
+    background-color: var(--color-bg);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.78rem;
+  }
+
+  .ref-chip--confession {
+    border-style: dashed;
+    color: var(--text-muted);
+  }
+
+  .mary-columns {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 24px;
+  }
+
+  .mary-columns h3 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin: 0 0 12px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--color-border);
+  }
+
+  .mary-columns ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .mary-columns li {
+    position: relative;
+    padding-left: 26px;
+    margin-bottom: 10px;
+  }
+
+  .mary-columns li::before {
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-weight: 700;
+  }
+
+  .mary-confess h3 { color: var(--color-success); }
+  .mary-confess li::before { content: "\2713"; color: var(--color-success); }
+  .mary-reject h3 { color: var(--color-danger); }
+  .mary-reject li::before { content: "\2717"; color: var(--color-danger); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>{{ title }}</h1>
+  <p>{{ description }}</p>
+  {% if category %}<span class="mary-category">{{ category }}</span>{% endif %}
+</div>
+
+{% for section in sections %}
+  {% call macros.card(section.heading) %}
+    <div id="{{ section.id }}">
+      {% if section.summary %}
+        <p class="mary-summary">{{ section.summary|safe }}</p>
+      {% endif %}
+      {% for item in section['items'] %}
+        <div class="mary-point">
+          <h3>{{ item.title|safe }}</h3>
+          {% if item.text %}
+            <blockquote class="mary-quote">&ldquo;{{ item.text|safe }}&rdquo;</blockquote>
+          {% endif %}
+          {% if item.description %}
+            <p>{{ item.description|safe }}</p>
+          {% endif %}
+          {% if item.lutheran_view %}
+            <p><strong>Lutheran practice:</strong> {{ item.lutheran_view|safe }}</p>
+          {% endif %}
+          {% if item.scriptures %}
+            <div class="mary-refs">
+              <span class="mary-refs-label">Scripture</span>
+              {% for ref in item.scriptures %}
+                <span class="ref-chip">{{ ref|safe }}</span>
+              {% endfor %}
+            </div>
+          {% endif %}
+          {% if item.confessional_references %}
+            <div class="mary-refs">
+              <span class="mary-refs-label">Confessions</span>
+              {% for ref in item.confessional_references %}
+                <span class="ref-chip ref-chip--confession">{{ ref|safe }}</span>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  {% endcall %}
+{% endfor %}
+
+{% call macros.card('What We Confess &amp; What We Reject') %}
+  <div class="mary-columns">
+    <div class="mary-confess">
+      <h3>We Confess</h3>
+      <ul>
+        {% for line in confessional_summary.we_confess %}
+          <li>{{ line|safe }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="mary-reject">
+      <h3>We Reject</h3>
+      <ul>
+        {% for line in confessional_summary.we_reject %}
+          <li>{{ line|safe }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+{% endcall %}
+{% endblock %}

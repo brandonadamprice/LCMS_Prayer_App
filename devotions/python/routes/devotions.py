@@ -11,6 +11,7 @@ from devotional_content import extended_evening
 from devotional_content import gospels_by_category
 from devotional_content import lent
 from devotional_content import liturgical_calendar
+from devotional_content import mary_study
 from devotional_content import memory
 from devotional_content import mid_week
 from devotional_content import new_year
@@ -194,6 +195,12 @@ def register(app):
   def trinity_study_route():
     """Returns Trinity Study page."""
     return trinity_study.generate_trinity_study_page()
+
+
+  @app.route("/mary_study")
+  def mary_study_route():
+    """Returns the Mary in Lutheran Theology study page."""
+    return mary_study.generate_mary_study_page()
 
 
   @app.route("/bible_family_tree")

@@ -99,6 +99,11 @@ def get_menu_items(is_advent, is_new_year, is_lent):
                   "enabled": True,
               },
               {
+                  "label": "Mary Study",
+                  "url": "/mary_study",
+                  "enabled": True,
+              },
+              {
                   "label": "Bible Family Tree",
                   "url": "/bible_family_tree",
                   "enabled": True,
