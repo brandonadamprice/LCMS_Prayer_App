@@ -28,11 +28,15 @@ interactive Apple ID login and will fail with the API key.
 - **App Store Connect API key**: download is one-shot → password manager.
   App Manager role. Revoke from ASC if the build server is ever
   compromised.
-- **APNs auth key**: choose **Team scoped** (works for every app) and
-  **Sandbox & Production** — a Sandbox-only key silently breaks push for
-  TestFlight/App Store builds. One-shot download. Max **2** active APNs
-  keys per team. Upload once per Firebase project (Project settings →
-  Cloud Messaging).
+- **APNs auth key** — *only for apps that actually use remote push.* An
+  app whose notifications are scheduled on-device (iOS local
+  notifications) needs no APNs key, no `aps-environment` entitlement and
+  no push capability on the App ID; Idle Bible is that case, the prayer
+  app is not. When you do need one: choose **Team scoped** (works for
+  every app) and **Sandbox & Production** — a Sandbox-only key silently
+  breaks push for TestFlight/App Store builds. One-shot download. Max
+  **2** active APNs keys per team. Upload once per Firebase project
+  (Project settings → Cloud Messaging).
 - **Apple Distribution certificates**: max **3** per team, and they're
   team-level — one cert signs every app; match reuses it. A failed match
   run can strand an orphan cert on the portal (created, private key lost):
@@ -46,23 +50,42 @@ interactive Apple ID login and will fail with the API key.
   HTTPS-only apps — kills the export-compliance prompt on every upload.
 - **Build number** (`CFBundleVersion`): never managed in the repo; the
   `beta` lane sets it to TestFlight's latest + 1, so re-runs never collide.
-  `MARKETING_VERSION` is the human version and lives in the repo.
+  The human version does live in the repo, but where depends on the
+  framework — `MARKETING_VERSION` in the Xcode project for a Capacitor
+  app, `version:` in `pubspec.yaml` for a Flutter one (a Flutter project
+  has no `MARKETING_VERSION` at all; `CFBundleShortVersionString` reads
+  `$(FLUTTER_BUILD_NAME)`). A lane that needs the version string must read
+  whichever of those the app actually has.
 - **`sync_store_listing` must include `app_review_information`** — besides
   filling review contact + demo account, it works around a deliver crash
   on brand-new apps (fastlane#20538: the version has no App Review detail
   record until review info creates it; deliver's attachment step raises
   "No data" on the empty response).
-- **Demo review account**: created through the app's normal signup, email
-  verified (unverified accounts get rejected by auth bridges and lock
-  reviewers out), stored only in the password manager / env — never in a
-  repo. Reused for both Play and App Store review.
+- **Demo review account** — *only for apps that gate content behind a
+  login.* If reviewers can reach the whole app signed out (Idle Bible:
+  signing in only enables cloud save), supply none and set
+  `demo_account_required: false`; claiming one you don't need invites
+  questions you can't answer. When the app does need one: create it
+  through the app's normal signup, email verified (unverified accounts get
+  rejected by auth bridges and lock reviewers out), stored only in the
+  password manager / env — never in a repo. Reused for both Play and App
+  Store review.
 - **Screenshots**: only two sets are required — iPhone 6.9" (1320×2868)
-  and, if the app targets iPad, iPad 13" (2064×2752). For web-shell apps,
-  capture the real site with Playwright at those exact pixel sizes
-  (viewport ÷ scale factor; script pattern:
-  `mobile/store-assets/capture_ios_screenshots.py` in the prayer-app
-  repo). The listing icon comes from the uploaded build — nothing to
-  upload.
+  and, if the app targets iPad, iPad 13" (2064×2752). How you capture them
+  depends on what the app is:
+  - *Web-shell apps*: capture the real site with Playwright at those exact
+    pixel sizes (viewport ÷ scale factor; script pattern:
+    `mobile/store-assets/capture_ios_screenshots.py` in the prayer-app
+    repo).
+  - *Native apps*: render them from the app's own widget tests at those
+    sizes, the same way the Play listing art is already generated — no
+    device or simulator needed, and they regenerate with the UI instead of
+    going stale (pattern: `test/store/store_screenshots_test.dart` in
+    Idle-Bible).
+
+  The listing icon comes from the uploaded build — nothing to upload. Note
+  that the icon inside that build must have **no alpha channel**, or the
+  upload is rejected outright with ERROR ITMS-90717.
 
 ## TestFlight
 

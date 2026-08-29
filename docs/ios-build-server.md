@@ -7,8 +7,18 @@ canonical copy; mirror it — together with
 [apple-release-playbook.md](apple-release-playbook.md), the Apple-side
 process knowledge and traps — into `Hallowed-Gains-LLC/ios-certs` so every
 project's contributors find them (commands at the bottom of the playbook).
-App-specific release steps live in each app repo (here:
-[capacitor-ios.md](capacitor-ios.md)).
+App-specific release steps live in each app repo.
+
+Apps on this infrastructure, and where their per-app steps live:
+
+| App | Framework | Per-app doc |
+| --- | --- | --- |
+| A Simple Way to Pray | Capacitor (web shell) | [capacitor-ios.md](capacitor-ios.md) |
+| Idle Bible | Flutter (native game) | `Docs/iOS_Release.md` in `Hallowed-Gains-LLC/Idle-Bible` |
+
+The framework column is the only thing that differs. Everything below —
+the machine, the API key, the certs repo, the env file, the runner — is
+identical for both, which is the whole point.
 
 ## The machine
 
@@ -109,28 +119,56 @@ SSHes anywhere. Per app repo:
 
 The per-app surface is deliberately tiny:
 
-1. Capacitor iOS project in the repo (`npx cap add ios`), with a **shared
-   Xcode scheme committed** (`App.xcodeproj/xcshareddata/xcschemes/`) —
+1. An iOS Xcode project in the repo (`npx cap add ios` for Capacitor,
+   `flutter create --platforms=ios` for Flutter), with a **shared Xcode
+   scheme committed** (`<Project>.xcodeproj/xcshareddata/xcschemes/`) —
    xcodebuild can't build schemes that only exist in someone's GUI session.
-2. Copy `mobile/ios/App/fastlane/` (Appfile, Matchfile, Fastfile) from this
-   repo; change the Appfile `app_identifier` and the Fastfile `APP_NAME`
-   (plus `XCODEPROJ`/`SCHEME` if the project isn't a stock Capacitor one).
-   The Matchfile and env contract need no changes — that's the point.
+2. Copy a fastlane folder (Appfile, Matchfile, Fastfile) from whichever
+   existing app matches your framework — `mobile/ios/App/fastlane/` here,
+   `app/ios/fastlane/` in Idle-Bible; change the Appfile `app_identifier`
+   and the Fastfile `APP_NAME`/`XCODEPROJ`/`SCHEME`. **The Matchfile and
+   the env contract need no changes — that's the point.** Only the `beta`
+   lane's build step is framework-specific:
+   - *Capacitor*: `npm ci && npx cap sync ios`, then gym archives the
+     project directly.
+   - *Flutter*: run `flutter build ios --release --config-only` first. It
+     writes `Flutter/Generated.xcconfig` (where `CFBundleVersion`'s
+     `$(FLUTTER_BUILD_NUMBER)` comes from) and runs `pod install`, then
+     stops before compiling — so gym's archive does the Dart and Xcode
+     work exactly once. Archive from the **workspace**, not the project:
+     the Pods project only exists in the workspace. There is no
+     `MARKETING_VERSION` to read either — the version comes from
+     `pubspec.yaml`.
 3. Copy `.github/workflows/ios-release.yml`; register a runner for the repo
-   (section above).
-4. One-time, over SSH from the app's `ios/App` dir: `fastlane bootstrap`
-   — registers the bundle ID (push enabled) via the API key and generates
-   certs/profiles into the shared certs repo. Then create the App Store
-   Connect app entry in the browser (My Apps → + → New App, picking that
-   bundle ID) — Apple has no API for that one step, and fastlane's
-   `produce` only supports interactive Apple ID login. Subsequent releases
-   are `fastlane beta` or the workflow button.
+   (section above). Flutter repos add a `subosito/flutter-action@v2` step
+   so the mini needs no per-app toolchain.
+4. One-time, over SSH from the directory holding `fastlane/`: `fastlane
+   bootstrap` — registers the bundle ID via the API key, enables the
+   capabilities that app actually needs, and generates certs/profiles into
+   the shared certs repo. Then create the App Store Connect app entry in
+   the browser (My Apps → + → New App, picking that bundle ID) — Apple has
+   no API for that one step, and fastlane's `produce` only supports
+   interactive Apple ID login. Subsequent releases are `fastlane beta` or
+   the workflow button.
 5. The store listing: write the app's `fastlane/metadata/` texts, capture
    screenshots at the required sizes (script pattern:
    `store-assets/capture_ios_screenshots.py`), and upload everything with
    `fastlane sync_store_listing`. TestFlight mechanics, review gates, and
    the traps already hit once:
    [apple-release-playbook.md](apple-release-playbook.md).
+
+**Capabilities are per-app, so copy the `bootstrap` lane's capability block
+deliberately rather than wholesale.** Push notifications are the example:
+the prayer app enables them because its reminders arrive via FCM/APNs,
+while Idle Bible's are *local* notifications scheduled on the device — it
+enables Sign in with Apple and nothing else, and needs no APNs key at all.
+An unused capability means a provisioning profile claiming an entitlement
+the binary never uses.
+
+> **After changing any App ID capability, re-run with `MATCH_FORCE=1`.**
+> match does not notice that the App ID changed, and will keep serving the
+> previously generated profile — which lacks the new entitlement, so the
+> feature fails at runtime with nothing in the build log to explain it.
 
 Certificates are team-level: the first app's `bootstrap` created the Apple
 Distribution cert, and every later app's `match` run reuses it, adding only
