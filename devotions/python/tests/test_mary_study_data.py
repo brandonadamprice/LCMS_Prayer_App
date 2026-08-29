@@ -26,8 +26,8 @@ MARY_JSON_PATH = os.path.join(
 # and "1 Timothy" is not truncated.
 BOOK_NAMES = sorted(
     (
-        "Isaiah", "Matthew", "Luke", "John", "Galatians", "1 Timothy",
-        "Hebrews", "1 John",
+        "Psalm", "Isaiah", "Matthew", "Luke", "John", "Romans", "Galatians",
+        "1 Timothy", "Hebrews", "1 Peter", "1 John",
     ),
     key=len,
     reverse=True,

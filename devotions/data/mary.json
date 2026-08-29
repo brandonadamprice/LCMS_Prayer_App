@@ -38,6 +38,45 @@
         ]
       },
       {
+        "id": "mary-as-a-redeemed-sinner",
+        "heading": "Mary as a Redeemed Sinner",
+        "summary": "Like every descendant of Adam, Mary was born in original sin and stood in absolute need of God’s saving grace. Her greatness is the greatness of what that grace did for her.",
+        "items": [
+          {
+            "title": "The Universal Reality of Original Sin",
+            "description": "Article II of the Augsburg Confession affirms the biblical truth that every human being brought into the world by natural generation inherits original sin. Jesus Christ alone was conceived without sin, by the power of the Holy Spirit. Mary was no exception to fallen human nature.",
+            "scriptures": [
+              "<bible-ref>Psalm 51:5</bible-ref>",
+              "<bible-ref>Romans 3:23</bible-ref>",
+              "<bible-ref>Romans 5:12</bible-ref>",
+              "<bible-ref>Hebrews 4:15</bible-ref>",
+              "<bible-ref>1 Peter 2:22</bible-ref>"
+            ],
+            "confessional_references": [
+              "Augsburg Confession II"
+            ]
+          },
+          {
+            "title": "Mary’s Own Confession in the Magnificat",
+            "description": "In <bible-ref>Luke 1:46-47</bible-ref> Mary names her own spiritual condition: “My soul magnifies the Lord, and my spirit rejoices in God my Savior.” A sinless person has no need of a Savior. In calling God her Savior, Mary confesses aloud both her lowliness and her dependence on His redemption.",
+            "scriptures": [
+              "<bible-ref>Luke 1:46-47</bible-ref>"
+            ]
+          },
+          {
+            "title": "Rejection of the Immaculate Conception",
+            "description": "The LCMS rejects the Roman Catholic dogma of the Immaculate Conception (promulgated in 1854), which holds that Mary was preserved immune from original sin from the moment of her own conception. It has no foundation in Holy Scripture, and it narrows the universal scope of Christ’s atonement, so confessional Lutherans reject it as speculation without divine warrant."
+          },
+          {
+            "title": "A Vessel of Pure Grace",
+            "description": "Mary’s honor rests on no innate perfection or merit of her own, but wholly on the unmerited grace of God. As Luther wrote in his commentary on the Magnificat, she was a poor, lowly maiden whom God freely chose and justified by grace through faith in the promised Seed. Her life is a standing witness to how God exalts the humble and forgives the repentant sinner.",
+            "scriptures": [
+              "<bible-ref>Luke 1:48</bible-ref>"
+            ]
+          }
+        ]
+      },
+      {
         "id": "why-we-do-not-pray-to-mary",
         "heading": "Why Lutherans Do Not Pray to Mary",
         "summary": "Scripture explicitly directs all prayers to the Triune God and names Jesus Christ as our only intercessor and mediator.",
@@ -95,7 +134,8 @@
       "we_confess": [
         "Mary is the Theotokos (Mother of God)",
         "Jesus was conceived by the Holy Spirit and born of the Virgin Mary",
-        "Mary is blessed among women and an exemplar of faith"
+        "Mary is blessed among women and an exemplar of faith",
+        "Mary was born in original sin and redeemed by grace, as she confesses in the Magnificat"
       ],
       "we_reject": [
         "Prayers and invocations directed to Mary or departed saints",
