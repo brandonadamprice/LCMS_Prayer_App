@@ -692,30 +692,152 @@ for (i = 0; i < acc.length; i++) {
     });
 }
 
-// Global Tooltip Toggle Logic
-document.addEventListener('click', function (event) {
-    // If clicking ON a tooltip (text or pseudo-element popup)
-    if (event.target.classList.contains('scripture-tooltip')) {
-        const wasActive = event.target.classList.contains('active');
+// ---------------------------------------------------------------------------
+// Scripture tooltips.
+//
+// Every .scripture-tooltip on the page shares ONE popup element, appended to
+// <body>. It used to be a ::after on the reference itself, but the popup is
+// position: fixed and a ::after cannot escape its own element: an ancestor
+// with a transform, filter or backdrop-filter becomes its containing block
+// instead of the viewport. body.has-background-art sets backdrop-filter on
+// every .card and background art is on by default, so on phones the bottom
+// sheet was pinned to the bottom of the card -- invisible whenever the card
+// ran past the fold. A child of <body> is always placed against the viewport.
+// ---------------------------------------------------------------------------
 
-        // Close ALL tooltips first (so we don't have multiple open)
-        const activeTooltips = document.querySelectorAll('.scripture-tooltip.active');
-        activeTooltips.forEach(t => {
-            t.classList.remove('active');
-        });
+// Below this width the popup is a bottom sheet placed entirely by CSS.
+// Must match the @media block in styles.css.
+const SCRIPTURE_SHEET_MAX_WIDTH = 600;
 
-        // If it wasn't already active, open it.
-        // If it WAS active, we just closed it above (toggle off behavior).
-        if (!wasActive) {
-            event.target.classList.add('active');
-        }
-    } else {
-        // Close all tooltips if clicking outside
-        const activeTooltips = document.querySelectorAll('.scripture-tooltip.active');
-        activeTooltips.forEach(t => {
-            t.classList.remove('active');
-        });
+let scriptureTooltipEl = null;   // the shared popup, created on first use
+let scriptureTooltipRef = null;  // the reference it is currently showing
+
+function scriptureTooltipIsSheet() {
+    return window.matchMedia(`(max-width: ${SCRIPTURE_SHEET_MAX_WIDTH}px)`).matches;
+}
+
+function getScriptureTooltipEl() {
+    if (!scriptureTooltipEl) {
+        scriptureTooltipEl = document.createElement('div');
+        scriptureTooltipEl.className = 'scripture-tooltip-popup no-print';
+        scriptureTooltipEl.setAttribute('role', 'tooltip');
+        document.body.appendChild(scriptureTooltipEl);
     }
+    return scriptureTooltipEl;
+}
+
+function hideScriptureTooltip() {
+    if (scriptureTooltipRef) scriptureTooltipRef.classList.remove('active');
+    scriptureTooltipRef = null;
+    if (scriptureTooltipEl) {
+        scriptureTooltipEl.classList.remove('visible', 'below');
+    }
+}
+
+// Anchors the bubble to the open reference. A no-op in sheet mode, where CSS
+// pins the popup to the bottom of the screen and there is nothing to place.
+function placeScriptureTooltip() {
+    const ref = scriptureTooltipRef;
+    const el = scriptureTooltipEl;
+    if (!ref || !el) return;
+
+    if (scriptureTooltipIsSheet()) {
+        el.style.left = '';
+        el.style.top = '';
+        el.classList.remove('below');
+        return;
+    }
+
+    const margin = 8;
+    const gap = 10;
+    const anchor = ref.getBoundingClientRect();
+
+    // Scrolled clear of the reference: nothing left to point at.
+    if (anchor.bottom < 0 || anchor.top > window.innerHeight) {
+        hideScriptureTooltip();
+        return;
+    }
+
+    const box = el.getBoundingClientRect();
+    const center = anchor.left + anchor.width / 2;
+
+    // Centered on the reference, then pulled back inside the viewport so a
+    // reference near an edge still gets a fully readable bubble.
+    let left = center - box.width / 2;
+    left = Math.max(margin, Math.min(left, window.innerWidth - box.width - margin));
+
+    // Above the reference, or below it when there is no room above.
+    let top = anchor.top - box.height - gap;
+    const below = top < margin;
+    if (below) top = anchor.bottom + gap;
+    el.classList.toggle('below', below);
+
+    el.style.left = `${left}px`;
+    el.style.top = `${top}px`;
+    // Keep the arrow on the reference after any horizontal clamping.
+    el.style.setProperty('--arrow-x', `${center - left}px`);
+}
+
+function showScriptureTooltip(ref) {
+    const text = ref.getAttribute('data-text');
+    if (!text) return;
+
+    hideScriptureTooltip();
+
+    const el = getScriptureTooltipEl();
+    el.textContent = text;
+    el.scrollTop = 0;
+    el.classList.add('visible');
+
+    ref.classList.add('active');
+    scriptureTooltipRef = ref;
+    placeScriptureTooltip();
+}
+
+function scriptureTooltipFrom(target) {
+    return target && target.closest ? target.closest('.scripture-tooltip') : null;
+}
+
+// Tap/click: opens a reference, and a second tap on the same one closes it.
+// Anywhere else -- including on the sheet -- dismisses.
+document.addEventListener('click', function (event) {
+    const ref = scriptureTooltipFrom(event.target);
+    if (!ref) {
+        hideScriptureTooltip();
+    } else if (ref === scriptureTooltipRef) {
+        hideScriptureTooltip();
+    } else {
+        showScriptureTooltip(ref);
+    }
+});
+
+// Hover, on pointing devices only. Touch screens fire a synthetic mouseover
+// on tap, which would open the tooltip and let the click above close it again.
+if (window.matchMedia('(hover: hover)').matches) {
+    document.addEventListener('mouseover', function (event) {
+        const ref = scriptureTooltipFrom(event.target);
+        if (ref && ref !== scriptureTooltipRef) showScriptureTooltip(ref);
+    });
+
+    document.addEventListener('mouseout', function (event) {
+        const ref = scriptureTooltipFrom(event.target);
+        if (ref && ref === scriptureTooltipRef) hideScriptureTooltip();
+    });
+}
+
+// The popup is fixed to the viewport but points at something in the document,
+// so it has to be re-placed as that moves. The sheet stays where it is, so the
+// reader can scroll the passage into view while it is open.
+window.addEventListener('scroll', function () {
+    if (scriptureTooltipRef && !scriptureTooltipIsSheet()) placeScriptureTooltip();
+}, { passive: true });
+
+window.addEventListener('resize', function () {
+    if (scriptureTooltipRef) placeScriptureTooltip();
+});
+
+document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape') hideScriptureTooltip();
 });
 
 // ---------------------------------------------------------------------------
