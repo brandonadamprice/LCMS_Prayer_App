@@ -9,6 +9,7 @@ import flask_login
 from google.cloud import firestore
 import models
 import pytz
+import report_logic
 import secrets_fetcher
 from services import reminders
 from services import users
@@ -173,6 +174,34 @@ def register(app):
     except Exception as e:
       app.logger.error("Failed to export data: %s", e)
       return "Failed to export data", 500
+
+
+  @app.route("/settings/delete_account", methods=["POST"])
+  @flask_login.login_required
+  def delete_account_route():
+    """Permanently deletes the current user's account and data.
+
+    The danger-zone dialog requires typing the confirmation text, and the
+    same check is enforced here so a stray POST can never delete an
+    account.
+    """
+    data = flask.request.json or {}
+    if not report_logic.deletion_confirmed(data.get("confirm")):
+      return (
+          flask.jsonify(
+              {"success": False, "error": "Confirmation text does not match."}
+          ),
+          400,
+      )
+
+    user_id = flask_login.current_user.id
+    success, error = users.delete_user_account(user_id)
+    if not success:
+      return flask.jsonify({"success": False, "error": error}), 500
+
+    flask_login.logout_user()
+    flask.session.clear()
+    return flask.jsonify({"success": True})
 
 
   @app.route("/settings/update_picture", methods=["POST"])
