@@ -43,6 +43,35 @@ interactive Apple ID login and will fail with the API key.
   revoke orphans at developer.apple.com → Certificates, or you'll hit the
   cap.
 - Keychain-over-SSH and `MATCH_KEYCHAIN_PASSWORD`: see ios-build-server.md.
+- **`setup_ci` will claim the machine's default keychain unless you stop
+  it.** Its `set_default_keychain` option defaults to *true*: it points
+  the **machine** default at a throwaway `fastlane_tmp_keychain` and
+  nothing ever restores it. On an ephemeral GitHub-hosted runner that is
+  harmless. On our shared, long-lived mini it is not — one crashed run
+  leaves the machine defaulted to a keychain that is later deleted, and
+  the next codesign, **from any app on the machine**, over SSH or CI
+  alike, fails with `errSecInternalComponent`. Every app's `beta` lane
+  should call `setup_ci(set_default_keychain: false)`; the temp keychain
+  is still created and added to the search list, which is all a build
+  needs.
+
+  You can spot the bad state in any lane's output: `ORIGINAL_DEFAULT_KEYCHAIN`
+  in the Lane Context should read `login.keychain-db`. If it reads
+  `fastlane_tmp_keychain-db`, the machine is already broken. To recover:
+
+  ```bash
+  security default-keychain -s ~/Library/Keychains/login.keychain-db
+  security list-keychains  -s ~/Library/Keychains/login.keychain-db
+  security unlock-keychain    ~/Library/Keychains/login.keychain-db
+  security delete-keychain    ~/Library/Keychains/fastlane_tmp_keychain-db  # if present
+  security find-identity -v -p codesigning   # should list Apple Distribution
+  ```
+
+  If the identity is missing or codesign still fails, re-run
+  `fastlane sync_certs` so match re-imports the certificate — match sets
+  the key partition list on import, which is what lets `/usr/bin/codesign`
+  use the key without a GUI prompt, and is the *other* classic source of
+  `errSecInternalComponent`.
 
 ## Per-app conventions
 

@@ -175,7 +175,22 @@ platform :ios do
 
   desc "Build a signed IPA and upload it to TestFlight"
   lane :beta do
-    setup_ci if ENV["CI"] # temp keychain, so runner jobs never touch login keychain
+    # Temp keychain, so runner jobs never touch the login keychain.
+    #
+    # set_default_keychain: false is deliberate. The default is TRUE:
+    # setup_ci makes its throwaway keychain the MACHINE's default and
+    # nothing ever restores it. That is harmless on an ephemeral
+    # GitHub-hosted runner and corrosive on ours, which is a long-lived
+    # Mac mini shared with every other Hallowed Gains app — one crashed
+    # run leaves the machine defaulted to a keychain that later gets
+    # deleted, and the next codesign, from ANY app and over SSH or CI
+    # alike, fails with `errSecInternalComponent`. The keychain is still
+    # created and added to the search list, which is all the build needs.
+    #
+    # Diagnosed from Idle Bible, whose archive this broke; its lanes carry
+    # the same change. Recovery for a machine already in that state is in
+    # apple-release-playbook.md.
+    setup_ci(set_default_keychain: false) if ENV["CI"]
     prepare_keychain
     api_key = asc_api_key
     # force is passed explicitly (and is always false here — this lane
