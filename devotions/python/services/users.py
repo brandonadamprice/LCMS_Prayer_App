@@ -1129,3 +1129,78 @@ def mark_catechism_complete(user_id, section_index):
 
   transaction = db.transaction()
   return update_transaction(transaction, user_ref)
+
+
+def delete_user_account(user_id):
+  """Permanently deletes a user's account and personal data.
+
+  Removes, in order: the user's prayer-wall requests, the linked Firebase
+  Authentication record (when one exists), and the user document with all
+  of its subcollections (personal prayers included) via recursive delete.
+  Moderation report snapshots are scrubbed of the user's id rather than
+  deleted, so moderation history survives account deletion without staying
+  linked to a person.
+
+  Returns:
+      tuple[bool, str | None]: (True, None) on success, else (False, error).
+  """
+  db = utils.get_db_client()
+  user_ref = db.collection("users").document(user_id)
+  user_doc = user_ref.get()
+  if not user_doc.exists:
+    # Nothing stored server-side; treat as already deleted.
+    return True, None
+  user_data = user_doc.to_dict()
+
+  # 1. The user's prayer-wall requests.
+  try:
+    request_query = db.collection("prayer-requests").where(
+        filter=firestore.FieldFilter("user_id", "==", user_id)
+    )
+    for snap in request_query.stream():
+      snap.reference.delete()
+  except Exception as e:
+    logger.error(f"Account deletion: failed removing prayer requests: {e}")
+    return False, "Could not delete your prayer requests. Please try again."
+
+  # 2. Scrub the user's id from moderation report snapshots (best-effort:
+  # a failure here should not block the deletion the user asked for).
+  try:
+    reports = db.collection("prayer-request-reports")
+    for field in ("reporter_user_id", "request_owner_id"):
+      scrub_query = reports.where(
+          filter=firestore.FieldFilter(field, "==", user_id)
+      )
+      for snap in scrub_query.stream():
+        snap.reference.update({field: None})
+  except Exception as e:
+    logger.error(f"Account deletion: failed scrubbing reports: {e}")
+
+  # 3. The Firebase Authentication record, when this account has one.
+  firebase_uid = user_data.get("firebase_uid")
+  if firebase_uid:
+    try:
+      import firebase_admin
+      from firebase_admin import auth as firebase_admin_auth
+
+      try:
+        firebase_admin.get_app()
+      except ValueError:
+        firebase_admin.initialize_app(options={"projectId": "lcms-prayer-app"})
+      firebase_admin_auth.delete_user(firebase_uid)
+    except Exception as e:
+      # Log but continue: the Firestore data is what holds personal
+      # information, and an orphaned auth record can no longer resolve to
+      # a user doc after this deletion.
+      logger.error(f"Account deletion: failed deleting Firebase user: {e}")
+
+  # 4. The user document and every subcollection under it (personal
+  # prayers, etc.).
+  try:
+    db.recursive_delete(user_ref)
+  except Exception as e:
+    logger.error(f"Account deletion: failed deleting user doc: {e}")
+    return False, "Could not delete your account data. Please try again."
+
+  logger.info(f"Account deleted for user {user_id}.")
+  return True, None

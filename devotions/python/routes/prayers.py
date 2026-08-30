@@ -2,10 +2,12 @@
 
 import datetime
 
+import communication
 from devotional_content import prayer_weaver
 import flask
 import flask_login
 from google.cloud import firestore
+import report_logic
 from services import prayer_requests
 from services import reminders
 from services import users
@@ -453,6 +455,49 @@ def register(app, *, rate_limited):
           flask.jsonify({"success": False, "error": "Database update failed"}),
           500,
       )
+
+
+  @app.route("/report_prayer_request/<request_id>", methods=["POST"])
+  # Reporting is open to signed-out visitors (the wall itself is public), so
+  # the cap is per IP. Genuine reports are rare one-offs; this only clips
+  # scripted report-stuffing.
+  @rate_limited("report_prayer_request", 10, 3600)
+  def report_prayer_request_route(request_id):
+    """Files a moderation report against a prayer-wall request."""
+    data = flask.request.json or {}
+    reason = report_logic.normalize_reason(data.get("reason"))
+    ok, error = report_logic.validate_report(request_id, reason)
+    if not ok:
+      return flask.jsonify({"success": False, "error": error}), 400
+
+    reporter_user_id = (
+        flask_login.current_user.id
+        if flask_login.current_user.is_authenticated
+        else None
+    )
+    success, error = prayer_requests.report_prayer_request(
+        request_id, reason, reporter_user_id
+    )
+    if not success:
+      status = 404 if error == "Prayer request not found." else 500
+      return flask.jsonify({"success": False, "error": error}), status
+
+    # Best-effort heads-up to the moderator; the stored report is the record.
+    try:
+      communication.send_email(
+          "contact@hallowedgains.com",
+          "Prayer Wall report received",
+          body_text=(
+              "A prayer-wall request was reported.\n\n"
+              f"Request id: {request_id}\n"
+              f"Reason: {reason or '(none given)'}\n\n"
+              "The full snapshot is in the prayer-request-reports collection."
+          ),
+      )
+    except Exception as e:
+      app.logger.error(f"Failed to email prayer-report notification: {e}")
+
+    return flask.jsonify({"success": True})
 
 
   @app.route("/prayer_weaver")

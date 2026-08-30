@@ -393,6 +393,98 @@
     <a href="/logout" class="button" style="background-color: #95a5a6;">Log Out</a>
 </div>
 
+<div class="card" id="danger-zone" style="border: 2px solid #e74c3c;">
+    <h2 style="color: #e74c3c;">Danger Zone</h2>
+    <p><strong>Delete your account and all associated data.</strong></p>
+    <p>
+        This permanently removes your profile, sign-in, streaks, favorites, reading progress,
+        notification settings, personal prayers, and your prayer wall requests. This cannot be undone.
+    </p>
+    <p style="font-size: 0.9em; color: #7f8c8d;">
+        Tip: you can <a href="/settings/export_data" target="_blank">export a copy of your prayers</a> first.
+    </p>
+    <button id="delete-account-btn" class="button" style="background-color: #e74c3c;" onclick="openDeleteAccountModal()">
+        Delete My Account…
+    </button>
+</div>
+
+<div id="delete-account-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="delete-account-title">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeDeleteAccountModal()">&times;</span>
+        <h2 id="delete-account-title" style="color: #e74c3c; margin-top: 0;">Delete your account?</h2>
+        <p>
+            This <strong>permanently</strong> deletes your account and everything saved with it —
+            personal prayers, prayer wall requests, streaks, and settings. There is no way to recover it.
+        </p>
+        <p>To confirm, type <strong>DELETE</strong> in the box below.</p>
+        <input type="text" id="delete-account-confirm-input" class="form-input" autocomplete="off"
+               autocapitalize="characters" placeholder="Type DELETE to confirm" aria-label="Type DELETE to confirm">
+        <div style="margin-top: 18px; display: flex; gap: 10px; justify-content: flex-end;">
+            <button type="button" class="button" style="background-color: #95a5a6;" onclick="closeDeleteAccountModal()">Cancel</button>
+            <button type="button" id="delete-account-confirm-btn" class="button" style="background-color: #e74c3c;" disabled>
+                Permanently Delete
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openDeleteAccountModal() {
+        const modal = document.getElementById('delete-account-modal');
+        const input = document.getElementById('delete-account-confirm-input');
+        input.value = '';
+        document.getElementById('delete-account-confirm-btn').disabled = true;
+        modal.classList.add('visible');
+        input.focus();
+    }
+
+    function closeDeleteAccountModal() {
+        document.getElementById('delete-account-modal').classList.remove('visible');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const input = document.getElementById('delete-account-confirm-input');
+        const confirmBtn = document.getElementById('delete-account-confirm-btn');
+        if (!input || !confirmBtn) return;
+
+        input.addEventListener('input', () => {
+            confirmBtn.disabled = input.value.trim() !== 'DELETE';
+        });
+
+        confirmBtn.addEventListener('click', async () => {
+            confirmBtn.disabled = true;
+            confirmBtn.textContent = 'Deleting…';
+            try {
+                const response = await fetch('/settings/delete_account', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ confirm: input.value.trim() })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showToast('Your account has been deleted. Goodbye, and God bless.', 'success', 4000);
+                    setTimeout(() => { window.location.href = '/'; }, 2500);
+                } else {
+                    showToast('Could not delete account: ' + (result.error || 'unknown error'), 'error');
+                    confirmBtn.textContent = 'Permanently Delete';
+                    confirmBtn.disabled = false;
+                }
+            } catch (e) {
+                console.error(e);
+                showToast('An error occurred while deleting your account.', 'error');
+                confirmBtn.textContent = 'Permanently Delete';
+                confirmBtn.disabled = false;
+            }
+        });
+
+        // Close on backdrop click, like other modals.
+        const modal = document.getElementById('delete-account-modal');
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeDeleteAccountModal();
+        });
+    });
+</script>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
   import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging.js";
