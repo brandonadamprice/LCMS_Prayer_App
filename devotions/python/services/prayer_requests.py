@@ -309,3 +309,38 @@ def mark_prayer_answered(
   except Exception as e:
     logger.error(f"Error marking prayer request {request_id} answered: {e}")
     return False, "Database update failed."
+
+
+REPORTS_COLLECTION_NAME = "prayer-request-reports"
+
+
+def report_prayer_request(request_id, reason, reporter_user_id=None):
+  """Files a moderation report against a prayer-wall request.
+
+  Snapshots the reported name/text so the report stays reviewable even if
+  the request is later edited, deleted, or expires. Reporting is open to
+  signed-out visitors (the wall is public), so reporter_user_id may be None.
+
+  Returns:
+      tuple[bool, str | None]: (True, None) on success, else (False, error).
+  """
+  db = utils.get_db_client()
+  req_doc = db.collection(COLLECTION_NAME).document(request_id).get()
+  if not req_doc.exists:
+    return False, "Prayer request not found."
+  req = req_doc.to_dict()
+  try:
+    db.collection(REPORTS_COLLECTION_NAME).add({
+        "request_id": request_id,
+        "request_name": req.get("name"),
+        "request_text": req.get("request"),
+        "request_owner_id": req.get("user_id"),
+        "reason": reason or "",
+        "reporter_user_id": reporter_user_id,
+        "status": "open",
+        "created_at": datetime.datetime.now(datetime.timezone.utc),
+    })
+    return True, None
+  except Exception as e:
+    logger.error(f"Error reporting prayer request {request_id}: {e}")
+    return False, "Could not save the report."

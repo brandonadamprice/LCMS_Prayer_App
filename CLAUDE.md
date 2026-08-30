@@ -25,7 +25,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
       `liturgy.py`, `firebase_auth_logic.py`, `password_hash_logic.py`,
       `reminder_logic.py`, `menu.py`, `rate_limit_logic.py`,
       `signup_analytics_logic.py`, `psalter_logic.py`,
-      `reading_plan_logic.py`, `auth_prompt_logic.py`) and run without
+      `reading_plan_logic.py`, `auth_prompt_logic.py`,
+      `report_logic.py`) and run without
       touching Firestore. Keep pure, testable logic out of modules that
       import `firebase`/`google-cloud`.
     - The whole app imports cleanly under Python 3.14 (protobuf is pinned to

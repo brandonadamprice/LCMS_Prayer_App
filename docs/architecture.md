@@ -19,9 +19,9 @@ JS hit JSON endpoints on the same app.
 | `menu.py` | Seasonal navigation menus (Advent/Lent/New Year variants) |
 | `communication.py` | Email (SMTP), SMS (Twilio), push (FCM via `firebase_admin`, initialized at import) |
 | `secrets_fetcher.py` | All secrets via Google Cloud Secret Manager |
-| `services/users.py` | User lifecycle: OAuth/Firebase login handling, registration helpers, streak/achievement transactions |
+| `services/users.py` | User lifecycle: OAuth/Firebase login handling, registration helpers, streak/achievement transactions, account deletion (`delete_user_account`: prayer requests → Firebase Auth record → recursive user-doc delete) |
 | `services/reminders.py` | Scheduled reminder delivery (collection-group query over user reminder subcollections) |
-| `services/prayer_requests.py` | Prayer wall / request management |
+| `services/prayer_requests.py` | Prayer wall / request management, incl. moderation reports (`prayer-request-reports` collection; snapshots the reported text, rate-limited route open to signed-out visitors, best-effort email heads-up to the moderator) |
 | `services/scripture.py` | ESV API |
 | `services/analytics_ga4.py` | GA4 stats for the admin traffic page |
 | `services/fullofeyes_scraper.py` | Background art sourcing |
