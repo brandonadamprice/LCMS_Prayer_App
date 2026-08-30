@@ -11,6 +11,28 @@ require "dotenv"
 machine_env = File.expand_path("~/.ios-build.env")
 Dotenv.load(machine_env) if File.exist?(machine_env)
 
+# Whether to force match to regenerate provisioning profiles.
+#
+# MATCH_FORCE is not just our convention — it is ALSO fastlane's own env
+# var for match's `force` option, which is typed Boolean. Exporting it
+# therefore hands the value straight to fastlane's parser, which coerces
+# only yes/true/on and no/false/off. Anything else — notably "1", and the
+# empty string a GitHub Actions `false` expression writes — arrives at the
+# Boolean check as a String and aborts the lane with
+#
+#   'force' value must be either `true` or `false`! Found String instead.
+#
+# ...even on a lane that never meant to force anything. So this is the one
+# place that reads the variable, every match call below passes an explicit
+# boolean (an explicit value beats the env), and the documented
+# `MATCH_FORCE=1 fastlane sync_certs` keeps working.
+#
+# Found via the Idle Bible port of these lanes, whose workflow exposes a
+# match_force checkbox and hit exactly this on its first run.
+def match_force?
+  %w(1 true TRUE yes YES on ON).include?(ENV["MATCH_FORCE"].to_s.strip)
+end
+
 default_platform(:ios)
 
 APP_ID = CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier)
@@ -99,7 +121,7 @@ platform :ios do
       type: "appstore",
       api_key: asc_api_key,
       readonly: false,
-      force: ENV["MATCH_FORCE"] == "1"
+      force: match_force?
     )
   end
 
@@ -156,7 +178,10 @@ platform :ios do
     setup_ci if ENV["CI"] # temp keychain, so runner jobs never touch login keychain
     prepare_keychain
     api_key = asc_api_key
-    match(type: "appstore", api_key: api_key, readonly: true)
+    # force is passed explicitly (and is always false here — this lane
+    # only consumes profiles) so a MATCH_FORCE meant for sync_certs can
+    # never reach match's Boolean parser through the environment.
+    match(type: "appstore", api_key: api_key, readonly: true, force: false)
     build_number = latest_testflight_build_number(
       api_key: api_key,
       app_identifier: APP_ID,
