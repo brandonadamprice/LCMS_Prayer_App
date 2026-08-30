@@ -49,6 +49,7 @@ _SITEMAP_PATHS = (
     ("/liturgical_calendar", "weekly"),
     ("/about", "monthly"),
     ("/privacy", "yearly"),
+    ("/terms", "yearly"),
     ("/copyright", "yearly"),
 )
 
@@ -143,6 +144,11 @@ def register(app, *, admin_required):
   def privacy_route():
     """Returns the privacy policy page HTML."""
     return flask.render_template("privacy.html")
+
+  @app.route("/terms")
+  def terms_route():
+    """Returns the terms of service page HTML."""
+    return flask.render_template("terms.html")
 
 
   @app.route("/robots.txt")
