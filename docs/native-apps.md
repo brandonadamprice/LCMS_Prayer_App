@@ -88,14 +88,15 @@ Capacitor plugin equivalents; the web fallbacks keep working inside the shell.
    Remaining are the console/store steps (Firebase Android app +
    `google-services.json`, SHA fingerprints, device testing, Play Console):
    see [capacitor-android.md](capacitor-android.md).
-5. 🔄 **iOS follow-on from the same shell**: code complete and in external
-   TestFlight testing — `mobile/ios/` (Capacitor 8 / SPM, same remote-URL
-   mode), Swift `PrinterPlugin`, APNs→FCM token bridge, headless fastlane
-   release pipeline from the Mac mini build server, App Store listing
-   uploaded, and **Sign in with Apple** (native flow in the iOS shell +
-   popup flow in web browsers, same Firebase account either way;
-   `firebase_auth_logic` handles relay emails and missing names —
-   unit-tested). Remaining: SIWA console toggles + rebuild
-   ([capacitor-ios.md](capacitor-ios.md) "Sign in with Apple"), device
-   test pass, then App Store submission (Guideline 4.2 case documented in
-   [apple-release-playbook.md](apple-release-playbook.md)).
+5. ✅ **iOS follow-on from the same shell**: live on the App Store
+   (<https://apps.apple.com/us/app/a-simple-way-to-pray/id6804485777>) —
+   `mobile/ios/` (Capacitor 8 / SPM, same remote-URL mode), Swift
+   `PrinterPlugin`, APNs→FCM token bridge, headless fastlane release
+   pipeline from the Mac mini build server, and **Sign in with Apple**
+   (native flow in the iOS shell + popup flow in web browsers, same Firebase
+   account either way; `firebase_auth_logic` handles relay emails and
+   missing names — unit-tested). Mobile-web iOS visitors are pointed at the
+   listing by Safari's Smart App Banner (`apple-itunes-app` meta in
+   `base.html`) or, in other iOS browsers, the "Get the app" banner in
+   `static/app.js`. Release process:
+   [apple-release-playbook.md](apple-release-playbook.md).
