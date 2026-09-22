@@ -90,6 +90,14 @@ interactive Apple ID login and will fail with the API key.
   on brand-new apps (fastlane#20538: the version has no App Review detail
   record until review info creates it; deliver's attachment step raises
   "No data" on the empty response).
+- **Verify screenshots after `deliver`, don't trust `overwrite_screenshots`.**
+  A Simple Way to Pray 1.0.6 went live with every screenshot uploaded twice,
+  even though deliver clears the sets first and skips checksum matches.
+  Two overlapping runs, or deliver's timeout-retry re-upload, both get past
+  those checks. The prayer app's `sync_store_listing` now runs under a flock
+  and ends with `dedupe_store_screenshots`, which removes duplicates by
+  fileName (keeping the processed copy) and fails if any remain. Copy both
+  into other apps' lanes.
 - **Demo review account** — *only for apps that gate content behind a
   login.* If reviewers can reach the whole app signed out (Idle Bible:
   signing in only enables cloud save), supply none and set
