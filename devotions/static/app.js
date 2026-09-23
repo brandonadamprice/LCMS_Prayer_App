@@ -984,39 +984,80 @@ if (window.isNativeShell) {
 }
 
 // ---------------------------------------------------------------------------
-// "Get the Android app" banner for mobile-web visitors. The manifest's
-// prefer_related_applications already points Chrome's own install prompt at
-// the Play listing; this covers browsers that never show that prompt.
+// "Get the app" banner for mobile-web visitors, pointing at the right store:
+//   - Android: Google Play. The manifest's prefer_related_applications
+//     already points Chrome's own install prompt at the Play listing; this
+//     covers browsers that never show that prompt.
+//   - iOS/iPadOS: the App Store. Safari shows Apple's native Smart App Banner
+//     from the apple-itunes-app <meta> in base.html (which also offers "Open"
+//     when the app is already installed), so this banner only covers the
+//     other iOS browsers (Chrome, Firefox, Edge, in-app webviews) that ignore
+//     that tag. The Safari check is UA-based and best-effort: a misfire just
+//     means an extra (dismissible) banner or none.
 // Hidden inside the native shell and the installed PWA, and stays dismissed
-// once closed.
+// once closed (remembered per store, so dismissing one never hides the other).
 (function () {
-    const isAndroidBrowser = /android/i.test(navigator.userAgent) &&
-        !window.isNativeShell &&
-        !window.matchMedia('(display-mode: standalone)').matches;
-    if (!isAndroidBrowser ||
-        localStorage.getItem('playStoreBannerDismissed') === 'true') {
+    const STORES = {
+        android: {
+            url: 'https://play.google.com/store/apps/details?id=com.hallowedgains.aswtp',
+            label: 'Google Play',
+            // Key predates the iOS banner; kept so existing dismissals stick.
+            dismissKey: 'playStoreBannerDismissed',
+        },
+        ios: {
+            url: 'https://apps.apple.com/us/app/a-simple-way-to-pray/id6804485777',
+            label: 'the App Store',
+            dismissKey: 'appStoreBannerDismissed',
+        },
+    };
+
+    const ua = navigator.userAgent;
+    // iPadOS 13+ reports a desktop Mac UA; a touchscreen "Mac" is an iPad.
+    const isIOS = /iphone|ipad|ipod/i.test(ua) ||
+        (/macintosh/i.test(ua) && navigator.maxTouchPoints > 1);
+    // Every iOS browser says "Safari"; the others add their own token.
+    const isIOSSafari = isIOS && /safari/i.test(ua) &&
+        !/crios|fxios|edgios|opios|gsa\/|duckduckgo|fban|fbav|instagram/i.test(ua);
+    const isInstalled = window.isNativeShell ||
+        window.matchMedia('(display-mode: standalone)').matches ||
+        window.navigator.standalone === true;  // iOS home-screen PWA
+
+    let store = null;
+    if (/android/i.test(ua)) {
+        store = STORES.android;
+    } else if (isIOS && !isIOSSafari) {
+        store = STORES.ios;
+    }
+    if (!store || isInstalled) {
         return;
     }
+    try {
+        if (localStorage.getItem(store.dismissKey) === 'true') {
+            return;
+        }
+    } catch (e) { /* storage blocked: just show the banner */ }
 
-    const PLAY_URL =
-        'https://play.google.com/store/apps/details?id=com.hallowedgains.aswtp';
     const banner = document.createElement('div');
     banner.className = 'no-print';
     banner.style.cssText =
         'position:fixed;bottom:0;left:0;right:0;z-index:1000;' +
         'display:flex;align-items:center;gap:10px;padding:10px 14px;' +
+        'padding-bottom:calc(10px + env(safe-area-inset-bottom));' +
         'background:#65342f;color:#f7f3e3;font-size:15px;' +
         'box-shadow:0 -2px 8px rgba(0,0,0,0.25);';
     banner.innerHTML =
-        '<span style="flex:1;">A Simple Way to Pray is on Google Play</span>' +
-        '<a href="' + PLAY_URL + '" style="background:#f7f3e3;color:#65342f;' +
+        '<span style="flex:1;">A Simple Way to Pray is on ' + store.label +
+        '</span>' +
+        '<a href="' + store.url + '" style="background:#f7f3e3;color:#65342f;' +
         'padding:7px 14px;border-radius:6px;text-decoration:none;' +
         'font-weight:bold;white-space:nowrap;">Get the app</a>' +
         '<button aria-label="Dismiss" style="background:none;border:none;' +
         'color:#f7f3e3;font-size:22px;line-height:1;padding:4px 8px;">' +
         '&times;</button>';
     banner.querySelector('button').addEventListener('click', () => {
-        localStorage.setItem('playStoreBannerDismissed', 'true');
+        try {
+            localStorage.setItem(store.dismissKey, 'true');
+        } catch (e) { /* storage blocked: dismissal lasts this page only */ }
         banner.remove();
     });
     document.body.appendChild(banner);
