@@ -143,6 +143,16 @@ set, iPhone 6.9" + iPad 13", regenerated via
 cd mobile/ios/App && fastlane sync_store_listing
 ```
 
+Screenshots can only change on an *editable* version (Prepare for
+Submission / Rejected / Developer Rejected), never the live one. deliver
+targets the version named by `MARKETING_VERSION`, so bump it first and
+the lane creates that version in App Store Connect if it doesn't exist.
+
+After uploading, the lane deletes any duplicate screenshots and fails if
+any remain (`dedupe_store_screenshots`). It also holds a machine-wide lock,
+so a second concurrent run fails fast instead of racing. Version 1.0.6
+shipped with every screenshot twice, which is why both exist.
+
 The app icon needs no upload — App Store Connect takes it from the
 uploaded build.
 

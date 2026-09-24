@@ -42,6 +42,10 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="A Simple Way to Pray">
+    <!-- Safari's native Smart App Banner for the iOS app (ignored by other
+         browsers and inside the native shell's WKWebView). Non-Safari iOS
+         browsers get the custom banner in static/app.js instead. -->
+    <meta name="apple-itunes-app" content="app-id=6804485777">
     {% block head %}
     <link rel="preload" as="image" href="{{ url_for('static', filename='banner.jpg') }}">
     {% endblock %}
@@ -215,7 +219,7 @@
     </script>
     <!-- Shared page behavior lives in static/app.js (bump ?v= on change;
          keep in sync with the offline list in settings.html). -->
-    <script src="{{ url_for('static', filename='app.js') }}?v=8"></script>
+    <script src="{{ url_for('static', filename='app.js') }}?v=9"></script>
 
     {% block body_scripts %}{% endblock %}
     <script>

@@ -8,6 +8,7 @@
 # Fill unset vars from the machine-level env file; anything already in the
 # environment (e.g. injected by CI) wins over the file.
 require "dotenv"
+require "tmpdir"
 machine_env = File.expand_path("~/.ios-build.env")
 Dotenv.load(machine_env) if File.exist?(machine_env)
 
@@ -31,6 +32,20 @@ Dotenv.load(machine_env) if File.exist?(machine_env)
 # match_force checkbox and hit exactly this on its first run.
 def match_force?
   %w(1 true TRUE yes YES on ON).include?(ENV["MATCH_FORCE"].to_s.strip)
+end
+
+# Runs the block while holding an exclusive, machine-wide lock for this
+# app's store-listing upload, and fails fast if another run holds it. It
+# uses flock, so the OS releases the lock when a crashed or killed run's
+# process exits and there is no stale lockfile to clean up.
+def with_listing_lock
+  lock_path = File.join(Dir.tmpdir, "fastlane-sync-store-listing-#{APP_ID}.lock")
+  File.open(lock_path, File::RDWR | File::CREAT, 0o644) do |lock|
+    unless lock.flock(File::LOCK_EX | File::LOCK_NB)
+      UI.user_error!("Another sync_store_listing run for #{APP_ID} is in progress (lock: #{lock_path}). Wait for it to finish; two runs at once duplicate the screenshots.")
+    end
+    yield
+  end
 end
 
 default_platform(:ios)
@@ -161,16 +176,81 @@ platform :ios do
       "notifications (FCM/APNs), OS-level Google sign-in, and native " \
       "print. The demo account is pre-verified; sign in with the " \
       "email/password form."
-    deliver(
-      api_key: asc_api_key,
-      app_version: get_version_number(xcodeproj: XCODEPROJ, target: "App"),
-      app_review_information: review_information,
-      skip_binary_upload: true,
-      overwrite_screenshots: true,
-      force: true, # no interactive HTML-preview confirmation (headless)
-      run_precheck_before_submit: false,
-      submit_for_review: false
-    )
+    api_key = asc_api_key
+    # Two overlapping runs (say, one over SSH and one from another terminal)
+    # each clear the screenshot sets and then both upload into them. That is
+    # one way the 1.0.6 listing ended up with every screenshot twice. A
+    # machine-wide lock makes a second run fail fast instead of racing.
+    with_listing_lock do
+      deliver(
+        api_key: api_key,
+        app_version: get_version_number(xcodeproj: XCODEPROJ, target: "App"),
+        app_review_information: review_information,
+        skip_binary_upload: true,
+        overwrite_screenshots: true,
+        force: true, # no interactive HTML-preview confirmation (headless)
+        run_precheck_before_submit: false,
+        submit_for_review: false
+      )
+      dedupe_store_screenshots(api_key: api_key)
+    end
+  end
+
+  # Removes duplicate screenshots left behind by deliver, then fails the
+  # lane if any remain. overwrite_screenshots plus deliver's checksum skip
+  # should make duplicates impossible, but the 1.0.6 listing went live with
+  # each of the five screenshots twice in both the iPhone and iPad sets.
+  # Besides a concurrent run (see with_listing_lock), deliver's own
+  # timeout-retry path can do it: on a processing timeout it deletes the
+  # screenshots that are still processing and uploads them again, and a
+  # delete that races the processing leaves the old copy behind. Rather
+  # than trust any one fix, the result is checked after every upload.
+  #
+  # Copies are matched by fileName: the local files in
+  # fastlane/screenshots/<locale>/ have unique names, so two screenshots
+  # with the same name in one set are always duplicates. (Checksums don't
+  # work as the key: a copy that is still processing has none yet.) The
+  # kept copy is one that has finished processing (it has a checksum) when
+  # there is one, so a stuck upload never wins over a good one.
+  private_lane :dedupe_store_screenshots do |options|
+    Spaceship::ConnectAPI.token = Spaceship::ConnectAPI::Token.from(hash: options[:api_key])
+    app = Spaceship::ConnectAPI::App.find(APP_ID)
+    version = app.get_edit_app_store_version(platform: Spaceship::ConnectAPI::Platform::IOS)
+    UI.user_error!("No editable App Store version found for #{APP_ID}") unless version
+
+    # Yields [locale, display type, screenshots] for every screenshot set,
+    # re-fetched from App Store Connect on each call.
+    each_screenshot_set = lambda do |&block|
+      version.get_app_store_version_localizations.each do |localization|
+        localization.get_app_screenshot_sets.each do |set|
+          block.call(localization.locale, set.screenshot_display_type, set.app_screenshots || [])
+        end
+      end
+    end
+
+    removed = 0
+    each_screenshot_set.call do |locale, display_type, shots|
+      shots.group_by(&:file_name).each_value do |copies|
+        processed_first = copies.partition(&:source_file_checksum).flatten
+        processed_first.drop(1).each do |extra|
+          UI.important("Deleting duplicate #{extra.file_name} (#{locale} #{display_type})")
+          extra.delete!
+          removed += 1
+        end
+      end
+    end
+
+    still_duplicated = []
+    each_screenshot_set.call do |locale, display_type, shots|
+      UI.message("#{locale} #{display_type}: #{shots.map(&:file_name).join(', ')}")
+      if shots.map(&:file_name).uniq.length != shots.length
+        still_duplicated << "#{locale} #{display_type}"
+      end
+    end
+    unless still_duplicated.empty?
+      UI.user_error!("Duplicate screenshots remain in #{still_duplicated.join(', ')} after cleanup. Check App Store Connect, then re-run sync_store_listing.")
+    end
+    UI.success(removed.zero? ? "No duplicate screenshots found" : "Removed #{removed} duplicate screenshot(s)")
   end
 
   desc "Build a signed IPA and upload it to TestFlight"
