@@ -2390,6 +2390,37 @@ select:focus-visible,
     border-radius: 4px;
 }
 
+/* =========================================================================
+   iOS focus-zoom guard
+   -------------------------------------------------------------------------
+   iOS WebKit auto-zooms the page whenever a text field with a computed
+   font-size under 16px gains focus (form controls don't inherit font-size,
+   so an unstyled <input> is ~13px and always triggers it). In Safari the
+   user can pinch back out, but the Capacitor iOS shell disables pinch-zoom
+   by default (no `zoomEnabled` in capacitor.config.json), so the user gets
+   stranded zoomed in -- e.g. after tapping "Verse Reference" on the
+   Scripture Memorization page.
+
+   Flooring text-entry controls at 16px stops the zoom from happening at
+   all. `max()` keeps any control already styled larger than 16px as-is.
+   The @supports test matches iOS/iPadOS WebKit only, so desktop and
+   Android layouts are untouched.
+
+   Deliberately NOT !important: `1em` here resolves against the *parent*,
+   so forcing it would shrink controls that are styled larger via a more
+   specific rule (e.g. textarea.prayer-input at 1.1em). The :not() chain
+   gives the input selector enough specificity to beat `.form-input` /
+   `.memory-input`; any new rule that sizes a form control below 16px must
+   keep this floor in mind.
+   ========================================================================= */
+@supports (-webkit-touch-callout: none) {
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="button"]):not([type="submit"]):not([type="reset"]),
+    select,
+    textarea {
+        font-size: max(16px, 1em);
+    }
+}
+
 /* Skip link: off-screen until focused, then pinned top-left so keyboard users
    can jump past the navbar straight to the main content. */
 .skip-link {
