@@ -108,8 +108,8 @@ release pattern shared by every Hallowed Gains web app:
 
 | Step | Workflow | Lands on |
 |---|---|---|
-| Merge / push to `main` | [`deploy.yml`](.github/workflows/deploy.yml) ("Deploy staging") | staging.asimplewaytopray.com |
-| Actions → **Deploy production** → Branch `main` → type `DEPLOY` | [`deploy-prod.yml`](.github/workflows/deploy-prod.yml) | asimplewaytopray.com |
+| Merge / push to `main` | [`deploy-staging.yml`](.github/workflows/deploy-staging.yml) ("Deploy staging") | staging.asimplewaytopray.com |
+| Actions → **Deploy production** → Branch `main` → type `DEPLOY` | [`deploy-production.yml`](.github/workflows/deploy-production.yml) | asimplewaytopray.com |
 
 Flow: feature branch → PR (unit tests via [`ci.yml`](.github/workflows/ci.yml))
 → `main` → staging → manual production release. The `dev` branch is retired.

@@ -4,7 +4,7 @@ description: >
   and rolls the named Cloud Run service onto the new image. Only the image
   (and a commit-sha label) change: env vars, secrets, the runtime service
   account, scaling and domain mappings stay exactly as configured on the
-  service. Shared by deploy.yml (staging) and deploy-prod.yml (production).
+  service. Shared by deploy-staging.yml (staging) and deploy-production.yml (production).
 
 inputs:
   service:

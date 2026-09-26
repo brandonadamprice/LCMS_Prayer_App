@@ -2,7 +2,7 @@ name: Deploy staging
 
 # Every push to main deploys to the staging Cloud Run service
 # (staging.asimplewaytopray.com). Production is never automatic; it is the
-# manual deploy-prod.yml. This is the release pattern shared by every
+# manual deploy-production.yml. This is the release pattern shared by every
 # Hallowed Gains web app: merge to main → non-prod, manual workflow → prod.
 #
 # NOTE: staging runs against the PRODUCTION Firestore database — it is a
@@ -33,7 +33,7 @@ permissions:
 jobs:
   deploy:
     name: Deploy → staging
-    # Staging always shows the head of main (which is what deploy-prod.yml
+    # Staging always shows the head of main (which is what deploy-production.yml
     # ships), so a dispatch from another branch is skipped, not deployed.
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
