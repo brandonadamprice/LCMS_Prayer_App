@@ -34,6 +34,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
       smoke test without Secret Manager, set dummy env vars for the secrets
       (`secrets_fetcher` reads env first; `FERNET_KEY` must be a valid
       Fernet key) and `import main`.
+- **Deploying** (GitHub Actions → Cloud Run; details in README → Deployment):
+    - Push to `main` → `deploy.yml` → staging service
+      (staging.asimplewaytopray.com, shares the prod database).
+    - Production is manual only: Actions → "Deploy production" → Branch
+      `main` → type `DEPLOY` (`deploy-prod.yml`).
+    - Both run the unit tests, then `.github/actions/deploy-cloud-run`
+      (`gcloud run deploy --source .`). Only the image changes; service
+      config (env, secrets, scaling) lives on the Cloud Run services.
+    - The old GCP Cloud Build triggers are retired — don't re-add a
+      `cloudbuild.yaml`/trigger, it would bypass the manual prod gate.
 - **Environment Variables/Secrets**:
     - The app uses `devotions/python/secrets_fetcher.py` to fetch secrets from Google Cloud Secret Manager.
     - For local development, ensure necessary secrets are available or mocked.

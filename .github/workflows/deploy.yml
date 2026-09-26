@@ -1,0 +1,65 @@
+name: Deploy staging
+
+# Every push to main deploys to the staging Cloud Run service
+# (staging.asimplewaytopray.com). Production is never automatic; it is the
+# manual deploy-prod.yml. This is the release pattern shared by every
+# Hallowed Gains web app: merge to main → non-prod, manual workflow → prod.
+#
+# NOTE: staging runs against the PRODUCTION Firestore database — it is a
+# separate instance for verifying deploys, not a data sandbox.
+#
+# This replaced the Cloud Build triggers configured in the GCP console (dev →
+# staging, main → prod). Those triggers must stay disabled, or a merge to
+# main would release production behind this workflow's back.
+#
+# workflow_dispatch re-deploys main to staging on demand.
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-staging
+  # Queue, don't cancel: cancelling the job does not cancel the Cloud Build it
+  # started, so an older build could still finish and roll staging BACK after
+  # the newer run deployed.
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy → staging
+    # Staging always shows the head of main (which is what deploy-prod.yml
+    # ships), so a dispatch from another branch is skipped, not deployed.
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: ./.github/actions/unit-tests
+
+      - uses: ./.github/actions/deploy-cloud-run
+        id: deploy
+        with:
+          service: ${{ vars.CLOUD_RUN_SERVICE_STAGING }}
+          credentials_json: ${{ secrets.GCP_DEPLOY_SA_JSON }}
+          project_id: ${{ vars.GCP_PROJECT_ID }}
+          region: ${{ vars.CLOUD_RUN_REGION }}
+
+      - name: Summary
+        env:
+          URL: ${{ steps.deploy.outputs.url }}
+        run: |
+          {
+            echo "### Staging deploy complete"
+            echo ""
+            echo "- https://staging.asimplewaytopray.com (service URL: $URL)"
+            echo "- Commit: \`${GITHUB_SHA}\`"
+            echo ""
+            echo "Release to production: Actions → **Deploy production** → Run workflow."
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,20 @@
+# Upload context for `gcloud run deploy --source .` (see
+# .github/actions/deploy-cloud-run). The Dockerfile only COPYs devotions/, so
+# everything else is excluded to keep uploads small. The native shell (mobile/)
+# and marketing art alone are ~50 MB.
+.git/
+.gitignore
+.gcloudignore
+.github/
+mobile/
+marketing/
+docs/
+*.md
+
+# Local-only artifacts (mirrors .gitignore)
+**/.venv/
+**/venv/
+**/__pycache__/
+*.py[cod]
+.env
+*.env
