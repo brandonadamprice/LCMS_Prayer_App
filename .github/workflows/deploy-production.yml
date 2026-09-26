@@ -1,7 +1,7 @@
 name: Deploy production
 
 # Manual only — production is never released by a push. Merges to main land
-# on staging (deploy.yml); once staging looks right, release it here:
+# on staging (deploy-staging.yml); once staging looks right, release it here:
 #
 #   Actions → "Deploy production" → Run workflow → Branch: main → confirm: DEPLOY
 #

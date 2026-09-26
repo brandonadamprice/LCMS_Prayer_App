@@ -35,10 +35,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
       (`secrets_fetcher` reads env first; `FERNET_KEY` must be a valid
       Fernet key) and `import main`.
 - **Deploying** (GitHub Actions → Cloud Run; details in README → Deployment):
-    - Push to `main` → `deploy.yml` → staging service
+    - Push to `main` → `deploy-staging.yml` → staging service
       (staging.asimplewaytopray.com, shares the prod database).
     - Production is manual only: Actions → "Deploy production" → Branch
-      `main` → type `DEPLOY` (`deploy-prod.yml`).
+      `main` → type `DEPLOY` (`deploy-production.yml`).
     - Both run the unit tests, then `.github/actions/deploy-cloud-run`
       (`gcloud run deploy --source .`). Only the image changes; service
       config (env, secrets, scaling) lives on the Cloud Run services.
