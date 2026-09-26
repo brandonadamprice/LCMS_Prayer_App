@@ -1,0 +1,21 @@
+name: CI
+
+# Unit tests on every PR. The deploy workflows re-run the same suite before
+# they ship, so a red main can't reach staging or production either.
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/unit-tests

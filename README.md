@@ -103,10 +103,56 @@ pinning notes in `requirements.txt`), and the tests must run without it.
 ## Deployment
 
 The app ships as a container (see `Dockerfile`: `python:3.11-slim`, gunicorn
-on `:8080`). Flow: feature branches → `dev` → staging instance → `main`/prod.
+on `:8080`) on two Cloud Run services, deployed by GitHub Actions. This is the
+release pattern shared by every Hallowed Gains web app:
+
+| Step | Workflow | Lands on |
+|---|---|---|
+| Merge / push to `main` | [`deploy.yml`](.github/workflows/deploy.yml) ("Deploy staging") | staging.asimplewaytopray.com |
+| Actions → **Deploy production** → Branch `main` → type `DEPLOY` | [`deploy-prod.yml`](.github/workflows/deploy-prod.yml) | asimplewaytopray.com |
+
+Flow: feature branch → PR (unit tests via [`ci.yml`](.github/workflows/ci.yml))
+→ `main` → staging → manual production release. The `dev` branch is retired.
 
 > **Note:** staging runs against the **production** environment and database —
 > it is a separate instance for verifying deploys, not a data sandbox.
+
+Both deploy workflows re-run the unit tests, then call
+[`.github/actions/deploy-cloud-run`](.github/actions/deploy-cloud-run/action.yml):
+`gcloud run deploy <service> --source .`, which builds the `Dockerfile` in
+Cloud Build (upload context trimmed by `.gcloudignore`) and rolls the service
+onto the new image. **Only the image changes** — env vars, secrets, the runtime
+service account, scaling and domain mappings stay as configured on each
+service, so manage those in the Cloud Run console (or `gcloud run services
+update`), not in the workflows. Each deploy labels the service
+`commit-sha=<sha>`.
+
+Production guards: `workflow_dispatch` only, refuses any ref but `main`, typed
+`DEPLOY` confirmation (read via `env:`), never cancelled mid-flight. Staging
+deploys queue rather than cancel, because cancelling a job does not cancel the
+Cloud Build it started.
+
+### One-time setup
+
+1. **Disable the old Cloud Build triggers** (GCP console → Cloud Build →
+   Triggers: the `dev` → staging and `main` → prod ones). Until they are off,
+   every merge to `main` still releases production automatically.
+2. **Deployer service account** in the app's project with:
+   `roles/run.developer`, `roles/iam.serviceAccountUser` (on the services'
+   runtime service account), `roles/cloudbuild.builds.editor`,
+   `roles/artifactregistry.writer` (the first source deploy creates the
+   `cloud-run-source-deploy` repository — grant `artifactregistry.admin`
+   instead if it doesn't exist yet), `roles/storage.admin` (source upload
+   bucket) and `roles/serviceusage.serviceUsageConsumer`. Create a JSON key.
+3. **Repo settings → Secrets and variables → Actions:**
+   - Secret `GCP_DEPLOY_SA_JSON` — the key JSON.
+   - Variables `GCP_PROJECT_ID`, `CLOUD_RUN_REGION`,
+     `CLOUD_RUN_SERVICE_STAGING`, `CLOUD_RUN_SERVICE_PROD` — as shown on the
+     Cloud Run services page.
+
+   A deploy with any of these missing fails immediately and names what is
+   missing.
+4. Delete the `dev` branch once nothing depends on it.
 
 ## Documentation
 

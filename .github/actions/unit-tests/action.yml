@@ -1,0 +1,26 @@
+name: Unit tests
+description: >
+  Runs the stdlib unittest suite under devotions/python/tests on the same
+  Python as the production image (Dockerfile: python:3.11). Shared by ci.yml
+  and both deploy workflows so nothing ships that the suite rejects.
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        # Keep in step with the Dockerfile's base image.
+        python-version: "3.11"
+        cache: pip
+        cache-dependency-path: devotions/requirements.txt
+
+    # The full runtime requirements, not a test subset: the suite needs a few
+    # of them (pytz), and installing exactly what the image installs also
+    # catches a broken pin before Cloud Build does.
+    - name: Install dependencies
+      shell: bash
+      run: pip install -r devotions/requirements.txt
+
+    - name: Run unit tests
+      shell: bash
+      run: python -m unittest discover -s devotions/python/tests -t devotions/python

@@ -1,0 +1,76 @@
+name: Deploy to Cloud Run
+description: >
+  Builds the repo's Dockerfile with Cloud Build (`gcloud run deploy --source`)
+  and rolls the named Cloud Run service onto the new image. Only the image
+  (and a commit-sha label) change: env vars, secrets, the runtime service
+  account, scaling and domain mappings stay exactly as configured on the
+  service. Shared by deploy.yml (staging) and deploy-prod.yml (production).
+
+inputs:
+  service:
+    description: Cloud Run service name to deploy.
+    required: true
+  credentials_json:
+    description: Deployer service-account key JSON.
+    required: true
+  project_id:
+    description: GCP project id.
+    required: true
+  region:
+    description: Cloud Run region of the service.
+    required: true
+
+outputs:
+  url:
+    description: The service's run.app URL after the deploy.
+    value: ${{ steps.deploy.outputs.url }}
+
+runs:
+  using: composite
+  steps:
+    # Fail with a setup hint instead of a cryptic gcloud error when the repo
+    # variables or secret have not been configured yet.
+    - name: Check deploy configuration
+      shell: bash
+      env:
+        SERVICE: ${{ inputs.service }}
+        PROJECT_ID: ${{ inputs.project_id }}
+        REGION: ${{ inputs.region }}
+        HAS_CREDENTIALS: ${{ inputs.credentials_json != '' }}
+      run: |
+        missing=()
+        [ -n "$SERVICE" ]    || missing+=("service name (CLOUD_RUN_SERVICE_STAGING / CLOUD_RUN_SERVICE_PROD variable)")
+        [ -n "$PROJECT_ID" ] || missing+=("GCP_PROJECT_ID variable")
+        [ -n "$REGION" ]     || missing+=("CLOUD_RUN_REGION variable")
+        [ "$HAS_CREDENTIALS" = "true" ] || missing+=("GCP_DEPLOY_SA_JSON secret")
+        if [ ${#missing[@]} -gt 0 ]; then
+          for m in "${missing[@]}"; do echo "::error::Missing $m"; done
+          echo "::error::See README.md → Deployment for the one-time setup."
+          exit 1
+        fi
+
+    # Writes the key to a temp file that the action deletes at job end.
+    - uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ inputs.credentials_json }}
+
+    - uses: google-github-actions/setup-gcloud@v2
+
+    - name: Build and deploy
+      id: deploy
+      shell: bash
+      env:
+        SERVICE: ${{ inputs.service }}
+        PROJECT_ID: ${{ inputs.project_id }}
+        REGION: ${{ inputs.region }}
+      run: |
+        gcloud run deploy "$SERVICE" \
+          --source . \
+          --project "$PROJECT_ID" \
+          --region "$REGION" \
+          --update-labels "commit-sha=${GITHUB_SHA}" \
+          --quiet
+        url="$(gcloud run services describe "$SERVICE" \
+          --project "$PROJECT_ID" --region "$REGION" \
+          --format 'value(status.url)')"
+        echo "url=$url" >> "$GITHUB_OUTPUT"
